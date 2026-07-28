@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex's Astrophotography Rig</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #070b12;
+    --bg2: #0d1420;
+    --bg3: #111b2e;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --gray: #64748b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 8%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 67% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 12%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 65%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 31% 52%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 78%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 93% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 22% 88%, rgba(255,255,255,0.5) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  header {
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .site-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 span { color: var(--accent2); }
+
+  .header-meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  .header-meta strong {
+    color: var(--text2);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    margin-top: 40px;
+  }
+
+  .section-header h2 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  .add-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.4);
+    color: var(--accent2);
+    border-radius: 5px;
+    padding: 4px 12px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .add-btn:hover { background: rgba(59,130,246,0.25); }
+
+  /* Delivery board */
+  .delivery-board { display: flex; flex-direction: column; gap: 8px; }
+
+  .delivery-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto 28px;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .delivery-item:hover { border-color: var(--accent); }
+
+  .status-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    justify-self: center;
+    cursor: pointer;
+  }
+
+  .dot-delivered { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-transit { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 2s infinite; }
+  .dot-ordered { background: var(--yellow); }
+  .dot-issue { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .delivery-name { font-weight: 500; color: var(--text); font-size: 13px; }
+  .delivery-sub { font-size: 11px; color: var(--text2); margin-top: 2px; font-family: var(--mono); }
+  .delivery-tracking { font-family: var(--mono); font-size: 10px; color: var(--gray); text-align: right; max-width: 180px; overflow-wrap: break-word; }
+  .delivery-eta {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    text-align: right; white-space: nowrap; min-width: 76px;
+  }
+
+  .eta-delivered { color: var(--green); }
+  .eta-soon { color: var(--accent2); }
+  .eta-pending { color: var(--yellow); }
+  .eta-issue { color: var(--red); }
+
+  .remove-btn {
+    background: none; border: none; color: var(--gray);
+    font-size: 14px; cursor: pointer; padding: 4px;
+    border-radius: 4px; transition: all 0.15s;
+    justify-self: center;
+  }
+  .remove-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  .status-hint {
+    font-size: 10px;
+    color: var(--gray);
+    font-family: var(--mono);
+    margin-top: 8px;
+    text-align: right;
+  }
+
+  .editable { cursor: pointer; border-radius: 4px; transition: background 0.15s; }
+  .editable:hover { background: rgba(59,130,246,0.08); outline: 1px dashed rgba(59,130,246,0.3); outline-offset: 2px; }
+
+  /* Price hiding */
+  body.hide-prices .price-el { filter: blur(6px); opacity: 0.35; pointer-events: none; user-select: none; }
+  .price-toggle {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+  .price-toggle:hover { border-color: var(--accent); color: var(--accent2); }
+  body.hide-prices .price-toggle { background: rgba(234,179,8,0.12); border-color: rgba(234,179,8,0.4); color: var(--yellow); }
+
+  /* Deep dive accordions */
+  .dive-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .dive-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .dive-header:hover { background: var(--bg3); }
+
+  .dive-cat {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .dive-name { font-weight: 600; font-size: 13px; flex: 1; }
+
+  .dive-chevron {
+    color: var(--gray);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .dive-card.open .dive-chevron { transform: rotate(90deg); }
+
+  .dive-body {
+    display: none;
+    padding: 4px 16px 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .dive-card.open .dive-body { display: block; }
+
+  .dive-section {
+    margin-top: 14px;
+  }
+
+  .dive-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .dive-section-title.quirks { color: var(--yellow); }
+  .dive-section-title.setup { color: var(--accent2); }
+  .dive-section-title.tips { color: var(--green); }
+
+  .dive-list { list-style: none; }
+
+  .dive-list li {
+    font-size: 12px;
+    color: var(--text2);
+    padding: 5px 0 5px 16px;
+    position: relative;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+    line-height: 1.6;
+  }
+
+  .dive-list li:last-child { border-bottom: none; }
+
+  .dive-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--gray);
+    font-size: 10px;
+    top: 8px;
+  }
+
+  .dive-list li strong { color: var(--text); }
+  .dive-list li .crit { color: var(--red); font-weight: 600; }
+
+  /* First light checklist */
+  .fl-phase {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .fl-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fl-phase-num {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.35);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .fl-phase-title { font-weight: 600; font-size: 13px; }
+  .fl-phase-sub { font-size: 11px; color: var(--gray); font-family: var(--mono); }
+  .fl-progress {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+  }
+
+  .fl-steps { padding: 8px 16px 14px; }
+
+  .fl-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+    cursor: pointer;
+  }
+
+  .fl-step:last-child { border-bottom: none; }
+
+  .fl-check {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: transparent;
+    transition: all 0.15s;
+  }
+
+  .fl-step.done .fl-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: #04140a;
+  }
+
+  .fl-step-text { font-size: 12px; color: var(--text2); line-height: 1.6; flex: 1; }
+  .fl-step.done .fl-step-text { opacity: 0.45; text-decoration: line-through; }
+  .fl-step-text strong { color: var(--text); }
+  .fl-step.done .fl-step-text strong { color: var(--text2); }
+
+  /* Gear */
+  .gear-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  .gear-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .gear-remove {
+    position: absolute; top: 10px; right: 10px;
+    background: none; border: none; color: var(--gray);
+    font-size: 13px; cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; transition: all 0.15s;
+    opacity: 0;
+  }
+  .gear-card:hover .gear-remove { opacity: 1; }
+  .gear-remove:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  .gear-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding-right: 24px;
+  }
+
+  .gear-category {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .gear-name { font-weight: 600; font-size: 13px; color: var(--text); margin-top: 2px; }
+  .gear-price { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent2); white-space: nowrap; }
+  .gear-specs { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+  .spec-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px; border-top: 1px solid var(--border); padding-top: 4px;
+  }
+  .spec-key { color: var(--gray); }
+  .spec-val { color: var(--text2); font-family: var(--mono); text-align: right; }
+
+  /* Filters */
+  .filter-slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .filter-slot {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .slot-number { font-family: var(--mono); font-size: 10px; color: var(--gray); margin-bottom: 6px; }
+  .slot-name { font-family: var(--mono); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .slot-brand { font-size: 10px; color: var(--gray); }
+  .slot-bw { font-family: var(--mono); font-size: 10px; color: var(--text2); margin-top: 4px; }
+
+  .filter-ha { color: #f87171; border-color: #7f1d1d; }
+  .filter-oiii { color: #67e8f9; border-color: #164e63; }
+  .filter-sii { color: #fde68a; border-color: #78350f; }
+  .filter-hb { color: #818cf8; border-color: #312e81; }
+  .filter-l { color: #f8fafc; border-color: #475569; }
+  .filter-r { color: #fca5a5; border-color: #7f1d1d; }
+  .filter-g { color: #86efac; border-color: #14532d; }
+  .filter-b { color: #93c5fd; border-color: #1e3a5f; }
+
+  /* Config table */
+  .config-table { width: 100%; border-collapse: collapse; }
+  .config-table th {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gray); text-align: left;
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+  }
+  .config-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+  .config-table tr:last-child td { border-bottom: none; }
+  .config-table td:first-child { font-weight: 600; color: var(--text); }
+  .config-table td .mono { font-family: var(--mono); color: var(--accent2); }
+  .config-table tr:hover td { background: var(--bg3); }
+  .config-table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; }
+
+  /* ============ OPTICAL TRAIN DIAGRAM ============ */
+  .train-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 16px;
+    overflow-x: auto;
+  }
+
+  .train-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .train-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 700px;
+    padding: 10px 0;
+  }
+
+  .train-component {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 90px;
+  }
+
+  .train-box {
+    border: 2px solid var(--accent);
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    width: 100%;
+  }
+
+  .train-box.scope { border-color: var(--accent2); background: rgba(59,130,246,0.08); }
+  .train-box.sensor { border-color: var(--green); background: rgba(34,197,94,0.08); }
+  .train-box.spacer { border-color: var(--yellow); border-style: dashed; }
+
+  .train-label { font-size: 10px; color: var(--gray); margin-top: 6px; font-family: var(--mono); line-height: 1.4; }
+
+  .train-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 2px;
+    min-width: 52px;
+  }
+
+  .train-thread {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent2);
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 3px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    margin-bottom: 4px;
+  }
+
+  .train-arrow { color: var(--gray); font-size: 14px; }
+
+  /* Back focus ruler */
+  .bf-ruler {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .bf-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .bf-bar {
+    display: flex;
+    height: 44px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    min-width: 500px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .bf-seg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    border-right: 1px solid var(--bg);
+  }
+
+  .bf-seg span { font-size: 9px; opacity: 0.8; }
+
+  .bf-spacer { background: rgba(234,179,8,0.2); color: var(--yellow); flex: 18; }
+  .bf-efw { background: rgba(59,130,246,0.2); color: var(--accent2); flex: 20; }
+  .bf-cam { background: rgba(34,197,94,0.2); color: var(--green); flex: 17.5; }
+
+  .bf-total {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 10px;
+  }
+
+  .bf-total strong { color: var(--yellow); }
+
+  /* Cable diagram */
+  .cable-diagram {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--text2);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .cable-diagram .c-power { color: var(--yellow); }
+  .cable-diagram .c-usb { color: var(--accent2); }
+  .cable-diagram .c-dew { color: #f87171; }
+  .cable-diagram .c-dev { color: var(--text); font-weight: 700; }
+  .cable-diagram .c-note { color: var(--gray); font-size: 10px; }
+
+  /* Budget */
+  .budget-bar-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .budget-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    gap: 10px;
+  }
+
+  .budget-row:last-of-type { border-bottom: none; }
+  .budget-row.total { font-weight: 700; font-size: 15px; padding-top: 14px; margin-top: 6px; border-top: 2px solid var(--border); border-bottom: none; }
+  .budget-label { color: var(--text2); flex: 1; }
+  .budget-amount { font-family: var(--mono); color: var(--accent2); white-space: nowrap; }
+  .budget-amount.saved { color: var(--green); }
+  .budget-amount.total-val { color: #fff; font-size: 18px; }
+
+  .budget-remove {
+    background: none; border: none; color: var(--gray);
+    font-size: 12px; cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; opacity: 0.4; transition: all 0.15s;
+  }
+  .budget-remove:hover { color: var(--red); opacity: 1; }
+
+  /* Notes */
+  .notes-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  .note-item {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .note-item:last-child { border-bottom: none; }
+  .note-icon { font-size: 14px; flex-shrink: 0; }
+  .note-text { flex: 1; }
+
+  .note-remove {
+    background: none; border: none; color: var(--gray);
+    font-size: 12px; cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; transition: all 0.15s;
+  }
+  .note-remove:hover { color: var(--red); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .modal h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .modal label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+
+  .modal input, .modal select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+
+  .modal input:focus, .modal select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+
+  .modal-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  @media (max-width: 640px) {
+    .filter-slots { grid-template-columns: repeat(4, 1fr); }
+    .delivery-item { grid-template-columns: 20px 1fr auto 24px; }
+    .delivery-tracking { display: none; }
+    h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="site-title">Astrophotography Rig</div>
+        <h1>Alex's <span>Imaging Setup</span></h1>
+      </div>
+      <div class="header-meta">
+        <strong>Tenafly, NJ → NYC</strong>
+        Bortle 5–6 → Bortle 8–9<br>
+        First Light Window: Jul 10–17, 2026<br>
+        <button class="price-toggle" id="price-toggle" onclick="togglePrices()" style="margin-top:8px;">👁 Hide Prices</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card price-el">
+      <div class="stat-label">Total Spent</div>
+      <div class="stat-value" id="stat-total">$6,159</div>
+      <div class="stat-sub">incl. software + ASIAIR</div>
+    </div>
+    <div class="stat-card price-el">
+      <div class="stat-label">New Retail Value</div>
+      <div class="stat-value">$8,346</div>
+      <div class="stat-sub">equivalent new</div>
+    </div>
+    <div class="stat-card price-el">
+      <div class="stat-label">Saved vs New</div>
+      <div class="stat-value" style="color: var(--green)">$2,187</div>
+      <div class="stat-sub">27% below new</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Items Delivered</div>
+      <div class="stat-value" id="stat-delivered">2/10</div>
+      <div class="stat-sub" id="stat-remaining">8 in transit</div>
+    </div>
+  </div>
+
+  <!-- Delivery Board -->
+  <div class="section-header">
+    <h2>Delivery Status</h2>
+    <div class="section-line"></div>
+    <button class="add-btn" onclick="openModal('delivery')">+ Add Item</button>
+  </div>
+
+  <div class="delivery-board" id="delivery-board"></div>
+  <div class="status-hint">💡 click a status dot to cycle status · click any item text to edit its values</div>
+
+  <!-- Action Items -->
+  <div class="section-header">
+    <h2>Action Items</h2>
+    <div class="section-line"></div>
+    <button class="add-btn" onclick="openModal('note')">+ Add Note</button>
+  </div>
+
+  <div class="notes-box" id="notes-box"></div>
+
+  <!-- OPTICAL TRAIN -->
+  <div class="section-header">
+    <h2>Optical Train — Reducer Mode (280mm f/3.9)</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="train-wrap">
+    <div class="train-title">Light Path — Front to Sensor</div>
+    <div class="train-flow">
+      <div class="train-component">
+        <div class="train-box scope">FRA400<br>OTA</div>
+        <div class="train-label">72mm quintuplet<br>Petzval</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M68×1</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box">FRA72RD<br>0.7× Reducer</div>
+        <div class="train-label">sits inside<br>drawtube</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M48×0.75</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box spacer">M48 Spacers<br>15mm + 3mm</div>
+        <div class="train-label">18mm total<br>(±2mm tol.)</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box">EFW<br>8×31mm</div>
+        <div class="train-label">20mm thick<br>8 filters</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box sensor">ASI294MM<br>Pro</div>
+        <div class="train-label">17.5mm flange<br>to sensor</div>
+      </div>
+    </div>
+
+    <div class="bf-ruler">
+      <div class="bf-title">Back Focus Budget — 55mm required from reducer M48 thread to sensor</div>
+      <div class="bf-bar">
+        <div class="bf-seg bf-spacer">SPACERS<span>18mm</span></div>
+        <div class="bf-seg bf-efw">EFW 8×31<span>20mm</span></div>
+        <div class="bf-seg bf-cam">CAMERA<span>17.5mm</span></div>
+      </div>
+      <div class="bf-total">Total: <strong>55.5mm</strong> — within ±2mm tolerance of 55mm target ✓</div>
+    </div>
+  </div>
+
+  <div class="train-wrap" style="margin-top: 12px;">
+    <div class="train-title">Native Mode (400mm f/5.6) — No Reducer</div>
+    <div class="train-flow">
+      <div class="train-component">
+        <div class="train-box scope">FRA400<br>OTA</div>
+        <div class="train-label">Petzval —<br>self-flattening</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M68→M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box spacer">M48 Spacers<br>(as needed)</div>
+        <div class="train-label">50–60mm range OK<br>just reach focus</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box">EFW<br>8×31mm</div>
+        <div class="train-label">20mm</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box sensor">ASI294MM<br>Pro</div>
+        <div class="train-label">17.5mm</div>
+      </div>
+    </div>
+    <div class="bf-total" style="margin-top: 12px;">No strict back focus calc needed at native FL — Petzval design is forgiving between 50–60mm. Focus and shoot.</div>
+  </div>
+
+  <!-- CABLE / POWER DIAGRAM -->
+  <div class="section-header">
+    <h2>Power &amp; Data Connections</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="cable-diagram"><span class="c-note">━━ POWER (12V) ━━  ┅┅ USB DATA ┅┅  ~~ DEW (RCA) ~~  ≈≈ WIFI ≈≈</span>
+
+<span class="c-power">Wall outlet</span>
+    │
+<span class="c-power">BTF-LIGHTING 12V 10A supply</span> (5.5×2.1mm barrel)
+    │
+<span class="c-dev">PEGASUS POWERBOX MICRO</span> <span class="c-note">(power distribution only)</span>
+    ├──━━ 12V ━━→ <span class="c-dev">AM3N mount body</span> <span class="c-note">(main mount power)</span>
+    ├──━━ 12V ━━→ <span class="c-dev">AM3N SADDLE 12V passthrough</span> <span class="c-note">━━→ ASI294MM Pro</span>
+    ├──━━ 12V ━━→ <span class="c-dev">ASIAIR Plus</span>
+    ├──━━ 12V ━━→ <span class="c-note">(spare — EAF if not USB-powered)</span>
+    ├──~~ RCA ch1 ~~→ <span class="c-dev">Dew strap — FRA400</span> <span class="c-note">(auto-dew)</span>
+    └──~~ RCA ch2 ~~→ <span class="c-dev">Dew strap — SV106 guide</span>
+
+<span class="c-dev">ASIAIR PLUS</span> <span class="c-note">(data + control — mounts on scope/rail)</span>
+    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N mount body</span> <span class="c-note">(mount control)</span>
+    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N SADDLE USB-C passthrough</span> <span class="c-note">┅┅→ ASI294MM Pro</span>
+    │                                                    ├─┅┅ cam hub port 1 ┅┅→ <span class="c-dev">EFW 8×31</span>
+    │                                                    └─┅┅ cam hub port 2 ┅┅→ <span class="c-dev">ZWO EAF</span>
+    ├──┅┅ USB ┅┅→ <span class="c-dev">ASI120MM Mini</span> <span class="c-note">(guide cam)</span>
+    └──≈≈ WiFi ≈≈→ <span class="c-dev">YOUR PHONE / TABLET</span> <span class="c-note">(ASIAIR app — up to 20m range)</span>
+
+<span class="c-note">WHY ROUTE THROUGH THE SADDLE: the AM3N's saddle has a built-in 12V + USB-C
+passthrough exactly where the scope clamps on. Feeding the camera's power AND
+data through this single passthrough (instead of running 2 separate cables up
+the tube) means only ONE cable crosses from mount body to telescope — everything
+rotates together cleanly through a full meridian flip with zero snag risk.
+
+NO laptop at the scope. NO computer cables leaving the rig.
+One power cable in — everything else wireless to your phone.
+
+AFTER SESSION: plug ASIAIR into Windows PC via USB-C →
+appears as external drive → drag FITS files → process in Siril + RC-Astro</span></div>
+
+  <div class="notes-box" style="margin-top:12px;">
+    <div class="note-item">
+      <span class="note-icon">🔌</span>
+      <span class="note-text"><strong>AM3N saddle passthrough cable:</strong> need a short 12V pigtail + USB-C cable that plugs into the saddle's ports on the mount side, then a matching pair running up to the camera/hub on the scope side. Check if these came in the AM3N box — ZWO typically includes a saddle breakout cable. If not, search "ZWO AM3N saddle power cable."</span>
+    </div>
+  </div>
+
+  <!-- Gear -->
+  <div class="section-header">
+    <h2>Core Gear</h2>
+    <div class="section-line"></div>
+    <button class="add-btn" onclick="openModal('gear')">+ Add Gear</button>
+  </div>
+
+  <div class="gear-grid" id="gear-grid"></div>
+
+  <!-- Filter Wheel -->
+  <div class="section-header">
+    <h2>Filter Wheel — EFW 8×31mm</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="filter-slots">
+    <div class="filter-slot filter-l"><div class="slot-number">01</div><div class="slot-name">L</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Luminance</div></div>
+    <div class="filter-slot filter-r"><div class="slot-number">02</div><div class="slot-name">R</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Red</div></div>
+    <div class="filter-slot filter-g"><div class="slot-number">03</div><div class="slot-name">G</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Green</div></div>
+    <div class="filter-slot filter-b"><div class="slot-number">04</div><div class="slot-name">B</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Blue</div></div>
+    <div class="filter-slot filter-sii"><div class="slot-number">05</div><div class="slot-name">SII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-ha"><div class="slot-number">06</div><div class="slot-name">Hα</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-oiii"><div class="slot-number">07</div><div class="slot-name">OIII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-hb"><div class="slot-number">08</div><div class="slot-name">Hβ</div><div class="slot-brand">Baader</div><div class="slot-bw">5nm</div></div>
+  </div>
+
+  <!-- Imaging Configs -->
+  <div class="section-header">
+    <h2>Imaging Configurations — ASI294MM Pro</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="config-table-wrap">
+    <table class="config-table">
+      <thead>
+        <tr><th>Mode</th><th>True FL</th><th>35mm Equiv</th><th>FOV</th><th>Image Scale</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NYC — Reducer + Bin2</td>
+          <td><span class="mono">280mm f/3.9</span></td>
+          <td><span class="mono">~522mm</span></td>
+          <td><span class="mono">217'×165'</span></td>
+          <td><span class="mono">3.41"/px</span></td>
+          <td>Large nebulae, LP rejection, 2× faster subs</td>
+        </tr>
+        <tr>
+          <td>Dark Site — Native + Bin2</td>
+          <td><span class="mono">400mm f/5.6</span></td>
+          <td><span class="mono">~746mm</span></td>
+          <td><span class="mono">152'×115'</span></td>
+          <td><span class="mono">2.39"/px</span></td>
+          <td>Standard narrowband — ideal seeing match</td>
+        </tr>
+        <tr>
+          <td>Dark Site — Native + Bin1</td>
+          <td><span class="mono">400mm f/5.6</span></td>
+          <td><span class="mono">~746mm</span></td>
+          <td><span class="mono">152'×115'</span></td>
+          <td><span class="mono">1.19"/px</span></td>
+          <td>Galaxy detail — best seeing nights only</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ COMPONENT DEEP DIVE ============ -->
+  <div class="section-header">
+    <h2>Component Deep Dive — Quirks &amp; First-Time Setup</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div id="dive-container">
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Camera</span>
+        <span class="dive-name">ZWO ASI294MM Pro</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><span class="crit">CALIBRATION IS NOTORIOUS.</span> The IMX492 demands darks that match gain, offset, temperature, AND exposure length <strong>exactly</strong>. Mismatched darks leave residual amp glow. Build a dark library and never deviate from standard settings.</li>
+            <li><strong>Flat non-linearity:</strong> the 294 misbehaves at very short flat exposures. Keep flats <strong>above 2–3 seconds</strong> — dim your flat source rather than shortening exposure.</li>
+            <li><strong>No bias frames.</strong> Use dark flats instead — the 294's bias behavior is unstable.</li>
+            <li><strong>Micro-lensing artifacts</strong> possible around very bright stars (e.g. Alnitak) — sensor trait, minimized by framing bright stars out when possible.</li>
+            <li><strong>This unit:</strong> one USB port is dead (disclosed, not needed) and it has a new daughter board. Test the working port day one.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>Standard settings: <strong>gain 120</strong> (HCG mode — read noise ~1.2e), <strong>offset 30</strong>. Never change without rebuilding darks.</li>
+            <li>Default <strong>Bin2</strong> (11.7MP). Bin1 (47MP) only at dark sites with excellent seeing — files are enormous.</li>
+            <li>Cooling: <strong>−10°C summer</strong>, −15/−20°C in cooler months. <span class="crit">Always warm up gradually before power-off</span> — thermal shock risks the sensor window.</li>
+            <li>Plug EFW + EAF into the <strong>camera's built-in USB hub</strong> — one cable to ASIAIR carries all three devices.</li>
+            <li>The included <strong>ZWO anti-dew strip</strong> (USB powered) wraps the camera nose — prevents sensor-window fogging.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title tips">✓ Day-One Checks</div>
+          <ul class="dive-list">
+            <li>Flat frame against a bright wall — inspect for dust motes, scratches, dead pixel clusters.</li>
+            <li>Cool to −10°C, confirm stable hold for 15+ min (~2–3A during cooldown, less at hold).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Filters</span>
+        <span class="dive-name">EFW 8×31 + Astrodon / Baader Filters</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets (below).</li>
+            <li><strong>31mm on the 294MM is tight</strong> (4.45mm margin/side). Fine at f/5.6; <span class="crit">verify corner vignetting with flats at f/3.9 reducer mode</span>. Mild vignetting calibrates out.</li>
+            <li><strong>Seller's filter order: L, R, G, B, S, H, O, Hβ</strong> — verify on arrival, label in app to match.</li>
+            <li>Cosmetic scratch on EFW camera side (disclosed) — zero optical impact.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>First connect: run <strong>EFW calibration</strong> in ASIAIR (Settings → EFW → Calibrate).</li>
+            <li>Name slots: 1=L, 2=R, 3=G, 4=B, 5=SII, 6=Ha, 7=OIII, 8=Hβ.</li>
+            <li><strong>Filter offsets (night 2–3):</strong> autofocus per filter, record EAF positions, enter differences as offsets → app auto-adjusts focus on every filter change.</li>
+            <li>Astrodon glass: handle by edges, blower before contact cleaning, no liquids unless truly needed.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title tips">✓ Exposure Starting Points (5nm)</div>
+          <ul class="dive-list">
+            <li>Native f/5.6: <strong>Ha/OIII/SII 300s</strong> subs at gain 120.</li>
+            <li>Reducer f/3.9: <strong>Ha/OIII/SII 180s</strong> — 2× faster optics.</li>
+            <li>LRGB (dark site): L 120s, RGB 120–180s.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Telescope</span>
+        <span class="dive-name">Askar FRA400 + 0.7× Reducer + EAF</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><strong>Missing coarse focus knob</strong> (lost during EAF install). EAF replaces it functionally — order Askar replacement (~$15) as backup, not urgent.</li>
+            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate.</li>
+            <li>Reducer sits <strong>inside</strong> the drawtube via M68 thread; camera side is M48.</li>
+            <li><span class="crit">Ask the seller what spacer stack they used</span> — they had it dialed in.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>Reducer train: reducer → <strong>15mm + 3mm spacers</strong> → EFW (20mm) → camera (17.5mm) = 55.5mm ✓</li>
+            <li><strong>360° rotator</strong> for framing: loosen ring, rotate camera, retighten. Re-shoot flats if you rotate mid-project.</li>
+            <li>EAF: run travel calibration in-app. Autofocus on a mag 3–5 star, note step position.</li>
+            <li>Extend the retractable dew shield every session — delays dew, blocks stray light.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title tips">✓ Day-One Checks</div>
+          <ul class="dive-list">
+            <li>Inspect objective with angled flashlight — scratches, fungus, coating damage.</li>
+            <li>Rotator turns smoothly and locks solidly.</li>
+            <li>EAF motor engages — run partial travel via app before mounting the camera train.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Mount</span>
+        <span class="dive-name">ZWO AM3N Harmonic Drive</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><span class="crit">NO CLUTCHES.</span> Harmonic mounts move electronically only — <strong>never force the axes by hand</strong>. Manual pushing can damage strain wave gears.</li>
+            <li><strong>No polar scope</strong> — polar alignment happens via ASIAIR's plate-solving PA routine (works without seeing Polaris).</li>
+            <li>±15" periodic error → <strong>guiding mandatory</strong> above ~30s subs. Expect 0.5–1.0" RMS guided.</li>
+            <li>Harmonic drives track best <strong>slightly east-heavy</strong> — perfect balance can oscillate. No counterweight needed for your ~4kg rig.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>First connect: ASIAIR prompts <strong>mount firmware update</strong> — do it indoors, days before first light.</li>
+            <li>Set <strong>latitude on the altitude scale</strong> (~40.9° Tenafly / 40.7° NYC) before PA.</li>
+            <li>Use the <strong>saddle 12V + USB-C ports</strong> to feed the camera — cables route through the mount body, no snags during slews.</li>
+            <li>Follow the app's home position guidance on startup.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title tips">✓ Day-One Checks</div>
+          <ul class="dive-list">
+            <li>Slew both axes full range via app — smooth whir, no grinding.</li>
+            <li>Dual V/D saddle clamps the FRA400 dovetail firmly.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Controller</span>
+        <span class="dive-name">ZWO ASIAIR Plus 256GB</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><span class="crit">6A INPUT CEILING.</span> Its 4× 12V outputs share 6A total — <strong>do NOT power the cooled camera or mount from it</strong>. Powerbox handles power; ASIAIR handles data only.</li>
+            <li><strong>ZWO gear only</strong> — cannot control the Pegasus Powerbox (which runs standalone after Unity config).</li>
+            <li><strong>No desktop app</strong> — phone/tablet only. An old iPad makes a great dedicated controller.</li>
+            <li>Default WiFi password: <strong>12345678</strong> (on the device sticker).</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>First boot: connect phone to ASIAIR hotspot → app forces <strong>firmware update</strong>. Do indoors on good WiFi.</li>
+            <li>Enable <strong>Station Mode</strong> — joins home WiFi so you control from anywhere in the house.</li>
+            <li>Set image save to internal 256GB. Post-session: USB-C to PC = external drive.</li>
+            <li>Mount via ¼-20 holes or velcro (finder shoe is taken by the guide scope).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Power</span>
+        <span class="dive-name">Pegasus Powerbox Micro + BTF 12V 10A</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li>ASIAIR <strong>cannot control it</strong> — one-time config via Pegasus Unity on PC, then runs standalone (settings persist on boot).</li>
+            <li>Needs 6A min / 8A+ recommended input — your BTF 10A is correct. <span class="crit">Never substitute a 5A supply.</span></li>
+            <li>Dew ports are <strong>RCA connectors</strong> — uses the RCA male-male cables you ordered.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup (once, indoors)</div>
+          <ul class="dive-list">
+            <li>USB to PC → install <strong>Pegasus Unity</strong> → update firmware.</li>
+            <li>Plug in <strong>temp/humidity sensor</strong>, enable <strong>Auto-Dew</strong> — heaters self-regulate all season.</li>
+            <li>Label ports (Mount / Camera / ASIAIR / spare), set 12V ports ON at boot.</li>
+            <li>Velcro to a tripod leg; sensor cable dangling in open air near the scope.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="dive-card">
+      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="dive-cat">Guiding</span>
+        <span class="dive-name">SVBONY SV106 + ASI120MM Mini</span>
+        <span class="dive-chevron">▶</span>
+      </div>
+      <div class="dive-body">
+        <div class="dive-section">
+          <div class="dive-section-title quirks">⚠ Known Quirks</div>
+          <ul class="dive-list">
+            <li><strong>Guide scope focus is the #1 first-night time sink.</strong> Focus in DAYLIGHT on a distant object (500m+), lock the helical ring. Slightly soft is fine — fat stars centroid better.</li>
+            <li>ASI120MM Mini is <strong>open box</strong> — inspect sensor and test USB on arrival.</li>
+            <li>Dew hits guide scopes too — that's Powerbox RCA channel 2.</li>
+          </ul>
+        </div>
+        <div class="dive-section">
+          <div class="dive-section-title setup">🔧 First-Time Setup</div>
+          <ul class="dive-list">
+            <li>Camera into SV106 rear (1.25" barrel or M42). Orient so USB exits toward the mount.</li>
+            <li>Rings onto FRA400 finder shoe — rough alignment with main scope is fine.</li>
+            <li>ASIAIR auto-detects. <strong>Calibrate guiding near celestial equator + meridian</strong> (Dec ~0°, high south).</li>
+            <li>Guide exposure 1–2s. Target total RMS under 1.5" for clean 300s subs.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ FIRST LIGHT GUIDE ============ -->
+  <div class="section-header">
+    <h2>First Light Guide — Build → Check → Shoot</h2>
+    <div class="section-line"></div>
+    <button class="add-btn" onclick="resetChecklist()">Reset All</button>
+  </div>
+
+  <div id="fl-container">
+
+    <div class="fl-phase" data-phase="bench">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">B</div>
+        <div>
+          <div class="fl-phase-title">Bench Test — ASIAIR + AM3N + Powerbox</div>
+          <div class="fl-phase-sub">Before camera arrives · confirms core power/data chain</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="pBs1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Power chain:</strong> Wall → BTF 12V 10A supply → Powerbox Micro DC IN.</div></div>
+        <div class="fl-step" data-step="pBs2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Powerbox outputs:</strong> Port 1 → AM3N mount body, Port 2 → ASIAIR Plus. Leave ports 3/4 open for camera later.</div></div>
+        <div class="fl-step" data-step="pBs3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Data:</strong> ASIAIR USB port → AM3N (USB-C cable) for mount control.</div></div>
+        <div class="fl-step" data-step="pBs4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Power-on order:</strong> wall → confirm Powerbox status LED → power AM3N, confirm clean boot (no restart/brownout) → power ASIAIR, wait ~30-60s for boot.</div></div>
+        <div class="fl-step" data-step="pBs5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Connect phone to ASIAIR WiFi hotspot</strong> (default password 12345678), open app.</div></div>
+        <div class="fl-step" data-step="pBs6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Confirm ASIAIR sees the AM3N</strong> in device list, shows connected status.</div></div>
+        <div class="fl-step" data-step="pBs7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Test slew command</strong> from app — listen for motor movement on both axes.</div></div>
+        <div class="fl-step" data-step="pBs8"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Run any pending firmware updates</strong> now (ASIAIR / AM3N) while on good home WiFi — never do this at the scope.</div></div>
+        <div class="fl-step" data-step="pBs9"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Check AM3N saddle passthrough cable</strong> — confirm 12V + USB-C breakout cable is included in box, or order one if not (search "ZWO AM3N saddle power cable").</div></div>
+      </div>
+    </div>
+
+    <div class="fl-phase" data-phase="0">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">0</div>
+        <div>
+          <div class="fl-phase-title">Bench Prep — Indoors, Daytime</div>
+          <div class="fl-phase-sub">As gear arrives · ~2–3 hours total</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="p0s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Unbox + inspect everything:</strong> camera sensor (flat vs bright wall), scope objective (angled flashlight), EFW spins, mount powers on, no shipping damage. Photograph any issues immediately for claims.</div></div>
+        <div class="fl-step" data-step="p0s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Firmware night:</strong> ASIAIR first boot + update → AM3N firmware via ASIAIR → Powerbox via Unity on PC. ALL updates indoors, never at the scope.</div></div>
+        <div class="fl-step" data-step="p0s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Configure Powerbox in Unity (one time):</strong> plug in temp/humidity sensor, enable Auto-Dew, label ports, 12V ports ON at boot.</div></div>
+        <div class="fl-step" data-step="p0s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Assemble imaging train (reducer mode):</strong> reducer into drawtube (M68) → 15mm + 3mm spacers → EFW 8×31 → ASI294MM. Snug threads, no cross-threading.</div></div>
+        <div class="fl-step" data-step="p0s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Verify EFW filter order</strong> matches seller spec (L,R,G,B,S,H,O,Hβ) — then never open the wheel outdoors.</div></div>
+        <div class="fl-step" data-step="p0s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Attach guide system:</strong> ASI120MM into SV106, rings onto finder shoe. ASIAIR onto rig (¼-20/velcro). Powerbox onto tripod leg.</div></div>
+        <div class="fl-step" data-step="p0s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cable up per connection diagram.</strong> Dress with velcro so nothing snags — test by slewing full range via app.</div></div>
+      </div>
+    </div>
+
+    <div class="fl-phase" data-phase="1">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">1</div>
+        <div>
+          <div class="fl-phase-title">Daytime Systems Test</div>
+          <div class="fl-phase-sub">Any afternoon before first light · ~1 hour</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="p1s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Full power-up:</strong> wall → Powerbox → everything. All devices appear in ASIAIR: camera, EFW, EAF, guide cam, mount.</div></div>
+        <div class="fl-step" data-step="p1s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cooling test:</strong> −10°C, reaches and holds 15 min.</div></div>
+        <div class="fl-step" data-step="p1s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cycle all 8 EFW slots</strong> from the app.</div></div>
+        <div class="fl-step" data-step="p1s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>EAF travel test:</strong> partial range from app — smooth, no slipping.</div></div>
+        <div class="fl-step" data-step="p1s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Daytime rough focus</strong> on a distant object (500m+), L filter. <strong>Write down the EAF step position</strong> — your night starting point.</div></div>
+        <div class="fl-step" data-step="p1s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Focus + lock the guide scope</strong> on the same object. Lock the helical ring — never touch again.</div></div>
+        <div class="fl-step" data-step="p1s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Slew test:</strong> both axes, full range — zero cable snags.</div></div>
+      </div>
+    </div>
+
+    <div class="fl-phase" data-phase="2">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">2</div>
+        <div>
+          <div class="fl-phase-title">First Light Night</div>
+          <div class="fl-phase-sub">Clear night, NJ backyard · budget 3+ hrs, expect chaos</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="p2s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Setup at dusk:</strong> level tripod, aim roughly north, altitude ~40.9°. Extend dew shield. Power up, start cooling to −10°C.</div></div>
+        <div class="fl-step" data-step="p2s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Polar alignment</strong> via ASIAIR PA routine (All-Sky PA works without Polaris). Target under 2' error — under 1' is great.</div></div>
+        <div class="fl-step" data-step="p2s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Autofocus:</strong> mag 3–5 star, L filter, AF from your daytime EAF position. Tight round stars. Switch to Ha, refocus, note the offset.</div></div>
+        <div class="fl-step" data-step="p2s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Guiding calibration</strong> near celestial equator + meridian. Target under 1.5" RMS. Jumpy? Lengthen guide exposure to 2s, lower aggression.</div></div>
+        <div class="fl-step" data-step="p2s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>GoTo first target — North America Nebula (NGC 7000):</strong> high in Cygnus all July, huge and bright in Ha. Plate solve auto-centers.</div></div>
+        <div class="fl-step" data-step="p2s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>30s Ha test sub → check corner stars.</strong> Elongated corners = back focus off → adjust spacers ±1mm tomorrow.</div></div>
+        <div class="fl-step" data-step="p2s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Run the sequence:</strong> Ha 180s subs (reducer), gain 120, −10°C, 20–30 subs. Watch 3 come in, then go inside — app follows on WiFi.</div></div>
+        <div class="fl-step" data-step="p2s8"><div class="fl-check">✓</div><div class="fl-step-text"><strong>End of night:</strong> stop → <strong>warm camera gradually</strong> → park mount → power down → cap scope. Log EAF position + PA error.</div></div>
+      </div>
+    </div>
+
+    <div class="fl-phase" data-phase="3">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">3</div>
+        <div>
+          <div class="fl-phase-title">Calibration Frames</div>
+          <div class="fl-phase-sub">Same night or next day · critical for the 294MM</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="p3s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Flats (per filter used):</strong> dawn sky + t-shirt or flat panel, ~30k ADU mean, <strong>exposure above 2–3s</strong> (dim the source, don't shorten). 20–30 per filter. Don't touch focus or rotator first.</div></div>
+        <div class="fl-step" data-step="p3s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Darks (library, indoors):</strong> cap on, gain 120 / offset 30 / −10°C / exact light exposure lengths (180s, 300s). 20–30 each. Reusable for months.</div></div>
+        <div class="fl-step" data-step="p3s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Dark flats (NOT bias):</strong> cap on, matching flat settings exactly. 20–30. The 294 doesn't do bias well — dark flats replace them.</div></div>
+      </div>
+    </div>
+
+    <div class="fl-phase" data-phase="4">
+      <div class="fl-phase-header">
+        <div class="fl-phase-num">4</div>
+        <div>
+          <div class="fl-phase-title">Processing — First Image</div>
+          <div class="fl-phase-sub">Windows PC · Siril + RC-Astro</div>
+        </div>
+        <div class="fl-progress"></div>
+      </div>
+      <div class="fl-steps">
+        <div class="fl-step" data-step="p4s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Transfer:</strong> ASIAIR → PC via USB-C (external drive). Lights + flats + darks + dark flats into Siril folders.</div></div>
+        <div class="fl-step" data-step="p4s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Siril preprocess:</strong> calibrate (darks/flats/dark-flats) → register → stack → one clean linear master.</div></div>
+        <div class="fl-step" data-step="p4s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Process:</strong> BlurXTerminator (linear) → stretch (GHS) → NoiseXTerminator → StarXTerminator if compositing. Export. Admire.</div></div>
+        <div class="fl-step" data-step="p4s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Log the session:</strong> PA error, guiding RMS, EAF positions, sub count, what broke. Every session builds on the last.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Budget -->
+  <div class="section-header">
+    <h2>Budget</h2>
+    <div class="section-line"></div>
+    <button class="add-btn" onclick="openModal('budget')">+ Add Purchase</button>
+  </div>
+
+  <div class="budget-bar-wrap price-el" id="budget-wrap"></div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Add Item</h3>
+    <div id="modal-fields"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="saveModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const STORAGE_KEY = 'astro-rig-v6';
+
+const defaultData = {
+  deliveries: [
+    { name: 'TC40 Carbon Fiber Tripod', sub: 'B&H — New', tracking: '', eta: 'Delivered', status: 'delivered' },
+    { name: 'ZWO AM3N Harmonic Mount', sub: 'B&H — New', tracking: '', eta: 'Jul 4', status: 'transit' },
+    { name: 'Pegasus Pocket Powerbox Micro', sub: 'High Point Scientific — FedEx', tracking: '382410821240', eta: 'Jul 5', status: 'transit' },
+    { name: 'BTF-LIGHTING 12V 10A Power Supply', sub: 'Amazon', tracking: '', eta: 'Jul 7', status: 'transit' },
+    { name: 'ASI120MM Mini + Dew-Not + Spacers (5+10mm)', sub: 'Agena #1556379 — UPS 3-Day', tracking: '1ZF2Y091P195642428', eta: 'Jul 7', status: 'transit' },
+    { name: 'M48 Spacers (15+3+1mm)', sub: 'Agena #1556448 — USPS', tracking: '', eta: 'TBD', status: 'ordered' },
+    { name: 'USB Micro-B + RCA + Micro USB Cables', sub: 'Amazon', tracking: '', eta: 'TBD', status: 'transit' },
+    { name: 'ASI294MM Pro + EFW 8×31 + Astrodon Filters', sub: 'CN Seller — UPS', tracking: '1ZGG14250320665826', eta: 'Jul 9', status: 'transit' },
+    { name: 'Askar FRA400 + Reducer + EAF (2 boxes)', sub: 'CN Seller — UPS', tracking: '1Z850A77YW72760683 / ...47184157', eta: 'Jul 10', status: 'transit' },
+    { name: 'ZWO ASIAIR Plus 256GB (2024)', sub: 'Ordered — controller', tracking: '', eta: 'TBD', status: 'ordered' },
+    { name: 'SVBONY SV106 60mm Guide Scope', sub: 'Amazon — at NYC apartment', tracking: '', eta: 'NYC Apt', status: 'delivered' }
+  ],
+  notes: [
+    { icon: '⚠️', text: '<strong>Dew-Not DN01 (4.5"):</strong> Verify fits FRA400 90mm objective — may be too small. 4.5" strap fits ~36mm tube.' },
+    { icon: '⚠️', text: '<strong>Back focus (reducer):</strong> 55mm target. Start with 15mm + 3mm stack (18mm spacers = 55.5mm total). Fine-tune with 1mm Baader.' },
+    { icon: '📦', text: '<strong>Ask FRA400 seller:</strong> what spacer stack they used with the reducer — they had it dialed in.' },
+    { icon: '🔍', text: '<strong>ASI120MM Mini (open box):</strong> Inspect sensor for dust/scratches on arrival. Test USB connection immediately.' },
+    { icon: '💻', text: '<strong>Before first light:</strong> Download ASIAIR app (phone/tablet), install Pegasus Unity on PC for one-time dew setup. Note: no official ASIAIR desktop app.' },
+    { icon: '📲', text: '<strong>Powerbox dew config:</strong> Connect Powerbox to PC via USB once, set auto-dew mode in Unity, then it runs standalone all season.' },
+    { icon: '↩️', text: '<strong>Return extra spacers</strong> (5mm + 10mm) once back focus confirmed with 15+3+1mm set.' }
+  ],
+  gear: [
+    { cat: 'Mount', name: 'ZWO AM3N Harmonic Drive', price: '$1,800', specs: [['Released','2024'],['Payload (no CW)','8kg'],['Periodic Error','±15"'],['Connectivity','USB-C + Bluetooth'],['Condition','New (B&H)']] },
+    { cat: 'Telescope', name: 'Askar FRA400 72mm f/5.6', price: '$1,050', specs: [['Design','Quintuplet Petzval'],['Focal Length','400mm native'],['With Reducer','280mm f/3.9'],['Image Circle','44mm'],['Includes','Reducer + EAF']] },
+    { cat: 'Camera', name: 'ZWO ASI294MM Pro', price: '$2,100', specs: [['Sensor','Sony IMX492'],['Format','Micro 4/3'],['Pixel Size','4.63µm (Bin2)'],['Cooling','TEC −35°C'],['Peak QE','~90%'],['Includes','EFW 8×31 + filters']] },
+    { cat: 'Guiding', name: 'SV106 + ASI120MM Mini', price: '~$275', specs: [['Guide Scope','60mm f/4 · 240mm'],['Guide Camera','ASI120MM Mini mono'],['Connection','M42 T-thread'],['Software','PHD2']] },
+    { cat: 'Controller', name: 'ZWO ASIAIR Plus 256GB', price: '$349', specs: [['Released','2024 (256GB ver.)'],['Storage','256GB eMMC'],['USB','4 ports (hub)'],['WiFi Range','~20m / 65ft'],['Control','Phone/tablet app'],['Replaces','NINA + PHD2 + laptop']] },
+    { cat: 'Power', name: 'Pegasus Powerbox Micro', price: '$250', specs: [['12V Outputs','4 ports'],['Dew Channels','2× RCA PWM'],['Capacity','10A'],['Auto-Dew','Yes'],['Role','Power only — ASIAIR handles data']] },
+    { cat: 'Software', name: 'Processing Stack', price: '$180', specs: [['Capture','ASIAIR app (free)'],['Processing','Siril (free)'],['AI Plugins','RC-Astro $180'],['Planning','ASIAIR SkyAtlas built-in'],['File transfer','USB-C → PC as drive']] }
+  ],
+  budget: [
+    { label: 'ASI294MM + EFW + Astrodon Filters', amount: 2100 },
+    { label: 'Askar FRA400 + Reducer + EAF', amount: 1050 },
+    { label: 'ZWO AM3N + TC40 Tripod (new, B&H)', amount: 1800 },
+    { label: 'SVBONY SV106 Guide Scope', amount: 75 },
+    { label: 'ZWO ASI120MM Mini Guide Camera', amount: 200 },
+    { label: 'Pegasus Powerbox Micro', amount: 250 },
+    { label: 'RC-Astro Plugins (BlurX/NoiseX/StarX)', amount: 180 },
+    { label: 'ZWO ASIAIR Plus 256GB', amount: 349 },
+    { label: 'Power Supply + Spacers + Dew + Cables', amount: 155 }
+  ],
+  newRetail: 8346
+};
+
+let data;
+try {
+  data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData;
+} catch(e) {
+  data = defaultData;
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  render();
+}
+
+// ============ RENDER ============
+const statusCycle = ['ordered', 'transit', 'delivered', 'issue'];
+const statusDot = { ordered: 'dot-ordered', transit: 'dot-transit', delivered: 'dot-delivered', issue: 'dot-issue' };
+const statusEta = { ordered: 'eta-pending', transit: 'eta-soon', delivered: 'eta-delivered', issue: 'eta-issue' };
+
+function render() {
+  // Deliveries
+  const board = document.getElementById('delivery-board');
+  board.innerHTML = data.deliveries.map((d, i) => `
+    <div class="delivery-item">
+      <div class="status-dot ${statusDot[d.status]}" onclick="cycleStatus(${i})" title="Click to change status"></div>
+      <div class="editable" onclick="editItem('delivery', ${i})" title="Click to edit">
+        <div class="delivery-name">${d.name}</div>
+        <div class="delivery-sub">${d.sub}</div>
+      </div>
+      <div class="delivery-tracking">${d.tracking || '—'}</div>
+      <div class="delivery-eta ${statusEta[d.status]}">${d.status === 'delivered' ? '✓ ' : ''}${d.eta}</div>
+      <button class="remove-btn" onclick="removeDelivery(${i})" title="Remove">✕</button>
+    </div>
+  `).join('');
+
+  // Stats
+  const delivered = data.deliveries.filter(d => d.status === 'delivered').length;
+  document.getElementById('stat-delivered').textContent = `${delivered}/${data.deliveries.length}`;
+  document.getElementById('stat-remaining').textContent = `${data.deliveries.length - delivered} remaining`;
+
+  // Notes
+  const notes = document.getElementById('notes-box');
+  notes.innerHTML = data.notes.length ? data.notes.map((n, i) => `
+    <div class="note-item">
+      <span class="note-icon">${n.icon}</span>
+      <span class="note-text editable" onclick="editItem('note', ${i})" title="Click to edit">${n.text}</span>
+      <button class="note-remove" onclick="removeNote(${i})">✕</button>
+    </div>
+  `).join('') : '<div style="color:var(--gray);font-size:12px;">No action items — all clear ✓</div>';
+
+  // Gear
+  const grid = document.getElementById('gear-grid');
+  grid.innerHTML = data.gear.map((g, i) => `
+    <div class="gear-card">
+      <button class="gear-remove" onclick="removeGear(${i})">✕</button>
+      <div class="gear-card-header editable" onclick="editItem('gear', ${i})" title="Click to edit">
+        <div>
+          <div class="gear-category">${g.cat}</div>
+          <div class="gear-name">${g.name}</div>
+        </div>
+        <div class="gear-price price-el">${g.price}</div>
+      </div>
+      <div class="gear-specs">
+        ${g.specs.map(s => `<div class="spec-row"><span class="spec-key">${s[0]}</span><span class="spec-val">${s[1]}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Budget
+  const total = data.budget.reduce((sum, b) => sum + b.amount, 0);
+  const saved = data.newRetail - total;
+  const pct = Math.round((total / data.newRetail) * 100);
+  document.getElementById('stat-total').textContent = '$' + total.toLocaleString();
+
+  const wrap = document.getElementById('budget-wrap');
+  wrap.innerHTML = data.budget.map((b, i) => `
+    <div class="budget-row">
+      <div class="budget-label editable" onclick="editItem('budget', ${i})" title="Click to edit">${b.label}</div>
+      <div class="budget-amount editable" onclick="editItem('budget', ${i})" title="Click to edit">$${b.amount.toLocaleString()}</div>
+      <button class="budget-remove" onclick="removeBudget(${i})">✕</button>
+    </div>
+  `).join('') + `
+    <div class="budget-row total">
+      <div class="budget-label">Total Spent</div>
+      <div class="budget-amount total-val">$${total.toLocaleString()}</div>
+    </div>
+    <div class="budget-row">
+      <div class="budget-label" style="color: var(--green)">New Retail Equivalent</div>
+      <div class="budget-amount">$${data.newRetail.toLocaleString()}</div>
+    </div>
+    <div class="budget-row">
+      <div class="budget-label" style="color: var(--green)">Saved vs New</div>
+      <div class="budget-amount saved">$${saved.toLocaleString()} (${100-pct}%)</div>
+    </div>
+  `;
+}
+
+// ============ ACTIONS ============
+function cycleStatus(i) {
+  const cur = statusCycle.indexOf(data.deliveries[i].status);
+  data.deliveries[i].status = statusCycle[(cur + 1) % statusCycle.length];
+  if (data.deliveries[i].status === 'delivered' && !data.deliveries[i].eta.startsWith('✓')) {
+    // keep eta as-is
+  }
+  save();
+}
+
+function removeDelivery(i) {
+  if (confirm('Remove "' + data.deliveries[i].name + '"?')) {
+    data.deliveries.splice(i, 1);
+    save();
+  }
+}
+
+function removeNote(i) { data.notes.splice(i, 1); save(); }
+function removeGear(i) {
+  if (confirm('Remove "' + data.gear[i].name + '"?')) {
+    data.gear.splice(i, 1);
+    save();
+  }
+}
+function removeBudget(i) {
+  if (confirm('Remove "' + data.budget[i].label + '"?')) {
+    data.budget.splice(i, 1);
+    save();
+  }
+}
+
+// ============ MODAL ============
+let modalType = null;
+let editIndex = null; // null = adding new, number = editing existing
+
+const modalConfigs = {
+  delivery: {
+    title: 'Add Delivery Item',
+    fields: [
+      { id: 'f-name', label: 'Item Name', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
+      { id: 'f-sub', label: 'Source / Carrier', type: 'text', placeholder: 'e.g. ZWO Store — FedEx' },
+      { id: 'f-tracking', label: 'Tracking Number (optional)', type: 'text', placeholder: '' },
+      { id: 'f-eta', label: 'ETA', type: 'text', placeholder: 'e.g. Jul 15' }
+    ]
+  },
+  note: {
+    title: 'Add Action Item',
+    fields: [
+      { id: 'f-icon', label: 'Icon (emoji)', type: 'text', placeholder: '⚠️' },
+      { id: 'f-text', label: 'Note', type: 'text', placeholder: 'What needs doing?' }
+    ]
+  },
+  gear: {
+    title: 'Add Gear',
+    fields: [
+      { id: 'f-cat', label: 'Category', type: 'text', placeholder: 'e.g. Controller' },
+      { id: 'f-name', label: 'Name', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
+      { id: 'f-price', label: 'Price', type: 'text', placeholder: '$349' },
+      { id: 'f-specs', label: 'Specs (key:value, comma separated)', type: 'text', placeholder: 'Storage:256GB, WiFi:Dual band' }
+    ]
+  },
+  budget: {
+    title: 'Add Purchase',
+    fields: [
+      { id: 'f-label', label: 'Item', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
+      { id: 'f-amount', label: 'Amount ($, numbers only)', type: 'number', placeholder: '349' }
+    ]
+  }
+};
+
+function openModal(type, prefill) {
+  modalType = type;
+  const cfg = modalConfigs[type];
+  const editing = editIndex !== null;
+  document.getElementById('modal-title').textContent = editing ? cfg.title.replace('Add', 'Edit') : cfg.title;
+  document.querySelector('.modal-btn.primary').textContent = editing ? 'Save' : 'Add';
+  document.getElementById('modal-fields').innerHTML = cfg.fields.map(f => `
+    <label for="${f.id}">${f.label}</label>
+    <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder}" value="${prefill && prefill[f.id] !== undefined ? String(prefill[f.id]).replace(/"/g, '&quot;') : ''}">
+  `).join('');
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById(cfg.fields[0].id).focus(), 50);
+}
+
+function editItem(type, i) {
+  editIndex = i;
+  let prefill = {};
+  if (type === 'delivery') {
+    const d = data.deliveries[i];
+    prefill = { 'f-name': d.name, 'f-sub': d.sub, 'f-tracking': d.tracking, 'f-eta': d.eta };
+  } else if (type === 'note') {
+    const n = data.notes[i];
+    prefill = { 'f-icon': n.icon, 'f-text': n.text.replace(/<[^>]*>/g, '') };
+  } else if (type === 'gear') {
+    const g = data.gear[i];
+    prefill = { 'f-cat': g.cat, 'f-name': g.name, 'f-price': g.price, 'f-specs': g.specs.map(s => s.join(':')).join(', ') };
+  } else if (type === 'budget') {
+    const b = data.budget[i];
+    prefill = { 'f-label': b.label, 'f-amount': b.amount };
+  }
+  openModal(type, prefill);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  modalType = null;
+  editIndex = null;
+}
+
+function saveModal() {
+  const v = id => (document.getElementById(id)?.value || '').trim();
+  const editing = editIndex !== null;
+
+  if (modalType === 'delivery') {
+    if (!v('f-name')) return;
+    const item = { name: v('f-name'), sub: v('f-sub'), tracking: v('f-tracking'), eta: v('f-eta') || 'TBD',
+                   status: editing ? data.deliveries[editIndex].status : 'ordered' };
+    editing ? data.deliveries[editIndex] = item : data.deliveries.push(item);
+  } else if (modalType === 'note') {
+    if (!v('f-text')) return;
+    const item = { icon: v('f-icon') || '📌', text: v('f-text') };
+    editing ? data.notes[editIndex] = item : data.notes.push(item);
+  } else if (modalType === 'gear') {
+    if (!v('f-name')) return;
+    const specs = v('f-specs').split(',').map(s => s.split(':').map(x => x.trim())).filter(s => s.length === 2);
+    const item = { cat: v('f-cat') || 'Other', name: v('f-name'), price: v('f-price') || '—', specs };
+    editing ? data.gear[editIndex] = item : data.gear.push(item);
+  } else if (modalType === 'budget') {
+    if (!v('f-label') || !v('f-amount')) return;
+    const item = { label: v('f-label'), amount: parseFloat(v('f-amount')) || 0 };
+    editing ? data.budget[editIndex] = item : data.budget.push(item);
+  }
+
+  closeModal();
+  save();
+}
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target.id === 'modal-overlay') closeModal();
+});
+
+// ============ PRICE TOGGLE ============
+function togglePrices() {
+  document.body.classList.toggle('hide-prices');
+  const on = document.body.classList.contains('hide-prices');
+  document.getElementById('price-toggle').textContent = on ? '👁 Show Prices' : '👁 Hide Prices';
+  try { localStorage.setItem('astro-rig-hideprices', on ? '1' : '0'); } catch(e) {}
+}
+try {
+  if (localStorage.getItem('astro-rig-hideprices') === '1') {
+    document.body.classList.add('hide-prices');
+    document.getElementById('price-toggle').textContent = '👁 Show Prices';
+  }
+} catch(e) {}
+
+// ============ FIRST LIGHT CHECKLIST ============
+const FL_KEY = 'astro-rig-checklist';
+let flDone = {};
+try { flDone = JSON.parse(localStorage.getItem(FL_KEY)) || {}; } catch(e) { flDone = {}; }
+
+function flUpdateProgress() {
+  document.querySelectorAll('.fl-phase').forEach(phase => {
+    const steps = phase.querySelectorAll('.fl-step');
+    const done = phase.querySelectorAll('.fl-step.done').length;
+    const prog = phase.querySelector('.fl-progress');
+    if (prog) {
+      prog.textContent = `${done}/${steps.length}`;
+      prog.style.color = done === steps.length ? 'var(--green)' : 'var(--gray)';
+    }
+  });
+}
+
+document.querySelectorAll('.fl-step').forEach(step => {
+  const id = step.dataset.step;
+  if (flDone[id]) step.classList.add('done');
+  step.addEventListener('click', () => {
+    step.classList.toggle('done');
+    flDone[id] = step.classList.contains('done');
+    try { localStorage.setItem(FL_KEY, JSON.stringify(flDone)); } catch(e) {}
+    flUpdateProgress();
+  });
+});
+
+function resetChecklist() {
+  if (!confirm('Reset all checklist progress?')) return;
+  flDone = {};
+  try { localStorage.setItem(FL_KEY, '{}'); } catch(e) {}
+  document.querySelectorAll('.fl-step').forEach(s => s.classList.remove('done'));
+  flUpdateProgress();
+}
+
+flUpdateProgress();
+
+// Init
+render();
+</script>
+</body>
+</html>

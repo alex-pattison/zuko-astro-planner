@@ -1,0 +1,46 @@
+{
+  "name": "zuko-astro-planner",
+  "version": "1.0.0",
+  "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
+  "main": "main.js",
+  "author": "Alexandra Pattison",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alex-pattison/zuko-astro-planner.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.alex.zukoastroplanner",
+    "productName": "Zuko Astro Planner",
+    "files": [
+      "index.html",
+      "main.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.photography"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Graphics"
+    }
+  }
+}
