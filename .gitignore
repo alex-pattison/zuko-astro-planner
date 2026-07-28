@@ -32,5 +32,8 @@ npm-debug.log*
 # Local reference clones (not part of this project)
 reference/
 
+# Ingested FITS project trees (large binaries — stay on disk only)
+data/projects/
+
 # Root-level copies of live data (canonical tracked copy is data/)
 /zuko-dashboard-data.json

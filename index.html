@@ -940,6 +940,25 @@
 
   .gaia-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
   .shoot-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .shoot-source-cell { min-width: 140px; max-width: 220px; }
+  .shoot-source-path {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    margin-bottom: 4px;
+  }
+  .shoot-source-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 4px;
+  }
+  .shoot-source-actions { display: flex; flex-wrap: wrap; gap: 4px; }
   .gaia-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
   .gaia-inputs input {
     background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
@@ -2046,6 +2065,9 @@ function renderProjects() {
       if (sh.filterIndex === undefined) sh.filterIndex = null;
       if (sh.complete === undefined) sh.complete = false;
       if (sh.creditedHours === undefined) sh.creditedHours = 0;
+      if (sh.sourcePath === undefined) sh.sourcePath = null;
+      if (sh.ingestPath === undefined) sh.ingestPath = null;
+      if (sh.ingestMeta === undefined) sh.ingestMeta = null;
     });
   });
   el.innerHTML = data.projects.map((p, pi) => {
@@ -2160,12 +2182,28 @@ function renderProjects() {
           ${p.shoots.length ? `
           <div class="table-scroll">
           <table class="filter-target-table">
-            <thead><tr><th>Name</th><th>Date</th><th>Filter Target</th><th>Hrs</th><th>Done</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th>Date</th><th>Filter Target</th><th>Hrs</th><th>Done</th><th>ASIAIR Source</th><th></th></tr></thead>
             <tbody>
               ${p.shoots.map((sh, si) => {
                 const ft = p.filterTargets[sh.filterIndex];
                 const ftLabel = ft ? `${ft.filter} — ${ft.location} (B${ft.bortle || '?'})` : '—';
                 const code = buildShootCode(sh, ft);
+                const meta = sh.ingestMeta;
+                const metaLine = meta
+                  ? `${meta.frameCount || 0} lights${meta.exposureSec != null ? ` · ${meta.exposureSec}s` : ''}${meta.gain != null ? ` · g${meta.gain}` : ''}${meta.tempC != null ? ` · ${meta.tempC}°C` : ''}`
+                  : '';
+                const sourceCell = sh.ingestPath || sh.sourcePath ? `
+                  <div class="shoot-source-cell">
+                    ${metaLine ? `<div class="shoot-source-meta">${metaLine}</div>` : ''}
+                    <span class="shoot-source-path" title="${escapeAttr(sh.ingestPath || sh.sourcePath)}">${escapeHtml(shortPath(sh.ingestPath || sh.sourcePath))}</span>
+                    <div class="shoot-source-actions">
+                      <button class="mini-btn" style="margin-top:0" onclick="event.stopPropagation(); openShootIngestFolder(${pi},${si})" title="Open organized project folder">Open</button>
+                      <button class="mini-btn" style="margin-top:0" onclick="event.stopPropagation(); attachShootAsiairSource(${pi},${si})" title="Re-run ASIAIR ingest from a source folder">Re-ingest</button>
+                    </div>
+                  </div>` : `
+                  <div class="shoot-source-cell">
+                    <button class="mini-btn" style="margin-top:0" onclick="event.stopPropagation(); attachShootAsiairSource(${pi},${si})" title="Point at an ASIAIR dump and copy/reorganize into the project tree">Attach folder…</button>
+                  </div>`;
                 return `
                 <tr>
                   <td class="mono editable" style="font-size:11px;" onclick="editShoot(${pi},${si})" title="Auto-generated — click to edit shoot">${code}</td>
@@ -2173,6 +2211,7 @@ function renderProjects() {
                   <td class="editable" onclick="editShoot(${pi},${si})" title="Click to edit">${ftLabel}</td>
                   <td class="editable" onclick="editShoot(${pi},${si})" title="Click to edit">${sh.hours || 0}h ${sh.complete ? '' : '<span style="color:var(--yellow);">(pending)</span>'}</td>
                   <td><input type="checkbox" ${sh.complete ? 'checked' : ''} onchange="toggleShootComplete(${pi},${si})" title="Mark complete and credit hours to the filter target"></td>
+                  <td>${sourceCell}</td>
                   <td><button class="remove-btn" onclick="removeShoot(${pi},${si})">✕</button></td>
                 </tr>`;
               }).join('')}
@@ -2460,6 +2499,100 @@ function toggleShootComplete(pi, si) {
     sh.creditedHours = sh.hours || 0;
   }
   save();
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttr(s) {
+  return escapeHtml(s).replace(/'/g, '&#39;');
+}
+
+function shortPath(p) {
+  const s = String(p || '');
+  if (s.length <= 42) return s;
+  return '…' + s.slice(-40);
+}
+
+function shootObjectName(project) {
+  if (project.savedTarget && project.savedTarget.name) return project.savedTarget.name;
+  return project.name || 'Object';
+}
+
+async function attachShootAsiairSource(pi, si) {
+  if (!window.zukoIngest) {
+    alert('ASIAIR ingest needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  const ft = project.filterTargets[sh.filterIndex];
+
+  const picked = await window.zukoIngest.pickFolder();
+  if (!picked || picked.canceled || !picked.ok) return;
+
+  const btnHint = `Ingesting ${picked.path}…`;
+  updateSyncStatus(btnHint, 'connected');
+
+  const result = await window.zukoIngest.run({
+    sourcePath: picked.path,
+    objectName: shootObjectName(project),
+    filter: ft ? ft.filter : null,
+    night: sh.date || null,
+    mode: 'hardlink',
+    readHeaders: true,
+    filterToShoot: true,
+  });
+
+  if (!result || !result.ok) {
+    updateSyncStatus(null, 'error');
+    alert('ASIAIR ingest failed: ' + ((result && result.error) || 'unknown error'));
+    return;
+  }
+
+  sh.sourcePath = picked.path;
+  sh.ingestPath = result.meta.destRoot;
+  sh.ingestMeta = {
+    objectName: result.meta.objectName,
+    filter: result.meta.filter,
+    night: result.meta.night,
+    frameCount: result.meta.frameCount,
+    exposureSec: result.meta.exposureSec,
+    gain: result.meta.gain,
+    tempC: result.meta.tempC,
+    bin: result.meta.bin,
+    byType: result.meta.byType,
+    filesCopied: result.meta.filesCopied,
+    filesSkipped: result.meta.filesSkipped,
+    ingestedAt: result.meta.ingestedAt,
+  };
+
+  // Fill hours from light count × exposure when the shoot still has 0 planned hours
+  if ((!sh.hours || sh.hours === 0) && result.meta.frameCount && result.meta.exposureSec) {
+    sh.hours = Math.round((result.meta.frameCount * result.meta.exposureSec / 3600) * 100) / 100;
+  }
+
+  if (project.status === 'planning') project.status = 'active';
+  if (!project.processStatus || project.processStatus === 'none') project.processStatus = 'ingested';
+
+  save();
+  const types = result.meta.byType || {};
+  const typeSummary = Object.keys(types).map((k) => `${types[k]} ${k}`).join(', ');
+  updateSyncStatus(result.meta.destRoot, 'connected');
+  alert(`Ingested into project tree.\n\n${typeSummary || 'No frames'}\n\n${result.meta.destRoot}`);
+}
+
+async function openShootIngestFolder(pi, si) {
+  if (!window.zukoIngest) return;
+  const sh = data.projects[pi].shoots[si];
+  const folder = sh.ingestPath || sh.sourcePath;
+  if (!folder) return;
+  await window.zukoIngest.open(folder);
 }
 
 function sanitizeFolderName(name) {
@@ -2858,7 +2991,14 @@ function saveModal() {
         const oldFt = project.filterTargets[old.filterIndex];
         if (oldFt) oldFt.loggedHrs = Math.max(0, oldFt.loggedHrs - (old.creditedHours || 0));
       }
-      const updated = { ...base, complete: old.complete, creditedHours: 0 };
+      const updated = {
+        ...base,
+        complete: old.complete,
+        creditedHours: 0,
+        sourcePath: old.sourcePath || null,
+        ingestPath: old.ingestPath || null,
+        ingestMeta: old.ingestMeta || null,
+      };
       if (updated.complete) {
         const newFt = project.filterTargets[newFilterIndex];
         if (newFt) newFt.loggedHrs += newHours;
@@ -2866,7 +3006,14 @@ function saveModal() {
       }
       project.shoots[editIndex] = updated;
     } else {
-      project.shoots.push({ ...base, complete: false, creditedHours: 0 });
+      project.shoots.push({
+        ...base,
+        complete: false,
+        creditedHours: 0,
+        sourcePath: null,
+        ingestPath: null,
+        ingestMeta: null,
+      });
     }
   } else if (modalType === 'astrobinlink') {
     if (!v('f-abUrl') || modalProjectIndex === null) return;

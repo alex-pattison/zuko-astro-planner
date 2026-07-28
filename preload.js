@@ -6,3 +6,11 @@ contextBridge.exposeInMainWorld('zukoFs', {
   getPath: () => ipcRenderer.invoke('zuko-data-path'),
   openFolder: () => ipcRenderer.invoke('zuko-data-open-folder'),
 });
+
+contextBridge.exposeInMainWorld('zukoIngest', {
+  projectsRoot: () => ipcRenderer.invoke('zuko-ingest-projects-root'),
+  pickFolder: () => ipcRenderer.invoke('zuko-ingest-pick-folder'),
+  scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
+  run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
+  open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),
+});

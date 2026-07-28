@@ -28,7 +28,9 @@
       "main.js",
       "preload.js",
       "package.json",
-      "data/**/*"
+      "data/**/*",
+      "src/**/*",
+      "scripts/**/*"
     ],
     "directories": {
       "output": "dist"

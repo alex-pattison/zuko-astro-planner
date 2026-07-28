@@ -29,6 +29,20 @@ When saving on the H: machine, the app also mirrors into `data/` so you can comm
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 
+## ASIAIR ingest (Shoot Log)
+
+From a project's **Shoot Log**, use **Attach folder…** next to a shoot's Done checkbox. That opens the ASIAIR Ingest Tool (`src/ingest/asiairIngest.js`):
+
+1. Pick an ASIAIR dump folder (Autorun/Plan or a deeper Light/Flat folder).
+2. Parse filenames (+ optional FITS headers) for type, filter, exposure, gain, temp, date.
+3. Copy/hardlink into a Siril-ready tree:
+
+   `H:\Photography\Astrophotography\Projects\<Object>\<Filter>\<YYYYMMDD>\{lights,darks,flats,darkflats,biases}\`
+
+   Fallback when H: is unavailable: `data/projects/…`
+
+The shoot stores `sourcePath`, `ingestPath`, and parsed `ingestMeta` (frame counts, exposure, etc.).
+
 ## Build installer (optional)
 
 ```
