@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('zukoApp', {
   meta: () => ipcRenderer.invoke('zuko-app-meta'),
+  geolocate: () => ipcRenderer.invoke('zuko-geolocate'),
 });
 
 contextBridge.exposeInMainWorld('zukoFs', {

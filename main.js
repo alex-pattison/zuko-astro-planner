@@ -2,6 +2,9 @@ const { app, BrowserWindow, Menu, shell, ipcMain, dialog } = require('electron')
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFile);
 const {
   scanAsiairSource,
   ingestAsiairDump,
@@ -197,10 +200,51 @@ function createWindow() {
 
 const pkg = require('./package.json');
 
+async function windowsGeolocate() {
+  const script = path.join(__dirname, 'scripts', 'windows-geolocate.ps1');
+  if (!fs.existsSync(script)) {
+    return { ok: false, error: 'Missing windows-geolocate.ps1' };
+  }
+  try {
+    const { stdout, stderr } = await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script],
+      { windowsHide: true, timeout: 20000, maxBuffer: 1024 * 1024 }
+    );
+    const text = String(stdout || '').trim();
+    if (!text) {
+      return { ok: false, error: stderr ? String(stderr).trim() : 'No location output from Windows' };
+    }
+    const parsed = JSON.parse(text);
+    if (!parsed || !parsed.ok) {
+      return {
+        ok: false,
+        error: (parsed && parsed.error) || 'Windows location unavailable',
+        status: parsed && parsed.status,
+        permission: parsed && parsed.permission,
+      };
+    }
+    return {
+      ok: true,
+      lat: Number(parsed.lat),
+      lon: Number(parsed.lon),
+      accuracy: parsed.accuracy != null ? Number(parsed.accuracy) : null,
+      source: 'windows',
+    };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+}
+
 ipcMain.handle('zuko-app-meta', () => ({
   version: pkg.version || '0.0.0',
   build: Number(pkg.zukoBuild) || 1,
 }));
+
+ipcMain.handle('zuko-geolocate', async () => {
+  if (process.platform === 'win32') return windowsGeolocate();
+  return { ok: false, error: 'Native geolocation is only wired for Windows right now' };
+});
 
 ipcMain.handle('zuko-data-path', () => resolveDataPaths().label);
 

@@ -31,7 +31,8 @@
       "package.json",
       "data/**/*",
       "src/**/*",
-      "scripts/**/*"
+      "scripts/**/*",
+      "vendor/**/*"
     ],
     "directories": {
       "output": "dist"

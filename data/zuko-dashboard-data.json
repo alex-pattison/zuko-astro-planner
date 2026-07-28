@@ -1,14 +1,14 @@
 {
   "rigName": "Zuko",
   "forecastLocation": {
-    "name": "New York, New York, United States",
-    "lat": 40.7143,
-    "lon": -74.006
+    "name": "Huntington, NY, US",
+    "lat": 40.8682,
+    "lon": -73.4257
   },
   "projects": [
     {
       "name": "Veil Nebula — Full Complex",
-      "status": "planning",
+      "status": "active",
       "target": "Cygnus Loop — NGC 6960 (Western Veil) + Pickering's Triangle + NGC 6992/6995 (Eastern Veil)",
       "frameMode": "Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)",
       "centerCoords": "RA 20h51m24.7s  Dec +31°6'0.6\"",
@@ -98,19 +98,19 @@
   ],
   "notes": [
     {
-      "icon": "🔍",
+      "icon": "🔬",
       "text": "Research master flat process"
     },
     {
-      "icon": "🔧",
+      "icon": "🛠️",
       "text": "Print Bhatinoff Mask for Guide Scope (and regular scope for validation)"
     },
     {
-      "icon": "🔍",
+      "icon": "🔬",
       "text": "Sirilic Research"
     },
     {
-      "icon": "📌",
+      "icon": "📋",
       "text": "Add a total data and intermediate cleanup option for each progress referencing local files"
     }
   ],
@@ -643,7 +643,7 @@
   "appMeta": {
     "version": "1.1.0",
     "build": 2,
-    "savedAt": "2026-07-28T18:59:54.458Z"
+    "savedAt": "2026-07-28T19:31:06.679Z"
   },
   "homeSite": {
     "zip": "10002",
