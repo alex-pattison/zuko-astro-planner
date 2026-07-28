@@ -7,14 +7,14 @@
   },
   "projects": [
     {
-      "name": "Veil Nebula — Full Complex",
-      "status": "active",
+      "name": "Veil Nebula - Full Complex",
       "target": "Cygnus Loop — NGC 6960 (Western Veil) + Pickering's Triangle + NGC 6992/6995 (Eastern Veil)",
       "frameMode": "Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)",
       "centerCoords": "RA 20h51m24.7s  Dec +31°6'0.6\"",
       "anchorStar": "HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54'45\"",
       "rotation": "27° (set via framer)",
-      "notes": "Real FOV at 280mm w/ reducer: 3.93°×2.67° (confirmed from sensor dims, not the dashboard's earlier 3.62°×2.75° estimate). Whole 3° complex fits in one frame with correct rotation — no mosaic needed. OIII is strong across the entire loop, including the fainter Western side — don't under-time it. SII is the weakest channel here; prioritize it at the dark site. Re-shoot flats if rotation changes.",
+      "status": "active",
+      "notes": "Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site. Re-shoot flats if rotation changes.",
       "filterTargets": [
         {
           "filter": "Ha",
@@ -94,6 +94,97 @@
       },
       "framerMode": "reducer",
       "framerRotation": 27
+    },
+    {
+      "name": "North America Nebula - First Light",
+      "target": "NGC 7000 / Caldwell 20 (North America Nebula); Pelican Nebula (IC 5070) adjacent across L935",
+      "frameMode": "Reducer 280mm f/3.9 · Bin2 — single frame (continent ~2°×1.7° fits easily)",
+      "centerCoords": "RA 20h56m34.4s  Dec +43°50'11.3\"",
+      "anchorStar": "Deneb (α Cyg) — finder reference ~3° west; HD 199579 (mag ~6) near the Gulf of Mexico",
+      "rotation": "TBD via framer (continent upright / Florida orientation)",
+      "status": "complete",
+      "notes": "Ha-dominant emission nebula in Cygnus (~2,590 ly). Classic SHO target: Ha carries the continent shape; OIII/SII add structure along the Gulf and coasts. Reducer FOV (3.91°×2.66°) easily holds NGC 7000 alone; a slight west shift can pull in Pelican (IC 5070) if desired. Shot 2026-07-20 from NYC home (Bortle 9), reducer Bin2 — 30 min Ha, 15 min OIII, 15 min SII.",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.5
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.25,
+          "loggedHrs": 0.25
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.25,
+          "loggedHrs": 0.25
+        }
+      ],
+      "checklist": [
+        {
+          "id": "nan-process",
+          "text": "Process 260720 SHO stack",
+          "done": true
+        },
+        {
+          "id": "nan-astrobin",
+          "text": "Upload to AstroBin when processed",
+          "done": true
+        }
+      ],
+      "shoots": [
+        {
+          "date": "260720",
+          "filterIndex": 0,
+          "hours": 0.5,
+          "complete": true,
+          "creditedHours": 0.5,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
+        },
+        {
+          "date": "260720",
+          "filterIndex": 1,
+          "hours": 0.25,
+          "complete": true,
+          "creditedHours": 0.25,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
+        },
+        {
+          "date": "260720",
+          "filterIndex": 2,
+          "hours": 0.25,
+          "complete": true,
+          "creditedHours": 0.25,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
+        }
+      ],
+      "astrobinLinks": [
+        {
+          "label": "NGC 7000 - First Light with New Scope!",
+          "url": "https://app.astrobin.com/u/alexpnyy?i=alqzoo",
+          "imgUrl": "https://cdn.astrobin.com/thumbs/apb_oY_VydOc_2560x0_n1wMX-gx.jpg?v=1784682812"
+        }
+      ],
+      "savedTarget": {
+        "name": "North America Nebula (NGC 7000)",
+        "ra": 314.14313908620005,
+        "dec": 43.836472477741324
+      },
+      "framerMode": "reducer",
+      "framerRotation": 0
     }
   ],
   "notes": [
@@ -642,8 +733,8 @@
   ],
   "appMeta": {
     "version": "1.1.0",
-    "build": 3,
-    "savedAt": "2026-07-28T20:55:49.477Z"
+    "build": 2,
+    "savedAt": "2026-07-28T22:16:25.263Z"
   },
   "homeSite": {
     "zip": "10002",

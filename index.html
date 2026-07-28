@@ -420,9 +420,11 @@
   .dive-name { font-weight: 600; font-size: 13px; flex: 1; }
 
   .dive-chevron {
+    display: inline-block;
     color: var(--gray);
     font-size: 12px;
     transition: transform 0.2s;
+    transform-origin: center;
   }
 
   .dive-card.open .dive-chevron { transform: rotate(90deg); }
@@ -571,10 +573,12 @@
     margin-bottom: 3px;
   }
   .asset-chevron {
+    display: inline-block;
     color: var(--gray);
     font-size: 11px;
     text-align: center;
     transition: transform 0.2s;
+    transform-origin: center;
   }
   .asset-card.open .asset-chevron { transform: rotate(90deg); }
   .asset-remove {
@@ -1249,7 +1253,13 @@
   .status-complete { color: var(--green); border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.1); }
   .project-name { font-weight: 600; font-size: 14px; flex: 1; }
   .project-progress { font-family: var(--mono); font-size: 11px; color: var(--gray); white-space: nowrap; }
-  .project-chevron { color: var(--gray); font-size: 12px; transition: transform 0.2s; }
+  .project-chevron {
+    display: inline-block;
+    color: var(--gray);
+    font-size: 12px;
+    transition: transform 0.2s;
+    transform-origin: center;
+  }
   .project-card.open .project-chevron { transform: rotate(90deg); }
   .project-body { display: none; padding: 16px 16px 20px; }
   .project-card.open .project-body { display: block; }
@@ -1350,8 +1360,19 @@
   }
   details.collapsible > summary.section-header::-webkit-details-marker { display: none; }
   details.collapsible > summary.section-header::marker { content: ''; }
-  .sec-chevron { font-family: var(--mono); font-size: 11px; color: var(--gray); transition: transform 0.2s; flex-shrink: 0; }
-  details.collapsible[open] > summary .sec-chevron { transform: rotate(90deg); }
+  .sec-chevron {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    transition: transform 0.2s;
+    transform-origin: center;
+    flex-shrink: 0;
+  }
+  details.collapsible[open] > summary .sec-chevron,
+  details.sub-details[open] > summary .sec-chevron {
+    transform: rotate(90deg);
+  }
   .section-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
   .info-banner {
     background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.3);
@@ -1365,6 +1386,7 @@
     letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2);
   }
   details.sub-details > summary::-webkit-details-marker { display: none; }
+  details.sub-details > summary::marker { content: ''; }
   details.sub-details .sec-chevron { color: var(--gray); }
 
   .locfx-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -2022,7 +2044,7 @@ const defaultData = {
       centerCoords: 'RA 20h51m27s  Dec +31°07\'28"',
       anchorStar: 'HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54\'45"',
       rotation: 'TBD — verify on first test frame; align complex\'s ~3° long axis with sensor\'s 3.93° axis',
-      notes: 'Real FOV at 280mm w/ reducer: 3.93°×2.67° (confirmed from sensor dims, not the dashboard\'s earlier 3.62°×2.75° estimate). Whole 3° complex fits in one frame with correct rotation — no mosaic needed. OIII is strong across the entire loop, including the fainter Western side — don\'t under-time it. SII is the weakest channel here; prioritize it at the dark site. Re-shoot flats if rotation changes.',
+      notes: 'Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site. Re-shoot flats if rotation changes.',
       filterTargets: [
         { filter: 'Ha', location: 'NYCRoof', bortle: '9', targetHrs: 4, loggedHrs: 0 },
         { filter: 'OIII', location: 'NYCRoof', bortle: '9', targetHrs: 4.5, loggedHrs: 0 },
@@ -2761,19 +2783,7 @@ async function refreshHeaderSky() {
 }
 
 function save() {
-  stampAppMeta();
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
-  if (window.zukoFs) {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      window.zukoFs.save(data).then((res) => {
-        if (!res || !res.ok) updateSyncStatus(null, 'error');
-        else updateSyncStatus(res.path || 'zuko-dashboard-data.json', 'connected');
-      }).catch(() => updateSyncStatus(null, 'error'));
-    }, 200);
-  } else if (fileHandle) {
-    writeToFileHandle(data);
-  }
+  persistData();
   render();
 }
 
@@ -3144,7 +3154,7 @@ function renderProjects() {
           <option value="processing" ${p.status === 'processing' ? 'selected' : ''}>Processing</option>
           <option value="complete" ${p.status === 'complete' ? 'selected' : ''}>complete</option>
         </select>
-        <span class="project-name">${p.name}</span>
+        <span class="project-name editable" onclick="event.stopPropagation(); editProjectMeta(${pi})" title="Click to edit project">${p.name}</span>
         <span class="project-progress">${totalLogged.toFixed(1)}h / ${totalTarget.toFixed(1)}h · ${doneSteps}/${p.checklist.length} steps</span>
         <span class="project-chevron">▶</span>
         <button class="project-remove" onclick="event.stopPropagation(); removeProject(${pi})" title="Remove project">✕</button>
@@ -3358,25 +3368,57 @@ function syncFramerViewZoom(pi) {
   } catch (e) { /* ignore */ }
 }
 
+// Local sensor offsets (deg) → sky [ra, dec], with camera rotation about the target.
+function fovLocalToSky(raDeg, decDeg, xDeg, yDeg, rotationDeg) {
+  const theta = ((Number(rotationDeg) || 0) * Math.PI) / 180;
+  const cosD = Math.max(0.05, Math.cos(decDeg * Math.PI / 180));
+  const xr = xDeg * Math.cos(theta) - yDeg * Math.sin(theta);
+  const yr = xDeg * Math.sin(theta) + yDeg * Math.cos(theta);
+  return [raDeg + xr / cosD, decDeg + yr];
+}
+
 function fovCorners(raDeg, decDeg, mode, rotationDeg) {
   const dims = FOV_MODES[mode] || FOV_MODES.reducer;
   const hw = dims.w / 2, hh = dims.h / 2;
-  const theta = (rotationDeg || 0) * Math.PI / 180;
-  const cosD = Math.max(0.05, Math.cos(decDeg * Math.PI / 180));
-  return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => {
-    const xr = x * Math.cos(theta) - y * Math.sin(theta);
-    const yr = x * Math.sin(theta) + y * Math.cos(theta);
-    return [raDeg + xr / cosD, decDeg + yr];
-  });
+  return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) =>
+    fovLocalToSky(raDeg, decDeg, x, y, rotationDeg)
+  );
 }
 
 function drawFramerFootprint(pi) {
   const inst = framerInstances[pi];
   const p = data.projects[pi];
-  if (!inst || !p || !p.savedTarget) return;
-  inst.overlay.removeAll();
-  const corners = fovCorners(p.savedTarget.ra, p.savedTarget.dec, p.framerMode, inst.liveRotation !== undefined ? inst.liveRotation : p.framerRotation);
-  inst.overlay.add(A.polygon(corners, { color: '#eab308', lineWidth: 2 }));
+  if (!inst || !inst.aladin || !p || !p.savedTarget || typeof A === 'undefined') return;
+  const rot = inst.liveRotation !== undefined ? inst.liveRotation : (p.framerRotation || 0);
+  const ra = p.savedTarget.ra;
+  const dec = p.savedTarget.dec;
+  const dims = FOV_MODES[p.framerMode] || FOV_MODES.reducer;
+  const corners = fovCorners(ra, dec, p.framerMode, rot);
+
+  if (!inst.overlay) {
+    inst.overlay = A.graphicOverlay({ color: '#eab308', lineWidth: 2 });
+    inst.aladin.addOverlay(inst.overlay);
+  } else {
+    // removeAll clears items but does not requestRedraw — add() + reportChange fix that
+    inst.overlay.removeAll();
+  }
+
+  const overlay = inst.overlay;
+  overlay.add(A.polygon(corners, { color: '#eab308', lineWidth: 2 }), false);
+
+  // Camera-up arrow (top edge mid) so rotation is unambiguous
+  const tip = fovLocalToSky(ra, dec, 0, dims.h / 2, rot);
+  const base = fovLocalToSky(ra, dec, 0, dims.h * 0.12, rot);
+  if (typeof A.vector === 'function') {
+    overlay.add(A.vector(base[0], base[1], tip[0], tip[1], { color: '#eab308', lineWidth: 2 }), false);
+  } else {
+    overlay.add(A.polyline([base, tip], { color: '#eab308', lineWidth: 2 }), false);
+  }
+
+  if (typeof overlay.reportChange === 'function') overlay.reportChange();
+  else if (inst.aladin.view && typeof inst.aladin.view.requestRedraw === 'function') {
+    inst.aladin.view.requestRedraw();
+  }
 }
 
 function onFramerToggle(pi, isOpen) {
@@ -3491,12 +3533,30 @@ function initFramer(pi) {
   });
 }
 
+function persistData() {
+  stampAppMeta();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  if (window.zukoFs) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      window.zukoFs.save(data).then((res) => {
+        if (!res || !res.ok) updateSyncStatus(null, 'error');
+        else updateSyncStatus(res.path || 'zuko-dashboard-data.json', 'connected');
+      }).catch(() => updateSyncStatus(null, 'error'));
+    }, 200);
+  } else if (fileHandle) {
+    writeToFileHandle(data);
+  }
+}
+
 function liveRotateFramer(pi, deg) {
+  const rot = parseInt(deg, 10);
+  if (data.projects[pi]) data.projects[pi].framerRotation = rot;
   const inst = framerInstances[pi];
   if (!inst) return;
-  inst.liveRotation = parseInt(deg, 10);
+  inst.liveRotation = rot;
   drawFramerFootprint(pi);
-  syncFramerViewZoom(pi);
+  // Keep view FOV fixed while dragging so the rectangle/arrow clearly rotate in place.
 }
 
 function moveFramerToView(pi) {
@@ -3522,7 +3582,15 @@ function updateFramerSetting(pi, key, value) {
     };
     data.projects[pi].frameMode = labels[value] || value;
   }
-  if (framerInstances[pi]) delete framerInstances[pi].liveRotation;
+  const inst = framerInstances[pi];
+  if (inst) {
+    delete inst.liveRotation;
+    drawFramerFootprint(pi);
+    syncFramerViewZoom(pi);
+    // Persist without full render — re-render tears down Aladin and loses live updates.
+    persistData();
+    return;
+  }
   save();
 }
 
@@ -4126,7 +4194,6 @@ function saveModal() {
       bundled: status !== 'wishlist' && purchased == null
     };
     editing ? data.assets[editIndex] = item : data.assets.push(item);
-  } else if (modalType === 'project') {
   } else if (modalType === 'project') {
     if (!v('f-name')) return;
     const item = {
