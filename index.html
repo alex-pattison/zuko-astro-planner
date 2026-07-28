@@ -1785,20 +1785,16 @@
     <div id="locfx-search-results" style="margin-bottom:10px;"></div>
     <div class="locfx-inputs">
       <input id="locfx-name" placeholder="Location name (e.g. Tenafly, NJ)">
-      <input id="locfx-lat" placeholder="Latitude e.g. 40.9">
-      <input id="locfx-lon" placeholder="Longitude e.g. -73.96">
+      <input id="locfx-lat" placeholder="Latitude e.g. 40.9" onchange="loadForecast()" onkeydown="if(event.key==='Enter')loadForecast()">
+      <input id="locfx-lon" placeholder="Longitude e.g. -73.96" onchange="loadForecast()" onkeydown="if(event.key==='Enter')loadForecast()">
       <button class="add-btn" onclick="useMyLocation()" title="Ask Windows for your current location">Use my location</button>
-      <button class="add-btn" onclick="useHomeLocation()" title="Use saved home site ZIP 10002">Use home (10002)</button>
-      <button class="add-btn" onclick="loadForecast()">Load Forecast</button>
     </div>
     <div id="locfx-status" style="font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:10px;"></div>
     <div class="locfx-img-wrap" id="locfx-wrap">
       <a id="locfx-link" target="_blank" rel="noopener">
         <img id="locfx-img" alt="Clear Outside forecast">
-      </a><br>
-      <a id="locfx-link2" target="_blank" rel="noopener">Open full interactive forecast on Clear Outside →</a>
+      </a>
     </div>
-    <div class="gaia-note">Uses Clear Outside's official embeddable forecast image for the entered coordinates (updates hourly) — click it to open the full interactive forecast.</div>
   </details>
 
   <!-- Action Items -->
@@ -2680,8 +2676,8 @@ function adoptLoadedData(incoming) {
   const savedBuild = Number(saved.build) || 0;
   if (savedBuild > APP_META.build) {
     showCompatBanner(
-      'Data was saved by a newer app (v' + (saved.version || '?') + ' · build ' + String(savedBuild).padStart(3, '0') +
-      '). This app is v' + APP_META.version + ' · build ' + String(APP_META.build).padStart(3, '0') +
+      'Data was saved by a newer app (v' + (saved.version || '?') + ' · build ' + formatAppBuild(savedBuild) +
+      '). This app is ' + formatAppMetaLabel(APP_META) +
       '. Unknown fields are kept; update this install when you can.'
     );
   } else {
@@ -2689,15 +2685,36 @@ function adoptLoadedData(incoming) {
   }
 }
 
+function formatAppBuild(build) {
+  return String(Number(build) || 0).padStart(3, '0');
+}
+
+function formatAppMetaLabel(meta) {
+  const m = meta || APP_META;
+  return 'v' + m.version + ' · build ' + formatAppBuild(m.build);
+}
+
+function syncHeaderVersion() {
+  const el = document.getElementById('header-version');
+  if (el) el.textContent = formatAppMetaLabel(APP_META);
+}
+
 async function initAppMeta() {
   try {
     if (window.zukoApp && window.zukoApp.meta) {
       const m = await window.zukoApp.meta();
-      if (m && m.version) APP_META = { version: String(m.version), build: Number(m.build) || 1 };
+      if (m && m.version) {
+        APP_META = {
+          version: String(m.version),
+          build: Number(m.build) || APP_META_FALLBACK.build
+        };
+      }
     }
   } catch (e) { /* keep fallback */ }
-  const el = document.getElementById('header-version');
-  if (el) el.textContent = 'v' + APP_META.version + ' · build ' + String(APP_META.build).padStart(3, '0');
+  // Always fall back to the bundled constants if IPC returned junk
+  if (!APP_META.version) APP_META.version = APP_META_FALLBACK.version;
+  if (!APP_META.build) APP_META.build = APP_META_FALLBACK.build;
+  syncHeaderVersion();
 }
 
 // ============ MOON + HOME WEATHER (astro dark) ============
@@ -3171,18 +3188,18 @@ async function useMyLocation() {
         return;
       }
       statusEl.textContent = (res && res.error)
-        ? (res.error + ' — use home or search a place.')
-        : 'Location unavailable — use home or search a place.';
+        ? (res.error + ' — search a place instead.')
+        : 'Location unavailable — search a place instead.';
       return;
     } catch (e) {
-      statusEl.textContent = 'Location failed — use home or search a place.';
+      statusEl.textContent = 'Location failed — search a place instead.';
       return;
     }
   }
 
   // Browser fallback (HTTPS only)
   if (!navigator.geolocation) {
-    statusEl.textContent = 'Geolocation unavailable here — use home (10002) or search.';
+    statusEl.textContent = 'Geolocation unavailable here — search a place instead.';
     return;
   }
   navigator.geolocation.getCurrentPosition(
@@ -3195,18 +3212,10 @@ async function useMyLocation() {
       statusEl.textContent = 'Location found — loading forecast.';
     },
     () => {
-      statusEl.textContent = 'Browser geolocation failed — use home (10002) or search.';
+      statusEl.textContent = 'Browser geolocation failed — search a place instead.';
     },
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
   );
-}
-
-function useHomeLocation() {
-  const statusEl = document.getElementById('locfx-status');
-  ensureHomeSite();
-  const home = data.homeSite || HOME_SITE;
-  statusEl.textContent = 'Using home site (' + (home.name || home.zip) + ') — loading forecast.';
-  applyForecastCoords(home.lat, home.lon, home.name || ('ZIP ' + home.zip));
 }
 
 function loadForecast() {
@@ -3216,7 +3225,7 @@ function loadForecast() {
   const statusEl = document.getElementById('locfx-status');
   const frame = document.getElementById('locfx-frame');
   if (isNaN(lat) || isNaN(lon)) {
-    statusEl.textContent = 'Enter a valid latitude and longitude, use my location, home (10002), or search.';
+    statusEl.textContent = 'Enter a valid latitude and longitude, use my location, or search.';
     return;
   }
   data.forecastLocation = { name, lat, lon };
@@ -3233,7 +3242,6 @@ function renderForecastFrame() {
   const lon = Number(loc.lon).toFixed(2);
   document.getElementById('locfx-img').src = `https://clearoutside.com/forecast_image_large/${lat}/${lon}/forecast.png`;
   document.getElementById('locfx-link').href = `https://clearoutside.com/forecast/${lat}/${lon}`;
-  document.getElementById('locfx-link2').href = `https://clearoutside.com/forecast/${lat}/${lon}`;
   wrap.style.display = 'block';
   statusEl.textContent = loc.name ? `Showing forecast for ${loc.name} (${lat}, ${lon})` : `Showing forecast for ${lat}, ${lon}`;
   document.getElementById('locfx-name').value = loc.name || '';
@@ -4514,6 +4522,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     ensureHomeSite();
     setBootStatus('Rendering…');
     render();
+    syncHeaderVersion();
     dismissBootSplash();
     // Weather / moon after first paint — don't block the UI
     refreshHeaderSky();

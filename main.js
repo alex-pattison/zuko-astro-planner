@@ -198,7 +198,19 @@ function createWindow() {
   });
 }
 
-const pkg = require('./package.json');
+function readPackageMeta() {
+  // Read from disk each time so version/build updates without restarting Electron
+  try {
+    const raw = fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8');
+    const parsed = JSON.parse(raw);
+    return {
+      version: String((parsed && parsed.version) || '0.0.0'),
+      build: Number(parsed && parsed.zukoBuild) || 1,
+    };
+  } catch (err) {
+    return { version: '0.0.0', build: 1 };
+  }
+}
 
 async function windowsGeolocate() {
   const script = path.join(__dirname, 'scripts', 'windows-geolocate.ps1');
@@ -236,10 +248,7 @@ async function windowsGeolocate() {
   }
 }
 
-ipcMain.handle('zuko-app-meta', () => ({
-  version: pkg.version || '0.0.0',
-  build: Number(pkg.zukoBuild) || 1,
-}));
+ipcMain.handle('zuko-app-meta', () => readPackageMeta());
 
 ipcMain.handle('zuko-geolocate', async () => {
   if (process.platform === 'win32') return windowsGeolocate();

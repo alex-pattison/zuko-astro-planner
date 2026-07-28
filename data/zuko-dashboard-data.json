@@ -1,9 +1,9 @@
 {
   "rigName": "Zuko",
   "forecastLocation": {
-    "name": "Huntington, NY, US",
-    "lat": 40.8682,
-    "lon": -73.4257
+    "name": "Alphabet City, New York",
+    "lat": 40.7209,
+    "lon": -73.9825
   },
   "projects": [
     {
@@ -732,9 +732,9 @@
     }
   ],
   "appMeta": {
-    "version": "1.1.0",
-    "build": 2,
-    "savedAt": "2026-07-28T22:26:07.787Z"
+    "version": "0.2.0",
+    "build": 4,
+    "savedAt": "2026-07-28T22:43:34.424Z"
   },
   "uiTheme": "dark",
   "homeSite": {
