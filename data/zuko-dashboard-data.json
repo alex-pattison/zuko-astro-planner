@@ -1,0 +1,401 @@
+{
+  "rigName": "Zuko",
+  "forecastLocation": {
+    "name": "New York, New York, United States",
+    "lat": 40.7143,
+    "lon": -74.006
+  },
+  "projects": [
+    {
+      "name": "Veil Nebula — Full Complex",
+      "status": "planning",
+      "target": "Cygnus Loop — NGC 6960 (Western Veil) + Pickering's Triangle + NGC 6992/6995 (Eastern Veil)",
+      "frameMode": "Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)",
+      "centerCoords": "RA 20h51m27s  Dec +31°07'28\"",
+      "anchorStar": "HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54'45\"",
+      "rotation": "TBD — verify on first test frame; align complex's ~3° long axis with sensor's 3.93° axis",
+      "notes": "Real FOV at 280mm w/ reducer: 3.93°×2.67° (confirmed from sensor dims, not the dashboard's earlier 3.62°×2.75° estimate). Whole 3° complex fits in one frame with correct rotation — no mosaic needed. OIII is strong across the entire loop, including the fainter Western side — don't under-time it. SII is the weakest channel here; prioritize it at the dark site. Re-shoot flats if rotation changes.",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 4,
+          "loggedHrs": 0
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 4.5,
+          "loggedHrs": 0
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 2.5,
+          "loggedHrs": 0
+        },
+        {
+          "filter": "SII",
+          "location": "Queechy",
+          "bortle": "4.5",
+          "targetHrs": 1,
+          "loggedHrs": 1
+        },
+        {
+          "filter": "Home",
+          "location": "DarkSite",
+          "bortle": "4.5",
+          "targetHrs": 1.5,
+          "loggedHrs": 0
+        }
+      ],
+      "checklist": [
+        {
+          "id": "step-1785117355138",
+          "text": "Process 260725 Data",
+          "done": false
+        },
+        {
+          "id": "step-1785117514525",
+          "text": "Setup \"Plan\" in ASIAir",
+          "done": false
+        }
+      ],
+      "shoots": [
+        {
+          "date": "260725",
+          "filterIndex": 3,
+          "hours": 1,
+          "complete": true,
+          "creditedHours": 1
+        }
+      ],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "Veil Nebula (Cygnus Loop)",
+        "ra": 312.8625,
+        "dec": 31.1244
+      },
+      "framerMode": "reducer",
+      "framerRotation": 0
+    }
+  ],
+  "notes": [
+    {
+      "icon": "⚠️",
+      "text": "Investigate power draw issue"
+    },
+    {
+      "icon": "🔍",
+      "text": "Research master flat process"
+    },
+    {
+      "icon": "🔧",
+      "text": "Print Bhatinoff Mask for Guide Scope (and regular scope for validation)"
+    },
+    {
+      "icon": "🔍",
+      "text": "Sirilic Research"
+    }
+  ],
+  "gear": [
+    {
+      "cat": "Mount",
+      "name": "ZWO AM3N Harmonic Drive",
+      "price": "$1,800",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Drive System",
+          "Strain wave (harmonic) + synchronous belt, 300:1"
+        ],
+        [
+          "Payload",
+          "8kg no CW / 13kg with CW"
+        ],
+        [
+          "Mount Weight",
+          "4.1kg (9.04 lb)"
+        ],
+        [
+          "Periodic Error",
+          "±15\" (factory tested, PE report included)"
+        ],
+        [
+          "Control",
+          "Bluetooth direct, or WiFi via hand controller / ASIAIR"
+        ],
+        [
+          "Saddle",
+          "Integrated 12V + USB-C passthrough"
+        ],
+        [
+          "Power Req.",
+          "12V / 5A DC (supply sold separately)"
+        ],
+        [
+          "Condition",
+          "New (B&H), incl. TC40 carbon tripod"
+        ]
+      ]
+    },
+    {
+      "cat": "Telescope",
+      "name": "Askar FRA400 72mm f/5.6",
+      "price": "$1,050",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Design",
+          "Quintuplet Petzval, 2× ED elements"
+        ],
+        [
+          "Aperture / FL",
+          "72mm / 400mm native"
+        ],
+        [
+          "With 0.7× Reducer",
+          "280mm f/3.9"
+        ],
+        [
+          "Image Circle",
+          "44mm full-frame flat field"
+        ],
+        [
+          "Back Focus (native)",
+          "140mm from M68×1 thread; forgiving 50–60mm range"
+        ],
+        [
+          "Focuser",
+          "3\" rack-and-pinion, 360° rotatable"
+        ],
+        [
+          "Weight",
+          "2.56kg OTA"
+        ],
+        [
+          "Includes",
+          "Reducer + EAF, tube rings, dovetail, handle"
+        ]
+      ]
+    },
+    {
+      "cat": "Camera",
+      "name": "ZWO ASI294MM Pro",
+      "price": "$2,100",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Sensor",
+          "Sony IMX492, back-illuminated, 4/3\" format"
+        ],
+        [
+          "Sensor Size",
+          "19.1 × 13.0mm (23.2mm diagonal)"
+        ],
+        [
+          "Resolution (Bin2)",
+          "4144×2822 (11.7MP), 4.63µm effective px"
+        ],
+        [
+          "Resolution (Bin1)",
+          "8288×5644 (47MP unlocked), 2.315µm px"
+        ],
+        [
+          "Read Noise",
+          "1.2e (HCG mode)"
+        ],
+        [
+          "Full Well",
+          "66ke (14ke unlocked mode)"
+        ],
+        [
+          "Cooling",
+          "TEC, ~−35 to −40°C below ambient"
+        ],
+        [
+          "Peak QE",
+          "~90%"
+        ],
+        [
+          "Connection",
+          "USB 3.0 to ASIAIR, built-in hub for EFW/EAF"
+        ],
+        [
+          "Includes",
+          "EFW 8×31 + Astrodon/Baader filter set"
+        ]
+      ]
+    },
+    {
+      "cat": "Guiding",
+      "name": "SV106 + ASI120MM Mini",
+      "price": "~$275",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Guide Scope",
+          "SVBONY SV106, 60mm f/4, 240mm FL"
+        ],
+        [
+          "Guide Scope Focus",
+          "Helical, non-rotating, 8mm travel"
+        ],
+        [
+          "Guide Camera",
+          "ZWO ASI120MM Mini mono"
+        ],
+        [
+          "Guide Sensor",
+          "1/3\" CMOS, 1280×960, 3.75µm px"
+        ],
+        [
+          "Connection",
+          "M42×0.75 T-thread, USB 2.0 Type-C, ST4 port"
+        ],
+        [
+          "Software",
+          "ASIAIR built-in guiding"
+        ]
+      ]
+    },
+    {
+      "cat": "Controller",
+      "name": "ZWO ASIAIR Plus 256GB",
+      "price": "$349",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Version",
+          "256GB eMMC (2024 release)"
+        ],
+        [
+          "Storage",
+          "256GB onboard, ~244GB usable"
+        ],
+        [
+          "Ports",
+          "2× USB 3.0, 2× USB 2.0, Gigabit Ethernet, USB-C, DSLR shutter"
+        ],
+        [
+          "WiFi",
+          "Dual-band, ~20m (65ft) range"
+        ],
+        [
+          "Control",
+          "Bluetooth to ZWO EAF/AM-series mounts"
+        ],
+        [
+          "Function",
+          "Plate solving, PA, guiding, autofocus, scheduling"
+        ],
+        [
+          "Replaces",
+          "Laptop + NINA/PHD2 at the scope"
+        ]
+      ]
+    },
+    {
+      "cat": "Power",
+      "name": "Pegasus Powerbox Micro",
+      "price": "$250",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "12V Outputs",
+          "4 ports, switchable, 5A each"
+        ],
+        [
+          "Dew Channels",
+          "2× RCA PWM, auto-dew via env. sensor"
+        ],
+        [
+          "Total Capacity",
+          "10A"
+        ],
+        [
+          "Adjustable Output",
+          "3/5/8/9/12V, 3A max"
+        ],
+        [
+          "Protection",
+          "Reverse polarity + overvoltage cutoff >14.5V"
+        ],
+        [
+          "Config",
+          "One-time via Pegasus Unity, then standalone"
+        ]
+      ]
+    },
+    {
+      "cat": "Software",
+      "name": "Processing Stack",
+      "price": "$180",
+      "acquired": "July 2026",
+      "specs": [
+        [
+          "Capture",
+          "ASIAIR app (free)"
+        ],
+        [
+          "Processing",
+          "Siril (free)"
+        ],
+        [
+          "AI Plugins",
+          "RC-Astro $180"
+        ],
+        [
+          "Planning",
+          "ASIAIR SkyAtlas built-in"
+        ],
+        [
+          "File transfer",
+          "USB-C → PC as drive"
+        ]
+      ]
+    }
+  ],
+  "budget": [
+    {
+      "label": "ASI294MM + EFW + Astrodon Filters",
+      "amount": 2100
+    },
+    {
+      "label": "Askar FRA400 + Reducer + EAF",
+      "amount": 1050
+    },
+    {
+      "label": "ZWO AM3N + TC40 Tripod (new, B&H)",
+      "amount": 1800
+    },
+    {
+      "label": "SVBONY SV106 Guide Scope",
+      "amount": 75
+    },
+    {
+      "label": "ZWO ASI120MM Mini Guide Camera",
+      "amount": 200
+    },
+    {
+      "label": "Pegasus Powerbox Micro",
+      "amount": 250
+    },
+    {
+      "label": "RC-Astro Plugins (BlurX/NoiseX/StarX)",
+      "amount": 180
+    },
+    {
+      "label": "ZWO ASIAIR Plus 256GB",
+      "amount": 349
+    },
+    {
+      "label": "Power Supply + Spacers + Dew + Cables",
+      "amount": 155
+    }
+  ],
+  "newRetail": 8346
+}

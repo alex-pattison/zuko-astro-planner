@@ -4,42 +4,30 @@ Desktop astrophotography planner and rig dashboard for Alex's imaging setup.
 
 Baseline UI comes from the existing standalone HTML/Electron dashboard (`rig-dashboard-v6` lineage). This repo is a new project — not a fork.
 
-## Setup
+## Setup (any machine)
 
 1. Install [Node.js LTS](https://nodejs.org) if needed.
-2. From this folder:
+2. Clone or pull this repo.
+3. From this folder:
    ```
    npm install
+   npm start
    ```
 
-## Run
+Desktop shortcut (optional): point at `node_modules\electron\dist\electron.exe` with arguments `.` and this folder as the working directory.
 
-```
-npm start
-```
+## Data storage
 
-`Ctrl+Shift+I` opens DevTools. `Ctrl+R` reloads.
+Auto-load / auto-save uses:
 
-## Migrate browser localStorage (one-time)
+1. **Preferred (this desktop):** `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` when that folder exists
+2. **Fallback (laptop / other machines):** `data/zuko-dashboard-data.json` in this repo
 
-If you still have data in a browser tab of the old dashboard:
+When saving on the H: machine, the app also mirrors into `data/` so you can commit and pull your latest data on another computer.
 
-1. In the browser console:
-   ```js
-   copy(JSON.stringify({
-     main: localStorage.getItem('astro-rig-v6'),
-     hideprices: localStorage.getItem('astro-rig-hideprices'),
-     checklist: localStorage.getItem('astro-rig-checklist')
-   }))
-   ```
-2. In the app DevTools console:
-   ```js
-   const d = /* paste clipboard JSON here */;
-   localStorage.setItem('astro-rig-v6', d.main);
-   localStorage.setItem('astro-rig-hideprices', d.hideprices);
-   localStorage.setItem('astro-rig-checklist', d.checklist);
-   location.reload();
-   ```
+**Laptop workflow:** edit as usual → commit `data/zuko-dashboard-data.json` when you want it synced → push → pull on the other machine.
+
+localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 
 ## Build installer (optional)
 

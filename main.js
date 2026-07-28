@@ -1,5 +1,37 @@
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
+const fs = require('fs');
+const fsp = require('fs/promises');
 const path = require('path');
+
+const PREFERRED_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
+const REPO_DATA_DIR = path.join(__dirname, 'data');
+const REPO_DATA_FILE = path.join(REPO_DATA_DIR, 'zuko-dashboard-data.json');
+const DATA_FILENAME = 'zuko-dashboard-data.json';
+
+function resolveDataPaths() {
+  const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
+  if (fs.existsSync(PREFERRED_DIR)) {
+    return {
+      dir: PREFERRED_DIR,
+      file: preferredFile,
+      mirrorFile: REPO_DATA_FILE,
+      label: preferredFile,
+    };
+  }
+  return {
+    dir: REPO_DATA_DIR,
+    file: REPO_DATA_FILE,
+    mirrorFile: null,
+    label: REPO_DATA_FILE,
+  };
+}
+
+async function atomicWrite(filePath, data) {
+  await fsp.mkdir(path.dirname(filePath), { recursive: true });
+  const tmp = filePath + '.tmp';
+  await fsp.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
+  await fsp.rename(tmp, filePath);
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -8,9 +40,10 @@ function createWindow() {
     minWidth: 860,
     minHeight: 600,
     backgroundColor: '#070b12',
-    title: "Zuko Astro Planner",
+    title: 'Zuko Astro Planner',
     autoHideMenuBar: false,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
       spellcheck: false,
@@ -21,6 +54,14 @@ function createWindow() {
     {
       label: 'File',
       submenu: [
+        {
+          label: 'Open Data Folder',
+          click: () => {
+            const { dir: dataDir } = resolveDataPaths();
+            shell.openPath(dataDir);
+          },
+        },
+        { type: 'separator' },
         { role: 'quit' },
       ],
     },
@@ -49,6 +90,56 @@ function createWindow() {
     return { action: 'deny' };
   });
 }
+
+ipcMain.handle('zuko-data-path', () => resolveDataPaths().label);
+
+ipcMain.handle('zuko-data-open-folder', async () => {
+  const { dir } = resolveDataPaths();
+  await fsp.mkdir(dir, { recursive: true });
+  return shell.openPath(dir);
+});
+
+ipcMain.handle('zuko-data-load', async () => {
+  const { file, label } = resolveDataPaths();
+  try {
+    await fsp.mkdir(path.dirname(file), { recursive: true });
+
+    // Prefer primary file; if missing on H:, fall back to repo seed.
+    let source = file;
+    if (!fs.existsSync(file) || !String(await fsp.readFile(file, 'utf8')).trim()) {
+      if (file !== REPO_DATA_FILE && fs.existsSync(REPO_DATA_FILE)) {
+        source = REPO_DATA_FILE;
+      } else {
+        return { ok: true, data: null, path: label, missing: true };
+      }
+    }
+
+    const text = await fsp.readFile(source, 'utf8');
+    if (!text.trim()) {
+      return { ok: true, data: null, path: label, missing: true };
+    }
+    return { ok: true, data: JSON.parse(text), path: label, missing: false };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), path: label };
+  }
+});
+
+ipcMain.handle('zuko-data-save', async (_event, data) => {
+  const { file, mirrorFile, label } = resolveDataPaths();
+  try {
+    await atomicWrite(file, data);
+    if (mirrorFile) {
+      try {
+        await atomicWrite(mirrorFile, data);
+      } catch (mirrorErr) {
+        console.warn('Repo data mirror failed:', mirrorErr);
+      }
+    }
+    return { ok: true, path: label };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), path: label };
+  }
+});
 
 app.whenReady().then(() => {
   createWindow();

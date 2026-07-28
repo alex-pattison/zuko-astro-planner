@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alex's Astrophotography Rig</title>
+<title>Zuko — Astrophotography Rig</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
 
@@ -755,6 +755,8 @@
     padding: 24px;
     width: 100%;
     max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
   .modal h3 {
@@ -815,13 +817,259 @@
     color: #fff;
   }
 
+  /* ============ SYNC BAR ============ */
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  #sync-status { color: var(--gray); white-space: nowrap; }
+
+  /* ============ PROJECTS ============ */
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .project-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .project-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .project-status-select {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .status-planning { color: var(--yellow); border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.1); }
+  .status-active { color: var(--accent2); border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.1); }
+  .status-processing { color: #c084fc; border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.1); }
+  .status-complete { color: var(--green); border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.1); }
+  .project-name { font-weight: 600; font-size: 14px; flex: 1; }
+  .project-progress { font-family: var(--mono); font-size: 11px; color: var(--gray); white-space: nowrap; }
+  .project-chevron { color: var(--gray); font-size: 12px; transition: transform 0.2s; }
+  .project-card.open .project-chevron { transform: rotate(90deg); }
+  .project-body { display: none; padding: 16px 16px 20px; }
+  .project-card.open .project-body { display: block; }
+  .project-remove {
+    background: none; border: none; color: var(--gray);
+    font-size: 13px; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  }
+  .project-remove:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  .project-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px 16px;
+    margin-bottom: 14px;
+  }
+  .pm-label { font-family: var(--mono); font-size: 9px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .pm-val { font-size: 12px; color: var(--text2); }
+  .project-notes-text {
+    font-size: 12px; color: var(--text2); line-height: 1.7;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 14px;
+  }
+
+  .filter-target-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .filter-target-table th {
+    font-family: var(--mono); font-size: 9px; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.06em; text-align: left; padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-target-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+  .ft-bar-wrap { background: var(--bg); border-radius: 3px; height: 6px; width: 100%; overflow: hidden; min-width: 70px; display: flex; }
+  .ft-bar { height: 100%; background: var(--accent); }
+  .ft-bar.full { background: var(--green); }
+  .ft-bar-pending { height: 100%; background: repeating-linear-gradient(45deg, var(--yellow), var(--yellow) 3px, transparent 3px, transparent 6px); opacity: 0.6; }
+
+  .proj-checklist { margin-top: 4px; }
+  .proj-step {
+    display: flex; align-items: flex-start; gap: 8px; padding: 6px 0;
+    border-bottom: 1px solid rgba(30,45,69,0.5); cursor: pointer;
+  }
+  .proj-step:last-child { border-bottom: none; }
+  .proj-step .fl-check { width: 16px; height: 16px; }
+  .proj-step.done .fl-check { background: var(--green); border-color: var(--green); color: #04140a; }
+  .proj-step-text { font-size: 12px; color: var(--text2); flex: 1; }
+  .proj-step.done .proj-step-text { opacity: 0.45; text-decoration: line-through; }
+  .proj-step-remove { background: none; border: none; color: var(--gray); font-size: 11px; cursor: pointer; padding: 2px 6px; }
+  .proj-step-remove:hover { color: var(--red); }
+
+  .mini-btn {
+    font-family: var(--mono); font-size: 9px;
+    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.35);
+    color: var(--accent2); border-radius: 4px; padding: 4px 10px; cursor: pointer;
+    margin-top: 6px;
+  }
+  .mini-btn:hover { background: rgba(59,130,246,0.25); }
+
+  .gaia-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .shoot-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .gaia-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .gaia-inputs input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 8px; color: var(--text); font-family: var(--mono); font-size: 11px; width: 170px;
+  }
+  .gaia-row {
+    font-size: 11px; color: var(--text2); padding: 5px 0;
+    border-bottom: 1px solid rgba(30,45,69,0.5); display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  .gaia-row:last-child { border-bottom: none; }
+  .gaia-note { font-size: 10px; color: var(--gray); margin-top: 4px; }
+
+  .proj-action-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  /* ============ COLLAPSIBLE SECTIONS ============ */
+  details.collapsible { margin-bottom: 8px; }
+  details.collapsible > summary.section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 40px; margin-bottom: 14px;
+    cursor: pointer; user-select: none; list-style: none;
+  }
+  details.collapsible > summary.section-header::-webkit-details-marker { display: none; }
+  details.collapsible > summary.section-header::marker { content: ''; }
+  .sec-chevron { font-family: var(--mono); font-size: 11px; color: var(--gray); transition: transform 0.2s; flex-shrink: 0; }
+  details.collapsible[open] > summary .sec-chevron { transform: rotate(90deg); }
+  .section-toolbar { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+  .info-banner {
+    background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.3);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+    font-size: 12px; color: var(--yellow);
+  }
+  details.sub-details { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-top: 16px; overflow: hidden; }
+  details.sub-details > summary {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    cursor: pointer; list-style: none; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--text2);
+  }
+  details.sub-details > summary::-webkit-details-marker { display: none; }
+  details.sub-details .sec-chevron { color: var(--gray); }
+
+  .locfx-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .locfx-inputs input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; color: var(--text); font-family: var(--mono); font-size: 12px;
+  }
+  .locfx-img-wrap { display: none; text-align: center; }
+  .framer-lock-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 14px;
+    border-radius: 8px;
+    background: rgba(7,11,18,0.15);
+    cursor: pointer;
+  }
+  .framer-lock-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+    background: rgba(13,20,32,0.9);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    letter-spacing: 0.03em;
+  }
+  .locfx-img-wrap img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .locfx-img-wrap a { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--accent2); }
+
+  @media (max-width: 900px) {
+    /* Tablet: slightly tighter grids, tables scroll as a single unit so columns stay aligned */
+    .project-meta-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-scroll .filter-target-table { min-width: 560px; }
+  }
+
   @media (max-width: 640px) {
+    body { padding: 12px 10px; }
+    h1 { font-size: 20px; }
     .filter-slots { grid-template-columns: repeat(4, 1fr); }
     .delivery-item { grid-template-columns: 20px 1fr auto 24px; }
     .delivery-tracking { display: none; }
-    h1 { font-size: 20px; }
+
+    /* Stats: 2-up, tighter */
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+    .stat-card { padding: 12px; }
+    .stat-value { font-size: 18px; }
+
+    /* Sync bar: stack, path truncates */
+    .sync-bar { gap: 8px; }
+    .sync-bar .add-btn { flex: 1; text-align: center; }
+    #sync-path { margin-left: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Project card header wraps cleanly */
+    .project-header { gap: 8px; padding: 12px; }
+    .project-name { font-size: 13px; flex-basis: 100%; order: -1; }
+    .project-progress { font-size: 10px; }
+    .project-body { padding: 12px; }
+    .project-meta-grid { grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+
+    /* Framer: shorter viewer, full-width controls */
+    [id^="aladin-framer-"] { height: 260px !important; }
+    .gaia-inputs input, .gaia-inputs select { width: 100% !important; }
+    .gaia-inputs input[type="range"] { width: 100% !important; }
+    .gaia-inputs .mini-btn { flex: 1; }
+
+    /* Forecast inputs full width */
+    .locfx-inputs { gap: 6px; }
+    .locfx-inputs input { width: 100% !important; flex: 1 1 100%; }
+    .locfx-inputs .add-btn { flex: 1; text-align: center; }
+
+    /* AstroBin cards full width */
+    .shoot-box [style*="max-width:340px"] { max-width: 100% !important; width: 100%; }
+
+    /* Modal: fit small screens */
+    .modal { max-width: calc(100vw - 24px); padding: 16px; }
+
+    /* Forecast image: scroll horizontally at readable size instead of shrinking to unreadable */
+    .locfx-img-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .locfx-img-wrap img { max-width: none; }
+
+    /* Larger touch targets */
+    .mini-btn, .add-btn { padding: 8px 12px; }
+    .filter-target-table td, .filter-target-table th { padding: 8px 8px; }
+    .section-header h2 { font-size: 13px; }
   }
 </style>
+<script type="text/javascript" src="https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js" charset="utf-8"></script>
 </head>
 <body>
 <div class="wrapper">
@@ -830,65 +1078,108 @@
     <div class="header-top">
       <div>
         <div class="site-title">Astrophotography Rig</div>
-        <h1>Alex's <span>Imaging Setup</span></h1>
+        <h1 id="rig-name-el">Zuko</h1>
       </div>
-      <div class="header-meta">
-        <strong>Tenafly, NJ → NYC</strong>
-        Bortle 5–6 → Bortle 8–9<br>
-        First Light Window: Jul 10–17, 2026<br>
-        <button class="price-toggle" id="price-toggle" onclick="togglePrices()" style="margin-top:8px;">👁 Hide Prices</button>
-      </div>
+      <div class="header-meta"></div>
     </div>
   </header>
 
+  <!-- Data Sync -->
+  <div class="sync-bar">
+    <span id="sync-status">💾 Local browser storage only</span>
+    <button class="add-btn" id="sync-open-btn" onclick="connectDataFile()">📂 Open Synced File</button>
+    <button class="add-btn" id="sync-create-btn" onclick="createNewDataFile()">🆕 Create Synced File</button>
+    <button class="add-btn" id="sync-folder-btn" onclick="openDataFolder()" style="display:none">📂 Open Data Folder</button>
+    <span id="sync-path" style="margin-left:auto;color:var(--accent2);font-family:var(--mono);font-size:10px;"></span>
+  </div>
+
   <!-- Stats -->
   <div class="stats-bar">
-    <div class="stat-card price-el">
-      <div class="stat-label">Total Spent</div>
-      <div class="stat-value" id="stat-total">$6,159</div>
-      <div class="stat-sub">incl. software + ASIAIR</div>
-    </div>
-    <div class="stat-card price-el">
-      <div class="stat-label">New Retail Value</div>
-      <div class="stat-value">$8,346</div>
-      <div class="stat-sub">equivalent new</div>
-    </div>
-    <div class="stat-card price-el">
-      <div class="stat-label">Saved vs New</div>
-      <div class="stat-value" style="color: var(--green)">$2,187</div>
-      <div class="stat-sub">27% below new</div>
+    <div class="stat-card">
+      <div class="stat-label">Session Hours Logged</div>
+      <div class="stat-value" id="stat-hours">0h</div>
+      <div class="stat-sub" id="stat-hours-sub">across all projects</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Items Delivered</div>
-      <div class="stat-value" id="stat-delivered">2/10</div>
-      <div class="stat-sub" id="stat-remaining">8 in transit</div>
+      <div class="stat-label">Projects Complete</div>
+      <div class="stat-value" id="stat-complete">0/0</div>
+      <div class="stat-sub">by status</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Projects</div>
+      <div class="stat-value" id="stat-active">0</div>
+      <div class="stat-sub">planning / active / processing</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Action Items</div>
+      <div class="stat-value" id="stat-checklist">0</div>
+      <div class="stat-sub">open notes</div>
     </div>
   </div>
 
-  <!-- Delivery Board -->
-  <div class="section-header">
-    <h2>Delivery Status</h2>
-    <div class="section-line"></div>
-    <button class="add-btn" onclick="openModal('delivery')">+ Add Item</button>
-  </div>
+  <!-- Projects -->
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Tracked Projects</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="section-toolbar">
+      <button class="add-btn" onclick="openModal('project')">+ New Project</button>
+    </div>
+    <div id="projects-container"></div>
+  </details>
 
-  <div class="delivery-board" id="delivery-board"></div>
-  <div class="status-hint">💡 click a status dot to cycle status · click any item text to edit its values</div>
+  <!-- Location & Sky Forecast -->
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Location &amp; Sky Forecast</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="locfx-inputs">
+      <input id="locfx-search" placeholder="Search a place e.g. Boston, MA" style="width:220px;">
+      <button class="add-btn" onclick="searchLocation()">Search Location</button>
+    </div>
+    <div id="locfx-search-results" style="margin-bottom:10px;"></div>
+    <div class="locfx-inputs">
+      <input id="locfx-name" placeholder="Location name (e.g. Tenafly, NJ)">
+      <input id="locfx-lat" placeholder="Latitude e.g. 40.9">
+      <input id="locfx-lon" placeholder="Longitude e.g. -73.96">
+      <button class="add-btn" onclick="useMyLocation()">📍 Use My Location</button>
+      <button class="add-btn" onclick="loadForecast()">Load Forecast</button>
+    </div>
+    <div id="locfx-status" style="font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:10px;"></div>
+    <div class="locfx-img-wrap" id="locfx-wrap">
+      <a id="locfx-link" target="_blank" rel="noopener">
+        <img id="locfx-img" alt="Clear Outside forecast">
+      </a><br>
+      <a id="locfx-link2" target="_blank" rel="noopener">Open full interactive forecast on Clear Outside →</a>
+    </div>
+    <div class="gaia-note">Uses Clear Outside's official embeddable forecast image for the entered coordinates (updates hourly) — click it to open the full interactive forecast.</div>
+  </details>
 
   <!-- Action Items -->
-  <div class="section-header">
-    <h2>Action Items</h2>
-    <div class="section-line"></div>
-    <button class="add-btn" onclick="openModal('note')">+ Add Note</button>
-  </div>
-
-  <div class="notes-box" id="notes-box"></div>
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Action Items</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="section-toolbar">
+      <button class="add-btn" onclick="openModal('note')">+ Add Note</button>
+    </div>
+    <div class="notes-box" id="notes-box"></div>
+  </details>
 
   <!-- OPTICAL TRAIN -->
-  <div class="section-header">
-    <h2>Optical Train — Reducer Mode (280mm f/3.9)</h2>
-    <div class="section-line"></div>
-  </div>
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Optical Train — Reducer Mode (280mm f/3.9)</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="info-banner">⚠ This optical train was recently updated on the physical rig — the diagram below still reflects the prior spacer/back-focus configuration. Alex will provide the current spacer stack and back-focus numbers to refresh this section.</div>
 
   <div class="train-wrap">
     <div class="train-title">Light Path — Front to Sensor</div>
@@ -976,12 +1267,16 @@
     </div>
     <div class="bf-total" style="margin-top: 12px;">No strict back focus calc needed at native FL — Petzval design is forgiving between 50–60mm. Focus and shoot.</div>
   </div>
+  </details>
 
   <!-- CABLE / POWER DIAGRAM -->
-  <div class="section-header">
-    <h2>Power &amp; Data Connections</h2>
-    <div class="section-line"></div>
-  </div>
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Power &amp; Data Connections</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="info-banner">📡 An updated routing diagram is coming — Alex has a new cable/port layout to provide. The diagram below is the prior routing and will be replaced.</div>
 
   <div class="cable-diagram"><span class="c-note">━━ POWER (12V) ━━  ┅┅ USB DATA ┅┅  ~~ DEW (RCA) ~~  ≈≈ WIFI ≈≈</span>
 
@@ -989,113 +1284,41 @@
     │
 <span class="c-power">BTF-LIGHTING 12V 10A supply</span> (5.5×2.1mm barrel)
     │
-<span class="c-dev">PEGASUS POWERBOX MICRO</span> <span class="c-note">(power distribution only)</span>
-    ├──━━ 12V ━━→ <span class="c-dev">AM3N mount body</span> <span class="c-note">(main mount power)</span>
+<span class="c-dev">PEGASUS POWERBOX MICRO</span>
+    ├──━━ 12V ━━→ <span class="c-dev">AM3N mount body</span>
     ├──━━ 12V ━━→ <span class="c-dev">AM3N SADDLE 12V passthrough</span> <span class="c-note">━━→ ASI294MM Pro</span>
     ├──━━ 12V ━━→ <span class="c-dev">ASIAIR Plus</span>
-    ├──━━ 12V ━━→ <span class="c-note">(spare — EAF if not USB-powered)</span>
-    ├──~~ RCA ch1 ~~→ <span class="c-dev">Dew strap — FRA400</span> <span class="c-note">(auto-dew)</span>
+    ├──━━ 12V ━━→ <span class="c-note">(spare)</span>
+    ├──~~ RCA ch1 ~~→ <span class="c-dev">Dew strap — FRA400</span>
     └──~~ RCA ch2 ~~→ <span class="c-dev">Dew strap — SV106 guide</span>
 
-<span class="c-dev">ASIAIR PLUS</span> <span class="c-note">(data + control — mounts on scope/rail)</span>
-    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N mount body</span> <span class="c-note">(mount control)</span>
+<span class="c-dev">ASIAIR PLUS</span>
+    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N mount body</span>
     ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N SADDLE USB-C passthrough</span> <span class="c-note">┅┅→ ASI294MM Pro</span>
     │                                                    ├─┅┅ cam hub port 1 ┅┅→ <span class="c-dev">EFW 8×31</span>
     │                                                    └─┅┅ cam hub port 2 ┅┅→ <span class="c-dev">ZWO EAF</span>
-    ├──┅┅ USB ┅┅→ <span class="c-dev">ASI120MM Mini</span> <span class="c-note">(guide cam)</span>
-    └──≈≈ WiFi ≈≈→ <span class="c-dev">YOUR PHONE / TABLET</span> <span class="c-note">(ASIAIR app — up to 20m range)</span>
+    ├──┅┅ USB ┅┅→ <span class="c-dev">ASI120MM Mini</span>
+    └──≈≈ WiFi ≈≈→ <span class="c-dev">YOUR PHONE / TABLET</span></div>
 
-<span class="c-note">WHY ROUTE THROUGH THE SADDLE: the AM3N's saddle has a built-in 12V + USB-C
-passthrough exactly where the scope clamps on. Feeding the camera's power AND
-data through this single passthrough (instead of running 2 separate cables up
-the tube) means only ONE cable crosses from mount body to telescope — everything
-rotates together cleanly through a full meridian flip with zero snag risk.
-
-NO laptop at the scope. NO computer cables leaving the rig.
-One power cable in — everything else wireless to your phone.
-
-AFTER SESSION: plug ASIAIR into Windows PC via USB-C →
-appears as external drive → drag FITS files → process in Siril + RC-Astro</span></div>
-
-  <div class="notes-box" style="margin-top:12px;">
-    <div class="note-item">
-      <span class="note-icon">🔌</span>
-      <span class="note-text"><strong>AM3N saddle passthrough cable:</strong> need a short 12V pigtail + USB-C cable that plugs into the saddle's ports on the mount side, then a matching pair running up to the camera/hub on the scope side. Check if these came in the AM3N box — ZWO typically includes a saddle breakout cable. If not, search "ZWO AM3N saddle power cable."</span>
-    </div>
-  </div>
+  </details>
 
   <!-- Gear -->
-  <div class="section-header">
-    <h2>Core Gear</h2>
-    <div class="section-line"></div>
-    <button class="add-btn" onclick="openModal('gear')">+ Add Gear</button>
-  </div>
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Core Gear</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="section-toolbar">
+      <button class="add-btn" onclick="openModal('gear')">+ Add Gear</button>
+    </div>
 
   <div class="gear-grid" id="gear-grid"></div>
 
-  <!-- Filter Wheel -->
-  <div class="section-header">
-    <h2>Filter Wheel — EFW 8×31mm</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="filter-slots">
-    <div class="filter-slot filter-l"><div class="slot-number">01</div><div class="slot-name">L</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Luminance</div></div>
-    <div class="filter-slot filter-r"><div class="slot-number">02</div><div class="slot-name">R</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Red</div></div>
-    <div class="filter-slot filter-g"><div class="slot-number">03</div><div class="slot-name">G</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Green</div></div>
-    <div class="filter-slot filter-b"><div class="slot-number">04</div><div class="slot-name">B</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Blue</div></div>
-    <div class="filter-slot filter-sii"><div class="slot-number">05</div><div class="slot-name">SII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-ha"><div class="slot-number">06</div><div class="slot-name">Hα</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-oiii"><div class="slot-number">07</div><div class="slot-name">OIII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-hb"><div class="slot-number">08</div><div class="slot-name">Hβ</div><div class="slot-brand">Baader</div><div class="slot-bw">5nm</div></div>
-  </div>
-
-  <!-- Imaging Configs -->
-  <div class="section-header">
-    <h2>Imaging Configurations — ASI294MM Pro</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="config-table-wrap">
-    <table class="config-table">
-      <thead>
-        <tr><th>Mode</th><th>True FL</th><th>35mm Equiv</th><th>FOV</th><th>Image Scale</th><th>Best For</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>NYC — Reducer + Bin2</td>
-          <td><span class="mono">280mm f/3.9</span></td>
-          <td><span class="mono">~522mm</span></td>
-          <td><span class="mono">217'×165'</span></td>
-          <td><span class="mono">3.41"/px</span></td>
-          <td>Large nebulae, LP rejection, 2× faster subs</td>
-        </tr>
-        <tr>
-          <td>Dark Site — Native + Bin2</td>
-          <td><span class="mono">400mm f/5.6</span></td>
-          <td><span class="mono">~746mm</span></td>
-          <td><span class="mono">152'×115'</span></td>
-          <td><span class="mono">2.39"/px</span></td>
-          <td>Standard narrowband — ideal seeing match</td>
-        </tr>
-        <tr>
-          <td>Dark Site — Native + Bin1</td>
-          <td><span class="mono">400mm f/5.6</span></td>
-          <td><span class="mono">~746mm</span></td>
-          <td><span class="mono">152'×115'</span></td>
-          <td><span class="mono">1.19"/px</span></td>
-          <td>Galaxy detail — best seeing nights only</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- ============ COMPONENT DEEP DIVE ============ -->
-  <div class="section-header">
-    <h2>Component Deep Dive — Quirks &amp; First-Time Setup</h2>
-    <div class="section-line"></div>
-  </div>
-
+  <!-- Component Deep Dive nested inside Core Gear -->
+  <details class="sub-details">
+    <summary><span class="sec-chevron">▶</span> Component Deep Dive — Known Quirks</summary>
+    <div style="padding: 4px 16px 16px;">
   <div id="dive-container">
 
     <div class="dive-card">
@@ -1112,24 +1335,8 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
             <li><strong>Flat non-linearity:</strong> the 294 misbehaves at very short flat exposures. Keep flats <strong>above 2–3 seconds</strong> — dim your flat source rather than shortening exposure.</li>
             <li><strong>No bias frames.</strong> Use dark flats instead — the 294's bias behavior is unstable.</li>
             <li><strong>Micro-lensing artifacts</strong> possible around very bright stars (e.g. Alnitak) — sensor trait, minimized by framing bright stars out when possible.</li>
+            <li><strong>Thermal shock risk:</strong> always warm the sensor up gradually before power-off — never a cold shutdown.</li>
             <li><strong>This unit:</strong> one USB port is dead (disclosed, not needed) and it has a new daughter board. Test the working port day one.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>Standard settings: <strong>gain 120</strong> (HCG mode — read noise ~1.2e), <strong>offset 30</strong>. Never change without rebuilding darks.</li>
-            <li>Default <strong>Bin2</strong> (11.7MP). Bin1 (47MP) only at dark sites with excellent seeing — files are enormous.</li>
-            <li>Cooling: <strong>−10°C summer</strong>, −15/−20°C in cooler months. <span class="crit">Always warm up gradually before power-off</span> — thermal shock risks the sensor window.</li>
-            <li>Plug EFW + EAF into the <strong>camera's built-in USB hub</strong> — one cable to ASIAIR carries all three devices.</li>
-            <li>The included <strong>ZWO anti-dew strip</strong> (USB powered) wraps the camera nose — prevents sensor-window fogging.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title tips">✓ Day-One Checks</div>
-          <ul class="dive-list">
-            <li>Flat frame against a bright wall — inspect for dust motes, scratches, dead pixel clusters.</li>
-            <li>Cool to −10°C, confirm stable hold for 15+ min (~2–3A during cooldown, less at hold).</li>
           </ul>
         </div>
       </div>
@@ -1145,27 +1352,10 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
         <div class="dive-section">
           <div class="dive-section-title quirks">⚠ Known Quirks</div>
           <ul class="dive-list">
-            <li><strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets (below).</li>
+            <li><strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets, set once and reused every session.</li>
             <li><strong>31mm on the 294MM is tight</strong> (4.45mm margin/side). Fine at f/5.6; <span class="crit">verify corner vignetting with flats at f/3.9 reducer mode</span>. Mild vignetting calibrates out.</li>
             <li><strong>Seller's filter order: L, R, G, B, S, H, O, Hβ</strong> — verify on arrival, label in app to match.</li>
             <li>Cosmetic scratch on EFW camera side (disclosed) — zero optical impact.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>First connect: run <strong>EFW calibration</strong> in ASIAIR (Settings → EFW → Calibrate).</li>
-            <li>Name slots: 1=L, 2=R, 3=G, 4=B, 5=SII, 6=Ha, 7=OIII, 8=Hβ.</li>
-            <li><strong>Filter offsets (night 2–3):</strong> autofocus per filter, record EAF positions, enter differences as offsets → app auto-adjusts focus on every filter change.</li>
-            <li>Astrodon glass: handle by edges, blower before contact cleaning, no liquids unless truly needed.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title tips">✓ Exposure Starting Points (5nm)</div>
-          <ul class="dive-list">
-            <li>Native f/5.6: <strong>Ha/OIII/SII 300s</strong> subs at gain 120.</li>
-            <li>Reducer f/3.9: <strong>Ha/OIII/SII 180s</strong> — 2× faster optics.</li>
-            <li>LRGB (dark site): L 120s, RGB 120–180s.</li>
           </ul>
         </div>
       </div>
@@ -1182,26 +1372,9 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
           <div class="dive-section-title quirks">⚠ Known Quirks</div>
           <ul class="dive-list">
             <li><strong>Missing coarse focus knob</strong> (lost during EAF install). EAF replaces it functionally — order Askar replacement (~$15) as backup, not urgent.</li>
-            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate.</li>
+            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening, no calc needed); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate.</li>
             <li>Reducer sits <strong>inside</strong> the drawtube via M68 thread; camera side is M48.</li>
-            <li><span class="crit">Ask the seller what spacer stack they used</span> — they had it dialed in.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>Reducer train: reducer → <strong>15mm + 3mm spacers</strong> → EFW (20mm) → camera (17.5mm) = 55.5mm ✓</li>
-            <li><strong>360° rotator</strong> for framing: loosen ring, rotate camera, retighten. Re-shoot flats if you rotate mid-project.</li>
-            <li>EAF: run travel calibration in-app. Autofocus on a mag 3–5 star, note step position.</li>
-            <li>Extend the retractable dew shield every session — delays dew, blocks stray light.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title tips">✓ Day-One Checks</div>
-          <ul class="dive-list">
-            <li>Inspect objective with angled flashlight — scratches, fungus, coating damage.</li>
-            <li>Rotator turns smoothly and locks solidly.</li>
-            <li>EAF motor engages — run partial travel via app before mounting the camera train.</li>
+            <li>Rotator is 360° — re-shoot flats any time you rotate the camera mid-project.</li>
           </ul>
         </div>
       </div>
@@ -1219,24 +1392,9 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
           <ul class="dive-list">
             <li><span class="crit">NO CLUTCHES.</span> Harmonic mounts move electronically only — <strong>never force the axes by hand</strong>. Manual pushing can damage strain wave gears.</li>
             <li><strong>No polar scope</strong> — polar alignment happens via ASIAIR's plate-solving PA routine (works without seeing Polaris).</li>
-            <li>±15" periodic error → <strong>guiding mandatory</strong> above ~30s subs. Expect 0.5–1.0" RMS guided.</li>
-            <li>Harmonic drives track best <strong>slightly east-heavy</strong> — perfect balance can oscillate. No counterweight needed for your ~4kg rig.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>First connect: ASIAIR prompts <strong>mount firmware update</strong> — do it indoors, days before first light.</li>
-            <li>Set <strong>latitude on the altitude scale</strong> (~40.9° Tenafly / 40.7° NYC) before PA.</li>
-            <li>Use the <strong>saddle 12V + USB-C ports</strong> to feed the camera — cables route through the mount body, no snags during slews.</li>
-            <li>Follow the app's home position guidance on startup.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title tips">✓ Day-One Checks</div>
-          <ul class="dive-list">
-            <li>Slew both axes full range via app — smooth whir, no grinding.</li>
-            <li>Dual V/D saddle clamps the FRA400 dovetail firmly.</li>
+            <li>±15" periodic error (factory tested per-unit) → <strong>guiding mandatory</strong> above ~30s subs. Expect 0.5–1.0" RMS guided.</li>
+            <li>Harmonic drives track best <strong>slightly east-heavy</strong> — perfect balance can oscillate. No counterweight needed for your ~4kg rig (rated 8kg without one).</li>
+            <li>Saddle's integrated 12V + USB-C passthrough feeds the camera through the mount body — avoids separate cables snagging during slews.</li>
           </ul>
         </div>
       </div>
@@ -1252,19 +1410,10 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
         <div class="dive-section">
           <div class="dive-section-title quirks">⚠ Known Quirks</div>
           <ul class="dive-list">
-            <li><span class="crit">6A INPUT CEILING.</span> Its 4× 12V outputs share 6A total — <strong>do NOT power the cooled camera or mount from it</strong>. Powerbox handles power; ASIAIR handles data only.</li>
+            <li><span class="crit">6A INPUT CEILING.</span> Rated for 12V/5A input, max 6A — its four 12V outputs (3A each) share that ceiling. <strong>Do NOT power the cooled camera or mount from it</strong>. Powerbox handles power; ASIAIR handles data only.</li>
             <li><strong>ZWO gear only</strong> — cannot control the Pegasus Powerbox (which runs standalone after Unity config).</li>
             <li><strong>No desktop app</strong> — phone/tablet only. An old iPad makes a great dedicated controller.</li>
-            <li>Default WiFi password: <strong>12345678</strong> (on the device sticker).</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>First boot: connect phone to ASIAIR hotspot → app forces <strong>firmware update</strong>. Do indoors on good WiFi.</li>
-            <li>Enable <strong>Station Mode</strong> — joins home WiFi so you control from anywhere in the house.</li>
-            <li>Set image save to internal 256GB. Post-session: USB-C to PC = external drive.</li>
-            <li>Mount via ¼-20 holes or velcro (finder shoe is taken by the guide scope).</li>
+            <li>Default WiFi password: <strong>12345678</strong> (on the device sticker) — change or use Station Mode on home WiFi.</li>
           </ul>
         </div>
       </div>
@@ -1282,16 +1431,8 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
           <ul class="dive-list">
             <li>ASIAIR <strong>cannot control it</strong> — one-time config via Pegasus Unity on PC, then runs standalone (settings persist on boot).</li>
             <li>Needs 6A min / 8A+ recommended input — your BTF 10A is correct. <span class="crit">Never substitute a 5A supply.</span></li>
-            <li>Dew ports are <strong>RCA connectors</strong> — uses the RCA male-male cables you ordered.</li>
-          </ul>
-        </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup (once, indoors)</div>
-          <ul class="dive-list">
-            <li>USB to PC → install <strong>Pegasus Unity</strong> → update firmware.</li>
-            <li>Plug in <strong>temp/humidity sensor</strong>, enable <strong>Auto-Dew</strong> — heaters self-regulate all season.</li>
-            <li>Label ports (Mount / Camera / ASIAIR / spare), set 12V ports ON at boot.</li>
-            <li>Velcro to a tripod leg; sensor cable dangling in open air near the scope.</li>
+            <li>Dew ports are <strong>RCA connectors</strong>, 5A max per channel — uses standard RCA male-male cables.</li>
+            <li>Overvoltage cutoff trips above 14.5V input — reverse-polarity protected too.</li>
           </ul>
         </div>
       </div>
@@ -1309,158 +1450,113 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
           <ul class="dive-list">
             <li><strong>Guide scope focus is the #1 first-night time sink.</strong> Focus in DAYLIGHT on a distant object (500m+), lock the helical ring. Slightly soft is fine — fat stars centroid better.</li>
             <li>ASI120MM Mini is <strong>open box</strong> — inspect sensor and test USB on arrival.</li>
+            <li>Guide camera sensor is small (1/3", 3.75µm px) — calibrate guiding near the celestial equator and meridian for the most reliable calibration.</li>
             <li>Dew hits guide scopes too — that's Powerbox RCA channel 2.</li>
           </ul>
         </div>
-        <div class="dive-section">
-          <div class="dive-section-title setup">🔧 First-Time Setup</div>
-          <ul class="dive-list">
-            <li>Camera into SV106 rear (1.25" barrel or M42). Orient so USB exits toward the mount.</li>
-            <li>Rings onto FRA400 finder shoe — rough alignment with main scope is fine.</li>
-            <li>ASIAIR auto-detects. <strong>Calibrate guiding near celestial equator + meridian</strong> (Dec ~0°, high south).</li>
-            <li>Guide exposure 1–2s. Target total RMS under 1.5" for clean 300s subs.</li>
-          </ul>
-        </div>
       </div>
     </div>
 
   </div>
-
-  <!-- ============ FIRST LIGHT GUIDE ============ -->
-  <div class="section-header">
-    <h2>First Light Guide — Build → Check → Shoot</h2>
-    <div class="section-line"></div>
-    <button class="add-btn" onclick="resetChecklist()">Reset All</button>
   </div>
+  </details>
+  </details>
 
-  <div id="fl-container">
+  <!-- Filter Wheel -->
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Filter Wheel — EFW 8×31mm</h2>
+      <div class="section-line"></div>
+    </summary>
 
-    <div class="fl-phase" data-phase="bench">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">B</div>
-        <div>
-          <div class="fl-phase-title">Bench Test — ASIAIR + AM3N + Powerbox</div>
-          <div class="fl-phase-sub">Before camera arrives · confirms core power/data chain</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="pBs1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Power chain:</strong> Wall → BTF 12V 10A supply → Powerbox Micro DC IN.</div></div>
-        <div class="fl-step" data-step="pBs2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Powerbox outputs:</strong> Port 1 → AM3N mount body, Port 2 → ASIAIR Plus. Leave ports 3/4 open for camera later.</div></div>
-        <div class="fl-step" data-step="pBs3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Data:</strong> ASIAIR USB port → AM3N (USB-C cable) for mount control.</div></div>
-        <div class="fl-step" data-step="pBs4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Power-on order:</strong> wall → confirm Powerbox status LED → power AM3N, confirm clean boot (no restart/brownout) → power ASIAIR, wait ~30-60s for boot.</div></div>
-        <div class="fl-step" data-step="pBs5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Connect phone to ASIAIR WiFi hotspot</strong> (default password 12345678), open app.</div></div>
-        <div class="fl-step" data-step="pBs6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Confirm ASIAIR sees the AM3N</strong> in device list, shows connected status.</div></div>
-        <div class="fl-step" data-step="pBs7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Test slew command</strong> from app — listen for motor movement on both axes.</div></div>
-        <div class="fl-step" data-step="pBs8"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Run any pending firmware updates</strong> now (ASIAIR / AM3N) while on good home WiFi — never do this at the scope.</div></div>
-        <div class="fl-step" data-step="pBs9"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Check AM3N saddle passthrough cable</strong> — confirm 12V + USB-C breakout cable is included in box, or order one if not (search "ZWO AM3N saddle power cable").</div></div>
-      </div>
-    </div>
-
-    <div class="fl-phase" data-phase="0">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">0</div>
-        <div>
-          <div class="fl-phase-title">Bench Prep — Indoors, Daytime</div>
-          <div class="fl-phase-sub">As gear arrives · ~2–3 hours total</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="p0s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Unbox + inspect everything:</strong> camera sensor (flat vs bright wall), scope objective (angled flashlight), EFW spins, mount powers on, no shipping damage. Photograph any issues immediately for claims.</div></div>
-        <div class="fl-step" data-step="p0s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Firmware night:</strong> ASIAIR first boot + update → AM3N firmware via ASIAIR → Powerbox via Unity on PC. ALL updates indoors, never at the scope.</div></div>
-        <div class="fl-step" data-step="p0s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Configure Powerbox in Unity (one time):</strong> plug in temp/humidity sensor, enable Auto-Dew, label ports, 12V ports ON at boot.</div></div>
-        <div class="fl-step" data-step="p0s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Assemble imaging train (reducer mode):</strong> reducer into drawtube (M68) → 15mm + 3mm spacers → EFW 8×31 → ASI294MM. Snug threads, no cross-threading.</div></div>
-        <div class="fl-step" data-step="p0s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Verify EFW filter order</strong> matches seller spec (L,R,G,B,S,H,O,Hβ) — then never open the wheel outdoors.</div></div>
-        <div class="fl-step" data-step="p0s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Attach guide system:</strong> ASI120MM into SV106, rings onto finder shoe. ASIAIR onto rig (¼-20/velcro). Powerbox onto tripod leg.</div></div>
-        <div class="fl-step" data-step="p0s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cable up per connection diagram.</strong> Dress with velcro so nothing snags — test by slewing full range via app.</div></div>
-      </div>
-    </div>
-
-    <div class="fl-phase" data-phase="1">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">1</div>
-        <div>
-          <div class="fl-phase-title">Daytime Systems Test</div>
-          <div class="fl-phase-sub">Any afternoon before first light · ~1 hour</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="p1s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Full power-up:</strong> wall → Powerbox → everything. All devices appear in ASIAIR: camera, EFW, EAF, guide cam, mount.</div></div>
-        <div class="fl-step" data-step="p1s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cooling test:</strong> −10°C, reaches and holds 15 min.</div></div>
-        <div class="fl-step" data-step="p1s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Cycle all 8 EFW slots</strong> from the app.</div></div>
-        <div class="fl-step" data-step="p1s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>EAF travel test:</strong> partial range from app — smooth, no slipping.</div></div>
-        <div class="fl-step" data-step="p1s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Daytime rough focus</strong> on a distant object (500m+), L filter. <strong>Write down the EAF step position</strong> — your night starting point.</div></div>
-        <div class="fl-step" data-step="p1s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Focus + lock the guide scope</strong> on the same object. Lock the helical ring — never touch again.</div></div>
-        <div class="fl-step" data-step="p1s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Slew test:</strong> both axes, full range — zero cable snags.</div></div>
-      </div>
-    </div>
-
-    <div class="fl-phase" data-phase="2">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">2</div>
-        <div>
-          <div class="fl-phase-title">First Light Night</div>
-          <div class="fl-phase-sub">Clear night, NJ backyard · budget 3+ hrs, expect chaos</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="p2s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Setup at dusk:</strong> level tripod, aim roughly north, altitude ~40.9°. Extend dew shield. Power up, start cooling to −10°C.</div></div>
-        <div class="fl-step" data-step="p2s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Polar alignment</strong> via ASIAIR PA routine (All-Sky PA works without Polaris). Target under 2' error — under 1' is great.</div></div>
-        <div class="fl-step" data-step="p2s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Autofocus:</strong> mag 3–5 star, L filter, AF from your daytime EAF position. Tight round stars. Switch to Ha, refocus, note the offset.</div></div>
-        <div class="fl-step" data-step="p2s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Guiding calibration</strong> near celestial equator + meridian. Target under 1.5" RMS. Jumpy? Lengthen guide exposure to 2s, lower aggression.</div></div>
-        <div class="fl-step" data-step="p2s5"><div class="fl-check">✓</div><div class="fl-step-text"><strong>GoTo first target — North America Nebula (NGC 7000):</strong> high in Cygnus all July, huge and bright in Ha. Plate solve auto-centers.</div></div>
-        <div class="fl-step" data-step="p2s6"><div class="fl-check">✓</div><div class="fl-step-text"><strong>30s Ha test sub → check corner stars.</strong> Elongated corners = back focus off → adjust spacers ±1mm tomorrow.</div></div>
-        <div class="fl-step" data-step="p2s7"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Run the sequence:</strong> Ha 180s subs (reducer), gain 120, −10°C, 20–30 subs. Watch 3 come in, then go inside — app follows on WiFi.</div></div>
-        <div class="fl-step" data-step="p2s8"><div class="fl-check">✓</div><div class="fl-step-text"><strong>End of night:</strong> stop → <strong>warm camera gradually</strong> → park mount → power down → cap scope. Log EAF position + PA error.</div></div>
-      </div>
-    </div>
-
-    <div class="fl-phase" data-phase="3">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">3</div>
-        <div>
-          <div class="fl-phase-title">Calibration Frames</div>
-          <div class="fl-phase-sub">Same night or next day · critical for the 294MM</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="p3s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Flats (per filter used):</strong> dawn sky + t-shirt or flat panel, ~30k ADU mean, <strong>exposure above 2–3s</strong> (dim the source, don't shorten). 20–30 per filter. Don't touch focus or rotator first.</div></div>
-        <div class="fl-step" data-step="p3s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Darks (library, indoors):</strong> cap on, gain 120 / offset 30 / −10°C / exact light exposure lengths (180s, 300s). 20–30 each. Reusable for months.</div></div>
-        <div class="fl-step" data-step="p3s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Dark flats (NOT bias):</strong> cap on, matching flat settings exactly. 20–30. The 294 doesn't do bias well — dark flats replace them.</div></div>
-      </div>
-    </div>
-
-    <div class="fl-phase" data-phase="4">
-      <div class="fl-phase-header">
-        <div class="fl-phase-num">4</div>
-        <div>
-          <div class="fl-phase-title">Processing — First Image</div>
-          <div class="fl-phase-sub">Windows PC · Siril + RC-Astro</div>
-        </div>
-        <div class="fl-progress"></div>
-      </div>
-      <div class="fl-steps">
-        <div class="fl-step" data-step="p4s1"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Transfer:</strong> ASIAIR → PC via USB-C (external drive). Lights + flats + darks + dark flats into Siril folders.</div></div>
-        <div class="fl-step" data-step="p4s2"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Siril preprocess:</strong> calibrate (darks/flats/dark-flats) → register → stack → one clean linear master.</div></div>
-        <div class="fl-step" data-step="p4s3"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Process:</strong> BlurXTerminator (linear) → stretch (GHS) → NoiseXTerminator → StarXTerminator if compositing. Export. Admire.</div></div>
-        <div class="fl-step" data-step="p4s4"><div class="fl-check">✓</div><div class="fl-step-text"><strong>Log the session:</strong> PA error, guiding RMS, EAF positions, sub count, what broke. Every session builds on the last.</div></div>
-      </div>
-    </div>
-
+  <div class="filter-slots">
+    <div class="filter-slot filter-l"><div class="slot-number">01</div><div class="slot-name">L</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Luminance</div></div>
+    <div class="filter-slot filter-r"><div class="slot-number">02</div><div class="slot-name">R</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Red</div></div>
+    <div class="filter-slot filter-g"><div class="slot-number">03</div><div class="slot-name">G</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Green</div></div>
+    <div class="filter-slot filter-b"><div class="slot-number">04</div><div class="slot-name">B</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Blue</div></div>
+    <div class="filter-slot filter-sii"><div class="slot-number">05</div><div class="slot-name">SII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-ha"><div class="slot-number">06</div><div class="slot-name">Hα</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-oiii"><div class="slot-number">07</div><div class="slot-name">OIII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
+    <div class="filter-slot filter-hb"><div class="slot-number">08</div><div class="slot-name">Hβ</div><div class="slot-brand">Baader</div><div class="slot-bw">5nm</div></div>
   </div>
+  </details>
+
+  <!-- Imaging Configs -->
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Imaging Configurations — ASI294MM Pro</h2>
+      <div class="section-line"></div>
+    </summary>
+
+  <div class="config-table-wrap">
+    <table class="config-table">
+      <thead>
+        <tr><th>Mode</th><th>True FL</th><th>35mm Equiv</th><th>FOV</th><th>Image Scale</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NYC — Reducer + Bin2</td>
+          <td><span class="mono">280mm f/3.9</span></td>
+          <td><span class="mono">~522mm</span></td>
+          <td><span class="mono">3.91°×2.66° (234'×160')</span></td>
+          <td><span class="mono">3.41"/px</span></td>
+          <td>Large nebulae, LP rejection, 2× faster subs</td>
+        </tr>
+        <tr>
+          <td>Dark Site — Native + Bin2</td>
+          <td><span class="mono">400mm f/5.6</span></td>
+          <td><span class="mono">~746mm</span></td>
+          <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
+          <td><span class="mono">2.39"/px</span></td>
+          <td>Standard narrowband — ideal seeing match</td>
+        </tr>
+        <tr>
+          <td>Dark Site — Native + Bin1</td>
+          <td><span class="mono">400mm f/5.6</span></td>
+          <td><span class="mono">~746mm</span></td>
+          <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
+          <td><span class="mono">1.19"/px</span></td>
+          <td>Galaxy detail — best seeing nights only</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </details>
 
   <!-- Budget -->
-  <div class="section-header">
-    <h2>Budget</h2>
-    <div class="section-line"></div>
-    <button class="add-btn" onclick="openModal('budget')">+ Add Purchase</button>
+  <details class="collapsible" open>
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Budget</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="section-toolbar" style="gap:10px;">
+      <button class="price-toggle" id="price-toggle" onclick="togglePrices()">👁 Hide Prices</button>
+      <button class="add-btn" onclick="openModal('budget')">+ Add Purchase</button>
+    </div>
+
+  <div class="stats-bar price-el" style="margin-bottom:16px;">
+    <div class="stat-card">
+      <div class="stat-label">Total Spent</div>
+      <div class="stat-value" id="stat-total">$0</div>
+      <div class="stat-sub">incl. software + ASIAIR</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">New Retail Value</div>
+      <div class="stat-value" id="stat-newretail">$0</div>
+      <div class="stat-sub">equivalent new</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Saved vs New</div>
+      <div class="stat-value" id="stat-saved" style="color: var(--green)">$0</div>
+      <div class="stat-sub" id="stat-saved-pct">— below new</div>
+    </div>
   </div>
 
   <div class="budget-bar-wrap price-el" id="budget-wrap"></div>
+  </details>
 
 </div>
 
@@ -1478,39 +1574,135 @@ appears as external drive → drag FITS files → process in Siril + RC-Astro</s
 
 <script>
 // ============ DATA ============
-const STORAGE_KEY = 'astro-rig-v6';
+const STORAGE_KEY = 'zuko-rig-v7';
+let fileHandle = null;
 
 const defaultData = {
-  deliveries: [
-    { name: 'TC40 Carbon Fiber Tripod', sub: 'B&H — New', tracking: '', eta: 'Delivered', status: 'delivered' },
-    { name: 'ZWO AM3N Harmonic Mount', sub: 'B&H — New', tracking: '', eta: 'Jul 4', status: 'transit' },
-    { name: 'Pegasus Pocket Powerbox Micro', sub: 'High Point Scientific — FedEx', tracking: '382410821240', eta: 'Jul 5', status: 'transit' },
-    { name: 'BTF-LIGHTING 12V 10A Power Supply', sub: 'Amazon', tracking: '', eta: 'Jul 7', status: 'transit' },
-    { name: 'ASI120MM Mini + Dew-Not + Spacers (5+10mm)', sub: 'Agena #1556379 — UPS 3-Day', tracking: '1ZF2Y091P195642428', eta: 'Jul 7', status: 'transit' },
-    { name: 'M48 Spacers (15+3+1mm)', sub: 'Agena #1556448 — USPS', tracking: '', eta: 'TBD', status: 'ordered' },
-    { name: 'USB Micro-B + RCA + Micro USB Cables', sub: 'Amazon', tracking: '', eta: 'TBD', status: 'transit' },
-    { name: 'ASI294MM Pro + EFW 8×31 + Astrodon Filters', sub: 'CN Seller — UPS', tracking: '1ZGG14250320665826', eta: 'Jul 9', status: 'transit' },
-    { name: 'Askar FRA400 + Reducer + EAF (2 boxes)', sub: 'CN Seller — UPS', tracking: '1Z850A77YW72760683 / ...47184157', eta: 'Jul 10', status: 'transit' },
-    { name: 'ZWO ASIAIR Plus 256GB (2024)', sub: 'Ordered — controller', tracking: '', eta: 'TBD', status: 'ordered' },
-    { name: 'SVBONY SV106 60mm Guide Scope', sub: 'Amazon — at NYC apartment', tracking: '', eta: 'NYC Apt', status: 'delivered' }
+  rigName: 'Zuko',
+  forecastLocation: null,
+  projects: [
+    {
+      name: 'Veil Nebula — Full Complex',
+      status: 'planning',
+      target: 'Cygnus Loop — NGC 6960 (Western Veil) + Pickering\'s Triangle + NGC 6992/6995 (Eastern Veil)',
+      frameMode: 'Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)',
+      centerCoords: 'RA 20h51m27s  Dec +31°07\'28"',
+      anchorStar: 'HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54\'45"',
+      rotation: 'TBD — verify on first test frame; align complex\'s ~3° long axis with sensor\'s 3.93° axis',
+      notes: 'Real FOV at 280mm w/ reducer: 3.93°×2.67° (confirmed from sensor dims, not the dashboard\'s earlier 3.62°×2.75° estimate). Whole 3° complex fits in one frame with correct rotation — no mosaic needed. OIII is strong across the entire loop, including the fainter Western side — don\'t under-time it. SII is the weakest channel here; prioritize it at the dark site. Re-shoot flats if rotation changes.',
+      filterTargets: [
+        { filter: 'Ha', location: 'NYCRoof', bortle: '9', targetHrs: 4, loggedHrs: 0 },
+        { filter: 'OIII', location: 'NYCRoof', bortle: '9', targetHrs: 4.5, loggedHrs: 0 },
+        { filter: 'SII', location: 'NYCRoof', bortle: '9', targetHrs: 2.5, loggedHrs: 0 },
+        { filter: 'SII', location: 'DarkSite', bortle: '4.5', targetHrs: 1, loggedHrs: 0 },
+        { filter: 'RGB', location: 'DarkSite', bortle: '4.5', targetHrs: 1, loggedHrs: 0 }
+      ],
+      checklist: [
+        { id: 'v1', text: 'Slew to center coords and plate-solve', done: false },
+        { id: 'v2', text: 'Confirm both arcs fit in frame with margin', done: false },
+        { id: 'v3', text: 'Adjust rotation if needed, re-solve', done: false },
+        { id: 'v4', text: 'Shoot flats for this framing/rotation', done: false },
+        { id: 'v5', text: 'Set up session log (PA error, guide RMS, EAF offsets)', done: false }
+      ],
+      shoots: [],
+      astrobinLinks: [],
+      savedTarget: { name: 'Veil Nebula (Cygnus Loop)', ra: 312.8625, dec: 31.1244 },
+      framerMode: 'reducer',
+      framerRotation: 0
+    }
   ],
   notes: [
     { icon: '⚠️', text: '<strong>Dew-Not DN01 (4.5"):</strong> Verify fits FRA400 90mm objective — may be too small. 4.5" strap fits ~36mm tube.' },
-    { icon: '⚠️', text: '<strong>Back focus (reducer):</strong> 55mm target. Start with 15mm + 3mm stack (18mm spacers = 55.5mm total). Fine-tune with 1mm Baader.' },
-    { icon: '📦', text: '<strong>Ask FRA400 seller:</strong> what spacer stack they used with the reducer — they had it dialed in.' },
-    { icon: '🔍', text: '<strong>ASI120MM Mini (open box):</strong> Inspect sensor for dust/scratches on arrival. Test USB connection immediately.' },
+    { icon: '⚠️', text: '<strong>Back focus (reducer):</strong> 55mm target — optical train recently changed, re-confirm the current spacer stack against this.' },
     { icon: '💻', text: '<strong>Before first light:</strong> Download ASIAIR app (phone/tablet), install Pegasus Unity on PC for one-time dew setup. Note: no official ASIAIR desktop app.' },
-    { icon: '📲', text: '<strong>Powerbox dew config:</strong> Connect Powerbox to PC via USB once, set auto-dew mode in Unity, then it runs standalone all season.' },
-    { icon: '↩️', text: '<strong>Return extra spacers</strong> (5mm + 10mm) once back focus confirmed with 15+3+1mm set.' }
+    { icon: '📲', text: '<strong>Powerbox dew config:</strong> Connect Powerbox to PC via USB once, set auto-dew mode in Unity, then it runs standalone all season.' }
   ],
   gear: [
-    { cat: 'Mount', name: 'ZWO AM3N Harmonic Drive', price: '$1,800', specs: [['Released','2024'],['Payload (no CW)','8kg'],['Periodic Error','±15"'],['Connectivity','USB-C + Bluetooth'],['Condition','New (B&H)']] },
-    { cat: 'Telescope', name: 'Askar FRA400 72mm f/5.6', price: '$1,050', specs: [['Design','Quintuplet Petzval'],['Focal Length','400mm native'],['With Reducer','280mm f/3.9'],['Image Circle','44mm'],['Includes','Reducer + EAF']] },
-    { cat: 'Camera', name: 'ZWO ASI294MM Pro', price: '$2,100', specs: [['Sensor','Sony IMX492'],['Format','Micro 4/3'],['Pixel Size','4.63µm (Bin2)'],['Cooling','TEC −35°C'],['Peak QE','~90%'],['Includes','EFW 8×31 + filters']] },
-    { cat: 'Guiding', name: 'SV106 + ASI120MM Mini', price: '~$275', specs: [['Guide Scope','60mm f/4 · 240mm'],['Guide Camera','ASI120MM Mini mono'],['Connection','M42 T-thread'],['Software','PHD2']] },
-    { cat: 'Controller', name: 'ZWO ASIAIR Plus 256GB', price: '$349', specs: [['Released','2024 (256GB ver.)'],['Storage','256GB eMMC'],['USB','4 ports (hub)'],['WiFi Range','~20m / 65ft'],['Control','Phone/tablet app'],['Replaces','NINA + PHD2 + laptop']] },
-    { cat: 'Power', name: 'Pegasus Powerbox Micro', price: '$250', specs: [['12V Outputs','4 ports'],['Dew Channels','2× RCA PWM'],['Capacity','10A'],['Auto-Dew','Yes'],['Role','Power only — ASIAIR handles data']] },
-    { cat: 'Software', name: 'Processing Stack', price: '$180', specs: [['Capture','ASIAIR app (free)'],['Processing','Siril (free)'],['AI Plugins','RC-Astro $180'],['Planning','ASIAIR SkyAtlas built-in'],['File transfer','USB-C → PC as drive']] }
+    {
+      cat: 'Mount', name: 'ZWO AM3N Harmonic Drive', price: '$1,800', acquired: 'July 2026',
+      specs: [
+        ['Drive System', 'Strain wave (harmonic) + synchronous belt, 300:1'],
+        ['Payload', '8kg no CW / 13kg with CW'],
+        ['Mount Weight', '4.1kg (9.04 lb)'],
+        ['Periodic Error', '±15" (factory tested, PE report included)'],
+        ['Control', 'Bluetooth direct, or WiFi via hand controller / ASIAIR'],
+        ['Saddle', 'Integrated 12V + USB-C passthrough'],
+        ['Power Req.', '12V / 5A DC (supply sold separately)'],
+        ['Condition', 'New (B&H), incl. TC40 carbon tripod']
+      ]
+    },
+    {
+      cat: 'Telescope', name: 'Askar FRA400 72mm f/5.6', price: '$1,050', acquired: 'July 2026',
+      specs: [
+        ['Design', 'Quintuplet Petzval, 2× ED elements'],
+        ['Aperture / FL', '72mm / 400mm native'],
+        ['With 0.7× Reducer', '280mm f/3.9'],
+        ['Image Circle', '44mm full-frame flat field'],
+        ['Back Focus (native)', '140mm from M68×1 thread; forgiving 50–60mm range'],
+        ['Focuser', '3" rack-and-pinion, 360° rotatable'],
+        ['Weight', '2.56kg OTA'],
+        ['Includes', 'Reducer + EAF, tube rings, dovetail, handle']
+      ]
+    },
+    {
+      cat: 'Camera', name: 'ZWO ASI294MM Pro', price: '$2,100', acquired: 'July 2026',
+      specs: [
+        ['Sensor', 'Sony IMX492, back-illuminated, 4/3" format'],
+        ['Sensor Size', '19.1 × 13.0mm (23.2mm diagonal)'],
+        ['Resolution (Bin2)', '4144×2822 (11.7MP), 4.63µm effective px'],
+        ['Resolution (Bin1)', '8288×5644 (47MP unlocked), 2.315µm px'],
+        ['Read Noise', '1.2e (HCG mode)'],
+        ['Full Well', '66ke (14ke unlocked mode)'],
+        ['Cooling', 'TEC, ~−35 to −40°C below ambient'],
+        ['Peak QE', '~90%'],
+        ['Connection', 'USB 3.0 to ASIAIR, built-in hub for EFW/EAF'],
+        ['Includes', 'EFW 8×31 + Astrodon/Baader filter set']
+      ]
+    },
+    {
+      cat: 'Guiding', name: 'SV106 + ASI120MM Mini', price: '~$275', acquired: 'July 2026',
+      specs: [
+        ['Guide Scope', 'SVBONY SV106, 60mm f/4, 240mm FL'],
+        ['Guide Scope Focus', 'Helical, non-rotating, 8mm travel'],
+        ['Guide Camera', 'ZWO ASI120MM Mini mono'],
+        ['Guide Sensor', '1/3" CMOS, 1280×960, 3.75µm px'],
+        ['Connection', 'M42×0.75 T-thread, USB 2.0 Type-C, ST4 port'],
+        ['Software', 'ASIAIR built-in guiding']
+      ]
+    },
+    {
+      cat: 'Controller', name: 'ZWO ASIAIR Plus 256GB', price: '$349', acquired: 'July 2026',
+      specs: [
+        ['Version', '256GB eMMC (2024 release)'],
+        ['Storage', '256GB onboard, ~244GB usable'],
+        ['Ports', '2× USB 3.0, 2× USB 2.0, Gigabit Ethernet, USB-C, DSLR shutter'],
+        ['WiFi', 'Dual-band, ~20m (65ft) range'],
+        ['Control', 'Bluetooth to ZWO EAF/AM-series mounts'],
+        ['Function', 'Plate solving, PA, guiding, autofocus, scheduling'],
+        ['Replaces', 'Laptop + NINA/PHD2 at the scope']
+      ]
+    },
+    {
+      cat: 'Power', name: 'Pegasus Powerbox Micro', price: '$250', acquired: 'July 2026',
+      specs: [
+        ['12V Outputs', '4 ports, switchable, 5A each'],
+        ['Dew Channels', '2× RCA PWM, auto-dew via env. sensor'],
+        ['Total Capacity', '10A'],
+        ['Adjustable Output', '3/5/8/9/12V, 3A max'],
+        ['Protection', 'Reverse polarity + overvoltage cutoff >14.5V'],
+        ['Config', 'One-time via Pegasus Unity, then standalone']
+      ]
+    },
+    {
+      cat: 'Software', name: 'Processing Stack', price: '$180', acquired: 'July 2026',
+      specs: [
+        ['Capture', 'ASIAIR app (free)'],
+        ['Processing', 'Siril (free)'],
+        ['AI Plugins', 'RC-Astro $180'],
+        ['Planning', 'ASIAIR SkyAtlas built-in'],
+        ['File transfer', 'USB-C → PC as drive']
+      ]
+    }
   ],
   budget: [
     { label: 'ASI294MM + EFW + Astrodon Filters', amount: 2100 },
@@ -1533,36 +1725,244 @@ try {
   data = defaultData;
 }
 
+let saveTimer = null;
+
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  if (window.zukoFs) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      window.zukoFs.save(data).then((res) => {
+        if (!res || !res.ok) updateSyncStatus(null, 'error');
+        else updateSyncStatus(res.path || 'zuko-dashboard-data.json', 'connected');
+      }).catch(() => updateSyncStatus(null, 'error'));
+    }, 200);
+  } else if (fileHandle) {
+    writeToFileHandle(data);
+  }
   render();
 }
 
+// ============ FILE SYNC ============
+function updateSyncStatus(name, status) {
+  const el = document.getElementById('sync-status');
+  const pathEl = document.getElementById('sync-path');
+  if (!el) return;
+  if (status === 'connected') {
+    el.textContent = `📁 Auto-saving`;
+    if (pathEl) pathEl.textContent = name || '';
+  } else if (status === 'error') {
+    el.textContent = `⚠️ Sync error — check H: drive / data folder`;
+    if (pathEl) pathEl.textContent = '';
+  } else {
+    el.textContent = `💾 Local browser storage only`;
+    if (pathEl) pathEl.textContent = '';
+  }
+}
+
+async function writeToFileHandle(obj) {
+  if (!fileHandle) return false;
+  try {
+    const writable = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(obj, null, 2));
+    await writable.close();
+    return true;
+  } catch (e) {
+    console.error('Sync write failed:', e);
+    updateSyncStatus(null, 'error');
+    return false;
+  }
+}
+
+async function connectDataFile() {
+  if (!window.showOpenFilePicker) {
+    alert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'Zuko Dashboard Data', accept: { 'application/json': ['.json'] } }],
+      multiple: false
+    });
+    fileHandle = handle;
+    const file = await handle.getFile();
+    const text = await file.text();
+    if (text.trim()) {
+      data = JSON.parse(text);
+    } else {
+      await writeToFileHandle(data);
+    }
+    updateSyncStatus(handle.name, 'connected');
+    render();
+  } catch (e) {
+    if (e.name !== 'AbortError') alert('Could not open that file: ' + e.message);
+  }
+}
+
+async function createNewDataFile() {
+  if (!window.showSaveFilePicker) {
+    alert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
+    return;
+  }
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'zuko-dashboard-data.json',
+      types: [{ description: 'Zuko Dashboard Data', accept: { 'application/json': ['.json'] } }]
+    });
+    fileHandle = handle;
+    await writeToFileHandle(data);
+    updateSyncStatus(handle.name, 'connected');
+  } catch (e) {
+    if (e.name !== 'AbortError') alert('Could not create that file: ' + e.message);
+  }
+}
+
+async function openDataFolder() {
+  if (window.zukoFs) await window.zukoFs.openFolder();
+}
+
+async function bootFromElectronFile() {
+  if (!window.zukoFs) return false;
+  const openBtn = document.getElementById('sync-open-btn');
+  const createBtn = document.getElementById('sync-create-btn');
+  const folderBtn = document.getElementById('sync-folder-btn');
+  if (openBtn) openBtn.style.display = 'none';
+  if (createBtn) createBtn.style.display = 'none';
+  if (folderBtn) folderBtn.style.display = '';
+
+  const res = await window.zukoFs.load();
+  if (!res || !res.ok) {
+    updateSyncStatus(null, 'error');
+    return true;
+  }
+  if (res.data) {
+    data = res.data;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  } else {
+    // Seed the H: file from current in-memory / localStorage data
+    await window.zukoFs.save(data);
+  }
+  updateSyncStatus(res.path, 'connected');
+  return true;
+}
+
+// ============ LOCATION & SKY FORECAST ============
+async function searchLocation() {
+  const q = document.getElementById('locfx-search').value.trim();
+  const resultsEl = document.getElementById('locfx-search-results');
+  if (!q) { resultsEl.innerHTML = ''; return; }
+  resultsEl.innerHTML = '<div style="color:var(--gray);font-size:11px;">Searching…</div>';
+  try {
+    const resp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    const results = json.results || [];
+    if (!results.length) {
+      resultsEl.innerHTML = '<div style="color:var(--gray);font-size:11px;">No matches found.</div>';
+      return;
+    }
+    resultsEl.innerHTML = results.map(r => {
+      const label = [r.name, r.admin1, r.country].filter(Boolean).join(', ');
+      const safeLabel = label.replace(/'/g, "\\'");
+      return `<div class="gaia-row"><span class="mono">${label}</span>
+        <button class="mini-btn" style="margin-top:0" onclick="useSearchedLocation('${safeLabel}', ${r.latitude}, ${r.longitude})">Use</button>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    resultsEl.innerHTML = `<div style="color:var(--red);font-size:11px;">Search failed (${e.message}). Needs live internet access.</div>`;
+  }
+}
+
+function useSearchedLocation(name, lat, lon) {
+  document.getElementById('locfx-name').value = name;
+  document.getElementById('locfx-lat').value = lat.toFixed(4);
+  document.getElementById('locfx-lon').value = lon.toFixed(4);
+  document.getElementById('locfx-search-results').innerHTML = '';
+  document.getElementById('locfx-search').value = '';
+  loadForecast();
+}
+
+function useMyLocation() {
+  const statusEl = document.getElementById('locfx-status');
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'Geolocation isn\'t available in this browser.';
+    return;
+  }
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    statusEl.textContent = 'Geolocation needs HTTPS (or localhost) to work — this page isn\'t loaded securely.';
+    return;
+  }
+  statusEl.textContent = 'Getting your location… (check for a browser permission prompt)';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('locfx-lat').value = pos.coords.latitude.toFixed(4);
+      document.getElementById('locfx-lon').value = pos.coords.longitude.toFixed(4);
+      statusEl.textContent = 'Location found — click Load Forecast.';
+    },
+    err => {
+      const messages = {
+        1: 'Permission denied — allow location access for this site in your browser settings and try again.',
+        2: 'Position unavailable — your device could not determine a location right now.',
+        3: 'Timed out waiting for a location fix — try again, or enter coordinates manually.'
+      };
+      statusEl.textContent = messages[err.code] || ('Could not get location: ' + err.message);
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+  );
+}
+
+function loadForecast() {
+  const name = document.getElementById('locfx-name').value.trim();
+  const lat = parseFloat(document.getElementById('locfx-lat').value);
+  const lon = parseFloat(document.getElementById('locfx-lon').value);
+  const statusEl = document.getElementById('locfx-status');
+  const frame = document.getElementById('locfx-frame');
+  if (isNaN(lat) || isNaN(lon)) {
+    statusEl.textContent = 'Enter a valid latitude and longitude, or use "Use My Location".';
+    return;
+  }
+  data.forecastLocation = { name, lat, lon };
+  save();
+  renderForecastFrame();
+}
+
+function renderForecastFrame() {
+  const loc = data.forecastLocation;
+  const wrap = document.getElementById('locfx-wrap');
+  const statusEl = document.getElementById('locfx-status');
+  if (!loc) { wrap.style.display = 'none'; return; }
+  const lat = Number(loc.lat).toFixed(2);
+  const lon = Number(loc.lon).toFixed(2);
+  document.getElementById('locfx-img').src = `https://clearoutside.com/forecast_image_large/${lat}/${lon}/forecast.png`;
+  document.getElementById('locfx-link').href = `https://clearoutside.com/forecast/${lat}/${lon}`;
+  document.getElementById('locfx-link2').href = `https://clearoutside.com/forecast/${lat}/${lon}`;
+  wrap.style.display = 'block';
+  statusEl.textContent = loc.name ? `Showing forecast for ${loc.name} (${lat}, ${lon})` : `Showing forecast for ${lat}, ${lon}`;
+  document.getElementById('locfx-name').value = loc.name || '';
+  document.getElementById('locfx-lat').value = loc.lat;
+  document.getElementById('locfx-lon').value = loc.lon;
+}
+
 // ============ RENDER ============
-const statusCycle = ['ordered', 'transit', 'delivered', 'issue'];
-const statusDot = { ordered: 'dot-ordered', transit: 'dot-transit', delivered: 'dot-delivered', issue: 'dot-issue' };
-const statusEta = { ordered: 'eta-pending', transit: 'eta-soon', delivered: 'eta-delivered', issue: 'eta-issue' };
-
 function render() {
-  // Deliveries
-  const board = document.getElementById('delivery-board');
-  board.innerHTML = data.deliveries.map((d, i) => `
-    <div class="delivery-item">
-      <div class="status-dot ${statusDot[d.status]}" onclick="cycleStatus(${i})" title="Click to change status"></div>
-      <div class="editable" onclick="editItem('delivery', ${i})" title="Click to edit">
-        <div class="delivery-name">${d.name}</div>
-        <div class="delivery-sub">${d.sub}</div>
-      </div>
-      <div class="delivery-tracking">${d.tracking || '—'}</div>
-      <div class="delivery-eta ${statusEta[d.status]}">${d.status === 'delivered' ? '✓ ' : ''}${d.eta}</div>
-      <button class="remove-btn" onclick="removeDelivery(${i})" title="Remove">✕</button>
-    </div>
-  `).join('');
+  // Rig name
+  document.title = (data.rigName || 'Zuko') + ' — Astrophotography Rig';
+  const rigNameEl = document.getElementById('rig-name-el');
+  if (rigNameEl) rigNameEl.textContent = data.rigName || 'Zuko';
 
-  // Stats
-  const delivered = data.deliveries.filter(d => d.status === 'delivered').length;
-  document.getElementById('stat-delivered').textContent = `${delivered}/${data.deliveries.length}`;
-  document.getElementById('stat-remaining').textContent = `${data.deliveries.length - delivered} remaining`;
+  renderProjects();
+  renderForecastFrame();
+
+  // Top stats: hours, completion, active projects, action items
+  const projects = data.projects || [];
+  const totalHrsLogged = projects.reduce((s, p) => s + p.filterTargets.reduce((s2, f) => s2 + f.loggedHrs, 0), 0);
+  const completeCount = projects.filter(p => p.status === 'complete').length;
+  const activeCount = projects.filter(p => ['planning', 'active', 'processing'].includes(p.status)).length;
+  document.getElementById('stat-hours').textContent = `${totalHrsLogged.toFixed(1)}h`;
+  document.getElementById('stat-hours-sub').textContent = `across ${projects.length} project${projects.length === 1 ? '' : 's'}`;
+  document.getElementById('stat-complete').textContent = `${completeCount}/${projects.length}`;
+  document.getElementById('stat-active').textContent = `${activeCount}`;
+  document.getElementById('stat-checklist').textContent = `${data.notes.length}`;
 
   // Notes
   const notes = document.getElementById('notes-box');
@@ -1583,6 +1983,7 @@ function render() {
         <div>
           <div class="gear-category">${g.cat}</div>
           <div class="gear-name">${g.name}</div>
+          ${g.acquired ? `<div style="font-family:var(--mono);font-size:10px;color:var(--gray);margin-top:2px;">Acquired ${g.acquired}</div>` : ''}
         </div>
         <div class="gear-price price-el">${g.price}</div>
       </div>
@@ -1597,6 +1998,9 @@ function render() {
   const saved = data.newRetail - total;
   const pct = Math.round((total / data.newRetail) * 100);
   document.getElementById('stat-total').textContent = '$' + total.toLocaleString();
+  document.getElementById('stat-newretail').textContent = '$' + data.newRetail.toLocaleString();
+  document.getElementById('stat-saved').textContent = '$' + saved.toLocaleString();
+  document.getElementById('stat-saved-pct').textContent = `${100 - pct}% below new`;
 
   const wrap = document.getElementById('budget-wrap');
   wrap.innerHTML = data.budget.map((b, i) => `
@@ -1621,23 +2025,643 @@ function render() {
   `;
 }
 
-// ============ ACTIONS ============
-function cycleStatus(i) {
-  const cur = statusCycle.indexOf(data.deliveries[i].status);
-  data.deliveries[i].status = statusCycle[(cur + 1) % statusCycle.length];
-  if (data.deliveries[i].status === 'delivered' && !data.deliveries[i].eta.startsWith('✓')) {
-    // keep eta as-is
+// ============ PROJECTS ============
+let openProjects = new Set();
+let modalProjectIndex = null;
+
+function renderProjects() {
+  const el = document.getElementById('projects-container');
+  if (!data.projects || !data.projects.length) {
+    el.innerHTML = '<div style="color:var(--gray);font-size:12px;">No tracked projects yet — add one to start logging sessions.</div>';
+    return;
   }
+  data.projects.forEach(p => {
+    if (!p.shoots) p.shoots = [];
+    if (!p.astrobinLinks) p.astrobinLinks = [];
+    if (p.savedTarget === undefined) p.savedTarget = null;
+    if (p.framerMode === undefined) p.framerMode = 'reducer';
+    if (p.framerRotation === undefined) p.framerRotation = 0;
+    p.filterTargets.forEach(f => { if (f.bortle === undefined) f.bortle = ''; });
+    p.shoots.forEach(sh => {
+      if (sh.filterIndex === undefined) sh.filterIndex = null;
+      if (sh.complete === undefined) sh.complete = false;
+      if (sh.creditedHours === undefined) sh.creditedHours = 0;
+    });
+  });
+  el.innerHTML = data.projects.map((p, pi) => {
+    const totalTarget = p.filterTargets.reduce((s,f) => s + f.targetHrs, 0);
+    const totalLogged = p.filterTargets.reduce((s,f) => s + f.loggedHrs, 0);
+    const totalPending = p.shoots.filter(sh => !sh.complete).reduce((s, sh) => s + (sh.hours || 0), 0);
+    const doneSteps = p.checklist.filter(s => s.done).length;
+    const isOpen = openProjects.has(pi);
+    return `
+    <div class="project-card ${isOpen ? 'open' : ''}" data-idx="${pi}">
+      <div class="project-header" onclick="toggleProjectCard(this, ${pi})">
+        <select class="project-status-select status-${p.status}" onclick="event.stopPropagation()" onchange="updateProjectStatus(${pi}, this.value)">
+          <option value="planning" ${p.status === 'planning' ? 'selected' : ''}>planning</option>
+          <option value="active" ${p.status === 'active' ? 'selected' : ''}>active</option>
+          <option value="processing" ${p.status === 'processing' ? 'selected' : ''}>image processing</option>
+          <option value="complete" ${p.status === 'complete' ? 'selected' : ''}>complete</option>
+        </select>
+        <span class="project-name">${p.name}</span>
+        <span class="project-progress">${totalLogged.toFixed(1)}h / ${totalTarget.toFixed(1)}h · ${doneSteps}/${p.checklist.length} steps</span>
+        <span class="project-chevron">▶</span>
+        <button class="project-remove" onclick="event.stopPropagation(); removeProject(${pi})" title="Remove project">✕</button>
+      </div>
+      <div class="project-body">
+        <div class="project-meta-grid">
+          <div><div class="pm-label">Target</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.target}</div></div>
+          <div><div class="pm-label">Frame / Mode</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.frameMode}</div></div>
+          <div><div class="pm-label">Center Coords</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.centerCoords}</div></div>
+          <div><div class="pm-label">Anchor Star</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.anchorStar}</div></div>
+          <div><div class="pm-label">Rotation</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.rotation}</div></div>
+          <div><div class="pm-label">Total Integration</div><div class="pm-val"><span class="mono">${totalLogged.toFixed(1)}h</span> completed${totalPending > 0 ? ` · <span class="mono" style="color:var(--yellow);">${totalPending.toFixed(1)}h</span> scheduled` : ''} · <span class="mono">${totalTarget.toFixed(1)}h</span> target</div></div>
+        </div>
+        ${p.notes ? `<div class="project-notes-text editable" onclick="editProjectMeta(${pi})" title="Click to edit">${p.notes}</div>` : ''}
+
+        ${!p.savedTarget ? `
+        <div class="shoot-box">
+          <div class="pm-label">🔭 Target Lookup</div>
+          <div class="gaia-inputs">
+            <input id="target-search-${pi}" placeholder="Target name e.g. NGC 6960, M31, HD 198626" style="width:260px;">
+            <button class="mini-btn" style="margin-top:0" onclick="lookupTarget(${pi})">Search</button>
+          </div>
+          <div id="target-results-${pi}"></div>
+          <div class="gaia-note">Resolves a name to coordinates via public astronomy catalogs (CDS Sesame, then MAST as a fallback). Setting a target replaces this with the Target Framer.</div>
+        </div>` : ''}
+
+        ${p.savedTarget ? `
+        <details class="sub-details" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
+          <summary><span class="sec-chevron">▶</span> 🎯 Target Framer — ${p.savedTarget.name}</summary>
+          <div style="padding: 4px 16px 16px;">
+            <div class="gaia-inputs" style="align-items:center;">
+              <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'framerMode', this.value)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;">
+                <option value="reducer" ${(p.framerMode || 'reducer') === 'reducer' ? 'selected' : ''}>Reducer 280mm — 3.91°×2.66°</option>
+                <option value="native" ${p.framerMode === 'native' ? 'selected' : ''}>Native 400mm — 2.74°×1.86°</option>
+              </select>
+              <label style="font-family:var(--mono);font-size:10px;color:var(--gray);">Rotation: <span id="framer-rot-val-${pi}">${p.framerRotation || 0}</span>°</label>
+              <input type="range" min="0" max="180" step="1" value="${p.framerRotation || 0}"
+                oninput="document.getElementById('framer-rot-val-${pi}').textContent = this.value; liveRotateFramer(${pi}, this.value)"
+                onchange="updateFramerSetting(${pi}, 'framerRotation', parseInt(this.value, 10))" style="width:160px;">
+              <button class="mini-btn" id="framer-lock-btn-${pi}" style="margin-top:0" onclick="toggleFramerLock(${pi})">${unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked'}</button>
+              <button class="mini-btn" style="margin-top:0" onclick="moveFramerToView(${pi})" title="Pan the sky view where you want, then click — footprint and project center coords move there">📍 Set center to current view</button>
+              <button class="mini-btn" style="margin-top:0" onclick="clearProjectTarget(${pi})">Clear saved target</button>
+            </div>
+            <div style="position:relative;">
+              <div id="aladin-framer-${pi}" style="width:100%;height:380px;border:1px solid var(--border);border-radius:8px;"></div>
+              <div id="framer-lock-overlay-${pi}" class="framer-lock-overlay" style="display:${unlockedFramers.has(pi) ? 'none' : 'flex'};" onclick="toggleFramerLock(${pi})">
+                <span class="framer-lock-hint">🔒 View locked for scrolling — tap to interact</span>
+              </div>
+            </div>
+            <div class="gaia-note">Sensor footprint (yellow) over DSS2 imagery via CDS Aladin Lite. The view starts locked so page scrolling isn't hijacked — unlock to pan/zoom, lock again when done. Rotation here is camera rotation to plan framing.</div>
+          </div>
+        </details>` : ''}
+
+        <div class="shoot-box">
+          <div class="pm-label">✅ Steps</div>
+          <div class="proj-checklist">
+            ${p.checklist.map((s, si) => `
+              <div class="proj-step ${s.done ? 'done' : ''}" onclick="toggleProjectStep(${pi},${si})">
+                <div class="fl-check">✓</div>
+                <div class="proj-step-text">${s.text}</div>
+                <button class="proj-step-remove" onclick="event.stopPropagation(); removeProjectStep(${pi},${si})">✕</button>
+              </div>`).join('')}
+          </div>
+          <button class="mini-btn" onclick="addProjectStep(${pi})">+ Add Step</button>
+        </div>
+
+        <div class="shoot-box">
+          <div class="pm-label">🎛 Filter Targets</div>
+          <div class="table-scroll">
+          <table class="filter-target-table">
+            <thead><tr><th>Filter</th><th>Location</th><th>Bortle</th><th>Progress</th><th>Hours</th><th></th></tr></thead>
+            <tbody>
+              ${p.filterTargets.map((f, fi) => {
+                const pendingHrs = p.shoots.filter(sh => sh.filterIndex === fi && !sh.complete).reduce((s, sh) => s + (sh.hours || 0), 0);
+                const pct = f.targetHrs > 0 ? Math.min(100, Math.round(f.loggedHrs / f.targetHrs * 100)) : 0;
+                const pendingPct = f.targetHrs > 0 ? Math.min(100 - pct, Math.round(pendingHrs / f.targetHrs * 100)) : 0;
+                return `<tr>
+                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.filter}</td>
+                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.location}</td>
+                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.bortle || '—'}</td>
+                  <td><div class="ft-bar-wrap"><div class="ft-bar ${pct >= 100 ? 'full' : ''}" style="width:${pct}%"></div><div class="ft-bar-pending" style="width:${pendingPct}%"></div></div></td>
+                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Logged hours come from the Shoot Log — click to edit the target hours"><span class="mono">${f.loggedHrs}</span> / ${f.targetHrs}h${pendingHrs > 0 ? ` <span style="color:var(--yellow);">(+${pendingHrs.toFixed(1)}h pending)</span>` : ''}</td>
+                  <td><button class="remove-btn" onclick="removeFilterTarget(${pi},${fi})">✕</button></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          </div>
+          <button class="mini-btn" onclick="addFilterTarget(${pi})">+ Add Filter Target</button>
+        </div>
+
+        <div class="shoot-box">
+          <div class="pm-label">🌌 Shoot Log</div>
+          ${p.shoots.length ? `
+          <div class="table-scroll">
+          <table class="filter-target-table">
+            <thead><tr><th>Name</th><th>Date</th><th>Filter Target</th><th>Hrs</th><th>Done</th><th></th></tr></thead>
+            <tbody>
+              ${p.shoots.map((sh, si) => {
+                const ft = p.filterTargets[sh.filterIndex];
+                const ftLabel = ft ? `${ft.filter} — ${ft.location} (B${ft.bortle || '?'})` : '—';
+                const code = buildShootCode(sh, ft);
+                return `
+                <tr>
+                  <td class="mono editable" style="font-size:11px;" onclick="editShoot(${pi},${si})" title="Auto-generated — click to edit shoot">${code}</td>
+                  <td class="editable" onclick="editShoot(${pi},${si})" title="Click to edit">${sh.date || '—'}</td>
+                  <td class="editable" onclick="editShoot(${pi},${si})" title="Click to edit">${ftLabel}</td>
+                  <td class="editable" onclick="editShoot(${pi},${si})" title="Click to edit">${sh.hours || 0}h ${sh.complete ? '' : '<span style="color:var(--yellow);">(pending)</span>'}</td>
+                  <td><input type="checkbox" ${sh.complete ? 'checked' : ''} onchange="toggleShootComplete(${pi},${si})" title="Mark complete and credit hours to the filter target"></td>
+                  <td><button class="remove-btn" onclick="removeShoot(${pi},${si})">✕</button></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          </div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No shoots planned yet.</div>'}
+          <button class="mini-btn" onclick="addShoot(${pi})">+ Plan Shoot</button>
+        </div>
+
+        <div class="shoot-box">
+          <div class="pm-label">📤 AstroBin</div>
+          ${p.astrobinLinks.length ? `<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;">` + p.astrobinLinks.map((a, ai) => {
+            const candidates = astrobinThumbCandidates(a);
+            const first = candidates[0];
+            const rest = JSON.stringify(candidates.slice(1)).replace(/"/g, '&quot;');
+            return `
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;max-width:340px;">
+              ${first ? `<a href="${a.url}" target="_blank" rel="noopener"><img src="${first}" data-fallbacks="${rest}" referrerpolicy="no-referrer" alt="${a.label || 'AstroBin image'}" style="max-width:320px;width:100%;border-radius:6px;display:block;" onerror="astrobinImgError(this, ${pi}, ${ai})"></a>` : ''}
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                <a href="${a.url}" target="_blank" rel="noopener" class="mono" style="color:var(--accent2);font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.label || a.url}</a>
+                <span id="ab-fallback-${pi}-${ai}" style="display:none;font-size:10px;color:var(--gray);">preview unavailable — add the direct image URL from AstroBin's Share dialog</span>
+                <button class="remove-btn" onclick="removeAstrobinLink(${pi},${ai})">✕</button>
+              </div>
+            </div>`;
+          }).join('') + `</div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No AstroBin uploads linked yet.</div>'}
+          <button class="mini-btn" onclick="addAstrobinLink(${pi})">+ Add AstroBin Link</button>
+        </div>
+
+        <div class="proj-action-row">
+          <button class="modal-btn" onclick="editProjectMeta(${pi})">Edit Details</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Init framers for open project cards (Aladin needs the div in the DOM)
+  setTimeout(() => {
+    data.projects.forEach((p, pi) => {
+      if (openProjects.has(pi) && p.savedTarget && !closedFramers.has(pi)) initFramer(pi);
+    });
+  }, 50);
+}
+
+// ============ TARGET FRAMER (Aladin Lite + FOV footprint) ============
+const framerInstances = {};
+const closedFramers = new Set();
+const unlockedFramers = new Set(); // framer interaction defaults to locked
+function toggleFramerLock(pi) {
+  const overlay = document.getElementById(`framer-lock-overlay-${pi}`);
+  const btn = document.getElementById(`framer-lock-btn-${pi}`);
+  if (unlockedFramers.has(pi)) {
+    unlockedFramers.delete(pi);
+    if (overlay) overlay.style.display = 'flex';
+    if (btn) btn.textContent = '🔒 Locked';
+  } else {
+    unlockedFramers.add(pi);
+    if (overlay) overlay.style.display = 'none';
+    if (btn) btn.textContent = '🔓 Interactive';
+  }
+}
+const FOV_MODES = {
+  reducer: { w: 3.91, h: 2.66, label: 'Reducer 280mm' },
+  native: { w: 2.74, h: 1.86, label: 'Native 400mm' }
+};
+
+function fovCorners(raDeg, decDeg, mode, rotationDeg) {
+  const dims = FOV_MODES[mode] || FOV_MODES.reducer;
+  const hw = dims.w / 2, hh = dims.h / 2;
+  const theta = (rotationDeg || 0) * Math.PI / 180;
+  const cosD = Math.max(0.05, Math.cos(decDeg * Math.PI / 180));
+  return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => {
+    const xr = x * Math.cos(theta) - y * Math.sin(theta);
+    const yr = x * Math.sin(theta) + y * Math.cos(theta);
+    return [raDeg + xr / cosD, decDeg + yr];
+  });
+}
+
+function drawFramerFootprint(pi) {
+  const inst = framerInstances[pi];
+  const p = data.projects[pi];
+  if (!inst || !p || !p.savedTarget) return;
+  inst.overlay.removeAll();
+  const corners = fovCorners(p.savedTarget.ra, p.savedTarget.dec, p.framerMode, inst.liveRotation !== undefined ? inst.liveRotation : p.framerRotation);
+  inst.overlay.add(A.polygon(corners, { color: '#eab308', lineWidth: 2 }));
+}
+
+function onFramerToggle(pi, isOpen) {
+  if (isOpen) {
+    closedFramers.delete(pi);
+    setTimeout(() => initFramer(pi), 50);
+  } else {
+    closedFramers.add(pi);
+    delete framerInstances[pi];
+  }
+}
+
+function initFramer(pi) {
+  const p = data.projects[pi];
+  const el = document.getElementById(`aladin-framer-${pi}`);
+  if (!el || !p.savedTarget) return;
+  delete framerInstances[pi];
+  el.innerHTML = '';
+  if (typeof A === 'undefined' || !A.init) {
+    el.innerHTML = '<div style="padding:20px;color:var(--gray);font-size:12px;">Aladin Lite failed to load — the sky viewer needs live internet access to aladin.cds.unistra.fr.</div>';
+    return;
+  }
+  A.init.then(() => {
+    // Re-check the div still exists (render may have replaced it)
+    const div = document.getElementById(`aladin-framer-${pi}`);
+    if (!div) return;
+    const dims = FOV_MODES[p.framerMode] || FOV_MODES.reducer;
+    const aladin = A.aladin(`#aladin-framer-${pi}`, {
+      target: `${p.savedTarget.ra} ${p.savedTarget.dec}`,
+      fov: Math.max(dims.w, dims.h) * 1.6,
+      survey: 'P/DSS2/color',
+      showFullscreenControl: true,
+      showLayersControl: false,
+      showGotoControl: false,
+      cooFrame: 'ICRS'
+    });
+    const overlay = A.graphicOverlay({ color: '#eab308', lineWidth: 2 });
+    aladin.addOverlay(overlay);
+    framerInstances[pi] = { aladin, overlay };
+    drawFramerFootprint(pi);
+  }).catch(() => {
+    el.innerHTML = '<div style="padding:20px;color:var(--gray);font-size:12px;">Aladin Lite failed to initialize.</div>';
+  });
+}
+
+function liveRotateFramer(pi, deg) {
+  const inst = framerInstances[pi];
+  if (!inst) return;
+  inst.liveRotation = parseInt(deg, 10);
+  drawFramerFootprint(pi);
+}
+
+function moveFramerToView(pi) {
+  const inst = framerInstances[pi];
+  if (!inst || !inst.aladin) return;
+  const [ra, dec] = inst.aladin.getRaDec();
+  const p = data.projects[pi];
+  p.savedTarget.ra = ra;
+  p.savedTarget.dec = dec;
+  p.centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
   save();
 }
 
-function removeDelivery(i) {
-  if (confirm('Remove "' + data.deliveries[i].name + '"?')) {
-    data.deliveries.splice(i, 1);
+function updateFramerSetting(pi, key, value) {
+  data.projects[pi][key] = value;
+  if (key === 'framerRotation') {
+    data.projects[pi].rotation = `${value}° (set via framer)`;
+  }
+  if (key === 'framerMode') {
+    const labels = {
+      reducer: 'Reducer 280mm f/3.9 — 3.91°×2.66° (set via framer)',
+      native: 'Native 400mm f/5.6 — 2.74°×1.86° (set via framer)'
+    };
+    data.projects[pi].frameMode = labels[value] || value;
+  }
+  if (framerInstances[pi]) delete framerInstances[pi].liveRotation;
+  save();
+}
+
+function toggleProjectCard(headerEl, pi) {
+  const card = headerEl.parentElement;
+  card.classList.toggle('open');
+  if (card.classList.contains('open')) {
+    openProjects.add(pi);
+    if (data.projects[pi] && data.projects[pi].savedTarget && !closedFramers.has(pi)) setTimeout(() => initFramer(pi), 50);
+  } else {
+    openProjects.delete(pi);
+  }
+}
+
+function updateProjectStatus(pi, status) {
+  data.projects[pi].status = status;
+  save();
+}
+
+function removeProject(pi) {
+  if (confirm('Remove project "' + data.projects[pi].name + '"?')) {
+    data.projects.splice(pi, 1);
+    openProjects.delete(pi);
     save();
   }
 }
 
+function toggleProjectStep(pi, si) {
+  data.projects[pi].checklist[si].done = !data.projects[pi].checklist[si].done;
+  save();
+}
+
+function removeProjectStep(pi, si) {
+  data.projects[pi].checklist.splice(si, 1);
+  save();
+}
+
+function removeFilterTarget(pi, fi) {
+  data.projects[pi].filterTargets.splice(fi, 1);
+  save();
+}
+
+function addFilterTarget(pi) {
+  modalProjectIndex = pi;
+  editIndex = null;
+  openModal('filterrow');
+}
+
+function editFilterTarget(pi, fi) {
+  modalProjectIndex = pi;
+  editIndex = fi;
+  const f = data.projects[pi].filterTargets[fi];
+  openModal('filterrow', { 'f-filter': f.filter, 'f-location': f.location, 'f-bortle': f.bortle || '', 'f-targetHrs': f.targetHrs });
+}
+
+function addProjectStep(pi) {
+  modalProjectIndex = pi;
+  editIndex = null;
+  openModal('checkstep');
+}
+
+function yymmdd(date) {
+  const yy = String(date.getFullYear()).slice(2);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return yy + mm + dd;
+}
+
+function shootDateQuickFill() {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  return [
+    { label: 'Today', value: yymmdd(today) },
+    { label: 'Yesterday', value: yymmdd(yesterday) }
+  ];
+}
+
+function addShoot(pi) {
+  modalProjectIndex = pi;
+  editIndex = null;
+  const project = data.projects[pi];
+  modalConfigs.shoot.fields[0].quickFill = shootDateQuickFill();
+  modalConfigs.shoot.fields[1].options = project.filterTargets.map((f, i) => String(i));
+  modalConfigs.shoot.fields[1].optionLabels = project.filterTargets.map(f => `${f.filter} — ${f.location} (B${f.bortle || '?'})`);
+  openModal('shoot');
+}
+
+function editShoot(pi, si) {
+  modalProjectIndex = pi;
+  editIndex = si;
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  modalConfigs.shoot.fields[0].quickFill = shootDateQuickFill();
+  modalConfigs.shoot.fields[1].options = project.filterTargets.map((f, i) => String(i));
+  modalConfigs.shoot.fields[1].optionLabels = project.filterTargets.map(f => `${f.filter} — ${f.location} (B${f.bortle || '?'})`);
+  openModal('shoot', {
+    'f-shootDate': sh.date, 'f-shootFilterIdx': String(sh.filterIndex), 'f-shootHours': sh.hours
+  });
+}
+
+function removeShoot(pi, si) {
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  if (sh.complete) {
+    const ft = project.filterTargets[sh.filterIndex];
+    if (ft) ft.loggedHrs = Math.max(0, ft.loggedHrs - (sh.creditedHours || 0));
+  }
+  project.shoots.splice(si, 1);
+  save();
+}
+
+function toggleShootComplete(pi, si) {
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  const ft = project.filterTargets[sh.filterIndex];
+  if (sh.complete) {
+    // was complete -> mark incomplete, remove credited hours
+    if (ft) ft.loggedHrs = Math.max(0, ft.loggedHrs - (sh.creditedHours || 0));
+    sh.complete = false;
+    sh.creditedHours = 0;
+  } else {
+    // was pending -> mark complete, credit hours to the filter target
+    if (ft) ft.loggedHrs += (sh.hours || 0);
+    sh.complete = true;
+    sh.creditedHours = sh.hours || 0;
+  }
+  save();
+}
+
+function sanitizeFolderName(name) {
+  return String(name).replace(/[\\/:*?"<>|]/g, '-').trim() || 'shoot';
+}
+
+function buildShootCode(sh, ft) {
+  let date = String(sh.date || '').replace(/[^0-9]/g, '');
+  if (date.length === 8) date = date.slice(2); // accept YYYYMMDD, display YYMMDD
+  if (date.length !== 6) date = 'YYMMDD';
+  const filter = ft ? sanitizeFolderName(ft.filter).replace(/\s+/g, '') : 'Filter';
+  const bortle = ft && ft.bortle ? `B${String(ft.bortle).replace(/[^0-9.]/g, '')}` : 'B?';
+  const loc = ft && ft.location ? sanitizeFolderName(ft.location).replace(/\s+/g, '') : 'Location';
+  return `${date}_${filter}_${bortle}_${loc}`;
+}
+
+function astrobinThumbCandidates(link) {
+  const out = [];
+  if (link.imgUrl && /^https?:\/\//.test(link.imgUrl)) out.push(link.imgUrl);
+  try {
+    const u = new URL(link.url);
+    const host = u.hostname.replace(/^www\./, '');
+    if (host === 'astrobin.com' || host === 'astrob.in') {
+      const segs = u.pathname.split('/').filter(Boolean);
+      const id = segs[0];
+      if (id && /^[A-Za-z0-9]+$/.test(id) && !['forum', 'users', 'search', 'api', 'groups', 'explore'].includes(id.toLowerCase())) {
+        const rev = (segs[1] && /^[A-Za-z0-9]$/.test(segs[1])) ? segs[1] : '0';
+        out.push(`https://www.astrobin.com/${id}/${rev}/rawthumb/regular/get.jpg`);
+        out.push(`https://astrob.in/${id}/${rev}/rawthumb/regular/get.jpg`);
+        out.push(`https://www.astrobin.com/${id}/${rev}/rawthumb/gallery/get.jpg`);
+      }
+    }
+  } catch (e) { /* invalid url */ }
+  return out;
+}
+
+function astrobinImgError(img, pi, ai) {
+  let fallbacks = [];
+  try { fallbacks = JSON.parse(img.dataset.fallbacks || '[]'); } catch (e) {}
+  if (fallbacks.length) {
+    img.dataset.fallbacks = JSON.stringify(fallbacks.slice(1));
+    img.src = fallbacks[0];
+  } else {
+    img.parentElement.style.display = 'none';
+    const fb = document.getElementById(`ab-fallback-${pi}-${ai}`);
+    if (fb) fb.style.display = 'inline';
+  }
+}
+
+function addAstrobinLink(pi) {
+  modalProjectIndex = pi;
+  editIndex = null;
+  openModal('astrobinlink');
+}
+
+function removeAstrobinLink(pi, ai) {
+  data.projects[pi].astrobinLinks.splice(ai, 1);
+  save();
+}
+
+function editProjectMeta(pi) {
+  editIndex = pi;
+  const p = data.projects[pi];
+  const prefill = {
+    'f-name': p.name, 'f-target': p.target, 'f-frameMode': p.frameMode,
+    'f-centerCoords': p.centerCoords, 'f-anchorStar': p.anchorStar, 'f-rotation': p.rotation,
+    'f-status': p.status, 'f-notes': p.notes
+  };
+  openModal('project', prefill);
+}
+
+// ---- Target name resolution (CDS Sesame, then MAST as fallback) ----
+function toHMS(deg) {
+  const h = deg / 15;
+  const hh = Math.floor(h);
+  const m = (h - hh) * 60;
+  const mm = Math.floor(m);
+  const ss = ((m - mm) * 60).toFixed(1);
+  return `${hh}h${mm}m${ss}s`;
+}
+function toDMS(deg) {
+  const sign = deg < 0 ? '-' : '+';
+  deg = Math.abs(deg);
+  const dd = Math.floor(deg);
+  const m = (deg - dd) * 60;
+  const mm = Math.floor(m);
+  const ss = ((m - mm) * 60).toFixed(1);
+  return `${sign}${dd}°${mm}'${ss}"`;
+}
+
+async function lookupTarget(pi) {
+  const nameInput = document.getElementById(`target-search-${pi}`);
+  const name = nameInput.value.trim();
+  const resultsEl = document.getElementById(`target-results-${pi}`);
+  if (!name) {
+    resultsEl.innerHTML = '<div style="color:var(--red);font-size:11px;">Enter a target name first — e.g. NGC 6960, M31, HD 198626.</div>';
+    return;
+  }
+  resultsEl.innerHTML = '<div style="color:var(--gray);font-size:11px;">Resolving…</div>';
+
+  let sesameError = null;
+  try {
+    const url = `https://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oI/NSVA?${encodeURIComponent(name)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    const jMatch = text.match(/%J\s+([\d.+-]+)\s+([\d.+-]+)/);
+    if (!jMatch) throw new Error('name not found');
+    const ra = parseFloat(jMatch[1]);
+    const dec = parseFloat(jMatch[2]);
+    const idMatch = text.match(/%I\.0\s+(.+)/);
+    const typeMatch = text.match(/%C\.0\s+(\S+)/);
+    renderTargetResult(pi, resultsEl, {
+      name: idMatch ? idMatch[1].trim() : name,
+      type: typeMatch ? typeMatch[1] : null,
+      ra, dec, source: 'CDS Sesame', queryName: name
+    });
+    return;
+  } catch (e1) {
+    sesameError = e1.message;
+  }
+
+  try {
+    const url2 = `https://mast.stsci.edu/api/v0.1/resolve?target=${encodeURIComponent(name)}`;
+    const resp2 = await fetch(url2);
+    if (!resp2.ok) throw new Error('HTTP ' + resp2.status);
+    const json2 = await resp2.json();
+    const rc = json2 && json2.resolvedCoordinate && json2.resolvedCoordinate[0];
+    if (!rc) throw new Error('name not found');
+    renderTargetResult(pi, resultsEl, {
+      name: rc.canonicalName || name, type: null,
+      ra: rc.ra, dec: rc.decl, source: 'MAST', queryName: name
+    });
+  } catch (e2) {
+    resultsEl.innerHTML = `<div style="color:var(--red);font-size:11px;">Couldn't resolve "${name}" — CDS Sesame (${sesameError}) and MAST (${e2.message}) both failed. Needs live internet access and those services being reachable from your browser right now; try again, check spelling, or enter coordinates manually.</div>`;
+  }
+}
+
+function renderTargetResult(pi, resultsEl, r) {
+  const raHms = toHMS(r.ra);
+  const decDms = toDMS(r.dec);
+  const safeName = String(r.name).replace(/'/g, "\\'");
+  resultsEl.innerHTML = `
+    <div class="gaia-row">
+      <span class="mono">${r.name}</span>${r.type ? ' · ' + r.type : ''} — RA ${raHms} Dec ${decDms} <span style="color:var(--gray)">(via ${r.source})</span>
+      <button class="mini-btn" style="margin-top:0" onclick="setProjectTarget(${pi}, '${safeName}', ${r.ra}, ${r.dec})">⭐ Set as project target</button>
+      <button class="mini-btn" style="margin-top:0" onclick="useResolvedCoords(${pi}, ${r.ra}, ${r.dec})">Use as center only</button>
+      <button class="mini-btn" style="margin-top:0" onclick="useResolvedAsAnchor(${pi}, '${safeName}', ${r.ra}, ${r.dec})">Use as anchor star</button>
+    </div>
+    <div id="target-info-${pi}" style="margin-top:6px;font-size:12px;color:var(--text2);line-height:1.6;">Loading object details…</div>`;
+  loadGeneralInfo(pi, r.name, r.queryName);
+}
+
+function setProjectTarget(pi, name, ra, dec) {
+  data.projects[pi].savedTarget = { name, ra, dec };
+  data.projects[pi].centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
+  save();
+}
+
+function clearProjectTarget(pi) {
+  data.projects[pi].savedTarget = null;
+  save();
+}
+
+async function loadGeneralInfo(pi, resolvedName, queryName) {
+  const infoEl = document.getElementById(`target-info-${pi}`);
+  if (!infoEl) return;
+  const tryNames = [resolvedName, queryName].filter((v, i, a) => v && a.indexOf(v) === i);
+  for (const objName of tryNames) {
+    try {
+      const adql = `SELECT basic.main_id, basic.otype_txt, basic.rvz_redshift, allfluxes.V, basic.galdim_majaxis, basic.galdim_minaxis FROM basic LEFT JOIN allfluxes ON basic.oid = allfluxes.oidref LEFT JOIN ident ON basic.oid = ident.oidref WHERE ident.id = '${objName.replace(/'/g, "''")}'`;
+      const url = `https://simbad.cds.unistra.fr/simbad/sim-tap/sync?request=doQuery&lang=adql&format=json&query=${encodeURIComponent(adql)}`;
+      const resp = await fetch(url);
+      if (!resp.ok) continue;
+      const json = await resp.json();
+      const row = json.data && json.data[0];
+      if (row) {
+        const [mainId, otype, redshift, vmag, majAxis, minAxis] = row;
+        const parts = [];
+        if (otype) parts.push(`<strong>Type:</strong> ${otype}`);
+        if (vmag !== null && vmag !== undefined) parts.push(`<strong>V mag:</strong> ${Number(vmag).toFixed(1)}`);
+        if (majAxis) parts.push(`<strong>Apparent size:</strong> ${majAxis}′${minAxis ? ` × ${minAxis}′` : ''}`);
+        const simbadUrl = `https://simbad.cds.unistra.fr/simbad/sim-id?Ident=${encodeURIComponent(mainId || objName)}`;
+        infoEl.innerHTML = `${parts.join(' · ') || 'Object found in SIMBAD.'} <a href="${simbadUrl}" target="_blank" rel="noopener" style="color:var(--accent2);">Full SIMBAD record ↗</a>`;
+        return;
+      }
+    } catch (e) { /* try next name */ }
+  }
+  infoEl.innerHTML = '<span style="color:var(--gray);">No SIMBAD record found — the sky view below still shows the field.</span>';
+}
+
+function useResolvedCoords(pi, ra, dec) {
+  data.projects[pi].centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
+  save();
+}
+function useResolvedAsAnchor(pi, name, ra, dec) {
+  data.projects[pi].anchorStar = `${name} — RA ${toHMS(ra)} Dec ${toDMS(dec)}`;
+  save();
+}
+
+
+// ============ ACTIONS ============
 function removeNote(i) { data.notes.splice(i, 1); save(); }
 function removeGear(i) {
   if (confirm('Remove "' + data.gear[i].name + '"?')) {
@@ -1657,19 +2681,10 @@ let modalType = null;
 let editIndex = null; // null = adding new, number = editing existing
 
 const modalConfigs = {
-  delivery: {
-    title: 'Add Delivery Item',
-    fields: [
-      { id: 'f-name', label: 'Item Name', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
-      { id: 'f-sub', label: 'Source / Carrier', type: 'text', placeholder: 'e.g. ZWO Store — FedEx' },
-      { id: 'f-tracking', label: 'Tracking Number (optional)', type: 'text', placeholder: '' },
-      { id: 'f-eta', label: 'ETA', type: 'text', placeholder: 'e.g. Jul 15' }
-    ]
-  },
   note: {
     title: 'Add Action Item',
     fields: [
-      { id: 'f-icon', label: 'Icon (emoji)', type: 'text', placeholder: '⚠️' },
+      { id: 'f-icon', label: 'Icon', type: 'select', options: ['⚠️', '📦', '🔍', '💡', '✅', '📌', '🔧', '📷', '🔌', '↩️'] },
       { id: 'f-text', label: 'Note', type: 'text', placeholder: 'What needs doing?' }
     ]
   },
@@ -1679,6 +2694,7 @@ const modalConfigs = {
       { id: 'f-cat', label: 'Category', type: 'text', placeholder: 'e.g. Controller' },
       { id: 'f-name', label: 'Name', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
       { id: 'f-price', label: 'Price', type: 'text', placeholder: '$349' },
+      { id: 'f-acquired', label: 'Acquired', type: 'text', placeholder: 'e.g. July 2026' },
       { id: 'f-specs', label: 'Specs (key:value, comma separated)', type: 'text', placeholder: 'Storage:256GB, WiFi:Dual band' }
     ]
   },
@@ -1687,6 +2703,50 @@ const modalConfigs = {
     fields: [
       { id: 'f-label', label: 'Item', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
       { id: 'f-amount', label: 'Amount ($, numbers only)', type: 'number', placeholder: '349' }
+    ]
+  },
+  project: {
+    title: 'Add Project',
+    fields: [
+      { id: 'f-name', label: 'Project Name', type: 'text', placeholder: 'e.g. Veil Nebula — Full Complex' },
+      { id: 'f-target', label: 'Target', type: 'text', placeholder: 'e.g. NGC 6960 / 6992 / 6995' },
+      { id: 'f-frameMode', label: 'Frame / Mode', type: 'text', placeholder: 'e.g. Reducer 280mm f/3.9 — single frame' },
+      { id: 'f-centerCoords', label: 'Center Coordinates', type: 'text', placeholder: 'RA 20h51m27s  Dec +31°07\'28"' },
+      { id: 'f-anchorStar', label: 'Anchor Star', type: 'text', placeholder: 'e.g. HD 198626' },
+      { id: 'f-rotation', label: 'Rotation Notes', type: 'text', placeholder: 'TBD / degrees' },
+      { id: 'f-status', label: 'Status', type: 'select', options: ['planning', 'active', 'processing', 'complete'], optionLabels: ['planning', 'active', 'image processing', 'complete'] },
+      { id: 'f-notes', label: 'Notes', type: 'textarea', placeholder: 'Free-form project notes' }
+    ]
+  },
+  filterrow: {
+    title: 'Add Filter Target',
+    fields: [
+      { id: 'f-filter', label: 'Filter', type: 'text', placeholder: 'e.g. Ha' },
+      { id: 'f-location', label: 'Location', type: 'text', placeholder: 'e.g. NYCRoof' },
+      { id: 'f-bortle', label: 'Bortle', type: 'text', placeholder: 'e.g. 9' },
+      { id: 'f-targetHrs', label: 'Target Hours', type: 'number', placeholder: '4' }
+    ]
+  },
+  checkstep: {
+    title: 'Add Checklist Step',
+    fields: [
+      { id: 'f-stepText', label: 'Step', type: 'text', placeholder: 'What needs doing?' }
+    ]
+  },
+  shoot: {
+    title: 'Plan Shoot',
+    fields: [
+      { id: 'f-shootDate', label: 'Date (YYMMDD)', type: 'text', placeholder: 'e.g. 260724' },
+      { id: 'f-shootFilterIdx', label: 'Filter Target (carries filter, location, Bortle)', type: 'select', options: [], optionLabels: [] },
+      { id: 'f-shootHours', label: 'Planned Hours', type: 'number', placeholder: '2' }
+    ]
+  },
+  astrobinlink: {
+    title: 'Add AstroBin Link',
+    fields: [
+      { id: 'f-abLabel', label: 'Label', type: 'text', placeholder: 'e.g. Veil Nebula v1' },
+      { id: 'f-abUrl', label: 'AstroBin Page URL', type: 'text', placeholder: 'https://www.astrobin.com/...' },
+      { id: 'f-abImgUrl', label: 'Direct image URL (optional — from AstroBin Share → BBCode, most reliable)', type: 'text', placeholder: 'paste the [img=...] URL here' }
     ]
   }
 };
@@ -1697,26 +2757,36 @@ function openModal(type, prefill) {
   const editing = editIndex !== null;
   document.getElementById('modal-title').textContent = editing ? cfg.title.replace('Add', 'Edit') : cfg.title;
   document.querySelector('.modal-btn.primary').textContent = editing ? 'Save' : 'Add';
-  document.getElementById('modal-fields').innerHTML = cfg.fields.map(f => `
-    <label for="${f.id}">${f.label}</label>
-    <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder}" value="${prefill && prefill[f.id] !== undefined ? String(prefill[f.id]).replace(/"/g, '&quot;') : ''}">
-  `).join('');
+  document.getElementById('modal-fields').innerHTML = cfg.fields.map(f => {
+    const val = prefill && prefill[f.id] !== undefined ? String(prefill[f.id]) : '';
+    const escaped = val.replace(/"/g, '&quot;');
+    if (f.type === 'textarea') {
+      return `<label for="${f.id}">${f.label}</label>
+        <textarea id="${f.id}" placeholder="${f.placeholder || ''}" rows="3"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--sans);font-size:13px;resize:vertical;">${val.replace(/</g,'&lt;')}</textarea>`;
+    } else if (f.type === 'select') {
+      const labels = f.optionLabels && f.optionLabels.length === f.options.length ? f.optionLabels : f.options;
+      const opts = f.options.length ? f.options.map((o, oi) => `<option value="${o}" ${o === val ? 'selected' : ''}>${labels[oi]}</option>`).join('') : '<option value="">— none available —</option>';
+      return `<label for="${f.id}">${f.label}</label>
+        <select id="${f.id}">${opts}</select>`;
+    }
+    return `<label for="${f.id}">${f.label}</label>
+      <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder || ''}" value="${escaped}">
+      ${f.quickFill ? `<div style="display:flex;gap:6px;margin-top:6px;">${f.quickFill.map(q => `<button type="button" class="mini-btn" style="margin-top:0;" onclick="document.getElementById('${f.id}').value='${q.value}'">${q.label}</button>`).join('')}</div>` : ''}`;
+  }).join('');
   document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById(cfg.fields[0].id).focus(), 50);
+  setTimeout(() => { const el = document.getElementById(cfg.fields[0].id); if (el) el.focus(); }, 50);
 }
 
 function editItem(type, i) {
   editIndex = i;
   let prefill = {};
-  if (type === 'delivery') {
-    const d = data.deliveries[i];
-    prefill = { 'f-name': d.name, 'f-sub': d.sub, 'f-tracking': d.tracking, 'f-eta': d.eta };
-  } else if (type === 'note') {
+  if (type === 'note') {
     const n = data.notes[i];
     prefill = { 'f-icon': n.icon, 'f-text': n.text.replace(/<[^>]*>/g, '') };
   } else if (type === 'gear') {
     const g = data.gear[i];
-    prefill = { 'f-cat': g.cat, 'f-name': g.name, 'f-price': g.price, 'f-specs': g.specs.map(s => s.join(':')).join(', ') };
+    prefill = { 'f-cat': g.cat, 'f-name': g.name, 'f-price': g.price, 'f-acquired': g.acquired || '', 'f-specs': g.specs.map(s => s.join(':')).join(', ') };
   } else if (type === 'budget') {
     const b = data.budget[i];
     prefill = { 'f-label': b.label, 'f-amount': b.amount };
@@ -1728,30 +2798,79 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   modalType = null;
   editIndex = null;
+  modalProjectIndex = null;
 }
 
 function saveModal() {
   const v = id => (document.getElementById(id)?.value || '').trim();
   const editing = editIndex !== null;
 
-  if (modalType === 'delivery') {
-    if (!v('f-name')) return;
-    const item = { name: v('f-name'), sub: v('f-sub'), tracking: v('f-tracking'), eta: v('f-eta') || 'TBD',
-                   status: editing ? data.deliveries[editIndex].status : 'ordered' };
-    editing ? data.deliveries[editIndex] = item : data.deliveries.push(item);
-  } else if (modalType === 'note') {
+  if (modalType === 'note') {
     if (!v('f-text')) return;
     const item = { icon: v('f-icon') || '📌', text: v('f-text') };
     editing ? data.notes[editIndex] = item : data.notes.push(item);
   } else if (modalType === 'gear') {
     if (!v('f-name')) return;
     const specs = v('f-specs').split(',').map(s => s.split(':').map(x => x.trim())).filter(s => s.length === 2);
-    const item = { cat: v('f-cat') || 'Other', name: v('f-name'), price: v('f-price') || '—', specs };
+    const item = { cat: v('f-cat') || 'Other', name: v('f-name'), price: v('f-price') || '—', acquired: v('f-acquired') || '', specs };
     editing ? data.gear[editIndex] = item : data.gear.push(item);
   } else if (modalType === 'budget') {
     if (!v('f-label') || !v('f-amount')) return;
     const item = { label: v('f-label'), amount: parseFloat(v('f-amount')) || 0 };
     editing ? data.budget[editIndex] = item : data.budget.push(item);
+  } else if (modalType === 'project') {
+    if (!v('f-name')) return;
+    const item = {
+      name: v('f-name'), target: v('f-target'), frameMode: v('f-frameMode'),
+      centerCoords: v('f-centerCoords'), anchorStar: v('f-anchorStar'), rotation: v('f-rotation'),
+      status: v('f-status') || 'planning', notes: v('f-notes'),
+      filterTargets: editing ? data.projects[editIndex].filterTargets : [],
+      checklist: editing ? data.projects[editIndex].checklist : [],
+      shoots: editing ? data.projects[editIndex].shoots : [],
+      astrobinLinks: editing ? data.projects[editIndex].astrobinLinks : [],
+      savedTarget: editing ? data.projects[editIndex].savedTarget : null,
+      framerMode: editing ? data.projects[editIndex].framerMode : 'reducer',
+      framerRotation: editing ? data.projects[editIndex].framerRotation : 0
+    };
+    editing ? data.projects[editIndex] = item : data.projects.push(item);
+    if (!editing) openProjects.add(data.projects.length - 1);
+  } else if (modalType === 'filterrow') {
+    if (!v('f-filter') || modalProjectIndex === null) return;
+    const row = { filter: v('f-filter'), location: v('f-location') || '—', bortle: v('f-bortle') || '', targetHrs: parseFloat(v('f-targetHrs')) || 0 };
+    const targets = data.projects[modalProjectIndex].filterTargets;
+    if (editing) {
+      targets[editIndex] = { ...row, loggedHrs: targets[editIndex].loggedHrs };
+    } else {
+      targets.push({ ...row, loggedHrs: 0 });
+    }
+  } else if (modalType === 'checkstep') {
+    if (!v('f-stepText') || modalProjectIndex === null) return;
+    data.projects[modalProjectIndex].checklist.push({ id: 'step-' + Date.now(), text: v('f-stepText'), done: false });
+  } else if (modalType === 'shoot') {
+    if (!v('f-shootDate') || modalProjectIndex === null) return;
+    const project = data.projects[modalProjectIndex];
+    const newFilterIndex = v('f-shootFilterIdx') !== '' ? parseInt(v('f-shootFilterIdx'), 10) : null;
+    const newHours = parseFloat(v('f-shootHours')) || 0;
+    const base = { date: v('f-shootDate'), filterIndex: newFilterIndex, hours: newHours };
+    if (editing) {
+      const old = project.shoots[editIndex];
+      if (old.complete) {
+        const oldFt = project.filterTargets[old.filterIndex];
+        if (oldFt) oldFt.loggedHrs = Math.max(0, oldFt.loggedHrs - (old.creditedHours || 0));
+      }
+      const updated = { ...base, complete: old.complete, creditedHours: 0 };
+      if (updated.complete) {
+        const newFt = project.filterTargets[newFilterIndex];
+        if (newFt) newFt.loggedHrs += newHours;
+        updated.creditedHours = newHours;
+      }
+      project.shoots[editIndex] = updated;
+    } else {
+      project.shoots.push({ ...base, complete: false, creditedHours: 0 });
+    }
+  } else if (modalType === 'astrobinlink') {
+    if (!v('f-abUrl') || modalProjectIndex === null) return;
+    data.projects[modalProjectIndex].astrobinLinks.push({ label: v('f-abLabel'), url: v('f-abUrl'), imgUrl: v('f-abImgUrl') });
   }
 
   closeModal();
@@ -1777,46 +2896,11 @@ try {
   }
 } catch(e) {}
 
-// ============ FIRST LIGHT CHECKLIST ============
-const FL_KEY = 'astro-rig-checklist';
-let flDone = {};
-try { flDone = JSON.parse(localStorage.getItem(FL_KEY)) || {}; } catch(e) { flDone = {}; }
-
-function flUpdateProgress() {
-  document.querySelectorAll('.fl-phase').forEach(phase => {
-    const steps = phase.querySelectorAll('.fl-step');
-    const done = phase.querySelectorAll('.fl-step.done').length;
-    const prog = phase.querySelector('.fl-progress');
-    if (prog) {
-      prog.textContent = `${done}/${steps.length}`;
-      prog.style.color = done === steps.length ? 'var(--green)' : 'var(--gray)';
-    }
-  });
-}
-
-document.querySelectorAll('.fl-step').forEach(step => {
-  const id = step.dataset.step;
-  if (flDone[id]) step.classList.add('done');
-  step.addEventListener('click', () => {
-    step.classList.toggle('done');
-    flDone[id] = step.classList.contains('done');
-    try { localStorage.setItem(FL_KEY, JSON.stringify(flDone)); } catch(e) {}
-    flUpdateProgress();
-  });
-});
-
-function resetChecklist() {
-  if (!confirm('Reset all checklist progress?')) return;
-  flDone = {};
-  try { localStorage.setItem(FL_KEY, '{}'); } catch(e) {}
-  document.querySelectorAll('.fl-step').forEach(s => s.classList.remove('done'));
-  flUpdateProgress();
-}
-
-flUpdateProgress();
-
 // Init
-render();
+(async function boot() {
+  await bootFromElectronFile();
+  render();
+})();
 </script>
 </body>
 </html>

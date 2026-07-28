@@ -31,3 +31,6 @@ npm-debug.log*
 
 # Local reference clones (not part of this project)
 reference/
+
+# Root-level copies of live data (canonical tracked copy is data/)
+/zuko-dashboard-data.json
