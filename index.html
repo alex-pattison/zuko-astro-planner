@@ -1885,6 +1885,7 @@
 
   <div class="train-wrap" style="margin-top: 12px;">
     <div class="train-title">Native Mode (400mm f/5.6) — No Reducer</div>
+    <div class="info-banner" style="margin: 8px 0 12px;">Native-mode train may be outdated — spacers / adapters need verifying against the current native setup.</div>
     <div class="train-flow">
       <div class="train-component">
         <div class="train-box scope">FRA400<br>OTA</div>
@@ -2185,7 +2186,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '1.1.0', build: 3 };
+const APP_META_FALLBACK = { version: '0.2.0', build: 4 };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -2679,8 +2680,8 @@ function adoptLoadedData(incoming) {
   const savedBuild = Number(saved.build) || 0;
   if (savedBuild > APP_META.build) {
     showCompatBanner(
-      'Data was saved by a newer app (v' + (saved.version || '?') + ' · build ' + savedBuild +
-      '). This app is v' + APP_META.version + ' · build ' + APP_META.build +
+      'Data was saved by a newer app (v' + (saved.version || '?') + ' · build ' + String(savedBuild).padStart(3, '0') +
+      '). This app is v' + APP_META.version + ' · build ' + String(APP_META.build).padStart(3, '0') +
       '. Unknown fields are kept; update this install when you can.'
     );
   } else {
@@ -2696,7 +2697,7 @@ async function initAppMeta() {
     }
   } catch (e) { /* keep fallback */ }
   const el = document.getElementById('header-version');
-  if (el) el.textContent = 'v' + APP_META.version + ' · build ' + APP_META.build;
+  if (el) el.textContent = 'v' + APP_META.version + ' · build ' + String(APP_META.build).padStart(3, '0');
 }
 
 // ============ MOON + HOME WEATHER (astro dark) ============
