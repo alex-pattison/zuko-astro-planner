@@ -543,7 +543,7 @@
 
   .train-flow {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 0;
     min-width: 700px;
@@ -555,33 +555,50 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: 90px;
+    min-width: 100px;
+    flex: 0 0 auto;
   }
 
   .train-box {
     border: 2px solid var(--accent);
     background: var(--bg3);
     border-radius: 8px;
-    padding: 12px 10px;
+    padding: 10px 10px;
     font-family: var(--mono);
     font-size: 11px;
     font-weight: 700;
     color: var(--text);
     width: 100%;
+    min-height: 52px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.35;
   }
 
   .train-box.scope { border-color: var(--accent2); background: rgba(59,130,246,0.08); }
   .train-box.sensor { border-color: var(--green); background: rgba(34,197,94,0.08); }
   .train-box.spacer { border-color: var(--yellow); border-style: dashed; }
 
-  .train-label { font-size: 10px; color: var(--gray); margin-top: 6px; font-family: var(--mono); line-height: 1.4; }
+  .train-label {
+    font-size: 10px;
+    color: var(--gray);
+    margin-top: 8px;
+    font-family: var(--mono);
+    line-height: 1.4;
+    min-height: 2.8em;
+  }
 
   .train-connector {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 2px;
-    min-width: 52px;
+    justify-content: center;
+    padding: 0 4px;
+    min-width: 56px;
+    height: 52px;
+    flex: 0 0 auto;
   }
 
   .train-thread {
@@ -596,7 +613,7 @@
     margin-bottom: 4px;
   }
 
-  .train-arrow { color: var(--gray); font-size: 14px; }
+  .train-arrow { color: var(--gray); font-size: 14px; line-height: 1; }
 
   /* Back focus ruler */
   .bf-ruler {
@@ -638,9 +655,11 @@
 
   .bf-seg span { font-size: 9px; opacity: 0.8; }
 
-  .bf-spacer { background: rgba(234,179,8,0.2); color: var(--yellow); flex: 18; }
+  .bf-spacer { background: rgba(234,179,8,0.2); color: var(--yellow); }
+  .bf-spacer-main { flex: 25; }
+  .bf-spacer-mm { flex: 2; }
   .bf-efw { background: rgba(59,130,246,0.2); color: var(--accent2); flex: 20; }
-  .bf-cam { background: rgba(34,197,94,0.2); color: var(--green); flex: 17.5; }
+  .bf-cam { background: rgba(34,197,94,0.2); color: var(--green); flex: 7.6; }
 
   .bf-total {
     text-align: center;
@@ -652,25 +671,49 @@
 
   .bf-total strong { color: var(--yellow); }
 
-  /* Cable diagram */
-  .cable-diagram {
+  /* Power / data wire diagram */
+  .pd-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+  }
+  .pd-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .pd-swatch {
+    width: 22px; height: 3px; border-radius: 2px; display: inline-block;
+  }
+  .pd-swatch.power { background: var(--yellow); }
+  .pd-swatch.dew { background: #f87171; }
+  .pd-swatch.usb { background: var(--accent2); }
+  .pd-swatch.wifi {
+    background: transparent;
+    border-top: 3px dashed var(--green);
+    height: 0;
+  }
+
+  .pd-wire-wrap {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 20px;
-    font-family: var(--mono);
-    font-size: 12px;
-    line-height: 1.9;
-    color: var(--text2);
+    padding: 12px;
     overflow-x: auto;
-    white-space: pre;
   }
-
-  .cable-diagram .c-power { color: var(--yellow); }
-  .cable-diagram .c-usb { color: var(--accent2); }
-  .cable-diagram .c-dew { color: #f87171; }
-  .cable-diagram .c-dev { color: var(--text); font-weight: 700; }
-  .cable-diagram .c-note { color: var(--gray); font-size: 10px; }
+  .pd-wire-wrap svg {
+    display: block;
+    width: 100%;
+    min-width: 860px;
+    height: auto;
+  }
+  .pd-foot {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
 
   /* Budget */
   .budget-bar-wrap {
@@ -1198,11 +1241,10 @@
       <h2>Optical Train — Reducer Mode (280mm f/3.9)</h2>
       <div class="section-line"></div>
     </summary>
-    <div class="info-banner">⚠ This optical train was recently updated on the physical rig — the diagram below still reflects the prior spacer/back-focus configuration. Alex will provide the current spacer stack and back-focus numbers to refresh this section.</div>
 
   <div class="train-wrap">
     <div class="train-title">Light Path — Front to Sensor</div>
-    <div class="train-flow">
+    <div class="train-flow" style="min-width: 980px;">
       <div class="train-component">
         <div class="train-box scope">FRA400<br>OTA</div>
         <div class="train-label">72mm quintuplet<br>Petzval</div>
@@ -1213,18 +1255,26 @@
       </div>
       <div class="train-component">
         <div class="train-box">FRA72RD<br>0.7× Reducer</div>
-        <div class="train-label">sits inside<br>drawtube</div>
-      </div>
-      <div class="train-connector">
-        <div class="train-thread">M48×0.75</div>
-        <div class="train-arrow">→</div>
-      </div>
-      <div class="train-component">
-        <div class="train-box spacer">M48 Spacers<br>15mm + 3mm</div>
-        <div class="train-label">18mm total<br>(±2mm tol.)</div>
+        <div class="train-label">sits inside<br>drawtube · M48 out</div>
       </div>
       <div class="train-connector">
         <div class="train-thread">M48</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component" style="min-width: 140px;">
+        <div class="train-box spacer">Spacer Stack<br>25mm</div>
+        <div class="train-label">1 + 10 + 3 + 10 + 1<br>shim · spacer · conv · spacer · shim</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M42</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box spacer">M42♂–M42♂<br>2mm</div>
+        <div class="train-label">EFW included<br>male–male stub</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M42</div>
         <div class="train-arrow">→</div>
       </div>
       <div class="train-component">
@@ -1232,59 +1282,68 @@
         <div class="train-label">20mm thick<br>8 filters</div>
       </div>
       <div class="train-connector">
-        <div class="train-thread">M48</div>
+        <div class="train-thread">M42</div>
         <div class="train-arrow">→</div>
       </div>
       <div class="train-component">
         <div class="train-box sensor">ASI294MM<br>Pro</div>
-        <div class="train-label">17.5mm flange<br>to sensor</div>
+        <div class="train-label">7.5mm to sensor<br>+0.1mm align shim</div>
       </div>
     </div>
 
     <div class="bf-ruler">
       <div class="bf-title">Back Focus Budget — 55mm required from reducer M48 thread to sensor</div>
-      <div class="bf-bar">
-        <div class="bf-seg bf-spacer">SPACERS<span>18mm</span></div>
+      <div class="bf-bar" style="min-width: 560px;">
+        <div class="bf-seg bf-spacer bf-spacer-main">SPACERS<span>25mm</span></div>
+        <div class="bf-seg bf-spacer bf-spacer-mm">M42 M–M<span>2mm</span></div>
         <div class="bf-seg bf-efw">EFW 8×31<span>20mm</span></div>
-        <div class="bf-seg bf-cam">CAMERA<span>17.5mm</span></div>
+        <div class="bf-seg bf-cam">CAM+SHIM<span>7.6mm</span></div>
       </div>
-      <div class="bf-total">Total: <strong>55.5mm</strong> — within ±2mm tolerance of 55mm target ✓</div>
+      <div class="bf-total">Total: <strong>54.6mm</strong> — −0.4mm from 55mm target (within ±2mm) ✓</div>
     </div>
   </div>
 
   <div class="train-wrap" style="margin-top: 12px;">
     <div class="train-title">Native Mode (400mm f/5.6) — No Reducer</div>
-    <div class="train-flow">
+    <div class="train-flow" style="min-width: 860px;">
       <div class="train-component">
         <div class="train-box scope">FRA400<br>OTA</div>
-        <div class="train-label">Petzval —<br>self-flattening</div>
+        <div class="train-label">Petzval<br>self-flattening</div>
       </div>
       <div class="train-connector">
         <div class="train-thread">M68→M48</div>
         <div class="train-arrow">→</div>
       </div>
       <div class="train-component">
-        <div class="train-box spacer">M48 Spacers<br>(as needed)</div>
-        <div class="train-label">50–60mm range OK<br>just reach focus</div>
+        <div class="train-box spacer">Spacers<br>as needed</div>
+        <div class="train-label">50–60mm OK<br>just reach focus</div>
       </div>
       <div class="train-connector">
-        <div class="train-thread">M48</div>
+        <div class="train-thread">M42</div>
+        <div class="train-arrow">→</div>
+      </div>
+      <div class="train-component">
+        <div class="train-box spacer">M42♂–M42♂<br>2mm</div>
+        <div class="train-label">EFW included<br>male–male stub</div>
+      </div>
+      <div class="train-connector">
+        <div class="train-thread">M42</div>
         <div class="train-arrow">→</div>
       </div>
       <div class="train-component">
         <div class="train-box">EFW<br>8×31mm</div>
-        <div class="train-label">20mm</div>
+        <div class="train-label">20mm thick<br>8 filters</div>
       </div>
       <div class="train-connector">
-        <div class="train-thread">M48</div>
+        <div class="train-thread">M42</div>
         <div class="train-arrow">→</div>
       </div>
       <div class="train-component">
         <div class="train-box sensor">ASI294MM<br>Pro</div>
-        <div class="train-label">17.5mm</div>
+        <div class="train-label">7.5mm to sensor<br>+0.1mm align shim</div>
       </div>
     </div>
-    <div class="bf-total" style="margin-top: 12px;">No strict back focus calc needed at native FL — Petzval design is forgiving between 50–60mm. Focus and shoot.</div>
+    <div class="bf-total" style="margin-top: 16px;">No strict back focus — Petzval is forgiving at 50–60mm. Focus and shoot.</div>
   </div>
   </details>
 
@@ -1295,29 +1354,116 @@
       <h2>Power &amp; Data Connections</h2>
       <div class="section-line"></div>
     </summary>
-    <div class="info-banner">📡 An updated routing diagram is coming — Alex has a new cable/port layout to provide. The diagram below is the prior routing and will be replaced.</div>
 
-  <div class="cable-diagram"><span class="c-note">━━ POWER (12V) ━━  ┅┅ USB DATA ┅┅  ~~ DEW (RCA) ~~  ≈≈ WIFI ≈≈</span>
+  <div class="pd-legend">
+    <span><i class="pd-swatch power"></i> 12V power</span>
+    <span><i class="pd-swatch dew"></i> Dew (RCA)</span>
+    <span><i class="pd-swatch usb"></i> USB data</span>
+    <span><i class="pd-swatch wifi"></i> Wi‑Fi</span>
+  </div>
 
-<span class="c-power">Wall outlet</span>
-    │
-<span class="c-power">BTF-LIGHTING 12V 10A supply</span> (5.5×2.1mm barrel)
-    │
-<span class="c-dev">PEGASUS POWERBOX MICRO</span>
-    ├──━━ 12V ━━→ <span class="c-dev">AM3N mount body</span>
-    ├──━━ 12V ━━→ <span class="c-dev">AM3N SADDLE 12V passthrough</span> <span class="c-note">━━→ ASI294MM Pro</span>
-    ├──━━ 12V ━━→ <span class="c-dev">ASIAIR Plus</span>
-    ├──━━ 12V ━━→ <span class="c-note">(spare)</span>
-    ├──~~ RCA ch1 ~~→ <span class="c-dev">Dew strap — FRA400</span>
-    └──~~ RCA ch2 ~~→ <span class="c-dev">Dew strap — SV106 guide</span>
+  <div class="pd-wire-wrap">
+    <svg viewBox="0 0 980 500" xmlns="http://www.w3.org/2000/svg" aria-label="Power and data wire diagram v1.0">
+      <defs>
+        <marker id="arrow-power" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#eab308"/>
+        </marker>
+        <marker id="arrow-dew" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#f87171"/>
+        </marker>
+        <marker id="arrow-usb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrow-wifi" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#22c55e"/>
+        </marker>
+      </defs>
 
-<span class="c-dev">ASIAIR PLUS</span>
-    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N mount body</span>
-    ├──┅┅ USB ┅┅→ <span class="c-dev">AM3N SADDLE USB-C passthrough</span> <span class="c-note">┅┅→ ASI294MM Pro</span>
-    │                                                    ├─┅┅ cam hub port 1 ┅┅→ <span class="c-dev">EFW 8×31</span>
-    │                                                    └─┅┅ cam hub port 2 ┅┅→ <span class="c-dev">ZWO EAF</span>
-    ├──┅┅ USB ┅┅→ <span class="c-dev">ASI120MM Mini</span>
-    └──≈≈ WiFi ≈≈→ <span class="c-dev">YOUR PHONE / TABLET</span></div>
+      <text x="490" y="24" text-anchor="middle" fill="#60a5fa" font-family="Space Mono, monospace" font-size="12" letter-spacing="1.5">POWER + DATA DIAGRAM V1.0</text>
+
+      <!-- POWER SOURCES -->
+      <rect x="250" y="42" width="140" height="40" rx="10" fill="#111b2e" stroke="#eab308" stroke-width="1.5"/>
+      <text x="320" y="59" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">Wall 110V</text>
+      <text x="320" y="73" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">AC adapter → 12V</text>
+
+      <rect x="430" y="42" width="140" height="40" rx="10" fill="#111b2e" stroke="#eab308" stroke-width="1.5"/>
+      <text x="500" y="59" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">DC Battery</text>
+      <text x="500" y="73" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">car jack → 12V</text>
+
+      <path d="M320,82 V110 H415" fill="none" stroke="#eab308" stroke-width="2"/>
+      <path d="M500,82 V110 H415" fill="none" stroke="#eab308" stroke-width="2"/>
+      <path d="M415,110 V130" fill="none" stroke="#eab308" stroke-width="2.5" marker-end="url(#arrow-power)"/>
+      <text x="430" y="108" fill="#eab308" font-family="Space Mono, monospace" font-size="9">12V IN</text>
+
+      <!-- PEGASUS -->
+      <rect x="300" y="130" width="230" height="88" rx="14" fill="#0d1420" stroke="#60a5fa" stroke-width="2"/>
+      <text x="415" y="158" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="13" font-weight="700">Pegasus Powerbox Micro</text>
+      <text x="415" y="176" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="10">saddle mount · power hub</text>
+      <text x="415" y="198" text-anchor="middle" fill="#64748b" font-family="Space Mono, monospace" font-size="9">Dew A/B · Power 1–4</text>
+
+      <!-- DEW -->
+      <path d="M300,160 H200" fill="none" stroke="#f87171" stroke-width="2" marker-end="url(#arrow-dew)"/>
+      <text x="245" y="152" fill="#f87171" font-family="Space Mono, monospace" font-size="9">Dew A</text>
+      <rect x="40" y="140" width="160" height="44" rx="10" fill="#111b2e" stroke="#f87171" stroke-width="1.5"/>
+      <text x="120" y="158" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">Dew A — Main Scope</text>
+      <text x="120" y="174" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">FRA400 strap</text>
+
+      <path d="M300,190 H200" fill="none" stroke="#f87171" stroke-width="2" marker-end="url(#arrow-dew)"/>
+      <text x="245" y="206" fill="#f87171" font-family="Space Mono, monospace" font-size="9">Dew B</text>
+      <rect x="40" y="198" width="160" height="44" rx="10" fill="#111b2e" stroke="#f87171" stroke-width="1.5"/>
+      <text x="120" y="216" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">Dew B — Guide Scope</text>
+      <text x="120" y="232" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">SV106 strap</text>
+
+      <!-- POWER 2 — Mount -->
+      <path d="M530,175 H580 V80 H740" fill="none" stroke="#eab308" stroke-width="2" marker-end="url(#arrow-power)"/>
+      <text x="600" y="100" fill="#eab308" font-family="Space Mono, monospace" font-size="9">Power 2 · 12V</text>
+      <rect x="740" y="55" width="150" height="50" rx="10" fill="#111b2e" stroke="#eab308" stroke-width="1.5"/>
+      <text x="815" y="77" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="12" font-weight="700">AM3N Mount</text>
+      <text x="815" y="93" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">top power port</text>
+
+      <!-- POWER 3 — Camera / POWER 4 — ASIAIR -->
+      <path d="M370,218 V270 H280 V310" fill="none" stroke="#eab308" stroke-width="2" marker-end="url(#arrow-power)"/>
+      <text x="300" y="292" fill="#eab308" font-family="Space Mono, monospace" font-size="9">Power 3 · 12V</text>
+      <rect x="200" y="310" width="160" height="52" rx="10" fill="#111b2e" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="280" y="332" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="12" font-weight="700">ASI294MM Pro</text>
+      <text x="280" y="348" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">camera</text>
+
+      <path d="M460,218 V270 H560 V310" fill="none" stroke="#eab308" stroke-width="2" marker-end="url(#arrow-power)"/>
+      <text x="500" y="292" fill="#eab308" font-family="Space Mono, monospace" font-size="9">Power 4 · 12V</text>
+      <rect x="480" y="310" width="160" height="52" rx="10" fill="#111b2e" stroke="#60a5fa" stroke-width="2"/>
+      <text x="560" y="332" text-anchor="middle" fill="#fff" font-family="Space Mono, monospace" font-size="12" font-weight="700">ASIAIR Plus</text>
+      <text x="560" y="348" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">+ SSD · data hub</text>
+
+      <!-- USB3 -->
+      <path d="M360,336 H480" fill="none" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#arrow-usb)"/>
+      <text x="420" y="328" text-anchor="middle" fill="#60a5fa" font-family="Space Mono, monospace" font-size="10" font-weight="700">USB3</text>
+
+      <!-- EFW -->
+      <path d="M280,362 V410" fill="none" stroke="#60a5fa" stroke-width="2" marker-end="url(#arrow-usb)"/>
+      <text x="296" y="390" fill="#60a5fa" font-family="Space Mono, monospace" font-size="9">USB2</text>
+      <rect x="210" y="410" width="140" height="44" rx="10" fill="#111b2e" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="280" y="428" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">EFW 8×31</text>
+      <text x="280" y="444" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">cam hub</text>
+
+      <!-- EAF -->
+      <path d="M560,362 V410" fill="none" stroke="#60a5fa" stroke-width="2" marker-end="url(#arrow-usb)"/>
+      <text x="576" y="390" fill="#60a5fa" font-family="Space Mono, monospace" font-size="9">USB2</text>
+      <rect x="490" y="410" width="140" height="44" rx="10" fill="#111b2e" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="560" y="428" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">EAF</text>
+      <text x="560" y="444" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">USB2</text>
+
+      <!-- Phone -->
+      <path d="M640,336 H720" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow-wifi)"/>
+      <text x="678" y="328" fill="#22c55e" font-family="Space Mono, monospace" font-size="9">Wi‑Fi</text>
+      <rect x="720" y="310" width="150" height="52" rx="10" fill="#111b2e" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="795" y="332" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="12" font-weight="700">Phone / Tablet</text>
+      <text x="795" y="348" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">ASIAIR app</text>
+
+      <!-- Mount control -->
+      <path d="M640,320 H700 V105 H740" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-usb)"/>
+      <text x="710" y="150" fill="#60a5fa" font-family="Space Mono, monospace" font-size="9">BT / USB‑C</text>
+    </svg>
+  </div>
 
   </details>
 
@@ -1391,8 +1537,8 @@
           <div class="dive-section-title quirks">⚠ Known Quirks</div>
           <ul class="dive-list">
             <li><strong>Missing coarse focus knob</strong> (lost during EAF install). EAF replaces it functionally — order Askar replacement (~$15) as backup, not urgent.</li>
-            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening, no calc needed); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate.</li>
-            <li>Reducer sits <strong>inside</strong> the drawtube via M68 thread; camera side is M48.</li>
+            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening, no calc needed); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate. Current reduced stack measures <strong>54.6mm</strong>.</li>
+            <li>Reducer sits <strong>inside</strong> the drawtube via M68 thread; camera side is M48. Camera flange adapter is relocated into the spacer chain (camera contributes 7.5mm, not 17.5mm).</li>
             <li>Rotator is 360° — re-shoot flats any time you rotate the camera mid-project.</li>
           </ul>
         </div>
@@ -1413,7 +1559,7 @@
             <li><strong>No polar scope</strong> — polar alignment happens via ASIAIR's plate-solving PA routine (works without seeing Polaris).</li>
             <li>±15" periodic error (factory tested per-unit) → <strong>guiding mandatory</strong> above ~30s subs. Expect 0.5–1.0" RMS guided.</li>
             <li>Harmonic drives track best <strong>slightly east-heavy</strong> — perfect balance can oscillate. No counterweight needed for your ~4kg rig (rated 8kg without one).</li>
-            <li>Saddle's integrated 12V + USB-C passthrough feeds the camera through the mount body — avoids separate cables snagging during slews.</li>
+            <li>Saddle/Powerbox lives on the scope; camera 12V is <strong>direct from Powerbox Port 2</strong> in the current plan. Mount control is Bluetooth or USB‑C→A via the top of the mount.</li>
           </ul>
         </div>
       </div>
@@ -1632,7 +1778,7 @@ const defaultData = {
   ],
   notes: [
     { icon: '⚠️', text: '<strong>Dew-Not DN01 (4.5"):</strong> Verify fits FRA400 90mm objective — may be too small. 4.5" strap fits ~36mm tube.' },
-    { icon: '⚠️', text: '<strong>Back focus (reducer):</strong> 55mm target — optical train recently changed, re-confirm the current spacer stack against this.' },
+    { icon: '✓', text: '<strong>Back focus (reducer):</strong> current stack = 54.6mm (target 55 ±2). Camera 7.5 + 0.1 shim + EFW 20 + M42–M42 2 + 1 + 10 + 3 conv + 10 + 1.' },
     { icon: '💻', text: '<strong>Before first light:</strong> Download ASIAIR app (phone/tablet), install Pegasus Unity on PC for one-time dew setup. Note: no official ASIAIR desktop app.' },
     { icon: '📲', text: '<strong>Powerbox dew config:</strong> Connect Powerbox to PC via USB once, set auto-dew mode in Unity, then it runs standalone all season.' }
   ],

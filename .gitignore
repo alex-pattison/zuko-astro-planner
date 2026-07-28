@@ -37,3 +37,6 @@ data/projects/
 
 # Root-level copies of live data (canonical tracked copy is data/)
 /zuko-dashboard-data.json
+
+# Older data copies kept when reconcile replaces a stale file
+**/backups/

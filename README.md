@@ -18,14 +18,16 @@ Desktop shortcut (optional): point at `node_modules\electron\dist\electron.exe` 
 
 ## Data storage
 
-Auto-load / auto-save uses:
+Auto-load / auto-save uses two locations when available:
 
-1. **Preferred (this desktop):** `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` when that folder exists
-2. **Fallback (laptop / other machines):** `data/zuko-dashboard-data.json` in this repo
+1. `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` (this desktop)
+2. `data/zuko-dashboard-data.json` in this repo (laptop / git sync)
 
-When saving on the H: machine, the app also mirrors into `data/` so you can commit and pull your latest data on another computer.
+**On launch:** the app compares both files by modification time, loads the newer one, backs up the older copy into a `backups/` folder next to it, then overwrites the older file so both match.
 
-**Laptop workflow:** edit as usual → commit `data/zuko-dashboard-data.json` when you want it synced → push → pull on the other machine.
+When saving on the H: machine, the app also mirrors into `data/` so you can commit and pull on another computer.
+
+**Laptop workflow:** edit as usual → commit `data/zuko-dashboard-data.json` when you want it synced → push → pull on the other machine → reopen the app (it will pick the newer pulled copy).
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 

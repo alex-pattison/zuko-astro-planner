@@ -32,6 +32,85 @@ function resolveDataPaths() {
   };
 }
 
+async function readDataCandidate(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const st = await fsp.stat(filePath);
+    if (!st.isFile() || st.size === 0) return null;
+    const text = await fsp.readFile(filePath, 'utf8');
+    if (!text.trim()) return null;
+    return {
+      path: filePath,
+      mtimeMs: st.mtimeMs,
+      text,
+      data: JSON.parse(text),
+    };
+  } catch (err) {
+    console.warn('Skipping unreadable data file:', filePath, err);
+    return null;
+  }
+}
+
+async function backupDataFile(filePath) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupDir = path.join(path.dirname(filePath), 'backups');
+  await fsp.mkdir(backupDir, { recursive: true });
+  const dest = path.join(backupDir, `zuko-dashboard-data.${stamp}.json`);
+  await fsp.copyFile(filePath, dest);
+  return dest;
+}
+
+/** Pick the newest copy between H: and repo data/, backup+replace the older one. */
+async function reconcileDataFiles() {
+  const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
+  const paths = [];
+  if (fs.existsSync(PREFERRED_DIR)) {
+    await fsp.mkdir(PREFERRED_DIR, { recursive: true });
+    paths.push(preferredFile);
+  }
+  await fsp.mkdir(REPO_DATA_DIR, { recursive: true });
+  paths.push(REPO_DATA_FILE);
+
+  const uniquePaths = [...new Set(paths.map((p) => path.normalize(p)))];
+  const candidates = [];
+  for (const p of uniquePaths) {
+    const c = await readDataCandidate(p);
+    if (c) candidates.push(c);
+  }
+
+  const label = fs.existsSync(PREFERRED_DIR) ? preferredFile : REPO_DATA_FILE;
+  if (!candidates.length) {
+    return { ok: true, data: null, path: label, missing: true, backups: [] };
+  }
+
+  candidates.sort((a, b) => b.mtimeMs - a.mtimeMs);
+  const winner = candidates[0];
+  const backups = [];
+
+  for (const target of uniquePaths) {
+    if (path.normalize(target) === path.normalize(winner.path)) continue;
+    const existing = await readDataCandidate(target);
+    if (existing && existing.text === winner.text) continue;
+    if (existing) {
+      try {
+        backups.push(await backupDataFile(target));
+      } catch (err) {
+        console.warn('Backup failed for', target, err);
+      }
+    }
+    await atomicWrite(target, winner.data);
+  }
+
+  return {
+    ok: true,
+    data: winner.data,
+    path: winner.path,
+    missing: false,
+    syncedTo: uniquePaths.filter((p) => path.normalize(p) !== path.normalize(winner.path)),
+    backups,
+  };
+}
+
 function resolveProjectsRoot() {
   const parent = path.dirname(PREFERRED_PROJECTS_DIR);
   if (fs.existsSync(parent)) {
@@ -125,25 +204,9 @@ ipcMain.handle('zuko-data-open-folder', async () => {
 });
 
 ipcMain.handle('zuko-data-load', async () => {
-  const { file, label } = resolveDataPaths();
+  const { label } = resolveDataPaths();
   try {
-    await fsp.mkdir(path.dirname(file), { recursive: true });
-
-    // Prefer primary file; if missing on H:, fall back to repo seed.
-    let source = file;
-    if (!fs.existsSync(file) || !String(await fsp.readFile(file, 'utf8')).trim()) {
-      if (file !== REPO_DATA_FILE && fs.existsSync(REPO_DATA_FILE)) {
-        source = REPO_DATA_FILE;
-      } else {
-        return { ok: true, data: null, path: label, missing: true };
-      }
-    }
-
-    const text = await fsp.readFile(source, 'utf8');
-    if (!text.trim()) {
-      return { ok: true, data: null, path: label, missing: true };
-    }
-    return { ok: true, data: JSON.parse(text), path: label, missing: false };
+    return await reconcileDataFiles();
   } catch (err) {
     return { ok: false, error: String(err && err.message ? err.message : err), path: label };
   }

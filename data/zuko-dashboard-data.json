@@ -11,9 +11,9 @@
       "status": "planning",
       "target": "Cygnus Loop — NGC 6960 (Western Veil) + Pickering's Triangle + NGC 6992/6995 (Eastern Veil)",
       "frameMode": "Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)",
-      "centerCoords": "RA 20h51m27s  Dec +31°07'28\"",
+      "centerCoords": "RA 20h51m24.7s  Dec +31°6'0.6\"",
       "anchorStar": "HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54'45\"",
-      "rotation": "TBD — verify on first test frame; align complex's ~3° long axis with sensor's 3.93° axis",
+      "rotation": "27° (set via framer)",
       "notes": "Real FOV at 280mm w/ reducer: 3.93°×2.67° (confirmed from sensor dims, not the dashboard's earlier 3.62°×2.75° estimate). Whole 3° complex fits in one frame with correct rotation — no mosaic needed. OIII is strong across the entire loop, including the fainter Western side — don't under-time it. SII is the weakest channel here; prioritize it at the dark site. Re-shoot flats if rotation changes.",
       "filterTargets": [
         {
@@ -62,6 +62,16 @@
           "id": "step-1785117514525",
           "text": "Setup \"Plan\" in ASIAir",
           "done": false
+        },
+        {
+          "id": "step-1785252232498",
+          "text": "Look into multi night framing",
+          "done": false
+        },
+        {
+          "id": "step-1785252259426",
+          "text": "Does the ange on the above reflect the correct angle I need to set in the ASIAir?",
+          "done": false
         }
       ],
       "shoots": [
@@ -70,24 +80,23 @@
           "filterIndex": 3,
           "hours": 1,
           "complete": true,
-          "creditedHours": 1
+          "creditedHours": 1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
         }
       ],
       "astrobinLinks": [],
       "savedTarget": {
         "name": "Veil Nebula (Cygnus Loop)",
-        "ra": 312.8625,
-        "dec": 31.1244
+        "ra": 312.8530515438551,
+        "dec": 31.100172599615387
       },
       "framerMode": "reducer",
-      "framerRotation": 0
+      "framerRotation": 27
     }
   ],
   "notes": [
-    {
-      "icon": "⚠️",
-      "text": "Investigate power draw issue"
-    },
     {
       "icon": "🔍",
       "text": "Research master flat process"
@@ -99,10 +108,6 @@
     {
       "icon": "🔍",
       "text": "Sirilic Research"
-    },
-    {
-      "icon": "↩️",
-      "text": "TEST 2 (From Laptop)"
     }
   ],
   "gear": [
