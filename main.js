@@ -195,6 +195,13 @@ function createWindow() {
   });
 }
 
+const pkg = require('./package.json');
+
+ipcMain.handle('zuko-app-meta', () => ({
+  version: pkg.version || '0.0.0',
+  build: Number(pkg.zukoBuild) || 1,
+}));
+
 ipcMain.handle('zuko-data-path', () => resolveDataPaths().label);
 
 ipcMain.handle('zuko-data-open-folder', async () => {

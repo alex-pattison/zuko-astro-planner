@@ -1,5 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+contextBridge.exposeInMainWorld('zukoApp', {
+  meta: () => ipcRenderer.invoke('zuko-app-meta'),
+});
+
 contextBridge.exposeInMainWorld('zukoFs', {
   load: () => ipcRenderer.invoke('zuko-data-load'),
   save: (data) => ipcRenderer.invoke('zuko-data-save', data),

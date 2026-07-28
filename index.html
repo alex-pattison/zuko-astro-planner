@@ -101,6 +101,8 @@
     font-family: var(--mono);
     font-size: 11px;
     color: var(--gray);
+    line-height: 1.55;
+    min-width: 200px;
   }
 
   .header-meta strong {
@@ -108,6 +110,76 @@
     display: block;
     margin-bottom: 2px;
   }
+
+  .header-meta .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .header-meta .meta-muted { color: var(--gray); opacity: 0.85; }
+  .header-meta .meta-warn { color: var(--yellow); }
+  .header-meta .meta-ok { color: var(--text2); }
+  .header-meta .meta-err { color: var(--red); }
+  .header-meta button.linkish {
+    background: none;
+    border: none;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.75;
+  }
+  .header-meta button.linkish:hover { opacity: 1; text-decoration: underline; }
+  .header-meta .meta-btn {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.35);
+    border-radius: 5px;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 3px 8px;
+    line-height: 1.2;
+  }
+  .header-meta .meta-btn:hover { background: rgba(59,130,246,0.22); }
+
+  .compat-banner {
+    display: none;
+    background: rgba(234,179,8,0.08);
+    border: 1px solid rgba(234,179,8,0.35);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--yellow);
+    line-height: 1.5;
+  }
+  .compat-banner.open { display: block; }
+
+  /* Legacy sync bar kept minimal / hidden in Electron via JS */
+  .sync-bar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .sync-bar.visible { display: flex; }
+  #sync-status { white-space: nowrap; }
 
   .stats-bar {
     display: grid;
@@ -243,22 +315,28 @@
   .editable { cursor: pointer; border-radius: 4px; transition: background 0.15s; }
   .editable:hover { background: rgba(59,130,246,0.08); outline: 1px dashed rgba(59,130,246,0.3); outline-offset: 2px; }
 
-  /* Price hiding */
-  body.hide-prices .price-el { filter: blur(6px); opacity: 0.35; pointer-events: none; user-select: none; }
+  /* Price hiding — fully out of view until revealed */
+  body.hide-prices .price-el { display: none !important; }
+  body.hide-prices .asset-header {
+    grid-template-columns: 88px 92px minmax(0, 1fr) 96px 80px 18px 22px;
+  }
   .price-toggle {
     font-family: var(--mono);
-    font-size: 10px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    border-radius: 6px;
-    padding: 6px 14px;
+    font-size: 11px;
+    background: transparent;
+    border: none;
+    color: var(--gray);
+    border-radius: 4px;
+    padding: 4px 8px;
     cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: all 0.15s;
+    letter-spacing: 0.08em;
+    opacity: 0.4;
+    transition: opacity 0.15s, color 0.15s;
+    margin-right: auto;
   }
-  .price-toggle:hover { border-color: var(--accent); color: var(--accent2); }
-  body.hide-prices .price-toggle { background: rgba(234,179,8,0.12); border-color: rgba(234,179,8,0.4); color: var(--yellow); }
+  .price-toggle:hover { opacity: 0.85; color: var(--text2); }
+  .price-toggle:focus-visible { outline: 1px solid var(--border); opacity: 0.85; }
+  body:not(.hide-prices) .price-toggle { opacity: 0.55; }
 
   /* Deep dive accordions */
   .dive-card {
@@ -351,6 +429,198 @@
 
   .dive-list li strong { color: var(--text); }
   .dive-list li .crit { color: var(--red); font-weight: 600; }
+
+  /* Rig Assets */
+  .asset-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .asset-header {
+    display: grid;
+    grid-template-columns: 88px 92px minmax(0, 1fr) 84px 84px 96px 80px 18px 22px;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 4px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .asset-header:hover { background: var(--bg3); }
+  .asset-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 88px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 3px 6px;
+    border: 1px solid;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .asset-status-pill.wishlist { color: var(--accent2); border-color: rgba(59,130,246,0.45); background: rgba(59,130,246,0.1); }
+  .asset-status-pill.purchased { color: var(--yellow); border-color: rgba(234,179,8,0.45); background: rgba(234,179,8,0.1); }
+  .asset-status-pill.acquired { color: var(--green); border-color: rgba(34,197,94,0.45); background: rgba(34,197,94,0.1); }
+  .asset-status-pill.sold { color: var(--gray); border-color: var(--border); background: var(--bg3); }
+  .asset-status-pill.broken { color: var(--red); border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.1); }
+  .asset-cat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 92px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent);
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 4px;
+    padding: 3px 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .asset-info { min-width: 0; }
+  .asset-name {
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .asset-sub {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 2px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .asset-col-money, .asset-col-date {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
+    line-height: 1.25;
+  }
+  .asset-col-money.retail { color: var(--text2); }
+  .asset-col-money.bundled { color: var(--gray); font-style: italic; }
+  .asset-col-label {
+    display: block;
+    font-size: 9px;
+    color: var(--gray);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .asset-chevron {
+    color: var(--gray);
+    font-size: 11px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .asset-card.open .asset-chevron { transform: rotate(90deg); }
+  .asset-remove {
+    background: none; border: none; color: var(--gray);
+    cursor: pointer; opacity: 0; font-size: 12px; padding: 4px;
+    justify-self: end;
+  }
+  .asset-card:hover .asset-remove { opacity: 1; }
+  .asset-remove:hover { color: var(--red); }
+  .asset-body {
+    display: none;
+    padding: 4px 16px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .asset-card.open .asset-body { display: block; }
+  .asset-body-actions { margin: 10px 0 4px; }
+  .asset-section { margin-top: 12px; }
+  .asset-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .asset-section-title.specs { color: var(--accent2); }
+  .asset-section-title.quirks { color: var(--yellow); }
+  .asset-card.status-sold, .asset-card.status-broken { opacity: 0.72; }
+  .asset-card.status-wishlist { border-style: dashed; }
+  .asset-specs { margin-top: 4px; }
+
+  .asset-status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+  .asset-status-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .asset-status-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .asset-status-btn.active {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: rgba(59,130,246,0.12);
+  }
+  .asset-status-btn .n {
+    font-weight: 700;
+    margin-left: 6px;
+    color: var(--text);
+  }
+
+  @media (max-width: 980px) {
+    .asset-header {
+      grid-template-columns: 88px 92px minmax(0, 1fr) 84px 96px 18px 22px;
+    }
+    body.hide-prices .asset-header {
+      grid-template-columns: 88px 92px minmax(0, 1fr) 96px 18px 22px;
+    }
+    .asset-col-money.retail,
+    .asset-col-date.released { display: none; }
+  }
+  @media (max-width: 720px) {
+    .asset-header {
+      grid-template-columns: 80px minmax(0, 1fr) 18px 22px;
+      grid-template-areas:
+        "status name remove"
+        "cat    name chev"
+        "cat    money chev";
+    }
+    body.hide-prices .asset-header {
+      grid-template-areas:
+        "status name remove"
+        "cat    name chev";
+    }
+    .asset-status-pill { grid-area: status; width: 80px; }
+    .asset-cat { grid-area: cat; width: 80px; align-self: start; }
+    .asset-info { grid-area: name; }
+    .asset-col-money.price-el { grid-area: money; text-align: left; }
+    .asset-col-money.retail,
+    .asset-col-date { display: none; }
+    .asset-chevron { grid-area: chev; align-self: end; }
+    .asset-remove { grid-area: remove; opacity: 1; }
+  }
 
   /* First light checklist */
   .fl-phase {
@@ -860,23 +1130,6 @@
     color: #fff;
   }
 
-  /* ============ SYNC BAR ============ */
-  .sync-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 28px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text2);
-  }
-  #sync-status { color: var(--gray); white-space: nowrap; }
-
   /* ============ PROJECTS ============ */
   .project-card {
     background: var(--bg2);
@@ -1142,18 +1395,24 @@
         <div class="site-title">Astrophotography Rig</div>
         <h1 id="rig-name-el">Zuko</h1>
       </div>
-      <div class="header-meta"></div>
+      <div class="header-meta" id="header-meta">
+        <div class="meta-row"><span id="header-version" class="meta-muted">v—</span></div>
+        <div class="meta-row" id="header-moon">Moon —</div>
+        <div class="meta-row" id="header-weather">Weather —</div>
+        <div class="meta-row">
+          <span id="sync-status" class="meta-muted">Local only</span>
+          <button type="button" class="meta-btn" id="sync-folder-btn" onclick="openDataFolder()" style="display:none" title="Open data folder">Open folder</button>
+          <button type="button" class="linkish" id="sync-open-btn" onclick="connectDataFile()">link file</button>
+          <button type="button" class="linkish" id="sync-create-btn" onclick="createNewDataFile()">new file</button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Data Sync -->
-  <div class="sync-bar">
-    <span id="sync-status">💾 Local browser storage only</span>
-    <button class="add-btn" id="sync-open-btn" onclick="connectDataFile()">📂 Open Synced File</button>
-    <button class="add-btn" id="sync-create-btn" onclick="createNewDataFile()">🆕 Create Synced File</button>
-    <button class="add-btn" id="sync-folder-btn" onclick="openDataFolder()" style="display:none">📂 Open Data Folder</button>
-    <span id="sync-path" style="margin-left:auto;color:var(--accent2);font-family:var(--mono);font-size:10px;"></span>
-  </div>
+  <div id="compat-banner" class="compat-banner"></div>
+
+  <!-- Browser-only fallback sync (hidden when Electron) -->
+  <div class="sync-bar" id="sync-bar-fallback" aria-hidden="true"></div>
 
   <!-- Stats -->
   <div class="stats-bar">
@@ -1467,164 +1726,44 @@
 
   </details>
 
-  <!-- Gear -->
+  <!-- Rig Assets (gear + deep dive + budget) -->
   <details class="collapsible" open>
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
-      <h2>Core Gear</h2>
+      <h2>Rig Assets</h2>
       <div class="section-line"></div>
     </summary>
-    <div class="section-toolbar">
-      <button class="add-btn" onclick="openModal('gear')">+ Add Gear</button>
+    <div class="section-toolbar" style="gap:10px;">
+      <button type="button" class="price-toggle" id="price-toggle" onclick="togglePrices()" title="Show prices" aria-pressed="false">$</button>
+      <button class="add-btn" onclick="openModal('asset')">+ Add Asset</button>
     </div>
 
-  <div class="gear-grid" id="gear-grid"></div>
+  <div class="asset-status-bar" id="asset-status-bar"></div>
 
-  <!-- Component Deep Dive nested inside Core Gear -->
-  <details class="sub-details">
-    <summary><span class="sec-chevron">▶</span> Component Deep Dive — Known Quirks</summary>
-    <div style="padding: 4px 16px 16px;">
-  <div id="dive-container">
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Camera</span>
-        <span class="dive-name">ZWO ASI294MM Pro</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><span class="crit">CALIBRATION IS NOTORIOUS.</span> The IMX492 demands darks that match gain, offset, temperature, AND exposure length <strong>exactly</strong>. Mismatched darks leave residual amp glow. Build a dark library and never deviate from standard settings.</li>
-            <li><strong>Flat non-linearity:</strong> the 294 misbehaves at very short flat exposures. Keep flats <strong>above 2–3 seconds</strong> — dim your flat source rather than shortening exposure.</li>
-            <li><strong>No bias frames.</strong> Use dark flats instead — the 294's bias behavior is unstable.</li>
-            <li><strong>Micro-lensing artifacts</strong> possible around very bright stars (e.g. Alnitak) — sensor trait, minimized by framing bright stars out when possible.</li>
-            <li><strong>Thermal shock risk:</strong> always warm the sensor up gradually before power-off — never a cold shutdown.</li>
-            <li><strong>This unit:</strong> one USB port is dead (disclosed, not needed) and it has a new daughter board. Test the working port day one.</li>
-          </ul>
-        </div>
-      </div>
+  <div class="stats-bar price-el" style="margin-bottom:16px;">
+    <div class="stat-card">
+      <div class="stat-label">Fleet Spend</div>
+      <div class="stat-value" id="stat-total">$0</div>
+      <div class="stat-sub" id="stat-total-sub">owned / bought</div>
     </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Filters</span>
-        <span class="dive-name">EFW 8×31 + Astrodon / Baader Filters</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets, set once and reused every session.</li>
-            <li><strong>31mm on the 294MM is tight</strong> (4.45mm margin/side). Fine at f/5.6; <span class="crit">verify corner vignetting with flats at f/3.9 reducer mode</span>. Mild vignetting calibrates out.</li>
-            <li><strong>Seller's filter order: L, R, G, B, S, H, O, Hβ</strong> — verify on arrival, label in app to match.</li>
-            <li>Cosmetic scratch on EFW camera side (disclosed) — zero optical impact.</li>
-          </ul>
-        </div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-label">Wishlist</div>
+      <div class="stat-value" id="stat-wishlist">$0</div>
+      <div class="stat-sub" id="stat-wishlist-sub">0 items</div>
     </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Telescope</span>
-        <span class="dive-name">Askar FRA400 + 0.7× Reducer + EAF</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><strong>Missing coarse focus knob</strong> (lost during EAF install). EAF replaces it functionally — order Askar replacement (~$15) as backup, not urgent.</li>
-            <li><strong>Two back-focus regimes:</strong> native = forgiving (50–60mm, Petzval self-flattening, no calc needed); reducer = strict (<strong>55mm ±2mm</strong>) or corner stars elongate. Current reduced stack measures <strong>54.6mm</strong>.</li>
-            <li>Reducer sits <strong>inside</strong> the drawtube via M68 thread; camera side is M48. Camera flange adapter is relocated into the spacer chain (camera contributes 7.5mm, not 17.5mm).</li>
-            <li>Rotator is 360° — re-shoot flats any time you rotate the camera mid-project.</li>
-          </ul>
-        </div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-label">New Retail (owned)</div>
+      <div class="stat-value" id="stat-newretail">$0</div>
+      <div class="stat-sub">acquired fleet</div>
     </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Mount</span>
-        <span class="dive-name">ZWO AM3N Harmonic Drive</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><span class="crit">NO CLUTCHES.</span> Harmonic mounts move electronically only — <strong>never force the axes by hand</strong>. Manual pushing can damage strain wave gears.</li>
-            <li><strong>No polar scope</strong> — polar alignment happens via ASIAIR's plate-solving PA routine (works without seeing Polaris).</li>
-            <li>±15" periodic error (factory tested per-unit) → <strong>guiding mandatory</strong> above ~30s subs. Expect 0.5–1.0" RMS guided.</li>
-            <li>Harmonic drives track best <strong>slightly east-heavy</strong> — perfect balance can oscillate. No counterweight needed for your ~4kg rig (rated 8kg without one).</li>
-            <li>Saddle/Powerbox lives on the scope; camera 12V is <strong>direct from Powerbox Port 2</strong> in the current plan. Mount control is Bluetooth or USB‑C→A via the top of the mount.</li>
-          </ul>
-        </div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-label">Saved vs New</div>
+      <div class="stat-value" id="stat-saved" style="color: var(--green)">$0</div>
+      <div class="stat-sub" id="stat-saved-pct">— below new</div>
     </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Controller</span>
-        <span class="dive-name">ZWO ASIAIR Plus 256GB</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><span class="crit">6A INPUT CEILING.</span> Rated for 12V/5A input, max 6A — its four 12V outputs (3A each) share that ceiling. <strong>Do NOT power the cooled camera or mount from it</strong>. Powerbox handles power; ASIAIR handles data only.</li>
-            <li><strong>ZWO gear only</strong> — cannot control the Pegasus Powerbox (which runs standalone after Unity config).</li>
-            <li><strong>No desktop app</strong> — phone/tablet only. An old iPad makes a great dedicated controller.</li>
-            <li>Default WiFi password: <strong>12345678</strong> (on the device sticker) — change or use Station Mode on home WiFi.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Power</span>
-        <span class="dive-name">Pegasus Powerbox Micro + BTF 12V 10A</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li>ASIAIR <strong>cannot control it</strong> — one-time config via Pegasus Unity on PC, then runs standalone (settings persist on boot).</li>
-            <li>Needs 6A min / 8A+ recommended input — your BTF 10A is correct. <span class="crit">Never substitute a 5A supply.</span></li>
-            <li>Dew ports are <strong>RCA connectors</strong>, 5A max per channel — uses standard RCA male-male cables.</li>
-            <li>Overvoltage cutoff trips above 14.5V input — reverse-polarity protected too.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="dive-card">
-      <div class="dive-header" onclick="this.parentElement.classList.toggle('open')">
-        <span class="dive-cat">Guiding</span>
-        <span class="dive-name">SVBONY SV106 + ASI120MM Mini</span>
-        <span class="dive-chevron">▶</span>
-      </div>
-      <div class="dive-body">
-        <div class="dive-section">
-          <div class="dive-section-title quirks">⚠ Known Quirks</div>
-          <ul class="dive-list">
-            <li><strong>Guide scope focus is the #1 first-night time sink.</strong> Focus in DAYLIGHT on a distant object (500m+), lock the helical ring. Slightly soft is fine — fat stars centroid better.</li>
-            <li>ASI120MM Mini is <strong>open box</strong> — inspect sensor and test USB on arrival.</li>
-            <li>Guide camera sensor is small (1/3", 3.75µm px) — calibrate guiding near the celestial equator and meridian for the most reliable calibration.</li>
-            <li>Dew hits guide scopes too — that's Powerbox RCA channel 2.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
   </div>
-  </div>
-  </details>
+
+  <div id="asset-list"></div>
   </details>
 
   <!-- Filter Wheel -->
@@ -1658,72 +1797,46 @@
   <div class="config-table-wrap">
     <table class="config-table">
       <thead>
-        <tr><th>Mode</th><th>True FL</th><th>35mm Equiv</th><th>FOV</th><th>Image Scale</th><th>Best For</th></tr>
+        <tr><th>Mode</th><th>Optics</th><th>35mm Equiv</th><th>FOV</th><th>Image Scale</th><th>Best For</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td>NYC — Reducer + Bin2</td>
+          <td>Reducer + Bin2</td>
           <td><span class="mono">280mm f/3.9</span></td>
           <td><span class="mono">~522mm</span></td>
           <td><span class="mono">3.91°×2.66° (234'×160')</span></td>
-          <td><span class="mono">3.41"/px</span></td>
-          <td>Large nebulae, LP rejection, 2× faster subs</td>
+          <td><span class="mono">3.41″/px</span></td>
+          <td>Default under city LP — wide FOV, fast f-ratio, forgiving sampling for mediocre seeing (e.g. Veil-scale targets from NYC)</td>
         </tr>
         <tr>
-          <td>Dark Site — Native + Bin2</td>
+          <td>Reducer + Bin1</td>
+          <td><span class="mono">280mm f/3.9</span></td>
+          <td><span class="mono">~522mm</span></td>
+          <td><span class="mono">3.91°×2.66° (234'×160')</span></td>
+          <td><span class="mono">1.71″/px</span></td>
+          <td>Same wide field as above with finer sampling — only when seeing supports ~1.7″/px; heavier files vs Bin2</td>
+        </tr>
+        <tr>
+          <td>Native + Bin2</td>
           <td><span class="mono">400mm f/5.6</span></td>
           <td><span class="mono">~746mm</span></td>
           <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
-          <td><span class="mono">2.39"/px</span></td>
-          <td>Standard narrowband — ideal seeing match</td>
+          <td><span class="mono">2.39″/px</span></td>
+          <td>Workhorse at a dark site — mid-size targets / narrowband; scale matches typical 2–3″ seeing well</td>
         </tr>
         <tr>
-          <td>Dark Site — Native + Bin1</td>
+          <td>Native + Bin1</td>
           <td><span class="mono">400mm f/5.6</span></td>
           <td><span class="mono">~746mm</span></td>
           <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
-          <td><span class="mono">1.19"/px</span></td>
-          <td>Galaxy detail — best seeing nights only</td>
+          <td><span class="mono">1.19″/px</span></td>
+          <td>Highest resolution — galaxies / small targets on excellent seeing nights only; oversamples average seeing</td>
         </tr>
       </tbody>
     </table>
   </div>
   </details>
 
-  <!-- Budget -->
-  <details class="collapsible" open>
-    <summary class="section-header">
-      <span class="sec-chevron">▶</span>
-      <h2>Budget</h2>
-      <div class="section-line"></div>
-    </summary>
-    <div class="section-toolbar" style="gap:10px;">
-      <button class="price-toggle" id="price-toggle" onclick="togglePrices()">👁 Hide Prices</button>
-      <button class="add-btn" onclick="openModal('budget')">+ Add Purchase</button>
-    </div>
-
-  <div class="stats-bar price-el" style="margin-bottom:16px;">
-    <div class="stat-card">
-      <div class="stat-label">Total Spent</div>
-      <div class="stat-value" id="stat-total">$0</div>
-      <div class="stat-sub">incl. software + ASIAIR</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">New Retail Value</div>
-      <div class="stat-value" id="stat-newretail">$0</div>
-      <div class="stat-sub">equivalent new</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Saved vs New</div>
-      <div class="stat-value" id="stat-saved" style="color: var(--green)">$0</div>
-      <div class="stat-sub" id="stat-saved-pct">— below new</div>
-    </div>
-  </div>
-
-  <div class="budget-bar-wrap price-el" id="budget-wrap"></div>
-  </details>
-
-</div>
 
 <!-- Modal -->
 <div class="modal-overlay" id="modal-overlay">
@@ -1737,14 +1850,29 @@
   </div>
 </div>
 
+<script src="scripts/defaultAssets.js"></script>
 <script>
 // ============ DATA ============
 const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
+// Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
+const APP_META_FALLBACK = { version: '1.1.0', build: 2 };
+let APP_META = { ...APP_META_FALLBACK };
+
+const HOME_SITE = {
+  zip: '10002',
+  name: 'NYC 10002',
+  lat: 40.7157,
+  lon: -73.9860,
+  bortle: '9'
+};
+
 const defaultData = {
   rigName: 'Zuko',
-  forecastLocation: null,
+  homeSite: { ...HOME_SITE },
+  forecastLocation: { name: HOME_SITE.name, lat: HOME_SITE.lat, lon: HOME_SITE.lon },
+  appMeta: { version: APP_META_FALLBACK.version, build: APP_META_FALLBACK.build },
   projects: [
     {
       name: 'Veil Nebula — Full Complex',
@@ -1782,117 +1910,527 @@ const defaultData = {
     { icon: '💻', text: '<strong>Before first light:</strong> Download ASIAIR app (phone/tablet), install Pegasus Unity on PC for one-time dew setup. Note: no official ASIAIR desktop app.' },
     { icon: '📲', text: '<strong>Powerbox dew config:</strong> Connect Powerbox to PC via USB once, set auto-dew mode in Unity, then it runs standalone all season.' }
   ],
-  gear: [
-    {
-      cat: 'Mount', name: 'ZWO AM3N Harmonic Drive', price: '$1,800', acquired: 'July 2026',
-      specs: [
-        ['Drive System', 'Strain wave (harmonic) + synchronous belt, 300:1'],
-        ['Payload', '8kg no CW / 13kg with CW'],
-        ['Mount Weight', '4.1kg (9.04 lb)'],
-        ['Periodic Error', '±15" (factory tested, PE report included)'],
-        ['Control', 'Bluetooth direct, or WiFi via hand controller / ASIAIR'],
-        ['Saddle', 'Integrated 12V + USB-C passthrough'],
-        ['Power Req.', '12V / 5A DC (supply sold separately)'],
-        ['Condition', 'New (B&H), incl. TC40 carbon tripod']
-      ]
-    },
-    {
-      cat: 'Telescope', name: 'Askar FRA400 72mm f/5.6', price: '$1,050', acquired: 'July 2026',
-      specs: [
-        ['Design', 'Quintuplet Petzval, 2× ED elements'],
-        ['Aperture / FL', '72mm / 400mm native'],
-        ['With 0.7× Reducer', '280mm f/3.9'],
-        ['Image Circle', '44mm full-frame flat field'],
-        ['Back Focus (native)', '140mm from M68×1 thread; forgiving 50–60mm range'],
-        ['Focuser', '3" rack-and-pinion, 360° rotatable'],
-        ['Weight', '2.56kg OTA'],
-        ['Includes', 'Reducer + EAF, tube rings, dovetail, handle']
-      ]
-    },
-    {
-      cat: 'Camera', name: 'ZWO ASI294MM Pro', price: '$2,100', acquired: 'July 2026',
-      specs: [
-        ['Sensor', 'Sony IMX492, back-illuminated, 4/3" format'],
-        ['Sensor Size', '19.1 × 13.0mm (23.2mm diagonal)'],
-        ['Resolution (Bin2)', '4144×2822 (11.7MP), 4.63µm effective px'],
-        ['Resolution (Bin1)', '8288×5644 (47MP unlocked), 2.315µm px'],
-        ['Read Noise', '1.2e (HCG mode)'],
-        ['Full Well', '66ke (14ke unlocked mode)'],
-        ['Cooling', 'TEC, ~−35 to −40°C below ambient'],
-        ['Peak QE', '~90%'],
-        ['Connection', 'USB 3.0 to ASIAIR, built-in hub for EFW/EAF'],
-        ['Includes', 'EFW 8×31 + Astrodon/Baader filter set']
-      ]
-    },
-    {
-      cat: 'Guiding', name: 'SV106 + ASI120MM Mini', price: '~$275', acquired: 'July 2026',
-      specs: [
-        ['Guide Scope', 'SVBONY SV106, 60mm f/4, 240mm FL'],
-        ['Guide Scope Focus', 'Helical, non-rotating, 8mm travel'],
-        ['Guide Camera', 'ZWO ASI120MM Mini mono'],
-        ['Guide Sensor', '1/3" CMOS, 1280×960, 3.75µm px'],
-        ['Connection', 'M42×0.75 T-thread, USB 2.0 Type-C, ST4 port'],
-        ['Software', 'ASIAIR built-in guiding']
-      ]
-    },
-    {
-      cat: 'Controller', name: 'ZWO ASIAIR Plus 256GB', price: '$349', acquired: 'July 2026',
-      specs: [
-        ['Version', '256GB eMMC (2024 release)'],
-        ['Storage', '256GB onboard, ~244GB usable'],
-        ['Ports', '2× USB 3.0, 2× USB 2.0, Gigabit Ethernet, USB-C, DSLR shutter'],
-        ['WiFi', 'Dual-band, ~20m (65ft) range'],
-        ['Control', 'Bluetooth to ZWO EAF/AM-series mounts'],
-        ['Function', 'Plate solving, PA, guiding, autofocus, scheduling'],
-        ['Replaces', 'Laptop + NINA/PHD2 at the scope']
-      ]
-    },
-    {
-      cat: 'Power', name: 'Pegasus Powerbox Micro', price: '$250', acquired: 'July 2026',
-      specs: [
-        ['12V Outputs', '4 ports, switchable, 5A each'],
-        ['Dew Channels', '2× RCA PWM, auto-dew via env. sensor'],
-        ['Total Capacity', '10A'],
-        ['Adjustable Output', '3/5/8/9/12V, 3A max'],
-        ['Protection', 'Reverse polarity + overvoltage cutoff >14.5V'],
-        ['Config', 'One-time via Pegasus Unity, then standalone']
-      ]
-    },
-    {
-      cat: 'Software', name: 'Processing Stack', price: '$180', acquired: 'July 2026',
-      specs: [
-        ['Capture', 'ASIAIR app (free)'],
-        ['Processing', 'Siril (free)'],
-        ['AI Plugins', 'RC-Astro $180'],
-        ['Planning', 'ASIAIR SkyAtlas built-in'],
-        ['File transfer', 'USB-C → PC as drive']
-      ]
-    }
-  ],
-  budget: [
-    { label: 'ASI294MM + EFW + Astrodon Filters', amount: 2100 },
-    { label: 'Askar FRA400 + Reducer + EAF', amount: 1050 },
-    { label: 'ZWO AM3N + TC40 Tripod (new, B&H)', amount: 1800 },
-    { label: 'SVBONY SV106 Guide Scope', amount: 75 },
-    { label: 'ZWO ASI120MM Mini Guide Camera', amount: 200 },
-    { label: 'Pegasus Powerbox Micro', amount: 250 },
-    { label: 'RC-Astro Plugins (BlurX/NoiseX/StarX)', amount: 180 },
-    { label: 'ZWO ASIAIR Plus 256GB', amount: 349 },
-    { label: 'Power Supply + Spacers + Dew + Cables', amount: 155 }
-  ],
-  newRetail: 8346
+  assets: (typeof DEFAULT_ASSETS !== 'undefined' ? JSON.parse(JSON.stringify(DEFAULT_ASSETS)) : [])
 };
 
-let data;
+function parseMoney(v) {
+  if (v == null || v === '') return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  const n = parseFloat(String(v).replace(/[^0-9.-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+function moneyLabel(n) {
+  if (n == null) return '—';
+  return '$' + Number(n).toLocaleString();
+}
+
+function normalizeAssetStatus(s) {
+  const ok = ['wishlist', 'purchased', 'acquired', 'sold', 'broken'];
+  return ok.includes(s) ? s : 'acquired';
+}
+
+function migrateAssetSplits() {
+  const assets = data.assets;
+  if (!Array.isArray(assets) || !assets.length) return;
+
+  // Split AM3N kit → mount head + TC40 if tripod not already tracked
+  const mountIdx = assets.findIndex(a => /AM3N/i.test(a.name || '') && !/TC40/i.test(a.name || ''));
+  if (mountIdx >= 0 && !assets.some(a => /TC40/i.test(a.name || ''))) {
+    const m = assets[mountIdx];
+    const kitPaid = typeof m.purchased === 'number' ? m.purchased : 1800;
+    m.name = 'ZWO AM3N Harmonic Drive';
+    m.purchased = Math.round(kitPaid * (1420 / 1800));
+    m.newRetail = 1499;
+    m.notes = 'B&H AM3N+TC40 kit — mount share allocated $' + m.purchased;
+    if (Array.isArray(m.specs)) {
+      m.specs = m.specs.map(s => s[0] === 'Condition' ? ['Condition', 'New (B&H)'] : s);
+    }
+    assets.splice(mountIdx + 1, 0, {
+      cat: 'Mount',
+      name: 'ZWO TC40 Carbon Fiber Tripod',
+      purchased: kitPaid - m.purchased,
+      newRetail: 399,
+      acquired: m.acquired || '',
+      condition: m.condition || 'New',
+      vendor: m.vendor || '',
+      notes: 'From AM3N+TC40 kit — allocated share. Standalone ZWO list $399.',
+      specs: [
+        ['Material', 'Carbon fiber dual-section legs'],
+        ['Payload', 'Up to ~50 kg (110 lb) rated'],
+        ['Weight', '~2.3 kg (5 lb)'],
+        ['Head interface', '3/8" center bolt — AM3/AM5 compatible']
+      ],
+      quirks: [
+        'Standalone ZWO list is <strong>$399</strong> (often includes a ~$50 oversized shipping surcharge).'
+      ],
+      status: normalizeAssetStatus(m.status),
+      released: '2022'
+    });
+  }
+
+  // Split combined guide package
+  const guideIdx = assets.findIndex(a => a.name === 'SVBONY SV106 + ASI120MM Mini');
+  if (guideIdx >= 0) {
+    const g = assets[guideIdx];
+    assets.splice(guideIdx, 1,
+      {
+        cat: 'Guiding',
+        name: 'SVBONY SV106 Guide Scope',
+        purchased: 75,
+        newRetail: 75,
+        acquired: g.acquired || '',
+        condition: 'New',
+        notes: '60mm f/4 — rings + dovetail included',
+        specs: [
+          ['Aperture / FL', '60mm f/4, 240mm'],
+          ['Design', 'Achromatic guide / finder scope'],
+          ['Focuser', 'Helical, non-rotating, 8mm travel'],
+          ['Mounting', 'Tube rings + dovetail rail']
+        ],
+        quirks: [
+          '<strong>Guide scope focus is the #1 first-night time sink.</strong> Focus in DAYLIGHT on a distant object (500m+), lock the helical ring. Slightly soft is fine — fat stars centroid better.'
+        ],
+        status: normalizeAssetStatus(g.status),
+        released: '2018'
+      },
+      {
+        cat: 'Guiding',
+        name: 'ZWO ASI120MM Mini',
+        purchased: 200,
+        newRetail: 199,
+        acquired: g.acquired || '',
+        condition: 'Open box',
+        notes: 'Guide camera for SV106',
+        specs: [
+          ['Sensor', '1/3" CMOS, 1280×960, 3.75µm px'],
+          ['Type', 'Mono guide / planetary mini camera'],
+          ['Connection', 'M42×0.75 T-thread, USB 2.0 Type-C, ST4 port'],
+          ['Software', 'ASIAIR built-in guiding']
+        ],
+        quirks: [
+          'This unit is <strong>open box</strong> — inspect sensor and test USB on arrival.',
+          'Sensor is small (1/3", 3.75µm px) — calibrate guiding near the celestial equator and meridian for the most reliable calibration.'
+        ],
+        status: normalizeAssetStatus(g.status),
+        released: '2017'
+      }
+    );
+  }
+
+  // Split camera package: ASI294MM ($2100) + bundled EFW/filters → 3 rows by new-retail share
+  const comboFilterIdx = assets.findIndex(a =>
+    a.name === 'EFW 8×31 + Astrodon / Baader Filters' || /EFW 8.?31 \+ Astrodon/i.test(a.name || '')
+  );
+  const camIdx = assets.findIndex(a => a.name === 'ZWO ASI294MM Pro');
+  if (comboFilterIdx >= 0 && camIdx >= 0 && !assets.some(a => a.name === 'ZWO EFW 8×31mm')) {
+    const cam = assets[camIdx];
+    const kitPaid = typeof cam.purchased === 'number' && cam.purchased >= 1500 ? cam.purchased : 2100;
+    // New-retail basis: cam $1480, EFW $299, filters $2490
+    const rCam = 1480, rEfw = 299, rFil = 2490, rSum = rCam + rEfw + rFil;
+    const pCam = Math.round(kitPaid * rCam / rSum);
+    const pEfw = Math.round(kitPaid * rEfw / rSum);
+    const pFil = kitPaid - pCam - pEfw;
+    cam.purchased = pCam;
+    cam.newRetail = rCam;
+    cam.notes = 'From $' + kitPaid.toLocaleString() + ' camera+EFW+filters package — allocated $' + pCam + ' (new-retail share). Dealer new ~$1,480.';
+    cam.bundled = false;
+    if (Array.isArray(cam.specs)) cam.specs = cam.specs.filter(s => s[0] !== 'Includes');
+    const acquired = cam.acquired || '';
+    const st = normalizeAssetStatus(cam.status);
+    assets.splice(comboFilterIdx, 1,
+      {
+        cat: 'Filters',
+        name: 'ZWO EFW 8×31mm',
+        purchased: pEfw,
+        newRetail: rEfw,
+        acquired,
+        condition: 'Used (cosmetic scratch disclosed)',
+        notes: 'From $' + kitPaid.toLocaleString() + ' package — allocated $' + pEfw + '. New list ~$299.',
+        specs: [
+          ['Slots', '8 × 31mm unmounted (also 1.25" mounted)'],
+          ['Optical thickness', '20mm'],
+          ['Power / data', 'USB from camera hub']
+        ],
+        quirks: [
+          'Cosmetic scratch on EFW camera side (disclosed) — zero optical impact.',
+          '<strong>31mm on the 294MM is tight</strong> (4.45mm margin/side). Fine at f/5.6; <span class="crit">verify corner vignetting with flats at f/3.9 reducer mode</span>.'
+        ],
+        status: st,
+        released: '2018'
+      },
+      {
+        cat: 'Filters',
+        name: 'Astrodon / Baader 31mm Filter Set',
+        purchased: pFil,
+        newRetail: rFil,
+        acquired,
+        condition: 'Used (bundled with camera package)',
+        notes: 'From $' + kitPaid.toLocaleString() + ' package — allocated $' + pFil + '. New equiv ~$2,490 (Astrodon LRGB+SHO + Baader Hβ).',
+        specs: [
+          ['LRGB', 'Astrodon Gen2 E-Series 31mm (est. new $769)'],
+          ['Ha / OIII / SII', 'Astrodon 5nm 31mm (est. new $488 each)'],
+          ['Hβ', 'Baader 5.5nm CMOS-opt 31mm (est. new $257)'],
+          ['Wheel order (verified)', 'L, R, G, B, SII, Ha, OIII, Hβ']
+        ],
+        quirks: [
+          '<strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets, set once and reused every session.'
+        ],
+        status: st,
+        released: '—'
+      }
+    );
+  }
+
+  // Add Anker field battery if missing
+  if (!assets.some(a => /Anker SOLIX C300/i.test(a.name || ''))) {
+    const i = assets.findIndex(a => /Powerbox Micro/i.test(a.name || ''));
+    const at = i >= 0 ? i + 1 : assets.length;
+    assets.splice(at, 0, {
+      cat: 'Power',
+      name: 'Anker SOLIX C300 DC',
+      purchased: 200,
+      newRetail: 200,
+      acquired: 'July 2026',
+      condition: 'New',
+      vendor: 'Amazon',
+      notes: 'Field battery — wall charger not included. DC-only model (no AC outlets).',
+      specs: [
+        ['Capacity', '288Wh (90,000mAh) LiFePO4'],
+        ['Output', '300W class portable power station'],
+        ['Ports', '1× car socket 120W, 2× USB-C 140W bidirectional, 1× USB-C 100W, 1× USB-C 15W, 2× USB-A 12W'],
+        ['Solar in', 'XT60, 11–28V; recommend 60W/100W Anker panels'],
+        ['Recharge', 'Dual USB-C PD to ~80% in ~1h; solar or car'],
+        ['Includes', 'Unit + 60cm 140W USB-C cable (no wall charger)']
+      ],
+      quirks: [
+        '<strong>DC-only model</strong> — no AC outlets (unlike the regular C300). Use the <strong>12V car socket</strong> for the Powerbox / mount chain in the field.',
+        '<strong>First activation:</strong> charge with an 18W+ USB-C PD wall charger on ports <strong>USB-C2 or USB-C3</strong> only.',
+        'Wall charger is <strong>not included</strong> — use a laptop/Anker USB-C PD brick.',
+        'Solar: XT60 11–28V only — not compatible with Anker PS30 / 5V USB-C panels, PS200, or PS400.'
+      ],
+      status: 'acquired',
+      released: '2024'
+    });
+  }
+}
+
+function ensureAssets() {
+  if (!Array.isArray(data.assets)) data.assets = [];
+
+  if (data.assets.length) {
+    migrateAssetSplits();
+    data.assets.forEach(a => {
+      if (!Array.isArray(a.specs)) a.specs = [];
+      if (!Array.isArray(a.quirks)) a.quirks = [];
+      if (a.purchased === undefined && a.price != null) a.purchased = parseMoney(a.price);
+      if (a.newRetail === undefined) a.newRetail = a.purchased;
+      if (a.bundled == null && a.purchased == null && a.status !== 'wishlist') a.bundled = true;
+      a.status = normalizeAssetStatus(a.status);
+      if (a.released == null) a.released = '';
+    });
+    if (data.gear || data.budget || data.newRetail != null) {
+      delete data.gear;
+      delete data.budget;
+      delete data.newRetail;
+    }
+    return;
+  }
+
+  if (typeof DEFAULT_ASSETS !== 'undefined' && DEFAULT_ASSETS.length) {
+    data.assets = JSON.parse(JSON.stringify(DEFAULT_ASSETS));
+    delete data.gear;
+    delete data.budget;
+    delete data.newRetail;
+    return;
+  }
+
+  const gear = data.gear || [];
+  data.assets = gear.map(g => {
+    const purchased = parseMoney(g.price);
+    return {
+      cat: g.cat || 'Other',
+      name: g.name,
+      status: 'acquired',
+      purchased,
+      newRetail: purchased,
+      acquired: g.acquired || '',
+      released: '',
+      condition: '',
+      vendor: '',
+      notes: '',
+      specs: Array.isArray(g.specs) ? g.specs : [],
+      quirks: [],
+      bundled: purchased == null
+    };
+  });
+  delete data.gear;
+  delete data.budget;
+  delete data.newRetail;
+}
+
+const ASSET_STATUSES = [
+  { id: 'all', label: 'All' },
+  { id: 'wishlist', label: 'Wishlist' },
+  { id: 'purchased', label: 'Purchased' },
+  { id: 'acquired', label: 'Acquired' },
+  { id: 'sold', label: 'Sold' },
+  { id: 'broken', label: 'Broken' }
+];
+let assetStatusFilter = 'all';
+
+function assetTotals() {
+  const assets = data.assets || [];
+  const by = { wishlist: 0, purchased: 0, acquired: 0, sold: 0, broken: 0 };
+  assets.forEach(a => { by[normalizeAssetStatus(a.status)]++; });
+  const spendStatuses = { purchased: 1, acquired: 1, sold: 1, broken: 1 };
+  const ownedStatuses = { acquired: 1, purchased: 1 };
+  const spent = assets.reduce((s, a) => {
+    if (!spendStatuses[normalizeAssetStatus(a.status)]) return s;
+    return s + (typeof a.purchased === 'number' ? a.purchased : 0);
+  }, 0);
+  const owned = assets.filter(a => ownedStatuses[normalizeAssetStatus(a.status)]);
+  const retail = owned.reduce((s, a) => s + (typeof a.newRetail === 'number' ? a.newRetail : 0), 0);
+  const ownedSpent = owned.reduce((s, a) => s + (typeof a.purchased === 'number' ? a.purchased : 0), 0);
+  const wishlistItems = assets.filter(a => normalizeAssetStatus(a.status) === 'wishlist');
+  const wishlistValue = wishlistItems.reduce((s, a) => {
+    const v = typeof a.newRetail === 'number' ? a.newRetail : (typeof a.purchased === 'number' ? a.purchased : 0);
+    return s + v;
+  }, 0);
+  return {
+    by,
+    spent,
+    retail,
+    saved: retail - ownedSpent,
+    ownedSpent,
+    wishlistValue,
+    wishlistCount: wishlistItems.length,
+    count: assets.length
+  };
+}
+
+let openAssets = new Set();
+
+function setAssetStatusFilter(id) {
+  assetStatusFilter = id;
+  renderAssets();
+}
+
+function toggleAsset(i, ev) {
+  if (ev && (ev.target.closest('.asset-remove') || ev.target.closest('.asset-edit'))) return;
+  if (openAssets.has(i)) openAssets.delete(i); else openAssets.add(i);
+  renderAssets();
+}
+
+function renderAssets() {
+  ensureAssets();
+  const list = document.getElementById('asset-list');
+  if (!list) return;
+  const t = assetTotals();
+  const pct = t.retail > 0 ? Math.round((t.ownedSpent / t.retail) * 100) : 0;
+
+  const bar = document.getElementById('asset-status-bar');
+  if (bar) {
+    bar.innerHTML = ASSET_STATUSES.map(s => {
+      const n = s.id === 'all' ? t.count : (t.by[s.id] || 0);
+      const active = assetStatusFilter === s.id ? ' active' : '';
+      return '<button type="button" class="asset-status-btn' + active + '" onclick="setAssetStatusFilter(\'' + s.id + '\')">' +
+        s.label + '<span class="n">' + n + '</span></button>';
+    }).join('');
+  }
+
+  const totalEl = document.getElementById('stat-total');
+  if (totalEl) {
+    totalEl.textContent = moneyLabel(t.spent);
+    const wishEl = document.getElementById('stat-wishlist');
+    if (wishEl) wishEl.textContent = moneyLabel(t.wishlistValue);
+    const wishSub = document.getElementById('stat-wishlist-sub');
+    if (wishSub) wishSub.textContent = t.wishlistCount + ' item' + (t.wishlistCount === 1 ? '' : 's');
+    document.getElementById('stat-newretail').textContent = moneyLabel(t.retail);
+    document.getElementById('stat-saved').textContent = moneyLabel(t.saved);
+    document.getElementById('stat-saved-pct').textContent = t.retail ? (100 - pct) + '% below new' : '—';
+  }
+
+  const visible = data.assets
+    .map((a, i) => ({ a, i }))
+    .filter(({ a }) => assetStatusFilter === 'all' || normalizeAssetStatus(a.status) === assetStatusFilter);
+
+  if (!visible.length) {
+    list.innerHTML = '<div style="color:var(--gray);font-size:12px;padding:12px;">No assets in this status.</div>';
+    return;
+  }
+
+  list.innerHTML = visible.map(({ a, i }) => {
+    const st = normalizeAssetStatus(a.status);
+    const open = openAssets.has(i) ? ' open' : '';
+    let paid;
+    if (st === 'wishlist') {
+      paid = '<span class="asset-col-money price-el"><span class="asset-col-label">Target</span>' + moneyLabel(a.newRetail != null ? a.newRetail : a.purchased) + '</span>';
+    } else if (a.bundled || a.purchased == null) {
+      paid = '<span class="asset-col-money bundled price-el"><span class="asset-col-label">Paid</span>bundled</span>';
+    } else {
+      paid = '<span class="asset-col-money price-el"><span class="asset-col-label">Paid</span>' + moneyLabel(a.purchased) + '</span>';
+    }
+    const retailCol = '<span class="asset-col-money retail price-el"><span class="asset-col-label">New</span>' + moneyLabel(a.newRetail) + '</span>';
+    const dateCol = '<span class="asset-col-date acquired"><span class="asset-col-label">Acquired</span>' + (a.acquired || '—') + '</span>';
+    const relCol = '<span class="asset-col-date released"><span class="asset-col-label">Released</span>' + (a.released || '—') + '</span>';
+    const specs = (a.specs || []).map(s => '<div class="spec-row"><span class="spec-key">' + s[0] + '</span><span class="spec-val">' + s[1] + '</span></div>').join('');
+    const quirks = (a.quirks || []).map(q => '<li>' + q + '</li>').join('');
+    const sub = [a.condition, a.vendor, a.notes].filter(Boolean).join(' · ');
+    return '<div class="asset-card status-' + st + open + '">' +
+      '<div class="asset-header" onclick="toggleAsset(' + i + ', event)">' +
+        '<span class="asset-status-pill ' + st + '">' + st + '</span>' +
+        '<div class="asset-cat">' + (a.cat || 'Other') + '</div>' +
+        '<div class="asset-info"><div class="asset-name">' + a.name + '</div>' + (sub ? '<div class="asset-sub">' + sub + '</div>' : '') + '</div>' +
+        paid + retailCol + dateCol + relCol +
+        '<div class="asset-chevron">▶</div>' +
+        '<button class="asset-remove" onclick="event.stopPropagation(); removeAsset(' + i + ')" title="Remove">✕</button>' +
+      '</div>' +
+      '<div class="asset-body">' +
+        '<div class="asset-body-actions">' +
+          '<button class="mini-btn asset-edit" onclick="editItem(\'asset\', ' + i + ')">Edit asset</button>' +
+        '</div>' +
+        (specs ? '<div class="asset-section"><div class="asset-section-title specs">Specs</div><div class="asset-specs">' + specs + '</div></div>' : '') +
+        (quirks ? '<div class="asset-section"><div class="asset-section-title quirks">Known quirks</div><ul class="dive-list">' + quirks + '</ul></div>' : '<div class="asset-section"><div style="color:var(--gray);font-size:12px;">No deep-dive notes yet.</div></div>') +
+      '</div></div>';
+  }).join('');
+}
+
+let data = defaultData;
 try {
-  data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultData;
-} catch(e) {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) adoptLoadedData(JSON.parse(raw));
+  else ensureHomeSite(), ensureAssets();
+} catch (e) {
   data = defaultData;
+  ensureHomeSite();
+  ensureAssets();
 }
 
 let saveTimer = null;
 
+function stampAppMeta() {
+  data.appMeta = {
+    version: APP_META.version,
+    build: APP_META.build,
+    savedAt: new Date().toISOString()
+  };
+}
+
+function ensureHomeSite() {
+  if (!data.homeSite || data.homeSite.zip !== HOME_SITE.zip) {
+    data.homeSite = { ...HOME_SITE };
+  }
+  if (!data.forecastLocation) {
+    data.forecastLocation = { name: HOME_SITE.name, lat: HOME_SITE.lat, lon: HOME_SITE.lon };
+  }
+}
+
+function showCompatBanner(msg) {
+  const el = document.getElementById('compat-banner');
+  if (!el) return;
+  if (!msg) {
+    el.classList.remove('open');
+    el.textContent = '';
+    return;
+  }
+  el.textContent = msg;
+  el.classList.add('open');
+}
+
+function adoptLoadedData(incoming) {
+  if (!incoming || typeof incoming !== 'object') return;
+  data = incoming;
+  ensureHomeSite();
+  ensureAssets();
+  const saved = data.appMeta || {};
+  const savedBuild = Number(saved.build) || 0;
+  if (savedBuild > APP_META.build) {
+    showCompatBanner(
+      'Data was saved by a newer app (v' + (saved.version || '?') + ' · build ' + savedBuild +
+      '). This app is v' + APP_META.version + ' · build ' + APP_META.build +
+      '. Unknown fields are kept; update this install when you can.'
+    );
+  } else {
+    showCompatBanner('');
+  }
+}
+
+async function initAppMeta() {
+  try {
+    if (window.zukoApp && window.zukoApp.meta) {
+      const m = await window.zukoApp.meta();
+      if (m && m.version) APP_META = { version: String(m.version), build: Number(m.build) || 1 };
+    }
+  } catch (e) { /* keep fallback */ }
+  const el = document.getElementById('header-version');
+  if (el) el.textContent = 'v' + APP_META.version + ' · build ' + APP_META.build;
+}
+
+// ============ MOON + HOME WEATHER ============
+function moonPhaseInfo(date = new Date()) {
+  // Synodic month age from known new moon (2000-01-06 18:14 UTC)
+  const synodic = 29.530588853;
+  const ref = Date.UTC(2000, 0, 6, 18, 14, 0);
+  const days = (date.getTime() - ref) / 86400000;
+  const age = ((days % synodic) + synodic) % synodic;
+  const t = age / synodic;
+  const illum = Math.round(((1 - Math.cos(2 * Math.PI * t)) / 2) * 100);
+  let name = 'New moon';
+  let icon = '🌑';
+  if (t < 0.03 || t >= 0.97) { name = 'New moon'; icon = '🌑'; }
+  else if (t < 0.22) { name = 'Waxing crescent'; icon = '🌒'; }
+  else if (t < 0.28) { name = 'First quarter'; icon = '🌓'; }
+  else if (t < 0.47) { name = 'Waxing gibbous'; icon = '🌔'; }
+  else if (t < 0.53) { name = 'Full moon'; icon = '🌕'; }
+  else if (t < 0.72) { name = 'Waning gibbous'; icon = '🌖'; }
+  else if (t < 0.78) { name = 'Last quarter'; icon = '🌗'; }
+  else { name = 'Waning crescent'; icon = '🌘'; }
+  return { name, icon, illum, ageDays: age };
+}
+
+const WMO_LABELS = {
+  0: 'Clear', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+  45: 'Fog', 48: 'Fog',
+  51: 'Drizzle', 53: 'Drizzle', 55: 'Drizzle',
+  61: 'Rain', 63: 'Rain', 65: 'Rain',
+  71: 'Snow', 73: 'Snow', 75: 'Snow',
+  80: 'Showers', 81: 'Showers', 82: 'Showers',
+  95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Thunderstorm'
+};
+
+async function refreshHeaderSky() {
+  const moonEl = document.getElementById('header-moon');
+  const wxEl = document.getElementById('header-weather');
+  const moon = moonPhaseInfo();
+  if (moonEl) moonEl.textContent = moon.icon + ' ' + moon.name + ' · ' + moon.illum + '%';
+
+  ensureHomeSite();
+  const home = data.homeSite || HOME_SITE;
+  if (wxEl) wxEl.textContent = 'Weather · ' + (home.name || 'home') + '…';
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + home.lat +
+      '&longitude=' + home.lon +
+      '&current=temperature_2m,cloud_cover,weather_code,precipitation&temperature_unit=fahrenheit&timezone=America%2FNew_York';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('wx ' + res.status);
+    const j = await res.json();
+    const c = j.current || {};
+    const label = WMO_LABELS[c.weather_code] || ('code ' + c.weather_code);
+    const temp = c.temperature_2m != null ? Math.round(c.temperature_2m) + '°F' : '—';
+    const cloud = c.cloud_cover != null ? c.cloud_cover + '% cloud' : '';
+    if (wxEl) {
+      wxEl.innerHTML = '<strong>' + temp + '</strong> · ' + label +
+        (cloud ? ' · ' + cloud : '') +
+        ' · <span class="meta-muted">' + (home.name || home.zip) + '</span>';
+    }
+  } catch (e) {
+    if (wxEl) wxEl.textContent = 'Weather unavailable · ' + (home.name || home.zip);
+  }
+}
+
 function save() {
+  stampAppMeta();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
   if (window.zukoFs) {
     clearTimeout(saveTimer);
@@ -1911,17 +2449,17 @@ function save() {
 // ============ FILE SYNC ============
 function updateSyncStatus(name, status) {
   const el = document.getElementById('sync-status');
-  const pathEl = document.getElementById('sync-path');
   if (!el) return;
+  el.classList.remove('meta-ok', 'meta-err', 'meta-muted', 'meta-warn');
   if (status === 'connected') {
-    el.textContent = `📁 Auto-saving`;
-    if (pathEl) pathEl.textContent = name || '';
+    el.textContent = 'Synced';
+    el.classList.add('meta-ok');
   } else if (status === 'error') {
-    el.textContent = `⚠️ Sync error — check H: drive / data folder`;
-    if (pathEl) pathEl.textContent = '';
+    el.textContent = 'Sync error';
+    el.classList.add('meta-err');
   } else {
-    el.textContent = `💾 Local browser storage only`;
-    if (pathEl) pathEl.textContent = '';
+    el.textContent = 'Local only';
+    el.classList.add('meta-muted');
   }
 }
 
@@ -1953,12 +2491,13 @@ async function connectDataFile() {
     const file = await handle.getFile();
     const text = await file.text();
     if (text.trim()) {
-      data = JSON.parse(text);
+      adoptLoadedData(JSON.parse(text));
     } else {
       await writeToFileHandle(data);
     }
     updateSyncStatus(handle.name, 'connected');
     render();
+    refreshHeaderSky();
   } catch (e) {
     if (e.name !== 'AbortError') alert('Could not open that file: ' + e.message);
   }
@@ -1975,6 +2514,7 @@ async function createNewDataFile() {
       types: [{ description: 'Zuko Dashboard Data', accept: { 'application/json': ['.json'] } }]
     });
     fileHandle = handle;
+    stampAppMeta();
     await writeToFileHandle(data);
     updateSyncStatus(handle.name, 'connected');
   } catch (e) {
@@ -2001,10 +2541,11 @@ async function bootFromElectronFile() {
     return true;
   }
   if (res.data) {
-    data = res.data;
+    adoptLoadedData(res.data);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
   } else {
-    // Seed the H: file from current in-memory / localStorage data
+    // Seed the data file from current in-memory / localStorage data
+    stampAppMeta();
     await window.zukoFs.save(data);
   }
   updateSyncStatus(res.path, 'connected');
@@ -2110,6 +2651,18 @@ function renderForecastFrame() {
 
 // ============ RENDER ============
 function render() {
+  try {
+    renderUnsafe();
+  } catch (e) {
+    console.error('Render error (often from newer data on an older build):', e);
+    showCompatBanner(
+      'Could not fully render this data with v' + APP_META.version + ' · build ' + APP_META.build +
+      '. Update the app, or restore an older JSON backup.'
+    );
+  }
+}
+
+function renderUnsafe() {
   // Rig name
   document.title = (data.rigName || 'Zuko') + ' — Astrophotography Rig';
   const rigNameEl = document.getElementById('rig-name-el');
@@ -2120,18 +2673,19 @@ function render() {
 
   // Top stats: hours, completion, active projects, action items
   const projects = data.projects || [];
-  const totalHrsLogged = projects.reduce((s, p) => s + p.filterTargets.reduce((s2, f) => s2 + f.loggedHrs, 0), 0);
+  const totalHrsLogged = projects.reduce((s, p) => s + (p.filterTargets || []).reduce((s2, f) => s2 + (f.loggedHrs || 0), 0), 0);
   const completeCount = projects.filter(p => p.status === 'complete').length;
   const activeCount = projects.filter(p => ['planning', 'active', 'processing'].includes(p.status)).length;
   document.getElementById('stat-hours').textContent = `${totalHrsLogged.toFixed(1)}h`;
   document.getElementById('stat-hours-sub').textContent = `across ${projects.length} project${projects.length === 1 ? '' : 's'}`;
   document.getElementById('stat-complete').textContent = `${completeCount}/${projects.length}`;
   document.getElementById('stat-active').textContent = `${activeCount}`;
-  document.getElementById('stat-checklist').textContent = `${data.notes.length}`;
+  document.getElementById('stat-checklist').textContent = `${(data.notes || []).length}`;
 
   // Notes
   const notes = document.getElementById('notes-box');
-  notes.innerHTML = data.notes.length ? data.notes.map((n, i) => `
+  const noteList = data.notes || [];
+  notes.innerHTML = noteList.length ? noteList.map((n, i) => `
     <div class="note-item">
       <span class="note-icon">${n.icon}</span>
       <span class="note-text editable" onclick="editItem('note', ${i})" title="Click to edit">${n.text}</span>
@@ -2139,55 +2693,7 @@ function render() {
     </div>
   `).join('') : '<div style="color:var(--gray);font-size:12px;">No action items — all clear ✓</div>';
 
-  // Gear
-  const grid = document.getElementById('gear-grid');
-  grid.innerHTML = data.gear.map((g, i) => `
-    <div class="gear-card">
-      <button class="gear-remove" onclick="removeGear(${i})">✕</button>
-      <div class="gear-card-header editable" onclick="editItem('gear', ${i})" title="Click to edit">
-        <div>
-          <div class="gear-category">${g.cat}</div>
-          <div class="gear-name">${g.name}</div>
-          ${g.acquired ? `<div style="font-family:var(--mono);font-size:10px;color:var(--gray);margin-top:2px;">Acquired ${g.acquired}</div>` : ''}
-        </div>
-        <div class="gear-price price-el">${g.price}</div>
-      </div>
-      <div class="gear-specs">
-        ${g.specs.map(s => `<div class="spec-row"><span class="spec-key">${s[0]}</span><span class="spec-val">${s[1]}</span></div>`).join('')}
-      </div>
-    </div>
-  `).join('');
-
-  // Budget
-  const total = data.budget.reduce((sum, b) => sum + b.amount, 0);
-  const saved = data.newRetail - total;
-  const pct = Math.round((total / data.newRetail) * 100);
-  document.getElementById('stat-total').textContent = '$' + total.toLocaleString();
-  document.getElementById('stat-newretail').textContent = '$' + data.newRetail.toLocaleString();
-  document.getElementById('stat-saved').textContent = '$' + saved.toLocaleString();
-  document.getElementById('stat-saved-pct').textContent = `${100 - pct}% below new`;
-
-  const wrap = document.getElementById('budget-wrap');
-  wrap.innerHTML = data.budget.map((b, i) => `
-    <div class="budget-row">
-      <div class="budget-label editable" onclick="editItem('budget', ${i})" title="Click to edit">${b.label}</div>
-      <div class="budget-amount editable" onclick="editItem('budget', ${i})" title="Click to edit">$${b.amount.toLocaleString()}</div>
-      <button class="budget-remove" onclick="removeBudget(${i})">✕</button>
-    </div>
-  `).join('') + `
-    <div class="budget-row total">
-      <div class="budget-label">Total Spent</div>
-      <div class="budget-amount total-val">$${total.toLocaleString()}</div>
-    </div>
-    <div class="budget-row">
-      <div class="budget-label" style="color: var(--green)">New Retail Equivalent</div>
-      <div class="budget-amount">$${data.newRetail.toLocaleString()}</div>
-    </div>
-    <div class="budget-row">
-      <div class="budget-label" style="color: var(--green)">Saved vs New</div>
-      <div class="budget-amount saved">$${saved.toLocaleString()} (${100-pct}%)</div>
-    </div>
-  `;
+  renderAssets();
 }
 
 // ============ PROJECTS ============
@@ -2942,15 +3448,11 @@ function useResolvedAsAnchor(pi, name, ra, dec) {
 
 // ============ ACTIONS ============
 function removeNote(i) { data.notes.splice(i, 1); save(); }
-function removeGear(i) {
-  if (confirm('Remove "' + data.gear[i].name + '"?')) {
-    data.gear.splice(i, 1);
-    save();
-  }
-}
-function removeBudget(i) {
-  if (confirm('Remove "' + data.budget[i].label + '"?')) {
-    data.budget.splice(i, 1);
+function removeAsset(i) {
+  const a = data.assets[i];
+  if (confirm('Remove "' + (a && a.name ? a.name : 'asset') + '"?')) {
+    data.assets.splice(i, 1);
+    openAssets.delete(i);
     save();
   }
 }
@@ -2967,21 +3469,21 @@ const modalConfigs = {
       { id: 'f-text', label: 'Note', type: 'text', placeholder: 'What needs doing?' }
     ]
   },
-  gear: {
-    title: 'Add Gear',
+  asset: {
+    title: 'Add Asset',
     fields: [
-      { id: 'f-cat', label: 'Category', type: 'text', placeholder: 'e.g. Controller' },
-      { id: 'f-name', label: 'Name', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
-      { id: 'f-price', label: 'Price', type: 'text', placeholder: '$349' },
-      { id: 'f-acquired', label: 'Acquired', type: 'text', placeholder: 'e.g. July 2026' },
-      { id: 'f-specs', label: 'Specs (key:value, comma separated)', type: 'text', placeholder: 'Storage:256GB, WiFi:Dual band' }
-    ]
-  },
-  budget: {
-    title: 'Add Purchase',
-    fields: [
-      { id: 'f-label', label: 'Item', type: 'text', placeholder: 'e.g. ASIAIR Plus' },
-      { id: 'f-amount', label: 'Amount ($, numbers only)', type: 'number', placeholder: '349' }
+      { id: 'f-cat', label: 'Category', type: 'text', placeholder: 'e.g. Camera' },
+      { id: 'f-name', label: 'Name', type: 'text', placeholder: 'e.g. ZWO ASI294MM Pro' },
+      { id: 'f-status', label: 'Status', type: 'select', options: ['wishlist', 'purchased', 'acquired', 'sold', 'broken'], optionLabels: ['wishlist', 'purchased', 'acquired', 'sold', 'broken'] },
+      { id: 'f-purchased', label: 'Paid ($ — blank if bundled / wishlist)', type: 'text', placeholder: '2100' },
+      { id: 'f-newRetail', label: 'New retail / target ($)', type: 'text', placeholder: '2100' },
+      { id: 'f-acquired', label: 'Acquired / purchased date', type: 'text', placeholder: 'e.g. July 2026' },
+      { id: 'f-released', label: 'Hardware released', type: 'text', placeholder: 'e.g. 2020 / Apr 2020' },
+      { id: 'f-condition', label: 'Condition', type: 'text', placeholder: 'e.g. New / Used / Bundled' },
+      { id: 'f-vendor', label: 'Vendor', type: 'text', placeholder: 'e.g. B&H / Cloudy Nights' },
+      { id: 'f-notes', label: 'Notes', type: 'text', placeholder: 'Short note shown in the summary row' },
+      { id: 'f-specs', label: 'Specs (key:value, comma separated)', type: 'text', placeholder: 'Sensor:IMX492, Cooling:TEC' },
+      { id: 'f-quirks', label: 'Deep dive / quirks (one per line)', type: 'textarea', placeholder: 'Known quirk…' }
     ]
   },
   project: {
@@ -3063,12 +3565,22 @@ function editItem(type, i) {
   if (type === 'note') {
     const n = data.notes[i];
     prefill = { 'f-icon': n.icon, 'f-text': n.text.replace(/<[^>]*>/g, '') };
-  } else if (type === 'gear') {
-    const g = data.gear[i];
-    prefill = { 'f-cat': g.cat, 'f-name': g.name, 'f-price': g.price, 'f-acquired': g.acquired || '', 'f-specs': g.specs.map(s => s.join(':')).join(', ') };
-  } else if (type === 'budget') {
-    const b = data.budget[i];
-    prefill = { 'f-label': b.label, 'f-amount': b.amount };
+  } else if (type === 'asset') {
+    const a = data.assets[i];
+    prefill = {
+      'f-cat': a.cat || '',
+      'f-name': a.name || '',
+      'f-status': normalizeAssetStatus(a.status),
+      'f-purchased': a.purchased == null ? '' : String(a.purchased),
+      'f-newRetail': a.newRetail == null ? '' : String(a.newRetail),
+      'f-acquired': a.acquired || '',
+      'f-released': a.released || '',
+      'f-condition': a.condition || '',
+      'f-vendor': a.vendor || '',
+      'f-notes': a.notes || '',
+      'f-specs': (a.specs || []).map(s => s.join(':')).join(', '),
+      'f-quirks': (a.quirks || []).map(q => String(q).replace(/<[^>]*>/g, '')).join('\n')
+    };
   }
   openModal(type, prefill);
 }
@@ -3088,15 +3600,31 @@ function saveModal() {
     if (!v('f-text')) return;
     const item = { icon: v('f-icon') || '📌', text: v('f-text') };
     editing ? data.notes[editIndex] = item : data.notes.push(item);
-  } else if (modalType === 'gear') {
+  } else if (modalType === 'asset') {
     if (!v('f-name')) return;
-    const specs = v('f-specs').split(',').map(s => s.split(':').map(x => x.trim())).filter(s => s.length === 2);
-    const item = { cat: v('f-cat') || 'Other', name: v('f-name'), price: v('f-price') || '—', acquired: v('f-acquired') || '', specs };
-    editing ? data.gear[editIndex] = item : data.gear.push(item);
-  } else if (modalType === 'budget') {
-    if (!v('f-label') || !v('f-amount')) return;
-    const item = { label: v('f-label'), amount: parseFloat(v('f-amount')) || 0 };
-    editing ? data.budget[editIndex] = item : data.budget.push(item);
+    const purchasedRaw = v('f-purchased');
+    const purchased = purchasedRaw === '' ? null : parseMoney(purchasedRaw);
+    const newRetail = parseMoney(v('f-newRetail'));
+    const status = normalizeAssetStatus(v('f-status') || 'acquired');
+    const specs = v('f-specs').split(',').map(s => s.split(':').map(x => x.trim())).filter(s => s.length === 2 && s[0] && s[1]);
+    const quirks = v('f-quirks').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const item = {
+      cat: v('f-cat') || 'Other',
+      name: v('f-name'),
+      status,
+      purchased,
+      newRetail: newRetail != null ? newRetail : purchased,
+      acquired: v('f-acquired') || '',
+      released: v('f-released') || '',
+      condition: v('f-condition') || '',
+      vendor: v('f-vendor') || '',
+      notes: v('f-notes') || '',
+      specs,
+      quirks,
+      bundled: status !== 'wishlist' && purchased == null
+    };
+    editing ? data.assets[editIndex] = item : data.assets.push(item);
+  } else if (modalType === 'project') {
   } else if (modalType === 'project') {
     if (!v('f-name')) return;
     const item = {
@@ -3176,23 +3704,41 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
 });
 
 // ============ PRICE TOGGLE ============
+function syncPriceToggleBtn() {
+  const btn = document.getElementById('price-toggle');
+  if (!btn) return;
+  const hidden = document.body.classList.contains('hide-prices');
+  btn.textContent = '$';
+  btn.title = hidden ? 'Show prices' : 'Hide prices';
+  btn.setAttribute('aria-pressed', hidden ? 'false' : 'true');
+  btn.setAttribute('aria-label', hidden ? 'Show prices' : 'Hide prices');
+}
 function togglePrices() {
   document.body.classList.toggle('hide-prices');
   const on = document.body.classList.contains('hide-prices');
-  document.getElementById('price-toggle').textContent = on ? '👁 Show Prices' : '👁 Hide Prices';
+  syncPriceToggleBtn();
   try { localStorage.setItem('astro-rig-hideprices', on ? '1' : '0'); } catch(e) {}
 }
 try {
-  if (localStorage.getItem('astro-rig-hideprices') === '1') {
-    document.body.classList.add('hide-prices');
-    document.getElementById('price-toggle').textContent = '👁 Show Prices';
-  }
+  const pref = localStorage.getItem('astro-rig-hideprices');
+  // Default: prices hidden unless user explicitly chose Show
+  if (pref !== '0') document.body.classList.add('hide-prices');
+  syncPriceToggleBtn();
 } catch(e) {}
 
 // Init
 (async function boot() {
-  await bootFromElectronFile();
+  await initAppMeta();
+  // Re-check compat after Electron meta is known
+  if (data && data.appMeta) adoptLoadedData(data);
+  const electron = await bootFromElectronFile();
+  if (!electron) {
+    // Browser: show discrete link/new controls; keep status in header
+    updateSyncStatus(null, fileHandle ? 'connected' : 'local');
+  }
+  ensureHomeSite();
   render();
+  refreshHeaderSky();
 })();
 </script>
 </body>

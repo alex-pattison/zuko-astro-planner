@@ -1,0 +1,526 @@
+window.DEFAULT_ASSETS = [
+  {
+    "cat": "Mount",
+    "name": "ZWO AM3N Harmonic Drive",
+    "purchased": 1420,
+    "newRetail": 1499,
+    "acquired": "July 2026",
+    "condition": "New (B&H)",
+    "vendor": "B&H",
+    "notes": "B&H AM3N+TC40 kit ($1,800) — mount share allocated $1,420",
+    "specs": [
+      [
+        "Drive System",
+        "Strain wave (harmonic) + synchronous belt, 300:1"
+      ],
+      [
+        "Payload",
+        "8kg no CW / 13kg with CW"
+      ],
+      [
+        "Mount Weight",
+        "4.1kg (9.04 lb)"
+      ],
+      [
+        "Periodic Error",
+        "±15\" (factory tested, PE report included)"
+      ],
+      [
+        "Control",
+        "Bluetooth direct, or WiFi via hand controller / ASIAIR"
+      ],
+      [
+        "Saddle",
+        "Integrated 12V + USB-C passthrough"
+      ],
+      [
+        "Power Req.",
+        "12V / 5A DC (supply sold separately)"
+      ],
+      [
+        "Condition",
+        "New (B&H)"
+      ]
+    ],
+    "quirks": [
+      "<span class=\"crit\">No clutches.</span> Axes move electronically only — forcing them by hand can damage the strain-wave gears.",
+      "No optical polar scope; polar alignment is done in software via plate-solving (e.g. ASIAIR PA).",
+      "Factory PE typically within ±15″ (individual PE report included). Autoguiding is normal for multi-minute subs; guided RMS around 0.5–1.0″ is typical for light refractor loads.",
+      "Strain-wave mounts often track more stably slightly east-heavy than perfectly balanced. Rated 8 kg without a counterweight / 13 kg with one.",
+      "EQ and alt-az modes; control via Bluetooth, Wi-Fi, hand controller, or USB."
+    ],
+    "status": "acquired",
+    "released": "2025"
+  },
+  {
+    "cat": "Mount",
+    "name": "ZWO TC40 Carbon Fiber Tripod",
+    "purchased": 380,
+    "newRetail": 399,
+    "acquired": "July 2026",
+    "condition": "New (B&H)",
+    "vendor": "B&H",
+    "notes": "From AM3N+TC40 kit — allocated $380 of $1,800. Standalone ZWO list $399 (incl. oversized-ship surcharge).",
+    "specs": [
+      [
+        "Material",
+        "Carbon fiber dual-section legs"
+      ],
+      [
+        "Payload",
+        "Up to ~50 kg (110 lb) rated"
+      ],
+      [
+        "Weight",
+        "~2.3 kg (5 lb)"
+      ],
+      [
+        "Height range",
+        "~47–80 cm (18.5–31.5\")"
+      ],
+      [
+        "Head interface",
+        "3/8\" center bolt — AM3/AM5 compatible"
+      ],
+      [
+        "Kit context",
+        "Bundled with AM3N at B&H"
+      ]
+    ],
+    "quirks": [
+      "Carbon dual-section travel tripod for the AM-series; ~2.3 kg with a high published load rating.",
+      "Packs larger than the mount head alone despite the low weight."
+    ],
+    "status": "acquired",
+    "released": "2022"
+  },
+  {
+    "cat": "Telescope",
+    "name": "Askar FRA400 72mm f/5.6",
+    "purchased": 1050,
+    "newRetail": 1050,
+    "acquired": "July 2026",
+    "condition": "New",
+    "notes": "Includes 0.7× reducer + EAF, tube rings, dovetail, handle",
+    "specs": [
+      [
+        "Design",
+        "Quintuplet Petzval, 2× ED elements"
+      ],
+      [
+        "Aperture / FL",
+        "72mm / 400mm native"
+      ],
+      [
+        "With 0.7× Reducer",
+        "280mm f/3.9"
+      ],
+      [
+        "Image Circle",
+        "44mm full-frame flat field"
+      ],
+      [
+        "Back Focus (native)",
+        "140mm from M68×1 thread; forgiving 50–60mm range"
+      ],
+      [
+        "Focuser",
+        "3\" rack-and-pinion, 360° rotatable"
+      ],
+      [
+        "Weight",
+        "2.56kg OTA"
+      ],
+      [
+        "Includes",
+        "Reducer + EAF, tube rings, dovetail, handle"
+      ]
+    ],
+    "quirks": [
+      "<strong>Two optical regimes:</strong> native Petzval is forgiving once focused; with the 0.7× reducer, back focus is strict (<strong>55 mm ± ~2 mm</strong> from the M48 thread to the sensor). Current reduced stack ≈ <strong>54.6 mm</strong>.",
+      "Reducer mounts inside the drawtube (M68); camera side is M48. With the reducer, the camera’s contribution in the spacer chain is the 7.5 mm flange distance (adapter moved into the stack).",
+      "Focuser rotates 360°; flat frames are specific to camera rotation."
+    ],
+    "status": "acquired",
+    "released": "Apr 2020"
+  },
+  {
+    "cat": "Camera",
+    "name": "ZWO ASI294MM Pro",
+    "purchased": 728,
+    "newRetail": 1480,
+    "acquired": "July 2026",
+    "condition": "Used",
+    "notes": "From $2,100 camera+EFW+filters package — allocated $728 (share of new-retail mix). Dealer new ~$1480.",
+    "specs": [
+      [
+        "Sensor",
+        "Sony IMX492, back-illuminated, 4/3\" format"
+      ],
+      [
+        "Sensor Size",
+        "19.1 × 13.0mm (23.2mm diagonal)"
+      ],
+      [
+        "Resolution (Bin2)",
+        "4144×2822 (11.7MP), 4.63µm effective px"
+      ],
+      [
+        "Resolution (Bin1)",
+        "8288×5644 (47MP unlocked), 2.315µm px"
+      ],
+      [
+        "Read Noise",
+        "1.2e (HCG mode)"
+      ],
+      [
+        "Full Well",
+        "66ke (14ke unlocked mode)"
+      ],
+      [
+        "Cooling",
+        "TEC, ~−35 to −40°C below ambient"
+      ],
+      [
+        "Peak QE",
+        "~90%"
+      ],
+      [
+        "Connection",
+        "USB 3.0 to ASIAIR, built-in hub for EFW/EAF"
+      ]
+    ],
+    "quirks": [
+      "IMX492 shows amp glow; it calibrates out with darks that match <strong>gain, offset, temperature, and exposure</strong>.",
+      "Very short flats can be nonlinear — exposures of roughly <strong>2–3+ seconds</strong> with a dimmer flat source behave more consistently.",
+      "Bias frames are generally avoided on this sensor; dark-flats are the usual substitute.",
+      "Narrowband flats can show sensor patterning that calibrates out with proper flats.",
+      "Microlensing / interference artifacts can appear around very bright stars — a known sensor trait.",
+      "TEC cooling: sudden cold power-off risks thermal stress; a warm-up before shutdown is standard practice."
+    ],
+    "status": "acquired",
+    "released": "2020"
+  },
+  {
+    "cat": "Filters",
+    "name": "ZWO EFW 8×31mm",
+    "purchased": 147,
+    "newRetail": 299,
+    "acquired": "July 2026",
+    "condition": "Used (cosmetic scratch disclosed)",
+    "notes": "From $2,100 package — allocated $147. New list ~$299 (8-slot 1.25\"/31mm).",
+    "specs": [
+      [
+        "Slots",
+        "8 × 31mm unmounted (also 1.25\" mounted)"
+      ],
+      [
+        "Optical thickness",
+        "20mm"
+      ],
+      [
+        "Power / data",
+        "USB from camera hub"
+      ],
+      [
+        "Body",
+        "CNC aluminum"
+      ]
+    ],
+    "quirks": [
+      "Cosmetic scratch on the camera-facing side (disclosed) — no optical effect.",
+      "31 mm filters on the 4/3″ ASI294 leave limited clearance (~4.5 mm/side). Faster systems (e.g. f/3.9) show more corner falloff; mild vignetting is typically flat-calibratable."
+    ],
+    "status": "acquired",
+    "released": "2018"
+  },
+  {
+    "cat": "Filters",
+    "name": "Astrodon / Baader 31mm Filter Set",
+    "purchased": 1225,
+    "newRetail": 2490,
+    "acquired": "July 2026",
+    "condition": "Used (bundled with camera package)",
+    "notes": "From $2,100 package — allocated $1225. New equiv ~$2490: Astrodon LRGB $769 + Ha/OIII/SII 5nm $488×3 + Baader Hβ $257.",
+    "specs": [
+      [
+        "LRGB",
+        "Astrodon Gen2 E-Series 31mm (est. new $769)"
+      ],
+      [
+        "Ha / OIII / SII",
+        "Astrodon 5nm 31mm (est. new $488 each)"
+      ],
+      [
+        "Hβ",
+        "Baader 5.5nm CMOS-opt 31mm (est. new $257)"
+      ],
+      [
+        "Wheel order (verified)",
+        "L, R, G, B, SII, Ha, OIII, Hβ"
+      ],
+      [
+        "New-retail basis",
+        "$2490 combined list estimate"
+      ]
+    ],
+    "quirks": [
+      "Filters in mixed sets are generally <strong>not parafocal</strong>; EAF per-filter focus offsets are the usual approach."
+    ],
+    "status": "acquired",
+    "released": "—"
+  },
+  {
+    "cat": "Guiding",
+    "name": "SVBONY SV106 Guide Scope",
+    "purchased": 75,
+    "newRetail": 75,
+    "acquired": "July 2026",
+    "condition": "New",
+    "notes": "60mm f/4 — rings + dovetail included",
+    "specs": [
+      [
+        "Aperture / FL",
+        "60mm f/4, 240mm"
+      ],
+      [
+        "Design",
+        "Achromatic guide / finder scope"
+      ],
+      [
+        "Focuser",
+        "Helical, non-rotating, 8mm travel"
+      ],
+      [
+        "Mounting",
+        "Tube rings + dovetail rail"
+      ],
+      [
+        "Eyepiece",
+        "1.25\""
+      ]
+    ],
+    "quirks": [
+      "Helical focuser with a lock ring; slightly soft guide stars often centroid more stably than razor-sharp ones."
+    ],
+    "status": "acquired",
+    "released": "2018"
+  },
+  {
+    "cat": "Guiding",
+    "name": "ZWO ASI120MM Mini",
+    "purchased": 200,
+    "newRetail": 199,
+    "acquired": "July 2026",
+    "condition": "Open box",
+    "notes": "Guide camera for SV106",
+    "specs": [
+      [
+        "Sensor",
+        "1/3\" CMOS, 1280×960, 3.75µm px"
+      ],
+      [
+        "Type",
+        "Mono guide / planetary mini camera"
+      ],
+      [
+        "Connection",
+        "M42×0.75 T-thread, USB 2.0 Type-C, ST4 port"
+      ],
+      [
+        "Software",
+        "ASIAIR built-in guiding"
+      ]
+    ],
+    "quirks": [
+      "Open-box unit.",
+      "Small 1/3″ sensor (3.75 µm pixels); guide calibration is most stable near the celestial equator and meridian."
+    ],
+    "status": "acquired",
+    "released": "2017"
+  },
+  {
+    "cat": "Controller",
+    "name": "ZWO ASIAIR Plus 256GB",
+    "purchased": 349,
+    "newRetail": 349,
+    "acquired": "July 2026",
+    "condition": "New",
+    "specs": [
+      [
+        "Version",
+        "256GB eMMC (2024 release)"
+      ],
+      [
+        "Storage",
+        "256GB onboard, ~244GB usable"
+      ],
+      [
+        "Ports",
+        "2× USB 3.0, 2× USB 2.0, Gigabit Ethernet, USB-C, DSLR shutter"
+      ],
+      [
+        "WiFi",
+        "Dual-band, ~20m (65ft) range"
+      ],
+      [
+        "Control",
+        "Bluetooth to ZWO EAF/AM-series mounts"
+      ],
+      [
+        "Function",
+        "Plate solving, PA, guiding, autofocus, scheduling"
+      ],
+      [
+        "Replaces",
+        "Laptop + NINA/PHD2 at the scope"
+      ]
+    ],
+    "quirks": [
+      "<span class=\"crit\">~6A input ceiling</span> (typically specified 12V/5A, max ~6A shared across its 12V outputs). Cooled cameras and mounts are normally powered from a separate distribution box; ASIAIR is used here as the data/control hub.",
+      "ZWO ecosystem control only — it does not drive a Pegasus Powerbox (Powerbox runs standalone after Unity setup).",
+      "Control app is mobile-only (iOS/Android); no official desktop client.",
+      "Factory Wi-Fi credentials are on the device sticker; Station Mode on home Wi-Fi is supported."
+    ],
+    "status": "acquired",
+    "released": "2024"
+  },
+  {
+    "cat": "Power",
+    "name": "Pegasus Powerbox Micro",
+    "purchased": 250,
+    "newRetail": 250,
+    "acquired": "July 2026",
+    "condition": "New",
+    "specs": [
+      [
+        "12V Outputs",
+        "4 ports, switchable, 5A each"
+      ],
+      [
+        "Dew Channels",
+        "2× RCA PWM, auto-dew via env. sensor"
+      ],
+      [
+        "Total Capacity",
+        "10A"
+      ],
+      [
+        "Adjustable Output",
+        "3/5/8/9/12V, 3A max"
+      ],
+      [
+        "Protection",
+        "Reverse polarity + overvoltage cutoff >14.5V"
+      ],
+      [
+        "Config",
+        "One-time via Pegasus Unity, then standalone"
+      ]
+    ],
+    "quirks": [
+      "Not controllable from ASIAIR. Configured once in Pegasus Unity, then runs standalone with settings that persist across power cycles.",
+      "Built for ~10A-class input; a 5A wall supply is undersized for a full imaging load.",
+      "Dew outputs are <strong>RCA</strong> PWM channels, 5A max each.",
+      "Reverse-polarity protected; overvoltage cutoff above ~14.5V input."
+    ],
+    "status": "acquired",
+    "released": "Jan 2021"
+  },
+  {
+    "cat": "Power",
+    "name": "Anker SOLIX C300 DC",
+    "purchased": 200,
+    "newRetail": 200,
+    "acquired": "July 2026",
+    "condition": "New",
+    "vendor": "Amazon",
+    "notes": "Field battery — wall charger not included. DC-only model (no AC outlets).",
+    "specs": [
+      [
+        "Capacity",
+        "288Wh (90,000mAh) LiFePO4"
+      ],
+      [
+        "Output",
+        "300W class portable power station"
+      ],
+      [
+        "Ports",
+        "1× car socket 120W, 2× USB-C 140W bidirectional, 1× USB-C 100W, 1× USB-C 15W, 2× USB-A 12W"
+      ],
+      [
+        "Solar in",
+        "XT60, 11–28V; recommend 60W/100W Anker panels"
+      ],
+      [
+        "Recharge",
+        "Dual USB-C PD to ~80% in ~1h; solar or car"
+      ],
+      [
+        "Includes",
+        "Unit + 60cm 140W USB-C cable (no wall charger)"
+      ]
+    ],
+    "quirks": [
+      "<strong>DC-only</strong> model — no AC outlets (unlike the AC C300). Field 12V comes from the car socket; USB ports for devices/charging.",
+      "First activation needs USB-C PD ≥18W on <strong>USB-C2 or USB-C3</strong> only.",
+      "Wall charger is not included in the box.",
+      "Solar input: XT60, 11–28V. Not compatible with Anker PS30 / other 5V USB-C panels, PS200, or PS400."
+    ],
+    "status": "acquired",
+    "released": "2024"
+  },
+  {
+    "cat": "Software",
+    "name": "RC-Astro Plugins (BlurX/NoiseX/StarX)",
+    "purchased": 180,
+    "newRetail": 180,
+    "acquired": "July 2026",
+    "condition": "License",
+    "notes": "BlurXTerminator, NoiseXTerminator, StarXTerminator licenses",
+    "specs": [
+      [
+        "BlurXTerminator",
+        "AI deconvolution / sharpening"
+      ],
+      [
+        "NoiseXTerminator",
+        "AI noise reduction"
+      ],
+      [
+        "StarXTerminator",
+        "AI star removal / separation"
+      ],
+      [
+        "Host",
+        "PixInsight / compatible hosts per RC-Astro"
+      ]
+    ],
+    "quirks": [],
+    "status": "acquired",
+    "released": "2021"
+  },
+  {
+    "cat": "Accessories",
+    "name": "Power Supply + Spacers + Dew + Cables",
+    "purchased": 155,
+    "newRetail": 200,
+    "acquired": "July 2026",
+    "condition": "Mixed",
+    "notes": "Includes BTF-LIGHTING 12V 10A supply",
+    "specs": [
+      [
+        "PSU",
+        "BTF-LIGHTING 12V 10A"
+      ],
+      [
+        "Also",
+        "Spacers, dew straps, cable set"
+      ]
+    ],
+    "quirks": [],
+    "status": "acquired",
+    "released": "—"
+  }
+];
