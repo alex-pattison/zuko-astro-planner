@@ -14,7 +14,12 @@ contextBridge.exposeInMainWorld('zukoFs', {
 
 contextBridge.exposeInMainWorld('zukoIngest', {
   projectsRoot: () => ipcRenderer.invoke('zuko-ingest-projects-root'),
-  pickFolder: () => ipcRenderer.invoke('zuko-ingest-pick-folder'),
+  pickFolder: (opts) => ipcRenderer.invoke('zuko-ingest-pick-folder', opts || {}),
+  discover: (projectDir) => ipcRenderer.invoke('zuko-ingest-discover', { projectDir }),
+  scanSession: (opts) => ipcRenderer.invoke('zuko-ingest-scan-session', opts || {}),
+  indexDarks: (libraryPath) => ipcRenderer.invoke('zuko-ingest-index-darks', { libraryPath }),
+  matchDarks: (opts) => ipcRenderer.invoke('zuko-ingest-match-darks', opts || {}),
+  stage: (opts) => ipcRenderer.invoke('zuko-ingest-stage', opts || {}),
   scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
   open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),

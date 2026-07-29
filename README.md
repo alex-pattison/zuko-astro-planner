@@ -33,17 +33,30 @@ localStorage is kept as a cache. Use **File → Open Data Folder** to jump to th
 
 ## ASIAIR ingest (Shoot Log)
 
-From a project's **Shoot Log**, use **Attach folder…** next to a shoot's Done checkbox. That opens the ASIAIR Ingest Tool (`src/ingest/asiairIngest.js`):
+Each project needs a **Project directory** (edit project) that contains an ASIAIR `Autorun` or `Plan` folder with `Light` / `Flat` / `Bias` / `Dark` children. Lights may live under `Light/<Target>/`.
 
-1. Pick an ASIAIR dump folder (Autorun/Plan or a deeper Light/Flat folder).
-2. Parse filenames (+ optional FITS headers) for type, filter, exposure, gain, temp, date.
-3. Copy/hardlink into a Siril-ready tree:
+From a shoot’s **Ingest** button:
 
-   `H:\Photography\Astrophotography\Projects\<Object>\<Filter>\<YYYYMMDD>\{lights,darks,flats,darkflats,biases}\`
+1. Discovers `Autorun` / `Plan` under the project directory.
+2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`).
+3. Shows status chips for Light / Flat / Bias (dark flats) / session Dark, plus per-filter light/flat counts.
+4. Stages session **darks** into each channel (exp+gain+temp match; filter ignored). On Ingest open, matches the shoot’s exp/gain/temp against the **master dark library** (`H:\Photography\Astrophotography\Zuko\Dark Library`) and notes hits; optionally stages those library darks when the checkbox is on.
+5. **Stage for Siril** builds:
 
-   Fallback when H: is unavailable: `data/projects/…`
+```text
+<projectDir>/
+  _calibration/darkflats/<YYYYMMDD>/   # Bias copied from ASIAIR (source kept)
+  _calibration/darks/<YYYYMMDD>/       # Darks copied from session/master (source kept)
+  <Filter>/<ShootName>/   # e.g. SII/260725_SII_B9_NYCRoof (from shoot log Name)
+    lights/    # copied from source
+    flats/     # copied from source
+    biases/    # symlink → _calibration/darkflats/<night>/
+    darks/     # symlink → _calibration/darks/<night>/
+```
 
-The shoot stores `sourcePath`, `ingestPath`, and parsed `ingestMeta` (frame counts, exposure, etc.).
+Local development fixture (gitignored): `staging/asiair-sample/` (NGC 6960 lights only).
+
+Source ASIAIR folders are never moved. Calibration frames are copied into `_calibration/` by night, then symlinked into each channel (falls back to hardlink/copy if symlink fails). The filter subfolder uses the shoot log auto-name, not the bare date.
 
 ## Build installer (optional)
 

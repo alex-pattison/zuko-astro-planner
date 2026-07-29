@@ -5,11 +5,18 @@ const path = require('path');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 const execFileAsync = promisify(execFile);
-const {
-  scanAsiairSource,
-  ingestAsiairDump,
-} = require('./src/ingest/asiairIngest');
 
+const ASIAIR_INGEST_PATH = path.join(__dirname, 'src', 'ingest', 'asiairIngest.js');
+
+/** Always reload ingest module so staging fixes apply without restarting Electron. */
+function loadAsiairIngest() {
+  try {
+    delete require.cache[require.resolve(ASIAIR_INGEST_PATH)];
+  } catch {
+    /* ignore */
+  }
+  return require(ASIAIR_INGEST_PATH);
+}
 const PREFERRED_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
 const PREFERRED_PROJECTS_DIR = 'H:\\Photography\\Astrophotography\\Projects';
 const REPO_DATA_DIR = path.join(__dirname, 'data');
@@ -291,10 +298,11 @@ ipcMain.handle('zuko-data-save', async (_event, data) => {
 
 ipcMain.handle('zuko-ingest-projects-root', () => resolveProjectsRoot());
 
-ipcMain.handle('zuko-ingest-pick-folder', async () => {
+ipcMain.handle('zuko-ingest-pick-folder', async (_event, payload = {}) => {
   const win = getMainWindow();
   const result = await dialog.showOpenDialog(win || undefined, {
-    title: 'Select ASIAIR source folder',
+    title: payload.title || 'Select folder',
+    defaultPath: payload.defaultPath || undefined,
     properties: ['openDirectory'],
   });
   if (result.canceled || !result.filePaths || !result.filePaths[0]) {
@@ -303,12 +311,57 @@ ipcMain.handle('zuko-ingest-pick-folder', async () => {
   return { ok: true, path: result.filePaths[0] };
 });
 
+ipcMain.handle('zuko-ingest-discover', async (_event, payload = {}) => {
+  try {
+    const { discoverSessions } = loadAsiairIngest();
+    return await discoverSessions(payload.projectDir);
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), sessions: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-scan-session', async (_event, payload = {}) => {
+  try {
+    const { scanSession } = loadAsiairIngest();
+    return await scanSession(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-index-darks', async (_event, payload = {}) => {
+  try {
+    const { indexDarkLibrary } = loadAsiairIngest();
+    return await indexDarkLibrary(payload.libraryPath);
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), index: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-match-darks', async (_event, payload = {}) => {
+  try {
+    const { matchMasterDarks } = loadAsiairIngest();
+    return matchMasterDarks(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), matches: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-stage', async (_event, payload = {}) => {
+  try {
+    const { stageSirilTree } = loadAsiairIngest();
+    return await stageSirilTree(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
 ipcMain.handle('zuko-ingest-scan', async (_event, payload = {}) => {
   try {
+    const { scanAsiairSource } = loadAsiairIngest();
     const sourcePath = payload.sourcePath;
     if (!sourcePath) return { ok: false, error: 'sourcePath is required' };
-    const scan = await scanAsiairSource(sourcePath, { readHeaders: !!payload.readHeaders });
-    // Don't ship every frame path to the renderer unless asked — summary is enough for UI.
+    const scan = await scanAsiairSource(sourcePath, { readHeaders: payload.readHeaders !== false });
     return {
       ok: true,
       sourcePath: scan.sourcePath,
@@ -325,6 +378,7 @@ ipcMain.handle('zuko-ingest-scan', async (_event, payload = {}) => {
 
 ipcMain.handle('zuko-ingest-run', async (_event, payload = {}) => {
   try {
+    const { ingestAsiairDump } = loadAsiairIngest();
     const sourcePath = payload.sourcePath;
     if (!sourcePath) return { ok: false, error: 'sourcePath is required' };
     const workRoot = payload.workRoot || resolveProjectsRoot();

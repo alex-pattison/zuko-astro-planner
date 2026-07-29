@@ -1,14 +1,18 @@
 /**
  * ASIAIR Ingest Tool
  *
- * Parse ZWO ASIAIR dumps, extract metadata from filenames (and optional FITS
- * headers), and reorganize into a Siril-friendly project tree:
+ * Discover Autorun/Plan sessions under a project directory, read FITS headers
+ * (filename fallback), match master-library darks, and stage a Siril tree:
  *
- *   <workRoot>/<Object>/<Filter>/<Night>/{lights,darks,flats,darkflats,biases}/
+ *   <projectDir>/<Filter>/<ShootName>/{lights,flats,biases,darks}/
  *
- * ASIAIR naming (typical):
- *   Light_<Target>_<exp>s_Bin1_<FILTER>_gain100_20240320-203324_-10.0C_0001.fit
- *   Flat_1.0ms_Bin1_Ha_gain100_20240320-233122_-10.5C_0001.fit
+ * Source ASIAIR folders are never modified.
+ * - Lights/flats: copied directly into the Siril tree.
+ * - Biases: copied into _calibration/darkflats/<night>/, then per-file
+ *   symlinked into each channel's biases/.
+ * - Darks: copied into _calibration/darks/<night>/, then per-file
+ *   symlinked into each channel's darks/ (filter ignored; match exp/gain/temp).
+ * ShootName comes from the shoot log code (e.g. 260725_SII_B9_NYCRoof).
  */
 
 const fs = require('fs');
@@ -21,30 +25,29 @@ const TYPE_FOLDERS = {
   flat: 'flats',
   dark: 'darks',
   bias: 'biases',
-  darkflat: 'darkflats',
+  darkflat: 'biases', // ASIAIR "Bias" = dark flats → Siril biases/
+};
+const SESSION_DIR_NAMES = new Set(['autorun', 'plan']);
+const FRAME_DIR_MAP = {
+  light: 'light',
+  lights: 'light',
+  flat: 'flat',
+  flats: 'flat',
+  dark: 'dark',
+  darks: 'dark',
+  bias: 'bias',
+  biases: 'bias',
+  darkflat: 'bias',
+  darkflats: 'bias',
 };
 const SKIP_DIR_NAMES = new Set(['live', 'preview', 'video', 'log', 'thumbnail', 'thumbnails']);
 const FIT_EXT = /\.(fit|fits|fts)$/i;
-
-/** @typedef {'light'|'flat'|'dark'|'bias'|'darkflat'} FrameType */
-
-/**
- * @typedef {object} ParsedFrame
- * @property {string} filePath
- * @property {string} fileName
- * @property {FrameType|null} type
- * @property {string|null} target
- * @property {number|null} exposureSec
- * @property {number|null} bin
- * @property {string|null} filter
- * @property {number|null} gain
- * @property {string|null} date  YYYYMMDD
- * @property {string|null} time  HHMMSS
- * @property {number|null} tempC
- * @property {number|null} sequence
- * @property {boolean} matched
- * @property {object|null} header  optional FITS keywords
- */
+const HEADER_KEYS = [
+  'OBJECT', 'FILTER', 'EXPTIME', 'EXPOSURE', 'GAIN', 'EGAIN',
+  'CCD-TEMP', 'SET-TEMP', 'XBINNING', 'DATE-OBS', 'IMAGETYP', 'FRAME',
+];
+const SIX_MONTHS_MS = 1000 * 60 * 60 * 24 * 183;
+const TEMP_TOLERANCE_C = 3;
 
 function sanitizeFolderName(name) {
   return String(name || '')
@@ -94,11 +97,66 @@ function normalizeNight(dateStr) {
   return null;
 }
 
+function ymdToDate(ymd) {
+  const n = normalizeNight(ymd);
+  if (!n) return null;
+  return new Date(Date.UTC(
+    parseInt(n.slice(0, 4), 10),
+    parseInt(n.slice(4, 6), 10) - 1,
+    parseInt(n.slice(6, 8), 10)
+  ));
+}
+
+function dateToYmd(d) {
+  if (!(d instanceof Date) || isNaN(d.getTime())) return null;
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
+}
+
+function addDaysYmd(ymd, days) {
+  const d = ymdToDate(ymd);
+  if (!d) return null;
+  d.setUTCDate(d.getUTCDate() + days);
+  return dateToYmd(d);
+}
+
+/** Astronomical night label D includes calendar D and morning of D+1. */
+function nightWindowYmds(nightYmd) {
+  const n = normalizeNight(nightYmd);
+  if (!n) return [];
+  const next = addDaysYmd(n, 1);
+  return next ? [n, next] : [n];
+}
+
 /**
- * Parse an ASIAIR-style FITS filename (basename with or without extension).
- * @param {string} fileName
- * @returns {Omit<ParsedFrame, 'filePath'|'header'>}
+ * Map a frame's DATE-OBS / filename stamp onto an evening night label.
+ * Morning hours 00:00–11:59 → previous calendar evening.
  */
+function astronomicalNightForFrame(dateYmd, timeHms) {
+  const d = normalizeNight(dateYmd);
+  if (!d) return null;
+  let hour = null;
+  if (timeHms != null) {
+    const t = String(timeHms).replace(/[^0-9]/g, '');
+    if (t.length >= 2) hour = parseInt(t.slice(0, 2), 10);
+  }
+  if (hour != null && hour < 12) return addDaysYmd(d, -1) || d;
+  return d;
+}
+
+function parseDateObs(raw) {
+  if (raw == null) return { date: null, time: null };
+  const s = String(raw).trim();
+  const m = s.match(/(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}):(\d{2}))?/);
+  if (!m) return { date: null, time: null };
+  return {
+    date: `${m[1]}${m[2]}${m[3]}`,
+    time: m[4] != null ? `${m[4]}${m[5]}${m[6]}` : null,
+  };
+}
+
 function parseAsiairFilename(fileName) {
   const base = path.basename(String(fileName || ''));
   const bare = base.replace(FIT_EXT, '');
@@ -117,27 +175,22 @@ function parseAsiairFilename(fileName) {
     matched: false,
   };
 
-  // Type_Target_exps_BinN_FILTER_gainG_DATE-TIME_TEMPc_SEQ
-  // Type_exps_BinN_FILTER_gainG_DATE-TIME_TEMPc_SEQ  (flats/darks often omit target)
   const re = /^(Light|Flat|Dark|Bias|DarkFlat|Dark-Flat|darkflat)_(.+)$/i;
   const typeMatch = bare.match(re);
   if (!typeMatch) return empty;
 
   let typeRaw = typeMatch[1].toLowerCase().replace(/-/g, '');
   if (typeRaw === 'darkflat') typeRaw = 'darkflat';
-  /** @type {FrameType|null} */
-  let type = FRAME_TYPES.has(typeRaw) ? /** @type {FrameType} */ (typeRaw) : null;
+  /** ASIAIR Bias_* files are dark flats for this rig */
+  if (typeRaw === 'bias') typeRaw = 'darkflat';
+  let type = FRAME_TYPES.has(typeRaw) ? typeRaw : null;
 
   const rest = typeMatch[2];
   const parts = rest.split('_');
-
   let target = null;
   let idx = 0;
-
-  // Exposure is the first token that looks like 10.0s / 1.0ms
   const isExp = (p) => /^[\d.]+(ms|s)$/i.test(p);
   if (parts.length && !isExp(parts[0])) {
-    // May be target; consume until exposure token
     const targetParts = [];
     while (idx < parts.length && !isExp(parts[idx]) && !/^Bin\d+/i.test(parts[idx])) {
       targetParts.push(parts[idx]);
@@ -207,19 +260,13 @@ function parseAsiairFilename(fileName) {
   };
 }
 
-/**
- * Read a subset of FITS header keywords from the start of a file.
- * @param {string} filePath
- * @returns {Promise<Record<string, string|number|null>>}
- */
-async function readFitsHeaderKeywords(filePath, keys = ['OBJECT', 'FILTER', 'EXPTIME', 'EXPOSURE', 'GAIN', 'CCD-TEMP', 'SET-TEMP', 'XBINNING', 'DATE-OBS', 'IMAGETYP']) {
+async function readFitsHeaderKeywords(filePath, keys = HEADER_KEYS) {
   const want = new Set(keys.map((k) => k.toUpperCase()));
   const fh = await fsp.open(filePath, 'r');
   try {
-    const buf = Buffer.alloc(2880 * 4); // up to 4 FITS blocks
+    const buf = Buffer.alloc(2880 * 6);
     const { bytesRead } = await fh.read(buf, 0, buf.length, 0);
     const text = buf.slice(0, bytesRead).toString('binary');
-    /** @type {Record<string, string|number|null>} */
     const out = {};
     for (let i = 0; i + 80 <= text.length; i += 80) {
       const card = text.slice(i, i + 80);
@@ -244,33 +291,75 @@ async function readFitsHeaderKeywords(filePath, keys = ['OBJECT', 'FILTER', 'EXP
   }
 }
 
+/** Header values win over filename when present. */
 function mergeHeaderIntoParsed(parsed, header) {
   if (!header) return parsed;
   const next = { ...parsed, header };
-  if (!next.filter && (header.FILTER != null)) next.filter = normalizeFilter(String(header.FILTER));
-  if (!next.target && header.OBJECT) next.target = String(header.OBJECT);
-  if (next.exposureSec == null && (header.EXPTIME != null || header.EXPOSURE != null)) {
+
+  if (header.FILTER != null && String(header.FILTER).trim() !== '') {
+    next.filter = normalizeFilter(String(header.FILTER));
+  }
+  if (header.OBJECT != null && String(header.OBJECT).trim() !== '') {
+    next.target = String(header.OBJECT).trim();
+  }
+  if (header.EXPTIME != null || header.EXPOSURE != null) {
     next.exposureSec = Number(header.EXPTIME != null ? header.EXPTIME : header.EXPOSURE);
   }
-  if (next.gain == null && header.GAIN != null) next.gain = Number(header.GAIN);
-  if (next.tempC == null && (header['CCD-TEMP'] != null || header['SET-TEMP'] != null)) {
-    next.tempC = Number(header['CCD-TEMP'] != null ? header['CCD-TEMP'] : header['SET-TEMP']);
+  if (header.GAIN != null) next.gain = Number(header.GAIN);
+  else if (header.EGAIN != null && next.gain == null) next.gain = Number(header.EGAIN);
+  if (header['CCD-TEMP'] != null) next.tempC = Number(header['CCD-TEMP']);
+  else if (header['SET-TEMP'] != null) next.tempC = Number(header['SET-TEMP']);
+  if (header.XBINNING != null) next.bin = Number(header.XBINNING);
+
+  if (header['DATE-OBS']) {
+    const { date, time } = parseDateObs(header['DATE-OBS']);
+    if (date) next.date = date;
+    if (time) next.time = time;
   }
-  if (next.bin == null && header.XBINNING != null) next.bin = Number(header.XBINNING);
-  if (!next.date && header['DATE-OBS']) {
-    const m = String(header['DATE-OBS']).match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (m) next.date = `${m[1]}${m[2]}${m[3]}`;
-  }
-  if (!next.type && header.IMAGETYP) {
-    const t = String(header.IMAGETYP).toLowerCase();
+
+  const imagetyp = header.IMAGETYP || header.FRAME;
+  if (imagetyp) {
+    const t = String(imagetyp).toLowerCase();
     if (t.includes('light')) next.type = 'light';
     else if (t.includes('dark flat') || t.includes('darkflat') || t.includes('flat dark')) next.type = 'darkflat';
     else if (t.includes('flat')) next.type = 'flat';
     else if (t.includes('dark')) next.type = 'dark';
-    else if (t.includes('bias') || t.includes('offset')) next.type = 'bias';
+    else if (t.includes('bias') || t.includes('offset')) next.type = 'darkflat'; // treat bias as dark flat for this rig
   }
+
+  next.night = astronomicalNightForFrame(next.date, next.time);
   next.matched = !!(next.type && (next.exposureSec != null || next.date || next.filter));
   return next;
+}
+
+function extractCatalogIds(text) {
+  const s = String(text || '');
+  const ids = [];
+  const re = /\b(NGC|IC|M)\s*([0-9]+)\b/gi;
+  let m;
+  while ((m = re.exec(s))) {
+    ids.push((m[1] + m[2]).toLowerCase());
+  }
+  return ids;
+}
+
+/** Loose target match: substring, or shared NGC/IC/M catalog id.
+ *  If the hint has no catalog id and no substring hit, keep the frame
+ *  (don't drop lights just because project says "Veil" and folder says "NGC 6960"). */
+function targetMatchesHint(frameTarget, hint) {
+  if (!hint) return true;
+  if (!frameTarget) return true;
+  const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const ft = norm(frameTarget);
+  const ht = norm(hint);
+  if (ft && ht && (ft.includes(ht) || ht.includes(ft))) return true;
+  const hintIds = extractCatalogIds(hint);
+  const frameIds = extractCatalogIds(frameTarget);
+  if (hintIds.length && frameIds.some((id) => hintIds.includes(id))) return true;
+  if (hintIds.length && hintIds.some((id) => ft.includes(id))) return true;
+  // Strict only when hint names a catalog object
+  if (hintIds.length) return false;
+  return true;
 }
 
 async function walkFitFiles(rootDir) {
@@ -301,49 +390,94 @@ async function walkFitFiles(rootDir) {
   return results;
 }
 
-/**
- * Scan an ASIAIR dump (or any folder of FITS) and return parsed frames.
- * @param {string} sourcePath
- * @param {{ readHeaders?: boolean }} [opts]
- */
-async function scanAsiairSource(sourcePath, opts = {}) {
-  const readHeaders = !!opts.readHeaders;
-  const files = await walkFitFiles(sourcePath);
-  /** @type {ParsedFrame[]} */
-  const frames = [];
+async function parseFitFile(filePath, folderHintType) {
+  let parsed = {
+    ...parseAsiairFilename(path.basename(filePath)),
+    filePath,
+    header: null,
+    night: null,
+  };
+  if (folderHintType && !parsed.type) {
+    parsed.type = folderHintType === 'bias' ? 'darkflat' : folderHintType;
+  }
+  if (folderHintType === 'bias') parsed.type = 'darkflat';
+  try {
+    const header = await readFitsHeaderKeywords(filePath);
+    parsed = mergeHeaderIntoParsed(parsed, header);
+  } catch {
+    parsed.night = astronomicalNightForFrame(parsed.date, parsed.time);
+    parsed.matched = !!(parsed.type && (parsed.exposureSec != null || parsed.date || parsed.filter));
+  }
+  if (!parsed.night) parsed.night = astronomicalNightForFrame(parsed.date, parsed.time);
+  return parsed;
+}
 
-  for (const filePath of files) {
-    let parsed = {
-      ...parseAsiairFilename(path.basename(filePath)),
-      filePath,
-      header: null,
-    };
-    if (readHeaders) {
-      try {
-        const header = await readFitsHeaderKeywords(filePath);
-        parsed = mergeHeaderIntoParsed(parsed, header);
-      } catch {
-        // filename-only is fine
-      }
-    }
-    frames.push(parsed);
+async function findFrameDirs(sessionPath) {
+  const out = { light: null, flat: null, bias: null, dark: null };
+  let entries;
+  try {
+    entries = await fsp.readdir(sessionPath, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const ent of entries) {
+    if (!ent.isDirectory()) continue;
+    const key = FRAME_DIR_MAP[ent.name.toLowerCase()];
+    if (key && !out[key]) out[key] = path.join(sessionPath, ent.name);
+  }
+  return out;
+}
+
+/**
+ * Discover Autorun/Plan (or a session dir itself) under projectDir.
+ */
+async function discoverSessions(projectDir) {
+  if (!projectDir || !fs.existsSync(projectDir)) {
+    return { ok: false, error: 'Project directory not found', sessions: [] };
+  }
+  const sessions = [];
+  const dirs = await fsp.readdir(projectDir, { withFileTypes: true });
+  for (const ent of dirs) {
+    if (!ent.isDirectory()) continue;
+    if (!SESSION_DIR_NAMES.has(ent.name.toLowerCase())) continue;
+    const sessionPath = path.join(projectDir, ent.name);
+    const frameDirs = await findFrameDirs(sessionPath);
+    if (!frameDirs.light && !frameDirs.flat && !frameDirs.bias) continue;
+    sessions.push({
+      name: ent.name,
+      path: sessionPath,
+      kind: ent.name.toLowerCase(),
+      hasLight: !!frameDirs.light,
+      hasFlat: !!frameDirs.flat,
+      hasBias: !!frameDirs.bias,
+      hasDark: !!frameDirs.dark,
+    });
   }
 
-  return {
-    ok: true,
-    sourcePath,
-    totalFiles: frames.length,
-    matched: frames.filter((f) => f.matched).length,
-    unmatched: frames.filter((f) => !f.matched).length,
-    frames,
-    summary: summarizeFrames(frames),
-  };
+  // Project dir itself may be a session (has Light/Flat/Bias)
+  const selfDirs = await findFrameDirs(projectDir);
+  if (selfDirs.light || selfDirs.flat || selfDirs.bias) {
+    const already = sessions.some((s) => path.resolve(s.path) === path.resolve(projectDir));
+    if (!already) {
+      sessions.unshift({
+        name: path.basename(projectDir),
+        path: projectDir,
+        kind: 'session',
+        hasLight: !!selfDirs.light,
+        hasFlat: !!selfDirs.flat,
+        hasBias: !!selfDirs.bias,
+        hasDark: !!selfDirs.dark,
+      });
+    }
+  }
+
+  return { ok: true, projectDir, sessions };
 }
 
 function summarizeFrames(frames) {
   const byType = {};
   const filters = new Set();
-  const dates = new Set();
+  const nights = new Set();
   const targets = new Set();
   let exposureSec = null;
   let gain = null;
@@ -354,7 +488,8 @@ function summarizeFrames(frames) {
     const t = f.type || 'unknown';
     byType[t] = (byType[t] || 0) + 1;
     if (f.filter) filters.add(f.filter);
-    if (f.date) dates.add(f.date);
+    if (f.night) nights.add(f.night);
+    else if (f.date) nights.add(f.date);
     if (f.target) targets.add(f.target);
     if (f.type === 'light') {
       if (exposureSec == null && f.exposureSec != null) exposureSec = f.exposureSec;
@@ -367,7 +502,7 @@ function summarizeFrames(frames) {
   return {
     byType,
     filters: [...filters],
-    dates: [...dates].sort(),
+    nights: [...nights].sort(),
     targets: [...targets],
     lightCount: byType.light || 0,
     exposureSec,
@@ -377,25 +512,574 @@ function summarizeFrames(frames) {
   };
 }
 
+function frameInNightWindow(frame, nightYmd) {
+  const window = new Set(nightWindowYmds(nightYmd));
+  if (!window.size) return true;
+  const n = frame.night || astronomicalNightForFrame(frame.date, frame.time);
+  if (!n) return false;
+  return window.has(n) || window.has(normalizeNight(frame.date));
+}
+
 /**
- * Filter scanned frames for a shoot context (optional filter / night).
- * @param {ParsedFrame[]} frames
- * @param {{ filter?: string|null, night?: string|null, types?: FrameType[] }} [ctx]
+ * Scan an ASIAIR session for a given astronomical night.
  */
+async function scanSession(opts = {}) {
+  const sessionPath = opts.sessionPath;
+  if (!sessionPath) return { ok: false, error: 'sessionPath is required' };
+  const nightDate = normalizeNight(opts.nightDate);
+  const targetHint = opts.targetHint ? String(opts.targetHint).trim().toLowerCase() : null;
+  const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
+
+  const frameDirs = await findFrameDirs(sessionPath);
+  const lights = [];
+  const flats = [];
+  const biases = []; // dark flats
+  const darks = [];
+
+  if (frameDirs.light) {
+    const files = await walkFitFiles(frameDirs.light);
+    for (const fp of files) {
+      const parsed = await parseFitFile(fp, 'light');
+      // Infer target from parent folder under Light/ if header missing
+      if (!parsed.target) {
+        const rel = path.relative(frameDirs.light, path.dirname(fp));
+        if (rel && rel !== '.' && !rel.startsWith('..')) {
+          const top = rel.split(path.sep)[0];
+          if (top) parsed.target = top;
+        }
+      }
+      if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
+      if (targetHint && !targetMatchesHint(parsed.target, targetHint)) continue;
+      lights.push(parsed);
+    }
+  }
+
+  if (frameDirs.flat) {
+    for (const fp of await walkFitFiles(frameDirs.flat)) {
+      const parsed = await parseFitFile(fp, 'flat');
+      if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
+      flats.push(parsed);
+    }
+  }
+
+  if (frameDirs.bias) {
+    for (const fp of await walkFitFiles(frameDirs.bias)) {
+      const parsed = await parseFitFile(fp, 'bias');
+      parsed.type = 'darkflat';
+      if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
+      biases.push(parsed);
+    }
+  }
+
+  if (frameDirs.dark) {
+    for (const fp of await walkFitFiles(frameDirs.dark)) {
+      const parsed = await parseFitFile(fp, 'dark');
+      // Session darks are reusable calibration — do not gate on shoot night.
+      darks.push(parsed);
+    }
+  }
+
+  const byFilter = {};
+  for (const L of lights) {
+    const f = normalizeFilter(L.filter) || 'Unknown';
+    if (!byFilter[f]) byFilter[f] = { filter: f, lights: 0, exposureSec: null, gain: null, tempC: null, bin: null };
+    byFilter[f].lights += 1;
+    if (byFilter[f].exposureSec == null && L.exposureSec != null) byFilter[f].exposureSec = L.exposureSec;
+    if (byFilter[f].gain == null && L.gain != null) byFilter[f].gain = L.gain;
+    if (byFilter[f].tempC == null && L.tempC != null) byFilter[f].tempC = L.tempC;
+    if (byFilter[f].bin == null && L.bin != null) byFilter[f].bin = L.bin;
+  }
+  for (const F of flats) {
+    const f = normalizeFilter(F.filter) || 'Unknown';
+    if (!byFilter[f]) byFilter[f] = { filter: f, lights: 0, flats: 0, exposureSec: null, gain: null, tempC: null, bin: null };
+    byFilter[f].flats = (byFilter[f].flats || 0) + 1;
+  }
+
+  const filterRows = Object.values(byFilter).map((row) => ({
+    ...row,
+    flats: row.flats || 0,
+    matchesShoot: shootFilter ? normalizeFilter(row.filter) === shootFilter : null,
+  }));
+
+  return {
+    ok: true,
+    sessionPath,
+    nightDate,
+    status: {
+      light: lights.length,
+      flat: flats.length,
+      bias: biases.length, // dark flats
+      dark: darks.length,
+      hasLight: lights.length > 0,
+      hasFlat: flats.length > 0,
+      hasBias: biases.length > 0,
+      hasDark: darks.length > 0,
+    },
+    filters: filterRows,
+    targets: [...new Set(lights.map((l) => l.target).filter(Boolean))],
+    lights,
+    flats,
+    biases,
+    darks,
+    summary: summarizeFrames([...lights, ...flats, ...biases, ...darks]),
+  };
+}
+
+/**
+ * Index a master dark library folder (header-first metadata).
+ */
+async function indexDarkLibrary(libraryPath) {
+  if (!libraryPath || !fs.existsSync(libraryPath)) {
+    return { ok: false, error: 'Dark library path not found', frames: [], index: [] };
+  }
+  const files = await walkFitFiles(libraryPath);
+  const index = [];
+  for (const fp of files) {
+    const parsed = await parseFitFile(fp, 'dark');
+    parsed.type = 'dark';
+    const acquiredAt = parsed.date
+      ? `${parsed.date.slice(0, 4)}-${parsed.date.slice(4, 6)}-${parsed.date.slice(6, 8)}`
+      : null;
+    const acquiredMs = acquiredAt ? Date.parse(acquiredAt + 'T12:00:00Z') : null;
+    const ageMs = acquiredMs != null ? Date.now() - acquiredMs : null;
+    index.push({
+      filePath: fp,
+      fileName: parsed.fileName,
+      exposureSec: parsed.exposureSec,
+      gain: parsed.gain,
+      tempC: parsed.tempC,
+      bin: parsed.bin,
+      date: parsed.date,
+      acquiredAt,
+      ageDays: ageMs != null ? Math.round(ageMs / 86400000) : null,
+      expired: ageMs != null ? ageMs > SIX_MONTHS_MS : false,
+    });
+  }
+  return { ok: true, libraryPath, count: index.length, index };
+}
+
+function nearlyEqual(a, b, eps = 1e-3) {
+  if (a == null || b == null) return false;
+  return Math.abs(Number(a) - Number(b)) <= eps;
+}
+
+/**
+ * Match master darks by exposure + gain + temp only.
+ * Filter is intentionally ignored — darks apply to every filter channel.
+ */
+function matchMasterDarks(opts = {}) {
+  const index = opts.index || [];
+  const exposureSec = opts.exposureSec;
+  const gain = opts.gain;
+  const tempC = opts.tempC;
+  const asOf = opts.asOf ? Date.parse(opts.asOf) : Date.now();
+
+  const matches = [];
+  const rejected = [];
+  for (const d of index) {
+    const acquiredMs = d.acquiredAt ? Date.parse(d.acquiredAt + 'T12:00:00Z') : null;
+    const expired = acquiredMs != null ? (asOf - acquiredMs) > SIX_MONTHS_MS : false;
+    if (expired) {
+      rejected.push({ ...d, reason: 'expired (>6 months)' });
+      continue;
+    }
+    if (exposureSec != null && !nearlyEqual(d.exposureSec, exposureSec, 0.05)) {
+      rejected.push({ ...d, reason: 'exposure mismatch' });
+      continue;
+    }
+    if (gain != null && !nearlyEqual(d.gain, gain, 0.5)) {
+      rejected.push({ ...d, reason: 'gain mismatch' });
+      continue;
+    }
+    if (tempC != null && d.tempC != null && Math.abs(Number(d.tempC) - Number(tempC)) > TEMP_TOLERANCE_C) {
+      rejected.push({ ...d, reason: 'temp out of ±3°C' });
+      continue;
+    }
+    matches.push(d);
+  }
+  return { ok: true, matches, rejected, rejectedCount: rejected.length };
+}
+
+async function ensureCopied(src, dest) {
+  await fsp.mkdir(path.dirname(dest), { recursive: true });
+  if (fs.existsSync(dest)) return { dest, action: 'skipped' };
+  await fsp.copyFile(src, dest);
+  return { dest, action: 'copied' };
+}
+
+/** Prefer file symlink into an existing folder; fall back to hardlink, then copy. */
+async function ensureLink(src, dest) {
+  await fsp.mkdir(path.dirname(dest), { recursive: true });
+  if (fs.existsSync(dest)) return { dest, action: 'skipped' };
+
+  try {
+    const rel = path.relative(path.dirname(dest), src);
+    await fsp.symlink(rel || src, dest, 'file');
+    return { dest, action: 'symlink' };
+  } catch {
+    // fall through
+  }
+  try {
+    await fsp.link(src, dest);
+    return { dest, action: 'hardlink' };
+  } catch {
+    await fsp.copyFile(src, dest);
+    return { dest, action: 'copy' };
+  }
+}
+
+/**
+ * Stage Siril tree from a scanned session.
+ *
+ * Source ASIAIR folders are never modified.
+ * Lights/flats: direct copy into the Siril tree.
+ * Biases/darks: copy into _calibration/..., then symlink into each channel folder.
+ */
+async function stageSirilTree(opts = {}) {
+  const projectDir = opts.projectDir;
+  const sessionPath = opts.sessionPath;
+  const nightDate = normalizeNight(opts.nightDate);
+  if (!projectDir) return { ok: false, error: 'projectDir is required' };
+  if (!sessionPath) return { ok: false, error: 'sessionPath is required' };
+  if (!nightDate) return { ok: false, error: 'nightDate is required' };
+
+  const shootFolder = sanitizeFolderName(opts.shootFolder || opts.shootName || nightDate);
+  const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
+  const force = opts.force === true;
+
+  const useMasterDarks = opts.useMasterDarks === true;
+  const darkMatchesByFilter = opts.darkMatchesByFilter || {};
+  const targetHint = opts.targetHint || null;
+  const filtersFilter = opts.filters && opts.filters.length
+    ? new Set(opts.filters.map(normalizeFilter))
+    : null;
+
+  const scan = await scanSession({
+    sessionPath,
+    nightDate,
+    targetHint,
+  });
+  if (!scan.ok) return scan;
+
+  let lights = scan.lights;
+  let flats = scan.flats;
+  const biases = scan.biases;
+  const sessionDarks = scan.darks || [];
+
+  if (filtersFilter) {
+    lights = lights.filter((f) => filtersFilter.has(normalizeFilter(f.filter) || 'Unknown'));
+    flats = flats.filter((f) => filtersFilter.has(normalizeFilter(f.filter) || 'Unknown'));
+  }
+  // Prefer staging only the shoot's filter channel (shared calib still reused).
+  if (shootFilter) {
+    lights = lights.filter((f) => (normalizeFilter(f.filter) || 'Unknown') === shootFilter);
+    flats = flats.filter((f) => (normalizeFilter(f.filter) || 'Unknown') === shootFilter);
+  }
+
+  const filters = [...new Set([
+    ...lights.map((f) => normalizeFilter(f.filter) || 'Unknown'),
+    ...flats.map((f) => normalizeFilter(f.filter) || 'Unknown'),
+  ])];
+
+  if (!lights.length && !flats.length) {
+    return { ok: false, error: 'No lights or flats matched this night/target' + (shootFilter ? ` for filter ${shootFilter}` : '') + '.', scan };
+  }
+
+  // Conflict: dest already has data — caller can confirm and force.
+  const destRootsPreview = filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder));
+  if (!force) {
+    const existing = [];
+    for (const root of destRootsPreview) {
+      for (const sub of ['lights', 'flats', 'biases', 'darks']) {
+        const dir = path.join(root, sub);
+        try {
+          const names = await fsp.readdir(dir);
+          if (names.some((n) => FIT_EXT.test(n))) {
+            existing.push(root);
+            break;
+          }
+        } catch { /* missing ok */ }
+      }
+    }
+    if (existing.length) {
+      return {
+        ok: false,
+        code: 'DEST_EXISTS',
+        error: 'Staged data already exists for this shoot folder.',
+        existingRoots: existing,
+        destRoots: destRootsPreview,
+        shootFolder,
+        nightDate,
+      };
+    }
+  }
+  const lightParamsByFilter = {};
+  for (const L of lights) {
+    const f = normalizeFilter(L.filter) || 'Unknown';
+    if (!lightParamsByFilter[f]) {
+      lightParamsByFilter[f] = {
+        exposureSec: L.exposureSec,
+        gain: L.gain,
+        tempC: L.tempC,
+      };
+    }
+  }
+
+  const sessionDarkIndex = sessionDarks.map((d) => ({
+    filePath: d.filePath,
+    fileName: d.fileName,
+    exposureSec: d.exposureSec,
+    gain: d.gain,
+    tempC: d.tempC,
+    bin: d.bin,
+    date: d.date,
+    acquiredAt: d.date
+      ? `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`
+      : null,
+  }));
+
+  const biasLibDir = path.join(projectDir, '_calibration', 'darkflats', nightDate);
+  const darkLibDir = path.join(projectDir, '_calibration', 'darks', nightDate);
+  await fsp.mkdir(biasLibDir, { recursive: true });
+  await fsp.mkdir(darkLibDir, { recursive: true });
+
+  // Reuse any calibration already on disk for this night (other filters / prior stages).
+  let preexistingBiasCount = 0;
+  let preexistingDarkCount = 0;
+  try {
+    preexistingBiasCount = (await fsp.readdir(biasLibDir)).filter((n) => FIT_EXT.test(n)).length;
+  } catch { /* ignore */ }
+  try {
+    preexistingDarkCount = (await fsp.readdir(darkLibDir)).filter((n) => FIT_EXT.test(n)).length;
+  } catch { /* ignore */ }
+
+  const staged = [];
+  const errors = [];
+
+  // Biases: source -> copy into calibration (never move source).
+  const copiedBiases = [];
+  for (const b of biases) {
+    const dest = path.join(biasLibDir, b.fileName);
+    try {
+      const result = await ensureCopied(b.filePath, dest);
+      copiedBiases.push({ from: b.filePath, to: dest, action: result.action });
+    } catch (err) {
+      errors.push({ file: b.filePath, error: String(err.message || err) });
+    }
+  }
+
+  // Collect unique darks, copy into calibration.
+  const darkByName = new Map();
+  if (useMasterDarks) {
+    for (const filter of filters) {
+      const matches = darkMatchesByFilter[filter] || darkMatchesByFilter['*'] || [];
+      for (const d of matches) {
+        const name = path.basename(d.filePath || d.fileName || '');
+        if (name && !darkByName.has(name)) darkByName.set(name, d);
+      }
+    }
+  } else if (sessionDarkIndex.length) {
+    for (const filter of filters) {
+      const params = lightParamsByFilter[filter] || {};
+      const matched = matchMasterDarks({
+        index: sessionDarkIndex,
+        exposureSec: params.exposureSec,
+        gain: params.gain,
+        tempC: params.tempC,
+      }).matches;
+      const list = matched.length ? matched : sessionDarkIndex;
+      for (const d of list) {
+        const name = path.basename(d.filePath || d.fileName || '');
+        if (name && !darkByName.has(name)) darkByName.set(name, d);
+      }
+    }
+  }
+
+  const copiedDarks = [];
+  for (const d of darkByName.values()) {
+    const dest = path.join(darkLibDir, path.basename(d.filePath || d.fileName));
+    try {
+      const result = await ensureCopied(d.filePath, dest);
+      copiedDarks.push({
+        from: d.filePath,
+        to: dest,
+        action: result.action,
+        source: useMasterDarks ? 'master' : 'session',
+      });
+    } catch (err) {
+      errors.push({ file: d.filePath, error: String(err.message || err) });
+    }
+  }
+
+  let calibBiasFiles = [];
+  try {
+    calibBiasFiles = (await fsp.readdir(biasLibDir))
+      .filter((n) => FIT_EXT.test(n))
+      .map((n) => path.join(biasLibDir, n));
+  } catch {
+    calibBiasFiles = [];
+  }
+
+  let calibDarkFiles = [];
+  try {
+    calibDarkFiles = (await fsp.readdir(darkLibDir))
+      .filter((n) => FIT_EXT.test(n))
+      .map((n) => path.join(darkLibDir, n));
+  } catch {
+    calibDarkFiles = [];
+  }
+
+  for (const filter of filters) {
+    const base = path.join(projectDir, sanitizeFolderName(filter), shootFolder);
+    const lightsDir = path.join(base, 'lights');
+    const flatsDir = path.join(base, 'flats');
+    const biasesDir = path.join(base, 'biases');
+    const darksDir = path.join(base, 'darks');
+    await fsp.mkdir(lightsDir, { recursive: true });
+    await fsp.mkdir(flatsDir, { recursive: true });
+    await fsp.mkdir(biasesDir, { recursive: true });
+    await fsp.mkdir(darksDir, { recursive: true });
+
+    for (const L of lights.filter((f) => (normalizeFilter(f.filter) || 'Unknown') === filter)) {
+      const dest = path.join(lightsDir, L.fileName);
+      try {
+        const result = await ensureCopied(L.filePath, dest);
+        staged.push({ type: 'light', filter, from: L.filePath, to: dest, action: result.action });
+      } catch (err) {
+        errors.push({ file: L.filePath, error: String(err.message || err) });
+      }
+    }
+
+    for (const F of flats.filter((f) => (normalizeFilter(f.filter) || 'Unknown') === filter)) {
+      const dest = path.join(flatsDir, F.fileName);
+      try {
+        const result = await ensureCopied(F.filePath, dest);
+        staged.push({ type: 'flat', filter, from: F.filePath, to: dest, action: result.action });
+      } catch (err) {
+        errors.push({ file: F.filePath, error: String(err.message || err) });
+      }
+    }
+
+    for (const src of calibBiasFiles) {
+      const dest = path.join(biasesDir, path.basename(src));
+      try {
+        const result = await ensureLink(src, dest);
+        staged.push({ type: 'bias', filter, from: src, to: dest, action: result.action });
+      } catch (err) {
+        errors.push({ file: src, error: String(err.message || err) });
+      }
+    }
+
+    for (const src of calibDarkFiles) {
+      const dest = path.join(darksDir, path.basename(src));
+      try {
+        const result = await ensureLink(src, dest);
+        staged.push({
+          type: 'dark',
+          filter,
+          from: src,
+          to: dest,
+          action: result.action,
+          source: useMasterDarks ? 'master' : 'session',
+        });
+      } catch (err) {
+        errors.push({ file: src, error: String(err.message || err) });
+      }
+    }
+  }
+
+  return {
+    ok: errors.length === 0 || staged.length > 0,
+    meta: {
+      projectDir,
+      sessionPath,
+      nightDate,
+      shootFolder,
+      filters,
+      destRoots: filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder)),
+      biasLibrary: biasLibDir,
+      darkLibrary: darkLibDir,
+      calibReuse: {
+        nightDate,
+        biasesPreexisting: preexistingBiasCount,
+        darksPreexisting: preexistingDarkCount,
+        biasesAfter: calibBiasFiles.length,
+        darksAfter: calibDarkFiles.length,
+      },
+      filesStaged: staged.filter((s) => s.action !== 'skipped').length,
+      filesSkipped: staged.filter((s) => s.action === 'skipped').length,
+      biasesCopied: copiedBiases.filter((b) => b.action === 'copied').length,
+      darksCopied: copiedDarks.filter((d) => d.action === 'copied').length,
+      biasesMoved: copiedBiases.filter((b) => b.action === 'copied').length,
+      byType: {
+        light: staged.filter((s) => s.type === 'light').length,
+        flat: staged.filter((s) => s.type === 'flat').length,
+        bias: staged.filter((s) => s.type === 'bias').length,
+        dark: staged.filter((s) => s.type === 'dark').length,
+      },
+      status: scan.status,
+      filterRows: scan.filters,
+      stagedAt: new Date().toISOString(),
+      errors,
+    },
+    staged,
+    copiedBiases,
+    copiedDarks,
+    movedBiases: copiedBiases,
+    scan: {
+      status: scan.status,
+      filters: scan.filters,
+      targets: scan.targets,
+      summary: scan.summary,
+    },
+  };
+}
+
+/** Legacy scan used by older IPC — kept for compatibility. */
+async function scanAsiairSource(sourcePath, opts = {}) {
+  const readHeaders = opts.readHeaders !== false;
+  const files = await walkFitFiles(sourcePath);
+  const frames = [];
+  for (const filePath of files) {
+    let parsed = {
+      ...parseAsiairFilename(path.basename(filePath)),
+      filePath,
+      header: null,
+      night: null,
+    };
+    if (readHeaders) {
+      try {
+        const header = await readFitsHeaderKeywords(filePath);
+        parsed = mergeHeaderIntoParsed(parsed, header);
+      } catch {
+        parsed.night = astronomicalNightForFrame(parsed.date, parsed.time);
+      }
+    } else {
+      parsed.night = astronomicalNightForFrame(parsed.date, parsed.time);
+    }
+    frames.push(parsed);
+  }
+  return {
+    ok: true,
+    sourcePath,
+    totalFiles: frames.length,
+    matched: frames.filter((f) => f.matched).length,
+    unmatched: frames.filter((f) => !f.matched).length,
+    frames,
+    summary: summarizeFrames(frames),
+  };
+}
+
 function filterFramesForShoot(frames, ctx = {}) {
   const night = normalizeNight(ctx.night);
   const filter = ctx.filter ? normalizeFilter(ctx.filter) : null;
-  const types = ctx.types && ctx.types.length ? new Set(ctx.types) : null;
-
   return frames.filter((f) => {
     if (!f.matched || !f.type) return false;
-    if (types && !types.has(f.type)) return false;
+    // Darks ignore filter — reusable across all channels.
     if (filter && f.filter && normalizeFilter(f.filter) !== filter) {
-      // Keep darks/biases without filter tags; drop mismatched lights/flats/darkflats
       if (f.type === 'light' || f.type === 'flat' || f.type === 'darkflat') return false;
     }
-    if (night && f.date && normalizeNight(f.date) !== night) {
-      // Darks/biases from a bank may be other dates — keep them unless they're lights
+    if (night && !frameInNightWindow(f, night)) {
       if (f.type === 'light') return false;
     }
     return true;
@@ -413,92 +1097,50 @@ function buildDestPath(workRoot, objectName, filter, night, frameType) {
   );
 }
 
-async function copyOrLink(src, dest, mode) {
-  await fsp.mkdir(path.dirname(dest), { recursive: true });
-  if (fs.existsSync(dest)) {
-    return { dest, action: 'skipped' };
-  }
-  if (mode === 'hardlink') {
-    try {
-      await fsp.link(src, dest);
-      return { dest, action: 'hardlink' };
-    } catch {
-      // fall through to copy (cross-volume)
-    }
-  }
-  await fsp.copyFile(src, dest);
-  return { dest, action: 'copy' };
-}
-
-/**
- * Ingest frames into the Siril-friendly project tree.
- *
- * @param {object} opts
- * @param {string} opts.sourcePath
- * @param {string} opts.workRoot
- * @param {string} opts.objectName
- * @param {string|null} [opts.filter]
- * @param {string|null} [opts.night]
- * @param {'copy'|'hardlink'} [opts.mode]
- * @param {boolean} [opts.readHeaders]
- * @param {boolean} [opts.filterToShoot]  when true, prefer matching filter/night for lights
- */
+/** @deprecated Prefer stageSirilTree with projectDir */
 async function ingestAsiairDump(opts) {
   const mode = opts.mode || 'hardlink';
-  const scan = await scanAsiairSource(opts.sourcePath, { readHeaders: !!opts.readHeaders });
+  const scan = await scanAsiairSource(opts.sourcePath, { readHeaders: opts.readHeaders !== false });
   const frames = opts.filterToShoot
-    ? filterFramesForShoot(scan.frames, {
-        filter: opts.filter,
-        night: opts.night,
-      })
+    ? filterFramesForShoot(scan.frames, { filter: opts.filter, night: opts.night })
     : scan.frames.filter((f) => f.matched && f.type);
 
   if (!frames.length) {
-    return {
-      ok: false,
-      error: 'No matching FITS frames found to ingest.',
-      scan,
-      copied: [],
-    };
+    return { ok: false, error: 'No matching FITS frames found to ingest.', scan, copied: [] };
   }
 
   const night = normalizeNight(opts.night)
-    || frames.find((f) => f.type === 'light' && f.date)?.date
+    || frames.find((f) => f.type === 'light' && f.night)?.night
     || frames.find((f) => f.date)?.date
     || 'unknown_night';
-
   const filter = normalizeFilter(opts.filter)
     || frames.find((f) => f.type === 'light' && f.filter)?.filter
-    || frames.find((f) => f.filter)?.filter
     || 'Unknown';
-
-  const objectName = opts.objectName
-    || frames.find((f) => f.target)?.target
-    || 'Object';
+  const objectName = opts.objectName || frames.find((f) => f.target)?.target || 'Object';
 
   const copied = [];
   const errors = [];
-
   for (const frame of frames) {
     if (!frame.type) continue;
     const destDir = buildDestPath(opts.workRoot, objectName, filter, night, frame.type);
     const dest = path.join(destDir, frame.fileName);
     try {
-      const result = await copyOrLink(frame.filePath, dest, mode);
-      copied.push({
-        type: frame.type,
-        from: frame.filePath,
-        to: result.dest,
-        action: result.action,
-        exposureSec: frame.exposureSec,
-        gain: frame.gain,
-        tempC: frame.tempC,
-        bin: frame.bin,
-        filter: frame.filter,
-        date: frame.date,
-      });
+      await fsp.mkdir(destDir, { recursive: true });
+      if (fs.existsSync(dest)) {
+        copied.push({ type: frame.type, from: frame.filePath, to: dest, action: 'skipped' });
+        continue;
+      }
+      if (mode === 'hardlink') {
+        try {
+          await fsp.link(frame.filePath, dest);
+          copied.push({ type: frame.type, from: frame.filePath, to: dest, action: 'hardlink' });
+          continue;
+        } catch { /* copy */ }
+      }
+      await fsp.copyFile(frame.filePath, dest);
+      copied.push({ type: frame.type, from: frame.filePath, to: dest, action: 'copy' });
     } catch (err) {
-      errors.push({ file: frame.filePath, error: String(err && err.message ? err.message : err) });
+      errors.push({ file: frame.filePath, error: String(err.message || err) });
     }
   }
 
@@ -508,31 +1150,27 @@ async function ingestAsiairDump(opts) {
     sanitizeFolderName(filter),
     normalizeNight(night) || 'unknown_night'
   );
-
   const lights = copied.filter((c) => c.type === 'light');
-  const meta = {
-    objectName,
-    filter,
-    night: normalizeNight(night),
-    destRoot,
-    sourcePath: opts.sourcePath,
-    mode,
-    filesCopied: copied.filter((c) => c.action !== 'skipped').length,
-    filesSkipped: copied.filter((c) => c.action === 'skipped').length,
-    frameCount: lights.length,
-    exposureSec: lights.find((l) => l.exposureSec != null)?.exposureSec
-      ?? scan.summary.exposureSec,
-    gain: lights.find((l) => l.gain != null)?.gain ?? scan.summary.gain,
-    tempC: lights.find((l) => l.tempC != null)?.tempC ?? scan.summary.tempC,
-    bin: lights.find((l) => l.bin != null)?.bin ?? scan.summary.bin,
-    byType: summarizeFrames(frames).byType,
-    ingestedAt: new Date().toISOString(),
-    errors,
-  };
-
   return {
     ok: errors.length === 0 || copied.length > 0,
-    meta,
+    meta: {
+      objectName,
+      filter,
+      night: normalizeNight(night),
+      destRoot,
+      sourcePath: opts.sourcePath,
+      mode,
+      filesCopied: copied.filter((c) => c.action !== 'skipped').length,
+      filesSkipped: copied.filter((c) => c.action === 'skipped').length,
+      frameCount: lights.length,
+      exposureSec: scan.summary.exposureSec,
+      gain: scan.summary.gain,
+      tempC: scan.summary.tempC,
+      bin: scan.summary.bin,
+      byType: summarizeFrames(frames).byType,
+      ingestedAt: new Date().toISOString(),
+      errors,
+    },
     copied,
     scan: {
       totalFiles: scan.totalFiles,
@@ -546,15 +1184,25 @@ async function ingestAsiairDump(opts) {
 module.exports = {
   FRAME_TYPES,
   TYPE_FOLDERS,
+  SESSION_DIR_NAMES,
+  TEMP_TOLERANCE_C,
+  SIX_MONTHS_MS,
   parseAsiairFilename,
   parseExposureToSeconds,
   normalizeFilter,
   normalizeNight,
   sanitizeFolderName,
+  astronomicalNightForFrame,
+  nightWindowYmds,
   readFitsHeaderKeywords,
   scanAsiairSource,
   summarizeFrames,
   filterFramesForShoot,
   buildDestPath,
   ingestAsiairDump,
+  discoverSessions,
+  scanSession,
+  indexDarkLibrary,
+  matchMasterDarks,
+  stageSirilTree,
 };

@@ -35,6 +35,9 @@ reference/
 # Ingested FITS project trees (large binaries — stay on disk only)
 data/projects/
 
+# Local ASIAIR sample dumps for ingest development (large FITS)
+staging/
+
 # Root-level copies of live data (canonical tracked copy is data/)
 /zuko-dashboard-data.json
 
