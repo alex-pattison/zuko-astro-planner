@@ -94,21 +94,129 @@
           "filterIndex": 0,
           "hours": 0.25,
           "complete": true,
-          "creditedHours": 0.25
+          "creditedHours": 0.25,
+          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
+          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260725_Ha_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20260725",
+            "shootFolder": "260725_Ha_B9_Home",
+            "filters": [
+              "Ha"
+            ],
+            "destRoots": [
+              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260725_Ha_B9_Home"
+            ],
+            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "calibReuse": {
+              "nightDate": "20260725",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 5,
+              "darksAfter": 75
+            },
+            "filesStaged": 90,
+            "filesSkipped": 0,
+            "biasesMoved": 5,
+            "byType": {
+              "light": 5,
+              "flat": 5,
+              "bias": 5,
+              "dark": 75
+            },
+            "lightCount": 5,
+            "frameCount": 5,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-07-29T02:27:01.873Z"
+          }
         },
         {
           "date": "260725",
           "filterIndex": 1,
           "hours": 0.25,
           "complete": true,
-          "creditedHours": 0.25
+          "creditedHours": 0.25,
+          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
+          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\OIII\\260725_OIII_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20260725",
+            "shootFolder": "260725_OIII_B9_Home",
+            "filters": [
+              "OIII"
+            ],
+            "destRoots": [
+              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\OIII\\260725_OIII_B9_Home"
+            ],
+            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "calibReuse": {
+              "nightDate": "20260725",
+              "biasesPreexisting": 5,
+              "darksPreexisting": 0,
+              "biasesAfter": 5,
+              "darksAfter": 75
+            },
+            "filesStaged": 90,
+            "filesSkipped": 0,
+            "biasesMoved": 0,
+            "byType": {
+              "light": 5,
+              "flat": 5,
+              "bias": 5,
+              "dark": 75
+            },
+            "lightCount": 5,
+            "frameCount": 5,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-07-29T02:27:02.863Z"
+          }
         },
         {
           "date": "260725",
           "filterIndex": 3,
           "hours": 0.5,
           "complete": true,
-          "creditedHours": 0.5
+          "creditedHours": 0.5,
+          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
+          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\SII\\260725_SII_B5_Queechy",
+          "ingestMeta": {
+            "nightDate": "20260725",
+            "shootFolder": "260725_SII_B5_Queechy",
+            "filters": [
+              "SII"
+            ],
+            "destRoots": [
+              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\SII\\260725_SII_B5_Queechy"
+            ],
+            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "calibReuse": {
+              "nightDate": "20260725",
+              "biasesPreexisting": 5,
+              "darksPreexisting": 0,
+              "biasesAfter": 5,
+              "darksAfter": 75
+            },
+            "filesStaged": 95,
+            "filesSkipped": 0,
+            "biasesMoved": 0,
+            "byType": {
+              "light": 10,
+              "flat": 5,
+              "bias": 5,
+              "dark": 75
+            },
+            "lightCount": 10,
+            "frameCount": 10,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-07-29T02:27:03.267Z"
+          }
         }
       ],
       "astrobinLinks": [],
@@ -120,12 +228,13 @@
       "framerMode": "reducer",
       "framerRotation": 27,
       "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample",
-      "processStatus": "none"
+      "processStatus": "ingested"
     },
     {
       "name": "North America Nebula - First Light",
       "target": "NGC 7000 / Caldwell 20 (North America Nebula); Pelican Nebula (IC 5070) adjacent across L935",
       "frameMode": "Reducer 280mm f/3.9 · Bin2 — single frame (continent ~2°×1.7° fits easily)",
+      "projectDir": "",
       "centerCoords": "RA 20h56m34.4s  Dec +43°50'11.3\"",
       "anchorStar": "Deneb (α Cyg) — finder reference ~3° west; HD 199579 (mag ~6) near the Gulf of Mexico",
       "rotation": "122° (set via framer)",
@@ -211,8 +320,7 @@
         "dec": 43.836472477741324
       },
       "framerMode": "reducer",
-      "framerRotation": 122,
-      "projectDir": ""
+      "framerRotation": 122
     }
   ],
   "notes": [
@@ -235,10 +343,6 @@
     {
       "icon": "💻",
       "text": "Fix issue where checking an item in planner refreshes the aladin integration"
-    },
-    {
-      "icon": "📋",
-      "text": "<strong>Shoot Log UI:</strong> Replace Done checkbox with a status button like Ingest — blue \"Planned\", click → green \"Complete\". Extend Ingest with more steps afterward (third button TBD). Review shoot-log column headers later."
     }
   ],
   "assets": [
@@ -770,7 +874,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 4,
-    "savedAt": "2026-07-29T02:09:46.828Z"
+    "savedAt": "2026-07-29T02:27:03.443Z"
   },
   "uiTheme": "dark",
   "homeSite": {
@@ -781,7 +885,7 @@
     "bortle": "9"
   },
   "darkLibrary": {
-    "path": "H:\\\\Photography\\\\Astrophotography\\\\Zuko\\\\Dark Library",
+    "path": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library",
     "index": [
       {
         "filePath": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",

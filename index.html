@@ -4079,10 +4079,16 @@ function renderProjects() {
                 const integ = formatShootIntegration(lightsN, meta.exposureSec, plannedHrs);
                 const ingested = !!(sh.ingestPath && meta.stagedAt);
                 const captured = !!sh.complete;
+                const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
                 const statusBtn = `<button class="mini-btn status-btn ${captured ? 'captured' : ''}" style="margin-top:0" onclick="event.stopPropagation(); toggleShootComplete(${pi},${si})" title="${captured ? 'Mark as pending' : 'Mark as captured'}">${captured ? 'Captured' : 'Pending'}</button>`;
-                const ingestBtn = captured
-                  ? `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open ingest (already staged)' : 'ASIAIR ingest'}">Ingest</button>`
-                  : `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before ingest">Ingest</button>`;
+                let ingestBtn;
+                if (!hasProjectDir) {
+                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Set Project directory before ingest">Ingest</button>`;
+                } else if (!captured) {
+                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before ingest">Ingest</button>`;
+                } else {
+                  ingestBtn = `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open ingest (already staged)' : 'ASIAIR ingest'}">Ingest</button>`;
+                }
                 return `
                 <tr>
                   <td class="col-name mono editable" style="font-size:11px;" onclick="editShoot(${pi},${si})" title="Auto-generated — click to edit shoot">${code}</td>
@@ -4105,7 +4111,11 @@ function renderProjects() {
           <div class="shoot-log-actions">
             <button class="mini-btn" onclick="addShoot(${pi})">+ Plan Shoot</button>
             ${(() => {
+              const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
               const pending = (p.shoots || []).filter(isShootNeedingIngest).length;
+              if (!hasProjectDir) {
+                return `<button class="mini-btn ingest-btn locked" disabled title="Set Project directory before ingest">Ingest all</button>`;
+              }
               return pending
                 ? `<button class="mini-btn ingest-btn" onclick="ingestAllCapturedShoots(${pi})" title="Open ingest for all Captured shoots that are not already staged">Ingest all (${pending})</button>`
                 : `<button class="mini-btn ingest-btn locked" disabled title="No Captured shoots waiting for ingest">Ingest all</button>`;
@@ -4608,6 +4618,16 @@ const LEGACY_DARK_LIBRARY_PATHS = [
   'H:\\Photography\\Astrophotography\\Calibration\\Darks',
 ];
 
+/** Collapse accidental double-backslashes (JSON double-escape) without breaking UNC. */
+function normalizeWinPath(p) {
+  if (p == null || p === '') return p;
+  let s = String(p).trim().replace(/\//g, '\\');
+  if (s.startsWith('\\\\')) {
+    return '\\\\' + s.slice(2).replace(/\\+/g, '\\');
+  }
+  return s.replace(/\\+/g, '\\');
+}
+
 function ensureDarkLibrary() {
   if (!data.darkLibrary || typeof data.darkLibrary !== 'object') {
     data.darkLibrary = {
@@ -4617,9 +4637,11 @@ function ensureDarkLibrary() {
     };
   }
   if (!Array.isArray(data.darkLibrary.index)) data.darkLibrary.index = [];
-  const cur = (data.darkLibrary.path || '').trim();
+  const cur = normalizeWinPath((data.darkLibrary.path || '').trim());
   if (!cur || LEGACY_DARK_LIBRARY_PATHS.includes(cur)) {
     data.darkLibrary.path = DEFAULT_DARK_LIBRARY_PATH;
+  } else if (cur !== data.darkLibrary.path) {
+    data.darkLibrary.path = cur;
   }
 }
 
@@ -4708,9 +4730,9 @@ async function browseDarkLibraryPath() {
     defaultPath: data.darkLibrary.path || undefined,
   });
   if (!picked || !picked.ok || picked.canceled) return;
-  data.darkLibrary.path = picked.path;
+  data.darkLibrary.path = normalizeWinPath(picked.path);
   const pathEl = document.getElementById('darklib-path');
-  if (pathEl) pathEl.value = picked.path;
+  if (pathEl) pathEl.value = data.darkLibrary.path;
   persistData();
   renderDarkLibraryPanel();
 }
@@ -4722,7 +4744,9 @@ async function reindexDarkLibrary(opts = {}) {
   }
   ensureDarkLibrary();
   const pathEl = document.getElementById('darklib-path');
-  if (pathEl && pathEl.value.trim()) data.darkLibrary.path = pathEl.value.trim();
+  if (pathEl && pathEl.value.trim()) data.darkLibrary.path = normalizeWinPath(pathEl.value.trim());
+  else ensureDarkLibrary();
+  data.darkLibrary.path = normalizeWinPath(data.darkLibrary.path);
   const statusEl = document.getElementById('darklib-status');
   if (statusEl && !opts.quiet) statusEl.textContent = 'Indexing…';
   const res = await window.zukoIngest.indexDarks(data.darkLibrary.path);
@@ -5454,8 +5478,8 @@ function filterLabelHtml(name) {
 
 function masterDarkSetFolder(filePath, libraryRoot) {
   if (!filePath) return null;
-  const norm = String(filePath).replace(/\//g, '\\');
-  const root = String(libraryRoot || '').replace(/\//g, '\\').replace(/\\+$/, '');
+  const norm = normalizeWinPath(filePath);
+  const root = normalizeWinPath(libraryRoot || '').replace(/\\+$/, '');
   if (!root) {
     const i = norm.lastIndexOf('\\');
     return i > 0 ? norm.slice(0, i) : norm;
