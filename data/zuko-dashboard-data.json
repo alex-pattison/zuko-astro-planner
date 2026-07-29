@@ -110,14 +110,14 @@
             "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
             "calibReuse": {
               "nightDate": "20260725",
-              "biasesPreexisting": 0,
+              "biasesPreexisting": 5,
               "darksPreexisting": 0,
               "biasesAfter": 5,
               "darksAfter": 75
             },
-            "filesStaged": 90,
-            "filesSkipped": 0,
-            "biasesMoved": 5,
+            "filesStaged": 0,
+            "filesSkipped": 90,
+            "biasesMoved": 0,
             "byType": {
               "light": 5,
               "flat": 5,
@@ -129,7 +129,7 @@
             "exposureSec": 180,
             "gain": 120,
             "tempC": -10,
-            "stagedAt": "2026-07-29T02:27:01.873Z"
+            "stagedAt": "2026-07-29T13:46:11.440Z"
           }
         },
         {
@@ -881,7 +881,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 5,
-    "savedAt": "2026-07-29T02:37:18.999Z"
+    "savedAt": "2026-07-29T13:46:14.384Z"
   },
   "uiTheme": "dark",
   "homeSite": {
