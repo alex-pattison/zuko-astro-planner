@@ -268,43 +268,50 @@ window.DEFAULT_ASSETS = [
       "Filters in mixed sets are generally <strong>not parafocal</strong>; EAF per-filter focus offsets are the usual approach."
     ],
     "status": "acquired",
-    "released": "—"
+    "released": "2008–2021"
   },
   {
     "cat": "Guiding",
-    "name": "SVBONY SV106 Guide Scope",
-    "purchased": 75,
-    "newRetail": 75,
+    "name": "SVBONY SV165 Guide Scope",
+    "purchased": 53,
+    "newRetail": 53,
     "acquired": "July 2026",
     "condition": "New",
-    "notes": "60mm f/4 — rings + dovetail included",
+    "vendor": "Amazon",
+    "notes": "30mm f/4 mini guide scope — rings + dovetail included",
     "specs": [
       [
         "Aperture / FL",
-        "60mm f/4, 240mm"
+        "30mm f/4, 120mm"
       ],
       [
         "Design",
-        "Achromatic guide / finder scope"
+        "Mini achromatic guide / finder scope"
       ],
       [
         "Focuser",
-        "Helical, non-rotating, 8mm travel"
+        "Helical, 45mm travel with lock"
       ],
       [
         "Mounting",
-        "Tube rings + dovetail rail"
+        "Tube rings + dovetail; UNC 1/4-20"
       ],
       [
-        "Eyepiece",
-        "1.25\""
+        "Connection",
+        "1.25\" and M42×0.75"
+      ],
+      [
+        "Weight",
+        "~342g"
       ]
     ],
     "quirks": [
-      "Helical focuser with a lock ring; slightly soft guide stars often centroid more stably than razor-sharp ones."
+      "Very wide FOV at 120mm — easy guide-star acquisition with small sensors like the ASI120MM Mini.",
+      "Helical focuser with a lock; slightly soft guide stars often centroid more stably than razor-sharp ones.",
+      "Camera-oriented back focus — some setups need a short extension tube."
     ],
     "status": "acquired",
-    "released": "2018"
+    "released": "2020"
   },
   {
     "cat": "Guiding",
@@ -313,7 +320,7 @@ window.DEFAULT_ASSETS = [
     "newRetail": 199,
     "acquired": "July 2026",
     "condition": "Open box",
-    "notes": "Guide camera for SV106",
+    "notes": "Guide camera for SV165",
     "specs": [
       [
         "Sensor",
@@ -508,7 +515,7 @@ window.DEFAULT_ASSETS = [
     "newRetail": 200,
     "acquired": "July 2026",
     "condition": "Mixed",
-    "notes": "Includes BTF-LIGHTING 12V 10A supply",
+    "notes": "Includes BTF-LIGHTING 12V 10A supply. Mixed commodity accessories — no single product release date.",
     "specs": [
       [
         "PSU",
@@ -521,6 +528,6 @@ window.DEFAULT_ASSETS = [
     ],
     "quirks": [],
     "status": "acquired",
-    "released": "—"
+    "released": "n/a"
   }
 ];

@@ -2388,7 +2388,7 @@
       <text x="245" y="206" fill="#f87171" font-family="Space Mono, monospace" font-size="9">Dew B</text>
       <rect x="40" y="198" width="160" height="44" rx="10" fill="#111b2e" stroke="#f87171" stroke-width="1.5"/>
       <text x="120" y="216" text-anchor="middle" fill="#e2e8f0" font-family="Space Mono, monospace" font-size="11" font-weight="700">Dew B — Guide Scope</text>
-      <text x="120" y="232" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">SV106 strap</text>
+      <text x="120" y="232" text-anchor="middle" fill="#94a3b8" font-family="Space Mono, monospace" font-size="9">SV165 strap</text>
 
       <!-- POWER 2 — Mount -->
       <path d="M530,175 H580 V80 H740" fill="none" stroke="#eab308" stroke-width="2" marker-end="url(#arrow-power)"/>
@@ -2804,30 +2804,34 @@ function migrateAssetSplits() {
     });
   }
 
-  // Split combined guide package
+  // Split combined guide package (legacy)
   const guideIdx = assets.findIndex(a => a.name === 'SVBONY SV106 + ASI120MM Mini');
   if (guideIdx >= 0) {
     const g = assets[guideIdx];
     assets.splice(guideIdx, 1,
       {
         cat: 'Guiding',
-        name: 'SVBONY SV106 Guide Scope',
-        purchased: 75,
-        newRetail: 75,
+        name: 'SVBONY SV165 Guide Scope',
+        purchased: 53,
+        newRetail: 53,
         acquired: g.acquired || '',
         condition: 'New',
-        notes: '60mm f/4 — rings + dovetail included',
+        vendor: 'Amazon',
+        notes: '30mm f/4 mini guide scope — rings + dovetail included',
         specs: [
-          ['Aperture / FL', '60mm f/4, 240mm'],
-          ['Design', 'Achromatic guide / finder scope'],
-          ['Focuser', 'Helical, non-rotating, 8mm travel'],
-          ['Mounting', 'Tube rings + dovetail rail']
+          ['Aperture / FL', '30mm f/4, 120mm'],
+          ['Design', 'Mini achromatic guide / finder scope'],
+          ['Focuser', 'Helical, 45mm travel with lock'],
+          ['Mounting', 'Tube rings + dovetail; UNC 1/4-20'],
+          ['Connection', '1.25" and M42×0.75'],
+          ['Weight', '~342g']
         ],
         quirks: [
-          '<strong>Guide scope focus is the #1 first-night time sink.</strong> Focus in DAYLIGHT on a distant object (500m+), lock the helical ring. Slightly soft is fine — fat stars centroid better.'
+          'Very wide FOV at 120mm — easy guide-star acquisition with small sensors like the ASI120MM Mini.',
+          'Helical focuser with a lock; slightly soft guide stars often centroid more stably than razor-sharp ones.'
         ],
         status: normalizeAssetStatus(g.status),
-        released: '2018'
+        released: '2020'
       },
       {
         cat: 'Guiding',
@@ -2836,7 +2840,7 @@ function migrateAssetSplits() {
         newRetail: 199,
         acquired: g.acquired || '',
         condition: 'Open box',
-        notes: 'Guide camera for SV106',
+        notes: 'Guide camera for SV165',
         specs: [
           ['Sensor', '1/3" CMOS, 1280×960, 3.75µm px'],
           ['Type', 'Mono guide / planetary mini camera'],
@@ -2851,6 +2855,50 @@ function migrateAssetSplits() {
         released: '2017'
       }
     );
+  }
+
+  // SV106 → SV165 swap (same Amazon order timing)
+  const sv106 = assets.find(a => a.name === 'SVBONY SV106 Guide Scope');
+  if (sv106) {
+    sv106.name = 'SVBONY SV165 Guide Scope';
+    sv106.purchased = 53;
+    sv106.newRetail = 53;
+    sv106.vendor = 'Amazon';
+    sv106.condition = sv106.condition || 'New';
+    sv106.notes = '30mm f/4 mini guide scope — rings + dovetail included';
+    sv106.specs = [
+      ['Aperture / FL', '30mm f/4, 120mm'],
+      ['Design', 'Mini achromatic guide / finder scope'],
+      ['Focuser', 'Helical, 45mm travel with lock'],
+      ['Mounting', 'Tube rings + dovetail; UNC 1/4-20'],
+      ['Connection', '1.25" and M42×0.75'],
+      ['Weight', '~342g']
+    ];
+    sv106.quirks = [
+      'Very wide FOV at 120mm — easy guide-star acquisition with small sensors like the ASI120MM Mini.',
+      'Helical focuser with a lock; slightly soft guide stars often centroid more stably than razor-sharp ones.',
+      'Camera-oriented back focus — some setups need a short extension tube.'
+    ];
+    sv106.released = '2020';
+  }
+  const guideCam = assets.find(a => a.name === 'ZWO ASI120MM Mini');
+  if (guideCam && /SV106/i.test(guideCam.notes || '')) {
+    guideCam.notes = 'Guide camera for SV165';
+  }
+  const filterSet = assets.find(a => /Astrodon.*Baader|Baader.*Astrodon|31mm Filter Set/i.test(a.name || ''));
+  if (filterSet && (!filterSet.released || filterSet.released === '—' || filterSet.released === '-')) {
+    filterSet.released = '2008–2021';
+  }
+  const sv165 = assets.find(a => a.name === 'SVBONY SV165 Guide Scope');
+  if (sv165 && (!sv165.released || sv165.released === '—' || sv165.released === '-')) {
+    sv165.released = '2020';
+  }
+  const miscKit = assets.find(a => a.name === 'Power Supply + Spacers + Dew + Cables');
+  if (miscKit && (!miscKit.released || miscKit.released === '—' || miscKit.released === '-')) {
+    miscKit.released = 'n/a';
+    if (!/no single product release/i.test(miscKit.notes || '')) {
+      miscKit.notes = ((miscKit.notes || '') + (miscKit.notes ? '. ' : '') + 'Mixed commodity accessories — no single product release date.').trim();
+    }
   }
 
   // Split camera package: ASI294MM ($2100) + bundled EFW/filters → 3 rows by new-retail share
@@ -2912,7 +2960,7 @@ function migrateAssetSplits() {
           '<strong>Filters are NOT parafocal</strong> — each needs a slightly different focus. Solved with per-filter EAF offsets, set once and reused every session.'
         ],
         status: st,
-        released: '—'
+        released: '2008–2021'
       }
     );
   }
