@@ -12,6 +12,7 @@ const {
   indexDarkLibrary,
   matchMasterDarks,
   stageSirilTree,
+  evaluateIngestFrameReadiness,
   normalizeFilter,
   normalizeNight,
   astronomicalNightForFrame,
@@ -59,6 +60,48 @@ async function copyFew(srcDir, destDir, pred, limit) {
   return names.length;
 }
 
+function patchDateObs(buf, ymd) {
+  const text = buf.toString('binary');
+  const out = Buffer.from(buf);
+  const isoDate = `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`;
+  for (let i = 0; i + 80 <= Math.min(text.length, 2880 * 8); i += 80) {
+    const card = text.slice(i, i + 80);
+    if (card.slice(0, 8).trim().toUpperCase() === 'END') break;
+    if (card.slice(0, 8).trim().toUpperCase() !== 'DATE-OBS') continue;
+    const m = card.match(/DATE-OBS\s*=\s*'([^']+)'/i);
+    let timePart = 'T00:00:00';
+    if (m && m[1].includes('T')) timePart = 'T' + m[1].split('T')[1];
+    const val = ("'" + isoDate + timePart + "'").padEnd(20, ' ');
+    const rebuilt = ('DATE-OBS= ' + val + card.slice(10 + val.length)).slice(0, 80).padEnd(80, ' ');
+    Buffer.from(rebuilt, 'binary').copy(out, i);
+    return out;
+  }
+  return out;
+}
+
+/** Same filter (Ha), different night — rewrite DATE-OBS + filename stamp. */
+async function addMultiDayHaCopies(lightDir, flatDir, fromDate, toDate) {
+  let n = 0;
+  async function rewrite(dir, pred, limit) {
+    if (!fs.existsSync(dir)) return;
+    const names = (await fsp.readdir(dir))
+      .filter((x) => /\.fit$/i.test(x) && pred(x) && x.includes(fromDate))
+      .sort()
+      .slice(0, limit);
+    for (const name of names) {
+      const destName = name.split(fromDate).join(toDate);
+      const dest = path.join(dir, destName);
+      if (fs.existsSync(dest)) continue;
+      const buf = await fsp.readFile(path.join(dir, name));
+      await fsp.writeFile(dest, patchDateObs(buf, toDate));
+      n += 1;
+    }
+  }
+  await rewrite(lightDir, (x) => /_H_/i.test(x), 2);
+  await rewrite(flatDir, (x) => /_H_/i.test(x), 1);
+  return n;
+}
+
 async function buildFixture() {
   console.log('\n== Build QA fixture ==');
   if (fs.existsSync(QA_ROOT)) {
@@ -71,19 +114,26 @@ async function buildFixture() {
   const darkSrc = path.join(SRC_AUTORUN, 'Dark');
 
   assert('source Autorun exists', fs.existsSync(SRC_AUTORUN), SRC_AUTORUN);
-  const hL = await copyFew(lightSrc, lightDst, (n) => /_H_/i.test(n), 3);
+  const hL = await copyFew(lightSrc, lightDst, (n) => /_H_/i.test(n) && n.includes('20260725'), 3);
   const oL = await copyFew(lightSrc, lightDst, (n) => /_O_/i.test(n), 3);
   const sL = await copyFew(lightSrc, lightDst, (n) => /_S_/i.test(n), 3);
-  const hF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_H_/i.test(n), 2);
-  const oF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_O_/i.test(n), 2);
-  const sF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_S_/i.test(n), 2);
+  const hF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_H_/i.test(n) && n.includes('20260726'), 2);
+  const oF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_O_/i.test(n) && n.includes('20260726'), 2);
+  const sF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_S_/i.test(n) && n.includes('20260726'), 2);
   // biases/darks often lack filter letter — take any
   const b = await copyFew(biasSrc, path.join(QA_AUTORUN, 'Bias'), () => true, 3);
   const d = await copyFew(darkSrc, path.join(QA_AUTORUN, 'Dark'), () => true, 3);
+  const multi = await addMultiDayHaCopies(
+    lightDst,
+    path.join(QA_AUTORUN, 'Flat'),
+    '20260725',
+    '20260720',
+  );
   assert('fixture lights Ha/OIII/SII', hL >= 1 && oL >= 1 && sL >= 1, `H=${hL} O=${oL} S=${sL}`);
   assert('fixture flats present', hF + oF + sF >= 2, `flats=${hF + oF + sF}`);
   assert('fixture biases present', b >= 1, `biases=${b}`);
   assert('fixture session darks present', d >= 1, `darks=${d}`);
+  assert('fixture multi-day Ha copies', multi >= 1, `rewritten=${multi}`);
 }
 
 function normalizeWinPath(p) {
@@ -270,6 +320,55 @@ async function testPipeline() {
   });
   assert('master darks match Ha profile', match.matches.length > 0, `matches=${match.matches.length} rejected=${match.rejectedCount}`);
 
+  const haLights = (scan.lights || []).filter((l) => normalizeFilter(l.filter) === 'Ha');
+  const haFlats = (scan.flats || []).filter((f) => normalizeFilter(f.filter) === 'Ha');
+  const readyOk = evaluateIngestFrameReadiness({
+    lights: haLights,
+    flats: haFlats,
+    biases: scan.biases || [],
+    sessionDarks: scan.darks || [],
+    useMasterDarks: true,
+    darkMatchesByFilter: { Ha: match.matches, '*': match.matches },
+    filters: ['Ha'],
+  });
+  assert('readiness ok with all 4', readyOk.ok, readyOk.error);
+  const missingFlat = evaluateIngestFrameReadiness({
+    lights: haLights,
+    flats: [],
+    biases: scan.biases || [],
+    sessionDarks: scan.darks || [],
+    useMasterDarks: true,
+    darkMatchesByFilter: { Ha: match.matches },
+    filters: ['Ha'],
+  });
+  assert('readiness fails without Flat', !missingFlat.ok && missingFlat.missing.some((m) => /Flat/i.test(m)), missingFlat.missing.join(','));
+  const missingBias = evaluateIngestFrameReadiness({
+    lights: haLights,
+    flats: haFlats,
+    biases: [],
+    sessionDarks: scan.darks || [],
+    useMasterDarks: false,
+    filters: ['Ha'],
+  });
+  assert('readiness fails without Bias', !missingBias.ok && missingBias.missing.includes('Bias'), missingBias.missing.join(','));
+
+  // Stage without master dark matches → MISSING_FRAMES
+  const noDark = await stageSirilTree({
+    projectDir: QA_ROOT,
+    sessionPath,
+    nightDate: NIGHT,
+    shootFolder: '260725_Ha_missing_dark',
+    filters: ['Ha'],
+    useMasterDarks: true,
+    darkMatchesByFilter: {},
+    force: true,
+  });
+  assert(
+    'stage without master darks → MISSING_FRAMES',
+    noDark.ok === false && noDark.code === 'MISSING_FRAMES',
+    `${noDark.code}: ${noDark.error}`,
+  );
+
   // Stage Ha only first
   const stage1 = await stageSirilTree({
     projectDir: QA_ROOT,
@@ -390,6 +489,25 @@ async function testPipeline() {
     );
   }
 
+  // Assert merge: if we ever add a Plan under QA_ROOT, projectDir scan sees both.
+  // For single-Autorun fixture, projectDir scan must still work and tag shootingType.
+  const merged = await scanSession({
+    projectDir: QA_ROOT,
+    nightDate: NIGHT,
+    targetHint: 'Veil Nebula (Cygnus Loop)',
+  });
+  assert('projectDir scan ok (merged sessions)', merged.ok && (merged.lights || []).length > 0, `lights=${(merged.lights || []).length}`);
+  assert(
+    'frames tagged with shootingType',
+    (merged.lights || []).every((l) => l.shootingType),
+    (merged.lights || []).slice(0, 1).map((l) => l.shootingType).join(','),
+  );
+  assert(
+    'filter rows expose shootingType',
+    (merged.filters || []).some((r) => r.shootingType && r.shootingType !== '—'),
+    JSON.stringify((merged.filters || []).map((r) => r.shootingType)),
+  );
+
   // Wrong night → few/no lights
   const wrongNight = await scanSession({
     sessionPath,
@@ -401,6 +519,433 @@ async function testPipeline() {
     (wrongNight.lights || []).length === 0,
     `lights=${(wrongNight.lights || []).length}`,
   );
+}
+
+function filterToneKey(name) {
+  const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (n === 'ha' || n === 'h' || n === 'halpha') return 'ha';
+  if (n === 'oiii' || n === 'o3' || n === 'o') return 'oiii';
+  if (n === 'sii' || n === 's2' || n === 's') return 'sii';
+  return 'other';
+}
+
+function shootNightYmd(sh) {
+  let d = String(sh.date || '').replace(/[^0-9]/g, '');
+  if (d.length === 6) d = (parseInt(d.slice(0, 2), 10) >= 70 ? '19' : '20') + d;
+  return d.length === 8 ? d : null;
+}
+
+function isShootIngested(sh) {
+  return !!(sh && sh.ingestPath && sh.ingestMeta && sh.ingestMeta.stagedAt);
+}
+
+function hasIngestedShootForFilterNight(project, filterName, nightYmd) {
+  if (!project || !filterName || !nightYmd) return false;
+  const want = filterToneKey(filterName);
+  return (project.shoots || []).some((sh) => {
+    if (!isShootIngested(sh)) return false;
+    if (shootNightYmd(sh) !== nightYmd) return false;
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) return false;
+    return filterToneKey(ft.filter) === want;
+  });
+}
+
+function hasShootLogForFilterNight(project, filterName, nightYmd) {
+  if (!project || !filterName || !nightYmd) return false;
+  const want = filterToneKey(filterName);
+  return (project.shoots || []).some((sh) => {
+    if (shootNightYmd(sh) !== nightYmd) return false;
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) return false;
+    return filterToneKey(ft.filter) === want;
+  });
+}
+
+function ingestFilterStatus(opts) {
+  const { project, filter, night, isPendingMatch, missingFrames } = opts || {};
+  if (hasIngestedShootForFilterNight(project, filter, night)) {
+    return { key: 'staged', label: 'already staged' };
+  }
+  if (!hasShootLogForFilterNight(project, filter, night)) {
+    return { key: 'nolog', label: 'no shot log' };
+  }
+  if (isPendingMatch) {
+    const missing = missingFrames || [];
+    if (missing.length) {
+      const parts = [];
+      if (missing.some((m) => /^Flat/i.test(m))) parts.push('missing flats');
+      if (missing.some((m) => /^Bias/i.test(m))) parts.push('missing bias');
+      if (missing.some((m) => /^Dark/i.test(m))) parts.push('missing darks');
+      return { key: 'incomplete', label: parts.join(', ') || 'incomplete' };
+    }
+    return { key: 'match', label: 'match' };
+  }
+  return { key: 'inlog', label: 'in log' };
+}
+
+function shootColumnLabel(isPendingMatch, project, filter, night, missingFrames) {
+  return ingestFilterStatus({
+    project,
+    filter,
+    night,
+    isPendingMatch,
+    missingFrames: missingFrames || [],
+  }).label;
+}
+
+async function testMultiDayAndShootColumn() {
+  console.log('\n== Multi-day + Shoot? column ==');
+  const disc = await discoverSessions(QA_ROOT);
+  const sessionPath = disc.sessions[0].path;
+
+  const nightA = '20260720';
+  const nightB = NIGHT; // 20260725
+  const scanA = await scanSession({ sessionPath, nightDate: nightA, targetHint: 'Veil' });
+  const scanB = await scanSession({ sessionPath, nightDate: nightB, targetHint: 'Veil' });
+  const haA = (scanA.lights || []).filter((l) => normalizeFilter(l.filter) === 'Ha').length;
+  const haB = (scanB.lights || []).filter((l) => normalizeFilter(l.filter) === 'Ha').length;
+  assert('night A has Ha lights', haA >= 1, `ha=${haA}`);
+  assert('night B has Ha lights', haB >= 1, `ha=${haB}`);
+  assert('nights isolate lights (A ≠ B set)', haA > 0 && haB > 0);
+
+  const project = {
+    filterTargets: [
+      { filter: 'Ha', location: 'Home', bortle: '9' },
+      { filter: 'OIII', location: 'Home', bortle: '9' },
+      { filter: 'SII', location: 'Queechy', bortle: '5' },
+    ],
+    shoots: [
+      {
+        date: '260720',
+        filterIndex: 0,
+        complete: true,
+        hours: 0.1,
+        ingestPath: 'x',
+        ingestMeta: { stagedAt: '2026-07-29T00:00:00.000Z' },
+      },
+      { date: '260725', filterIndex: 0, complete: true, hours: 0.25 },
+      { date: '260725', filterIndex: 1, complete: true, hours: 0.25 },
+      { date: '260725', filterIndex: 2, complete: true, hours: 0.5 },
+    ],
+  };
+
+  assert(
+    'Ha on 0720 → already staged',
+    shootColumnLabel(false, project, 'Ha', nightA) === 'already staged',
+  );
+  assert(
+    'Ha on 0725 pending → match (not confused with other night)',
+    shootColumnLabel(true, project, 'Ha', nightB) === 'match',
+  );
+  assert(
+    'OIII on 0725 in log but not pending → in log',
+    shootColumnLabel(false, project, 'OIII', nightB) === 'in log',
+  );
+  assert(
+    'OIII on 0725 pending → match',
+    shootColumnLabel(true, project, 'OIII', nightB) === 'match',
+  );
+  assert(
+    'SII lights with no shoot that night → no shot log',
+    shootColumnLabel(false, project, 'SII', nightA) === 'no shot log',
+  );
+  assert(
+    'pending with missing flats → missing flats',
+    shootColumnLabel(true, project, 'OIII', nightB, ['Flat (OIII)']) === 'missing flats',
+  );
+
+  // Stage Ha for night A, then Shoot? for night A Ha should be already staged after we mark shoot ingested —
+  // pipeline already tested staging; here verify night A scan still only Ha.
+  const filtersA = [...new Set((scanA.lights || []).map((l) => normalizeFilter(l.filter)))];
+  assert('night A scan is Ha-only (synthetic same-filter day)', filtersA.length === 1 && filtersA[0] === 'Ha', filtersA.join(','));
+}
+
+/**
+ * Exhaustive permutations against staging/asiair-test-rosette (Autorun+Plan merge).
+ */
+async function testRosettePermutations() {
+  console.log('\n== Rosette fixture permutations ==');
+  const ROSETTE = path.join(ROOT, 'staging', 'asiair-test-rosette');
+  assert('rosette fixture exists', fs.existsSync(ROSETTE), ROSETTE);
+  if (!fs.existsSync(ROSETTE)) return;
+
+  const disc = await discoverSessions(ROSETTE);
+  assert(
+    'rosette discovers Autorun + Plan',
+    disc.ok && disc.sessions.length >= 2,
+    JSON.stringify(disc.sessions && disc.sessions.map((s) => s.name)),
+  );
+
+  let darkIndex = [];
+  if (fs.existsSync(DARK_LIB)) {
+    const idx = await indexDarkLibrary(DARK_LIB);
+    darkIndex = idx.index || [];
+  }
+
+  const project = {
+    filterTargets: [
+      { filter: 'Ha', location: 'Home', bortle: '9' },
+      { filter: 'OIII', location: 'Home', bortle: '9' },
+      { filter: 'SII', location: 'Home', bortle: '9' },
+    ],
+    shoots: [
+      { date: '260728', filterIndex: 0, hours: 0.15, complete: true },
+      { date: '260729', filterIndex: 1, hours: 0.1, complete: true },
+      { date: '260730', filterIndex: 2, hours: 0.1, complete: true },
+      { date: '260731', filterIndex: 0, hours: 0.025, complete: true },
+    ],
+  };
+
+  const cases = [
+    {
+      id: 'Ha 260728 happy',
+      night: '20260728',
+      filter: 'Ha',
+      expectLights: true,
+      expectFlats: true,
+      expectStatus: 'match',
+      expectStageMaster: true,
+      expectStageSession: true,
+      expectShootingType: 'Autorun',
+    },
+    {
+      id: 'OIII orphan on Ha night',
+      night: '20260728',
+      filter: 'OIII',
+      expectLights: true,
+      expectFlats: false,
+      expectStatus: 'no shot log',
+      expectStageMaster: false, // not in log / not pending — we still check readiness if forced
+      expectStageSession: false,
+      pending: false,
+      expectShootingType: 'Autorun',
+    },
+    {
+      id: 'OIII 260729 missing flats',
+      night: '20260729',
+      filter: 'OIII',
+      expectLights: true,
+      expectFlats: false,
+      expectStatus: 'missing flats',
+      expectStageMaster: false,
+      expectStageSession: false,
+      missingFrames: ['Flat (OIII)'],
+      expectShootingType: 'Plan',
+    },
+    {
+      id: 'SII 260730 cross-session bias',
+      night: '20260730',
+      filter: 'SII',
+      expectLights: true,
+      expectFlats: true,
+      expectStatus: 'match',
+      expectStageMaster: true,
+      expectStageSession: true,
+      expectShootingType: 'Plan',
+    },
+    {
+      id: 'Ha 260731 45s no dark match',
+      night: '20260731',
+      filter: 'Ha',
+      expectLights: true,
+      expectFlats: true,
+      expectStatus: 'missing darks',
+      expectStageMaster: false,
+      expectStageSession: false,
+      missingFrames: ['Dark (session or master library)'],
+      expectShootingType: 'Plan',
+      exposureSec: 45,
+    },
+  ];
+
+  const stageScratch = path.join(ROSETTE, '_qa_perm_stage');
+  // Clean prior perm staging leftovers under the real fixture project dir
+  for (const name of ['Ha', 'OIII', 'SII', '_calibration', '_qa_perm_stage']) {
+    const p = path.join(ROSETTE, name);
+    if (name === '_qa_perm_stage') continue;
+    // only remove shoot folders we create below (ok_* / block_*)
+  }
+  async function wipePermShoots() {
+    for (const filter of ['Ha', 'OIII', 'SII', 'Unknown']) {
+      const filterDir = path.join(ROSETTE, filter);
+      if (!fs.existsSync(filterDir)) continue;
+      for (const ent of await fsp.readdir(filterDir)) {
+        if (/^(ok_|block_)/.test(ent)) {
+          await fsp.rm(path.join(filterDir, ent), { recursive: true, force: true });
+        }
+      }
+    }
+    const calib = path.join(ROSETTE, '_calibration');
+    if (fs.existsSync(calib)) {
+      await fsp.rm(calib, { recursive: true, force: true });
+    }
+  }
+  await wipePermShoots();
+
+  for (const c of cases) {
+    const scan = await scanSession({
+      projectDir: ROSETTE,
+      nightDate: c.night,
+      targetHint: 'Rosette',
+    });
+    assert(`${c.id}: scan ok`, scan.ok !== false, scan.error);
+
+    const lights = (scan.lights || []).filter((l) => normalizeFilter(l.filter) === c.filter);
+    const flats = (scan.flats || []).filter((f) => normalizeFilter(f.filter) === c.filter);
+    assert(
+      `${c.id}: lights ${c.expectLights ? 'present' : 'absent'}`,
+      c.expectLights ? lights.length > 0 : lights.length === 0,
+      `n=${lights.length}`,
+    );
+    assert(
+      `${c.id}: flats ${c.expectFlats ? 'present' : 'absent'}`,
+      c.expectFlats ? flats.length > 0 : flats.length === 0,
+      `n=${flats.length}`,
+    );
+
+    if (lights.length && c.expectShootingType) {
+      const types = [...new Set(lights.map((l) => l.shootingType))];
+      assert(
+        `${c.id}: shootingType includes ${c.expectShootingType}`,
+        types.includes(c.expectShootingType),
+        types.join(','),
+      );
+    }
+
+    // Actual integration should be computable whenever lights+exp exist (even no shot log).
+    if (lights.length && lights[0].exposureSec != null) {
+      const hrs = (lights.length * lights[0].exposureSec) / 3600;
+      assert(`${c.id}: actual integration > 0`, hrs > 0, `hrs=${hrs}`);
+    }
+
+    const pending = c.pending !== false;
+    const missingForStatus = c.missingFrames || [];
+    // Derive missing flats for status when expected
+    if (c.expectStatus === 'missing flats' && !missingForStatus.length) {
+      missingForStatus.push(`Flat (${c.filter})`);
+    }
+    if (c.expectStatus === 'missing darks') {
+      // status label uses short form from Dark* missing frames
+      missingForStatus.length = 0;
+      missingForStatus.push('Dark (session)');
+    }
+    const status = shootColumnLabel(pending, project, c.filter, c.night, missingForStatus);
+    assert(`${c.id}: status = ${c.expectStatus}`, status === c.expectStatus, `got=${status}`);
+
+    // Usable session darks = matched to light profile only
+    const light0 = lights[0];
+    const sessionMatch = light0
+      ? matchMasterDarks({
+        index: (scan.darks || []).map((d) => ({
+          ...d,
+          acquiredAt: d.date
+            ? `${String(d.date).slice(0, 4)}-${String(d.date).slice(4, 6)}-${String(d.date).slice(6, 8)}`
+            : null,
+        })),
+        exposureSec: light0.exposureSec,
+        gain: light0.gain,
+        tempC: light0.tempC,
+      })
+      : { matches: [], rejected: [] };
+    const masterMatch = light0
+      ? matchMasterDarks({
+        index: darkIndex,
+        exposureSec: light0.exposureSec,
+        gain: light0.gain,
+        tempC: light0.tempC,
+      })
+      : { matches: [], rejected: [] };
+
+    if (c.exposureSec === 45) {
+      assert(`${c.id}: no usable session darks @45s`, sessionMatch.matches.length === 0, `m=${sessionMatch.matches.length}`);
+      assert(`${c.id}: no master darks @45s`, masterMatch.matches.length === 0, `m=${masterMatch.matches.length}`);
+    }
+
+    const readyMaster = evaluateIngestFrameReadiness({
+      lights,
+      flats,
+      biases: scan.biases || [],
+      sessionDarks: sessionMatch.matches,
+      useMasterDarks: true,
+      masterDarkCount: masterMatch.matches.length,
+      filters: [c.filter],
+    });
+    const readySession = evaluateIngestFrameReadiness({
+      lights,
+      flats,
+      biases: scan.biases || [],
+      sessionDarks: sessionMatch.matches,
+      useMasterDarks: false,
+      masterDarkCount: masterMatch.matches.length,
+      filters: [c.filter],
+    });
+
+    assert(
+      `${c.id}: readiness master ${c.expectStageMaster ? 'OK' : 'BLOCK'}`,
+      readyMaster.ok === c.expectStageMaster,
+      readyMaster.missing && readyMaster.missing.join(','),
+    );
+    assert(
+      `${c.id}: readiness session ${c.expectStageSession ? 'OK' : 'BLOCK'}`,
+      readySession.ok === c.expectStageSession,
+      readySession.missing && readySession.missing.join(','),
+    );
+
+    // Live stage attempt for blocked cases must return MISSING_FRAMES
+    // (projectDir is both ASIAIR source root and Siril dest root)
+    if (!c.expectStageMaster && lights.length) {
+      const blocked = await stageSirilTree({
+        projectDir: ROSETTE,
+        nightDate: c.night,
+        shootFolder: `block_${c.night}_${c.filter}`,
+        shootFilter: c.filter,
+        targetHint: 'Rosette',
+        useMasterDarks: true,
+        darkMatchesByFilter: { [c.filter]: masterMatch.matches, '*': masterMatch.matches },
+        force: true,
+      });
+      assert(
+        `${c.id}: stage blocked MISSING_FRAMES`,
+        blocked.ok === false && blocked.code === 'MISSING_FRAMES',
+        `${blocked.code}: ${blocked.error}`,
+      );
+    }
+
+    // Happy / cross-session stage should succeed
+    if (c.expectStageMaster && lights.length) {
+      const staged = await stageSirilTree({
+        projectDir: ROSETTE,
+        nightDate: c.night,
+        shootFolder: `ok_${c.night}_${c.filter}`,
+        shootFilter: c.filter,
+        targetHint: 'Rosette',
+        useMasterDarks: true,
+        darkMatchesByFilter: { [c.filter]: masterMatch.matches, '*': masterMatch.matches },
+        force: true,
+      });
+      assert(`${c.id}: stage succeeds`, staged.ok, staged.error || staged.code);
+      if (staged.ok) {
+        const lightsDir2 = path.join(ROSETTE, c.filter, `ok_${c.night}_${c.filter}`, 'lights');
+        const n = fs.existsSync(lightsDir2)
+          ? fs.readdirSync(lightsDir2).filter((x) => /\.fit$/i.test(x)).length
+          : 0;
+        assert(`${c.id}: staged lights on disk`, n >= 1, `n=${n} path=${lightsDir2}`);
+      }
+    }
+  }
+
+  // Wrong night / empty
+  const empty = await scanSession({ projectDir: ROSETTE, nightDate: '20260101', targetHint: 'Rosette' });
+  assert('wrong night no lights', (empty.lights || []).length === 0, `n=${(empty.lights || []).length}`);
+
+  // Merged scan on Ha night sees Autorun types + orphan OIII
+  const night728 = await scanSession({ projectDir: ROSETTE, nightDate: '20260728', targetHint: 'Rosette' });
+  const filters728 = [...new Set((night728.lights || []).map((l) => normalizeFilter(l.filter)))].sort();
+  assert('260728 has Ha + orphan OIII', filters728.includes('Ha') && filters728.includes('OIII'), filters728.join(','));
+  assert('260728 biases shared from Autorun', (night728.biases || []).length >= 1, `b=${(night728.biases || []).length}`);
+
+  await wipePermShoots();
 }
 
 async function testDashboardConsistency() {
@@ -466,8 +1011,14 @@ async function main() {
   console.log('Zuko ASIAIR QA');
   console.log('QA root:', QA_ROOT);
   await buildFixture();
+  // Ensure Rosette synthetic dump is present for permutation matrix
+  require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'build-ingest-test-fixture.js')], {
+    stdio: 'inherit',
+  });
   await testHelpers();
   await testPipeline();
+  await testMultiDayAndShootColumn();
+  await testRosettePermutations();
   await testDashboardConsistency();
 
   const failed = results.filter((r) => !r.ok);

@@ -520,27 +520,38 @@ function frameInNightWindow(frame, nightYmd) {
   return window.has(n) || window.has(normalizeNight(frame.date));
 }
 
+function shootingTypeLabel(session) {
+  const k = String((session && (session.kind || session.name)) || '').toLowerCase();
+  if (k === 'autorun') return 'Autorun';
+  if (k === 'plan') return 'Plan';
+  return (session && session.name) || 'Session';
+}
+
 /**
- * Scan an ASIAIR session for a given astronomical night.
+ * Scan one session folder; tags each frame with shootingType + sessionPath.
  */
-async function scanSession(opts = {}) {
-  const sessionPath = opts.sessionPath;
-  if (!sessionPath) return { ok: false, error: 'sessionPath is required' };
+async function scanSingleSession(session, opts = {}) {
+  const sessionPath = session.path;
   const nightDate = normalizeNight(opts.nightDate);
   const targetHint = opts.targetHint ? String(opts.targetHint).trim().toLowerCase() : null;
-  const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
+  const shootingType = shootingTypeLabel(session);
 
   const frameDirs = await findFrameDirs(sessionPath);
   const lights = [];
   const flats = [];
-  const biases = []; // dark flats
+  const biases = [];
   const darks = [];
+
+  const tag = (parsed) => {
+    parsed.shootingType = shootingType;
+    parsed.sessionPath = sessionPath;
+    return parsed;
+  };
 
   if (frameDirs.light) {
     const files = await walkFitFiles(frameDirs.light);
     for (const fp of files) {
       const parsed = await parseFitFile(fp, 'light');
-      // Infer target from parent folder under Light/ if header missing
       if (!parsed.target) {
         const rel = path.relative(frameDirs.light, path.dirname(fp));
         if (rel && rel !== '.' && !rel.startsWith('..')) {
@@ -550,7 +561,7 @@ async function scanSession(opts = {}) {
       }
       if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
       if (targetHint && !targetMatchesHint(parsed.target, targetHint)) continue;
-      lights.push(parsed);
+      lights.push(tag(parsed));
     }
   }
 
@@ -558,7 +569,7 @@ async function scanSession(opts = {}) {
     for (const fp of await walkFitFiles(frameDirs.flat)) {
       const parsed = await parseFitFile(fp, 'flat');
       if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
-      flats.push(parsed);
+      flats.push(tag(parsed));
     }
   }
 
@@ -567,8 +578,7 @@ async function scanSession(opts = {}) {
       const parsed = await parseFitFile(fp, 'bias');
       parsed.type = 'darkflat';
       // Dark flats / biases are reusable calibration — do not gate on shoot night
-      // (ASIAIR often keeps a Bias library dated differently from the lights).
-      biases.push(parsed);
+      biases.push(tag(parsed));
     }
   }
 
@@ -576,15 +586,90 @@ async function scanSession(opts = {}) {
     for (const fp of await walkFitFiles(frameDirs.dark)) {
       const parsed = await parseFitFile(fp, 'dark');
       // Session darks are reusable calibration — do not gate on shoot night.
-      darks.push(parsed);
+      darks.push(tag(parsed));
     }
+  }
+
+  return { lights, flats, biases, darks, shootingType, sessionPath };
+}
+
+/**
+ * Scan ASIAIR dump(s) for a given astronomical night.
+ * Prefers projectDir (merges Autorun + Plan into one source).
+ * sessionPath / sessionPaths still supported for single-folder use.
+ */
+async function scanSession(opts = {}) {
+  const nightDate = normalizeNight(opts.nightDate);
+  const targetHint = opts.targetHint || null;
+  const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
+
+  let sessions = [];
+  let projectDir = opts.projectDir || null;
+
+  if (projectDir) {
+    const disc = await discoverSessions(projectDir);
+    if (!disc.ok) return disc;
+    sessions = disc.sessions || [];
+    if (!sessions.length) {
+      return { ok: false, error: 'No Autorun/Plan folders found under project directory', sessions: [], projectDir };
+    }
+  } else if (opts.sessionPaths && opts.sessionPaths.length) {
+    sessions = opts.sessionPaths.map((p) => ({
+      path: p,
+      name: path.basename(p),
+      kind: path.basename(p).toLowerCase(),
+    }));
+  } else if (opts.sessionPath) {
+    sessions = [{
+      path: opts.sessionPath,
+      name: path.basename(opts.sessionPath),
+      kind: path.basename(opts.sessionPath).toLowerCase(),
+    }];
+  } else {
+    return { ok: false, error: 'projectDir or sessionPath is required' };
+  }
+
+  const lights = [];
+  const flats = [];
+  const biases = [];
+  const darks = [];
+  const sessionSummaries = [];
+
+  for (const session of sessions) {
+    const part = await scanSingleSession(session, { nightDate, targetHint });
+    lights.push(...part.lights);
+    flats.push(...part.flats);
+    biases.push(...part.biases);
+    darks.push(...part.darks);
+    sessionSummaries.push({
+      name: session.name,
+      path: session.path,
+      kind: session.kind,
+      shootingType: part.shootingType,
+      lights: part.lights.length,
+      flats: part.flats.length,
+      biases: part.biases.length,
+      darks: part.darks.length,
+    });
   }
 
   const byFilter = {};
   for (const L of lights) {
     const f = normalizeFilter(L.filter) || 'Unknown';
-    if (!byFilter[f]) byFilter[f] = { filter: f, lights: 0, exposureSec: null, gain: null, tempC: null, bin: null };
+    if (!byFilter[f]) {
+      byFilter[f] = {
+        filter: f,
+        lights: 0,
+        flats: 0,
+        exposureSec: null,
+        gain: null,
+        tempC: null,
+        bin: null,
+        shootingTypes: new Set(),
+      };
+    }
     byFilter[f].lights += 1;
+    if (L.shootingType) byFilter[f].shootingTypes.add(L.shootingType);
     if (byFilter[f].exposureSec == null && L.exposureSec != null) byFilter[f].exposureSec = L.exposureSec;
     if (byFilter[f].gain == null && L.gain != null) byFilter[f].gain = L.gain;
     if (byFilter[f].tempC == null && L.tempC != null) byFilter[f].tempC = L.tempC;
@@ -592,24 +677,52 @@ async function scanSession(opts = {}) {
   }
   for (const F of flats) {
     const f = normalizeFilter(F.filter) || 'Unknown';
-    if (!byFilter[f]) byFilter[f] = { filter: f, lights: 0, flats: 0, exposureSec: null, gain: null, tempC: null, bin: null };
+    if (!byFilter[f]) {
+      byFilter[f] = {
+        filter: f,
+        lights: 0,
+        flats: 0,
+        exposureSec: null,
+        gain: null,
+        tempC: null,
+        bin: null,
+        shootingTypes: new Set(),
+      };
+    }
     byFilter[f].flats = (byFilter[f].flats || 0) + 1;
+    if (F.shootingType && !byFilter[f].lights) byFilter[f].shootingTypes.add(F.shootingType);
   }
 
-  const filterRows = Object.values(byFilter).map((row) => ({
-    ...row,
-    flats: row.flats || 0,
-    matchesShoot: shootFilter ? normalizeFilter(row.filter) === shootFilter : null,
-  }));
+  const filterRows = Object.values(byFilter).map((row) => {
+    const types = [...(row.shootingTypes || [])].sort();
+    return {
+      filter: row.filter,
+      lights: row.lights,
+      flats: row.flats || 0,
+      exposureSec: row.exposureSec,
+      gain: row.gain,
+      tempC: row.tempC,
+      bin: row.bin,
+      shootingTypes: types,
+      shootingType: types.length ? types.join(' · ') : '—',
+      matchesShoot: shootFilter ? normalizeFilter(row.filter) === shootFilter : null,
+    };
+  });
+
+  const shootingTypes = [...new Set(sessionSummaries.map((s) => s.shootingType))];
 
   return {
     ok: true,
-    sessionPath,
+    projectDir: projectDir || null,
+    sessionPath: sessions.length === 1 ? sessions[0].path : (projectDir || sessions[0].path),
+    sessionPaths: sessions.map((s) => s.path),
+    sessions: sessionSummaries,
+    shootingTypes,
     nightDate,
     status: {
       light: lights.length,
       flat: flats.length,
-      bias: biases.length, // dark flats
+      bias: biases.length,
       dark: darks.length,
       hasLight: lights.length > 0,
       hasFlat: flats.length > 0,
@@ -759,6 +872,78 @@ async function ensureLink(src, dest) {
 }
 
 /**
+ * Require Light, Flat, Bias, and Dark before staging.
+ * Dark = matching master-library darks when useMasterDarks, else session Dark folder.
+ */
+function evaluateIngestFrameReadiness(opts = {}) {
+  const lights = opts.lights || [];
+  const flats = opts.flats || [];
+  const biases = opts.biases || [];
+  const sessionDarks = opts.sessionDarks || opts.darks || [];
+  const useMasterDarks = !!opts.useMasterDarks;
+  const darkMatchesByFilter = opts.darkMatchesByFilter || {};
+
+  const filterList = [];
+  if (opts.filters && opts.filters.length) {
+    for (const f of opts.filters) {
+      const n = normalizeFilter(f) || String(f);
+      if (n && !filterList.includes(n)) filterList.push(n);
+    }
+  } else {
+    for (const L of lights) {
+      const n = normalizeFilter(L.filter) || 'Unknown';
+      if (!filterList.includes(n)) filterList.push(n);
+    }
+  }
+
+  const missing = [];
+  if (!lights.length) missing.push('Light');
+
+  if (filterList.length) {
+    for (const f of filterList) {
+      const flatN = flats.filter((x) => (normalizeFilter(x.filter) || 'Unknown') === f).length;
+      if (!flatN) missing.push(`Flat (${f})`);
+    }
+  } else if (!flats.length) {
+    missing.push('Flat');
+  }
+
+  if (!biases.length) missing.push('Bias');
+
+  let masterCount = opts.masterDarkCount;
+  if (masterCount == null || !Number.isFinite(Number(masterCount))) {
+    masterCount = 0;
+    const keys = filterList.length ? filterList : Object.keys(darkMatchesByFilter);
+    for (const f of keys) {
+      const m = darkMatchesByFilter[f] || [];
+      if (m.length > masterCount) masterCount = m.length;
+    }
+    const star = darkMatchesByFilter['*'] || [];
+    if (star.length > masterCount) masterCount = star.length;
+  }
+  masterCount = Number(masterCount) || 0;
+  const hasSessionDarks = sessionDarks.length > 0;
+  const hasMasterDarks = masterCount > 0;
+  // Never stage for Siril without some dark source (session and/or matching masters).
+  if (!hasSessionDarks && !hasMasterDarks) {
+    missing.push('Dark (session or master library)');
+  } else if (useMasterDarks) {
+    if (!hasMasterDarks) missing.push('Dark (master library)');
+  } else if (!hasSessionDarks) {
+    missing.push('Dark (session)');
+  }
+
+  return {
+    ok: missing.length === 0,
+    missing,
+    code: missing.length ? 'MISSING_FRAMES' : null,
+    error: missing.length
+      ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias, and Dark before staging.`
+      : null,
+  };
+}
+
+/**
  * Stage Siril tree from a scanned session.
  *
  * Source ASIAIR folders are never modified.
@@ -767,10 +952,8 @@ async function ensureLink(src, dest) {
  */
 async function stageSirilTree(opts = {}) {
   const projectDir = opts.projectDir;
-  const sessionPath = opts.sessionPath;
   const nightDate = normalizeNight(opts.nightDate);
   if (!projectDir) return { ok: false, error: 'projectDir is required' };
-  if (!sessionPath) return { ok: false, error: 'sessionPath is required' };
   if (!nightDate) return { ok: false, error: 'nightDate is required' };
 
   const shootFolder = sanitizeFolderName(opts.shootFolder || opts.shootName || nightDate);
@@ -784,8 +967,10 @@ async function stageSirilTree(opts = {}) {
     ? new Set(opts.filters.map(normalizeFilter))
     : null;
 
+  // Prefer merged project scan (Autorun + Plan). Fall back to a single sessionPath.
   const scan = await scanSession({
-    sessionPath,
+    projectDir,
+    sessionPath: opts.sessionPath || null,
     nightDate,
     targetHint,
   });
@@ -811,8 +996,70 @@ async function stageSirilTree(opts = {}) {
     ...flats.map((f) => normalizeFilter(f.filter) || 'Unknown'),
   ])];
 
-  if (!lights.length && !flats.length) {
-    return { ok: false, error: 'No lights or flats matched this night/target' + (shootFilter ? ` for filter ${shootFilter}` : '') + '.', scan };
+  const lightParamsByFilter = {};
+  for (const L of lights) {
+    const f = normalizeFilter(L.filter) || 'Unknown';
+    if (!lightParamsByFilter[f]) {
+      lightParamsByFilter[f] = {
+        exposureSec: L.exposureSec,
+        gain: L.gain,
+        tempC: L.tempC,
+      };
+    }
+  }
+
+  const sessionDarkIndex = sessionDarks.map((d) => ({
+    filePath: d.filePath,
+    fileName: d.fileName,
+    exposureSec: d.exposureSec,
+    gain: d.gain,
+    tempC: d.tempC,
+    bin: d.bin,
+    date: d.date,
+    acquiredAt: d.date
+      ? `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`
+      : null,
+  }));
+
+  // Only exp/gain/temp-matched session darks are usable for readiness + staging.
+  const usableSessionDarks = [];
+  const seenDark = new Set();
+  for (const filter of (shootFilter ? [shootFilter] : Object.keys(lightParamsByFilter))) {
+    const params = lightParamsByFilter[filter] || lightParamsByFilter[Object.keys(lightParamsByFilter)[0]] || {};
+    const matched = matchMasterDarks({
+      index: sessionDarkIndex,
+      exposureSec: params.exposureSec,
+      gain: params.gain,
+      tempC: params.tempC,
+    }).matches;
+    for (const d of matched) {
+      const key = d.filePath || d.fileName;
+      if (!key || seenDark.has(key)) continue;
+      seenDark.add(key);
+      usableSessionDarks.push(d);
+    }
+  }
+
+  const readinessFilters = shootFilter
+    ? [shootFilter]
+    : (filtersFilter ? [...filtersFilter] : filters);
+  const readiness = evaluateIngestFrameReadiness({
+    lights,
+    flats,
+    biases,
+    sessionDarks: usableSessionDarks,
+    useMasterDarks,
+    darkMatchesByFilter,
+    filters: readinessFilters,
+  });
+  if (!readiness.ok) {
+    return {
+      ok: false,
+      code: readiness.code,
+      error: readiness.error,
+      missing: readiness.missing,
+      scan,
+    };
   }
 
   // Conflict: dest already has data — caller can confirm and force.
@@ -843,31 +1090,6 @@ async function stageSirilTree(opts = {}) {
       };
     }
   }
-  const lightParamsByFilter = {};
-  for (const L of lights) {
-    const f = normalizeFilter(L.filter) || 'Unknown';
-    if (!lightParamsByFilter[f]) {
-      lightParamsByFilter[f] = {
-        exposureSec: L.exposureSec,
-        gain: L.gain,
-        tempC: L.tempC,
-      };
-    }
-  }
-
-  const sessionDarkIndex = sessionDarks.map((d) => ({
-    filePath: d.filePath,
-    fileName: d.fileName,
-    exposureSec: d.exposureSec,
-    gain: d.gain,
-    tempC: d.tempC,
-    bin: d.bin,
-    date: d.date,
-    acquiredAt: d.date
-      ? `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`
-      : null,
-  }));
-
   const biasLibDir = path.join(projectDir, '_calibration', 'darkflats', nightDate);
   const darkLibDir = path.join(projectDir, '_calibration', 'darks', nightDate);
   await fsp.mkdir(biasLibDir, { recursive: true });
@@ -921,8 +1143,8 @@ async function stageSirilTree(opts = {}) {
         gain: params.gain,
         tempC: params.tempC,
       }).matches;
-      const list = matched.length ? matched : sessionDarkIndex;
-      for (const d of list) {
+      // Do not fall back to unmatched session darks — wrong exp/gain/temp is unusable.
+      for (const d of matched) {
         const name = path.basename(d.filePath || d.fileName || '');
         if (name && !darkByName.has(name)) darkByName.set(name, d);
       }
@@ -1043,7 +1265,9 @@ async function stageSirilTree(opts = {}) {
     ok: errors.length === 0 || staged.length > 0,
     meta: {
       projectDir,
-      sessionPath,
+      sessionPath: scan.sessionPath,
+      sessionPaths: scan.sessionPaths || [],
+      shootingTypes: scan.shootingTypes || [],
       nightDate,
       shootFolder,
       filters,
@@ -1256,6 +1480,7 @@ module.exports = {
   scanSession,
   indexDarkLibrary,
   matchMasterDarks,
+  evaluateIngestFrameReadiness,
   stageSirilTree,
   masterDarkSourceSetDir,
 };

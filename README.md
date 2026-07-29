@@ -33,15 +33,16 @@ localStorage is kept as a cache. Use **File → Open Data Folder** to jump to th
 
 ## ASIAIR ingest (Shoot Log)
 
-Each project needs a **Project directory** (edit project) that contains an ASIAIR `Autorun` or `Plan` folder with `Light` / `Flat` / `Bias` / `Dark` children. Lights may live under `Light/<Target>/`.
+Each project needs a **Project directory** (edit project) that contains ASIAIR `Autorun` and/or `Plan` folders with `Light` / `Flat` / `Bias` / `Dark` children. Lights may live under `Light/<Target>/`. Ingest **merges all sessions** into one source (no Autorun/Plan picker); the filter table shows a **Type** column (Autorun / Plan).
 
 From a shoot’s **Ingest** button:
 
-1. Discovers `Autorun` / `Plan` under the project directory.
-2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`). Lights and flats are night-gated; session **Bias** (dark flats) and **Dark** frames are treated as reusable calibration and are not night-gated.
-3. Shows status chips for Light / Flat / Bias (dark flats) / session Dark, plus per-filter light/flat counts.
-4. Stages session **darks** into each channel (exp+gain+temp match; filter ignored). On Ingest open, matches the shoot’s exp/gain/temp against the **master dark library** (`H:\Photography\Astrophotography\Zuko\Dark Library`) and notes hits; optionally stages those library darks when the checkbox is on (symlinked from the master library — not copied into `_calibration`).
-5. **Stage for Siril** builds:
+1. Discovers `Autorun` / `Plan` under the project directory and scans them together.
+2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`). Lights and flats are night-gated; session **Bias** (dark flats) and **Dark** frames are treated as reusable calibration and are not night-gated (shared across sessions).
+3. Shows status chips for Light / Flat / Bias (dark flats) / session Dark, plus per-filter light/flat counts and shooting type.
+4. **Blocks Stage** unless all four are present for the shoot: Light, Flat, Bias, and Dark (session darks, or matching master-library darks when that checkbox is on). Backend returns `MISSING_FRAMES` if staging is attempted anyway.
+5. Stages session **darks** into each channel (exp+gain+temp match; filter ignored). On Ingest open, matches the shoot’s exp/gain/temp against the **master dark library** (`H:\Photography\Astrophotography\Zuko\Dark Library`) and notes hits; optionally stages those library darks when the checkbox is on (symlinked from the master library — not copied into `_calibration`).
+6. **Stage for Siril** builds:
 
 ```text
 <projectDir>/
@@ -57,6 +58,8 @@ From a shoot’s **Ingest** button:
 Local development fixture (gitignored): `staging/asiair-sample/` (NGC 6960 lights only).
 
 Source ASIAIR folders are never moved. Calibration frames are copied into `_calibration/` by night, then symlinked into each channel (falls back to hardlink/copy if symlink fails). The filter subfolder uses the shoot log auto-name, not the bare date.
+
+**Before v1 go-live:** switch ingest from copy → move (see [docs/go-live-v1.md](docs/go-live-v1.md)).
 
 ## Build installer (optional)
 

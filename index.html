@@ -374,6 +374,34 @@
     color: var(--text2);
     margin-bottom: 14px;
   }
+  .ingest-night-tabs {
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  .ingest-night-tabs.visible { display: flex; }
+  .ingest-night-tab {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .ingest-night-tab:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+  .ingest-night-tab.active {
+    color: var(--text);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .ingest-night-tab .tab-count {
+    margin-left: 6px;
+    color: var(--gray);
+  }
+  .ingest-night-tab.active .tab-count { color: var(--accent2); }
   .ingest-chips {
     display: flex;
     flex-wrap: wrap;
@@ -529,6 +557,17 @@
   .shoot-integ-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
   tr.ingest-row-other { opacity: 0.55; }
   tr.ingest-row-other td:last-child { color: var(--yellow); }
+  tr.ingest-row-staged { opacity: 0.8; }
+  tr.ingest-row-staged td:last-child { color: var(--accent2); }
+  tr.ingest-row-nolog {
+    opacity: 0.85;
+    background: color-mix(in srgb, var(--red) 8%, transparent);
+  }
+  tr.ingest-row-nolog td:last-child { color: var(--red); font-weight: 600; }
+  tr.ingest-row-incomplete {
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+  tr.ingest-row-incomplete td:last-child { color: var(--red); font-weight: 600; }
   tr.ingest-row-match.flt-ha td:first-child { color: #f87171; font-weight: 600; }
   tr.ingest-row-match.flt-oiii td:first-child { color: #67e8f9; font-weight: 600; }
   tr.ingest-row-match.flt-sii td:first-child { color: #fde68a; font-weight: 600; }
@@ -1665,6 +1704,13 @@
   }
   html[data-theme="light"] .modal-btn.primary { color: #fff; }
   html[data-theme="red"] .modal-btn.primary { color: #1a0505; }
+  .modal-btn:disabled,
+  .modal-btn.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+    pointer-events: none;
+  }
 
   /* ============ PROJECTS ============ */
   .project-card {
@@ -2600,22 +2646,19 @@
   <div class="ingest-modal" role="dialog" aria-labelledby="ingest-title">
     <h3 id="ingest-title">ASIAIR Ingest</h3>
     <div class="ingest-sub" id="ingest-sub">—</div>
+    <div class="ingest-night-tabs" id="ingest-night-tabs" role="tablist" aria-label="Shoot nights"></div>
     <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:6px;">
       <div><span style="color:var(--gray);">Project dir</span></div>
-      <div id="ingest-project-path" style="color:var(--text);word-break:break-all;margin:2px 0 10px;">—</div>
-      <div><span style="color:var(--gray);">ASIAIR session</span></div>
+      <div id="ingest-project-path" style="color:var(--text);word-break:break-all;margin:2px 0 6px;">—</div>
+      <div><span style="color:var(--gray);">ASIAIR sources</span></div>
       <div id="ingest-session-path" style="color:var(--text);word-break:break-all;margin:2px 0 8px;">—</div>
-    </div>
-    <div id="ingest-session-wrap" style="display:none;margin-bottom:10px;">
-      <label style="font-family:var(--mono);font-size:10px;color:var(--gray);text-transform:uppercase;">Multiple sessions — pick one</label>
-      <select id="ingest-session" onchange="onIngestSessionChange()" style="width:100%;margin-top:4px;"></select>
     </div>
     <div class="ingest-chips" id="ingest-chips"></div>
     <div id="ingest-confirm" class="ingest-confirm-block"></div>
     <div class="table-scroll">
       <table class="ingest-table">
-        <thead><tr><th>Filter</th><th>Lights</th><th>Flats</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Actual</th><th>Target</th><th>Shoot?</th></tr></thead>
-        <tbody id="ingest-filter-body"><tr><td colspan="9" style="color:var(--gray);">Scanning…</td></tr></tbody>
+        <thead><tr><th>Filter</th><th>Type</th><th>Lights</th><th>Flats</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Actual</th><th>Target</th><th>Status</th></tr></thead>
+        <tbody id="ingest-filter-body"><tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr></tbody>
       </table>
     </div>
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0 8px;">
@@ -2632,6 +2675,7 @@
     <div class="ingest-status-line" id="ingest-progress"></div>
     <div class="ingest-actions">
       <button class="modal-btn" id="ingest-cancel-btn" onclick="closeIngestModal()">Cancel</button>
+      <button class="modal-btn" id="ingest-stage-day-btn" onclick="runIngestStageDay()" disabled style="display:none;">Stage day</button>
       <button class="modal-btn primary" id="ingest-stage-btn" onclick="runIngestStage()" disabled>Stage for Siril</button>
     </div>
   </div>
@@ -4885,7 +4929,21 @@ function closeIngestModal() {
   setIngestBusy(false);
   ingestBatch = null;
   const stageBtn = document.getElementById('ingest-stage-btn');
-  if (stageBtn) stageBtn.textContent = 'Stage for Siril';
+  if (stageBtn) {
+    stageBtn.textContent = 'Stage for Siril';
+    stageBtn.disabled = true;
+  }
+  const dayBtn = document.getElementById('ingest-stage-day-btn');
+  if (dayBtn) {
+    dayBtn.style.display = 'none';
+    dayBtn.disabled = true;
+    dayBtn.textContent = 'Stage day';
+  }
+  const tabs = document.getElementById('ingest-night-tabs');
+  if (tabs) {
+    tabs.classList.remove('visible');
+    tabs.innerHTML = '';
+  }
   const el = document.getElementById('ingest-overlay');
   if (el) el.classList.remove('open');
   ingestCtx = { pi: null, si: null, scan: null, sessions: [], darkMatchesByFilter: {} };
@@ -5127,6 +5185,16 @@ async function openIngestModal(pi, si) {
   if (!ingestBatch) {
     const stageBtn = document.getElementById('ingest-stage-btn');
     if (stageBtn) stageBtn.textContent = 'Stage for Siril';
+    const dayBtn = document.getElementById('ingest-stage-day-btn');
+    if (dayBtn) {
+      dayBtn.style.display = 'none';
+      dayBtn.disabled = true;
+    }
+    const tabs = document.getElementById('ingest-night-tabs');
+    if (tabs) {
+      tabs.classList.remove('visible');
+      tabs.innerHTML = '';
+    }
   }
   document.getElementById('ingest-title').textContent = 'ASIAIR Ingest — ' + (project.name || 'Project');
   document.getElementById('ingest-sub').textContent =
@@ -5135,7 +5203,7 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-session-path').textContent = '…';
   document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
   document.getElementById('ingest-stage-btn').disabled = true;
-  document.getElementById('ingest-filter-body').innerHTML = '<tr><td colspan="9" style="color:var(--gray);">Scanning…</td></tr>';
+  document.getElementById('ingest-filter-body').innerHTML = '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
   document.getElementById('ingest-confirm').textContent = '';
   const useEl = document.getElementById('ingest-use-darks');
@@ -5148,41 +5216,35 @@ async function openIngestModal(pi, si) {
 
   const disc = await window.zukoIngest.discover(project.projectDir);
   await darkIndexPromise;
-  const sel = document.getElementById('ingest-session');
-  const wrap = document.getElementById('ingest-session-wrap');
   if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
     document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under project directory';
-    if (wrap) wrap.style.display = 'none';
     document.getElementById('ingest-progress').textContent = (disc && disc.error) || 'No ASIAIR session folders under project directory.';
     return;
   }
   ingestCtx.sessions = disc.sessions;
-  if (disc.sessions.length === 1) {
-    if (wrap) wrap.style.display = 'none';
-    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
-  } else {
-    if (wrap) wrap.style.display = 'block';
-    sel.innerHTML = disc.sessions.map((s, i) =>
-      `<option value="${i}">${escapeHtml(s.name)}</option>`).join('');
-    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
-  }
+  document.getElementById('ingest-session-path').textContent = formatIngestSourcesLabel(disc.sessions);
   await runIngestScan();
 }
 
-function selectedIngestSession() {
-  const { sessions } = ingestCtx;
-  if (!sessions || !sessions.length) return null;
-  if (sessions.length === 1) return sessions[0];
-  const sel = document.getElementById('ingest-session');
-  return sessions[parseInt(sel && sel.value, 10)] || sessions[0];
+function formatIngestSourcesLabel(sessions) {
+  if (!sessions || !sessions.length) return '—';
+  const names = sessions.map((s) => s.name || pathBasename(s.path));
+  if (names.length === 1) return names[0] + ' (merged)';
+  return names.join(' + ') + ' (merged)';
 }
 
-function onIngestSessionChange() {
-  ingestCtx.scan = null;
-  document.getElementById('ingest-stage-btn').disabled = true;
-  const session = selectedIngestSession();
-  if (session) document.getElementById('ingest-session-path').textContent = session.path;
-  runIngestScan();
+function pathBasename(p) {
+  const s = String(p || '').replace(/[\\/]+$/, '');
+  const i = Math.max(s.lastIndexOf('\\'), s.lastIndexOf('/'));
+  return i >= 0 ? s.slice(i + 1) : s;
+}
+
+/** Project-level source — Autorun/Plan are merged; no session picker. */
+function selectedIngestProjectDir() {
+  const { pi } = ingestCtx;
+  if (pi == null) return null;
+  const project = data.projects[pi];
+  return project && project.projectDir ? project.projectDir : null;
 }
 
 async function runIngestScan(opts = {}) {
@@ -5197,16 +5259,17 @@ async function runIngestScan(opts = {}) {
     document.getElementById('ingest-progress').textContent = 'Shoot needs a YYMMDD / YYYYMMDD date.';
     return;
   }
-  const session = selectedIngestSession();
-  if (!session) {
-    document.getElementById('ingest-progress').textContent = 'No ASIAIR session path.';
+  const projectDir = selectedIngestProjectDir();
+  if (!projectDir) {
+    document.getElementById('ingest-progress').textContent = 'No project directory.';
     return;
   }
-  document.getElementById('ingest-session-path').textContent = session.path;
+  document.getElementById('ingest-session-path').textContent =
+    formatIngestSourcesLabel(ingestCtx.sessions);
   document.getElementById('ingest-progress').textContent = 'Scanning…';
   const targetHint = projectTargetHint(project);
   const doScan = () => window.zukoIngest.scanSession({
-    sessionPath: session.path,
+    projectDir,
     nightDate: night,
     targetHint,
     // Ingest-all scans the whole night so every pending filter shows up.
@@ -5266,14 +5329,20 @@ async function runIngestScan(opts = {}) {
     : '';
   const chip = (kind, label, tone, count, title) =>
     `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('${kind}')" title="${escapeAttr(title || ('Show ' + label + ' files'))}">${escapeHtml(label)}: ${count}</button>`;
-  const darkTone = darkRejected.length ? 'warn' : (darkMatched.length ? 'ok' : 'warn');
-  const darkLabel = darkRejected.length
+  const darkTone = !darkMatched.length
+    ? 'err'
+    : (darkRejected.length ? 'warn' : 'ok');
+  const darkLabel = sessionDarks.length
     ? `Dark (session) ${darkMatched.length}/${sessionDarks.length}`
     : 'Dark (session)';
-  const darkCount = darkRejected.length ? darkMatched.length : sessionDarks.length;
-  const darkTitle = darkRejected.length
-    ? `${darkRejected.length} dark(s) out of temp/exp/gain range — click to review (excluded frames highlighted)`
-    : 'Show session darks';
+  const darkCount = darkMatched.length;
+  const darkTitle = !sessionDarks.length
+    ? 'No session darks found'
+    : (!darkMatched.length
+      ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp (unusable)`
+      : (darkRejected.length
+        ? `${darkRejected.length} dark(s) out of temp/exp/gain range — click to review`
+        : 'Show matching session darks'));
 
   ingestCtx._chipBase = [
     chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'warn', lightsForShoot.length,
@@ -5294,38 +5363,65 @@ async function runIngestScan(opts = {}) {
   const pendingFilters = ingestBatch && ingestBatch.mode === 'multi'
     ? new Set(ingestBatch.filters || [])
     : null;
+  const useMasterPreview = !!(document.getElementById('ingest-use-darks') || {}).checked;
   const rows = scan.filters || [];
   document.getElementById('ingest-filter-body').innerHTML = rows.length ? rows.map((r) => {
     const isMatch = pendingFilters
       ? pendingFilters.has(r.filter)
       : !!(shootFilterName && r.filter === shootFilterName);
     const lightsN = r.lights || 0;
-    const targetHrs = pendingFilters
-      ? (ingestBatch.plannedByFilter && ingestBatch.plannedByFilter[r.filter]) || null
-      : (isMatch ? plannedHrs : null);
+    const flatsN = r.flats || 0;
+    const inLog = hasShootLogForFilterNight(project, r.filter, night);
+    const targetHrs = (isMatch && inLog)
+      ? (pendingFilters
+        ? (ingestBatch.plannedByFilter && ingestBatch.plannedByFilter[r.filter]) || null
+        : plannedHrs)
+      : null;
     const integ = formatShootIntegration(
       lightsN > 0 ? lightsN : null,
       r.exposureSec,
       targetHrs
     );
-    const targetCell = isMatch
+    const targetCell = (isMatch && inLog)
       ? integ.targetHtml
       : '<span class="shoot-integ-val na">—</span>';
     const tone = filterToneKey(r.filter);
-    const rowCls = isMatch ? `ingest-row-match flt-${tone}` : 'ingest-row-other';
+    const missingForRow = [];
+    if (isMatch && inLog) {
+      if (!lightsN) missingForRow.push('Light');
+      if (!flatsN) missingForRow.push(`Flat (${r.filter})`);
+      if (!biases.length) missingForRow.push('Bias');
+      // Dark checked after master refresh in gate; preview session/master roughly here
+      if (useMasterPreview) {
+        /* master count filled later — row incompleteness for flats/bias is enough for red */
+      } else if (!darkMatched.length) {
+        missingForRow.push('Dark (session)');
+      }
+    }
+    const status = ingestFilterStatus({
+      project,
+      filter: r.filter,
+      night,
+      isPendingMatch: isMatch,
+      missingFrames: missingForRow,
+    });
+    // After dark refresh, incomplete dark rows get corrected via re-render... 
+    // For flats/bias-missing, mark incomplete immediately.
+    let rowCls = `${status.rowClass} flt-${tone}`;
     return `
-    <tr class="${rowCls}">
+    <tr class="${rowCls}" data-ingest-filter="${escapeAttr(r.filter)}">
       <td>${filterLabelHtml(r.filter)}</td>
+      <td class="mono" title="${escapeAttr((r.shootingTypes || []).join(', ') || '')}">${escapeHtml(r.shootingType || '—')}</td>
       <td>${lightsN}</td>
-      <td>${r.flats || 0}</td>
+      <td>${flatsN}</td>
       <td>${r.exposureSec != null ? r.exposureSec + 's' : '—'}</td>
       <td>${r.gain != null ? r.gain : '—'}</td>
       <td>${r.tempC != null ? r.tempC + '°C' : '—'}</td>
       <td class="mono" title="${escapeAttr(integ.title)}">${integ.actualHtml}</td>
       <td class="mono">${targetCell}</td>
-      <td>${isMatch ? '<span style="color:var(--green);">match</span>' : '<span style="color:var(--yellow);">other</span>'}</td>
+      <td>${ingestStatusColumnHtml(status)}</td>
     </tr>`;
-  }).join('') : '<tr><td colspan="9" style="color:var(--yellow);">No lights matched this night/target.</td></tr>';
+  }).join('') : '<tr><td colspan="10" style="color:var(--yellow);">No lights matched this night/target.</td></tr>';
 
   const matchRow = shootFilterName ? rows.find((r) => r.filter === shootFilterName) : null;
   const matchedRows = pendingFilters
@@ -5356,16 +5452,148 @@ async function runIngestScan(opts = {}) {
       `<div class="line" style="color:var(--yellow);">Shoot filter <strong>${escapeHtml(shootFilterName || '—')}</strong> not found in lights for this night.</div>`;
   }
 
-  const canStage = ingestBatch && ingestBatch.mode === 'multi'
-    ? matchedRows.length > 0
-    : !!(lightsForShoot.length > 0);
-  document.getElementById('ingest-stage-btn').disabled = !canStage;
-  document.getElementById('ingest-progress').textContent = canStage
-    ? (ingestBatch && ingestBatch.mode === 'multi'
-      ? `Ready · ${matchedRows.length} filter${matchedRows.length === 1 ? '' : 's'} · ${totalLights} lights`
-      : `Ready · ${shootFilterName || '—'} · ${lightsForShoot.length} lights`)
-    : 'Waiting for matching lights…';
+  ingestCtx._stageGate = {
+    lights: lightsForShoot,
+    flats: flatsForShoot,
+    biases,
+    // Only exp/gain/temp-matched session darks count — never fall back to rejected ones.
+    sessionDarks: darkMatched,
+    matchedRows,
+    shootFilter: shootFilterName,
+    night,
+    totalLights,
+  };
   await refreshIngestDarkMatches();
+  applyIngestStageGate();
+}
+
+/** Mirror of asiairIngest.evaluateIngestFrameReadiness for UI gating. */
+function evaluateIngestFrameReadinessUi(opts = {}) {
+  const lights = opts.lights || [];
+  const flats = opts.flats || [];
+  const biases = opts.biases || [];
+  const sessionDarks = opts.sessionDarks || [];
+  const useMasterDarks = !!opts.useMasterDarks;
+  const filters = opts.filters || [];
+  const missing = [];
+  if (!lights.length) missing.push('Light');
+  if (filters.length) {
+    for (const f of filters) {
+      if (!flats.some((x) => x.filter === f)) missing.push(`Flat (${f})`);
+    }
+  } else if (!flats.length) {
+    missing.push('Flat');
+  }
+  if (!biases.length) missing.push('Bias');
+  const masterN = Number(opts.masterDarkCount) || 0;
+  const hasSessionDarks = sessionDarks.length > 0;
+  const hasMasterDarks = masterN > 0;
+  // Never stage for Siril without some dark source.
+  if (!hasSessionDarks && !hasMasterDarks) {
+    missing.push('Dark (session or master library)');
+  } else if (useMasterDarks) {
+    if (!hasMasterDarks) missing.push('Dark (master library)');
+  } else if (!hasSessionDarks) {
+    missing.push('Dark (session)');
+  }
+  return {
+    ok: missing.length === 0,
+    missing,
+    error: missing.length
+      ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias, and Dark before staging.`
+      : null,
+  };
+}
+
+function applyIngestStageGate() {
+  const g = ingestCtx._stageGate || {};
+  const multi = !!(ingestBatch && ingestBatch.mode === 'multi');
+  const useMaster = !!(document.getElementById('ingest-use-darks') || {}).checked;
+  const filters = multi
+    ? (ingestBatch.filters || [])
+    : (g.shootFilter ? [g.shootFilter] : []);
+  const hasLights = multi
+    ? (g.matchedRows || []).length > 0
+    : (g.lights || []).length > 0;
+  const readiness = evaluateIngestFrameReadinessUi({
+    lights: g.lights || [],
+    flats: g.flats || [],
+    biases: g.biases || [],
+    sessionDarks: g.sessionDarks || [],
+    useMasterDarks: useMaster,
+    masterDarkCount: (ingestCtx.masterDarkMatches || []).length,
+    filters,
+  });
+  ingestCtx.frameReadiness = readiness;
+  const canStage = hasLights && readiness.ok;
+
+  const stageBtn = document.getElementById('ingest-stage-btn');
+  const dayBtn = document.getElementById('ingest-stage-day-btn');
+  if (stageBtn && !(ingestBatch && ingestBatch.mode === 'multi')) {
+    stageBtn.disabled = !canStage;
+    stageBtn.title = canStage
+      ? 'Copy lights/flats and link calibration into the Siril tree'
+      : (readiness.error || 'Cannot stage — fix missing frames first');
+  }
+  if (dayBtn && dayBtn.style.display !== 'none') {
+    dayBtn.disabled = !canStage;
+    dayBtn.title = canStage ? 'Stage pending shoots for this night' : (readiness.error || 'Cannot stage this night');
+  }
+  if (ingestBatch && ingestBatch.mode === 'multi') {
+    updateIngestMultiStageButtons(canStage, readiness.error);
+  }
+
+  const progress = document.getElementById('ingest-progress');
+  if (progress) {
+    if (!hasLights) {
+      progress.textContent = multi
+        ? `No lights for pending filters on night ${formatNightTabLabel(g.night || '')}.`
+        : 'Waiting for matching lights…';
+    } else if (!readiness.ok) {
+      progress.textContent = readiness.error;
+    } else if (multi) {
+      progress.textContent =
+        `Ready · night ${formatNightTabLabel(g.night || '')} · ${(g.matchedRows || []).length} filter${(g.matchedRows || []).length === 1 ? '' : 's'} · ${g.totalLights || 0} lights`;
+    } else {
+      progress.textContent = `Ready · ${g.shootFilter || '—'} · ${(g.lights || []).length} lights`;
+    }
+  }
+
+  // Refresh Status cells now that master-dark counts are known.
+  syncIngestFilterStatusRows(filters, readiness.missing || []);
+}
+
+function syncIngestFilterStatusRows(pendingFilters, missingAll) {
+  const { pi } = ingestCtx;
+  const project = pi != null ? data.projects[pi] : null;
+  const night = (ingestCtx._stageGate && ingestCtx._stageGate.night) || null;
+  if (!project || !night) return;
+  const pending = new Set(pendingFilters || []);
+  const body = document.getElementById('ingest-filter-body');
+  if (!body) return;
+  for (const tr of body.querySelectorAll('tr[data-ingest-filter]')) {
+    const filter = tr.getAttribute('data-ingest-filter');
+    if (!filter) continue;
+    const isPending = pending.has(filter);
+    const rowMissing = (missingAll || []).filter((m) => {
+      if (m === 'Bias' || m === 'Light' || /^Dark/i.test(m)) return isPending;
+      const fm = String(m).match(/^Flat \((.+)\)$/i);
+      if (fm) return fm[1] === filter;
+      if (/^Flat$/i.test(m)) return isPending;
+      return false;
+    });
+    const status = ingestFilterStatus({
+      project,
+      filter,
+      night,
+      isPendingMatch: isPending,
+      missingFrames: isPending ? rowMissing : [],
+    });
+    const tone = filterToneKey(filter);
+    tr.className = `${status.rowClass} flt-${tone}`;
+    const statusTd = tr.lastElementChild;
+    if (statusTd) statusTd.innerHTML = ingestStatusColumnHtml(status);
+  }
 }
 
 async function refreshIngestDarkMatches() {
@@ -5380,6 +5608,7 @@ async function refreshIngestDarkMatches() {
 
   const scan = ingestCtx.scan;
   if (!scan || !scan.filters) {
+    applyIngestStageGate();
     return;
   }
 
@@ -5400,6 +5629,7 @@ async function refreshIngestDarkMatches() {
       chipsEl.innerHTML = ingestCtx._chipBase.join('') +
         `<button type="button" class="ingest-chip warn" disabled title="Index the dark library first">Master darks: —</button>`;
     }
+    applyIngestStageGate();
     return;
   }
 
@@ -5466,7 +5696,7 @@ async function refreshIngestDarkMatches() {
   const folders = ingestCtx.masterDarkFolders || [];
 
   if (chipsEl && ingestCtx._chipBase) {
-    const tone = folders.length ? 'ok' : 'warn';
+    const tone = folders.length ? 'ok' : 'err';
     const label = folders.length
       ? (folders.length === 1
         ? `${folders[0].name} (${folders[0].count})`
@@ -5478,11 +5708,12 @@ async function refreshIngestDarkMatches() {
     chipsEl.innerHTML = ingestCtx._chipBase.join('') +
       `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('master-darks')" title="${escapeAttr(title)}">Master: ${escapeHtml(label)}</button>`;
   }
+  applyIngestStageGate();
 }
 
 function onIngestUseDarksChange() {
   ingestCtx._darksTouched = true;
-  refreshIngestDarkMatches();
+  refreshIngestDarkMatches().then(() => applyIngestStageGate());
 }
 
 function isShootIngested(sh) {
@@ -5491,6 +5722,99 @@ function isShootIngested(sh) {
 
 function isShootNeedingIngest(sh) {
   return !!(sh && sh.complete && !isShootIngested(sh));
+}
+
+/** True if this project already has a staged shoot for filter+night. */
+function hasIngestedShootForFilterNight(project, filterName, nightYmd) {
+  if (!project || !filterName || !nightYmd) return false;
+  const want = filterToneKey(filterName);
+  return (project.shoots || []).some((sh) => {
+    if (!isShootIngested(sh)) return false;
+    if (shootNightYmd(sh) !== nightYmd) return false;
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) return false;
+    return filterToneKey(ft.filter) === want;
+  });
+}
+
+/**
+ * Whether the shoot log has any entry for this filter on this night (Captured or not).
+ */
+function hasShootLogForFilterNight(project, filterName, nightYmd) {
+  if (!project || !filterName || !nightYmd) return false;
+  const want = filterToneKey(filterName);
+  return (project.shoots || []).some((sh) => {
+    if (shootNightYmd(sh) !== nightYmd) return false;
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) return false;
+    return filterToneKey(ft.filter) === want;
+  });
+}
+
+/**
+ * Status column for the ingest filter table.
+ * Priority: already staged → no shot log → pending incomplete → match → in log.
+ */
+function ingestFilterStatus(opts) {
+  const { project, filter, night, isPendingMatch, missingFrames } = opts || {};
+  if (hasIngestedShootForFilterNight(project, filter, night)) {
+    return {
+      key: 'staged',
+      label: 'already staged',
+      rowClass: 'ingest-row-staged',
+      title: 'A shoot for this filter on this night is already staged',
+    };
+  }
+  if (!hasShootLogForFilterNight(project, filter, night)) {
+    return {
+      key: 'nolog',
+      label: 'no shot log',
+      rowClass: 'ingest-row-nolog',
+      title: 'Lights found on disk but no shoot log entry for this filter + night',
+    };
+  }
+  if (isPendingMatch) {
+    const missing = missingFrames || [];
+    if (missing.length) {
+      const parts = [];
+      if (missing.some((m) => /^Flat/i.test(m))) parts.push('missing flats');
+      if (missing.some((m) => /^Bias/i.test(m))) parts.push('missing bias');
+      if (missing.some((m) => /^Dark/i.test(m))) parts.push('missing darks');
+      if (missing.some((m) => /^Light/i.test(m))) parts.push('missing lights');
+      const label = parts.length ? parts.join(', ') : 'incomplete';
+      return {
+        key: 'incomplete',
+        label,
+        rowClass: 'ingest-row-incomplete',
+        title: 'Shoot is in the log but calibration is incomplete — staging blocked. ' + missing.join(', '),
+        missing,
+      };
+    }
+    return {
+      key: 'match',
+      label: 'match',
+      rowClass: 'ingest-row-match',
+      title: 'Matches a pending shoot in the log for this night',
+    };
+  }
+  return {
+    key: 'inlog',
+    label: 'in log',
+    rowClass: 'ingest-row-other',
+    title: 'In the shoot log for this night, but not part of this ingest selection',
+  };
+}
+
+function ingestStatusColumnHtml(status) {
+  const s = status || { key: 'inlog', label: '—', title: '' };
+  const color = {
+    staged: 'var(--accent2,#60a5fa)',
+    match: 'var(--green)',
+    nolog: 'var(--red)',
+    incomplete: 'var(--red)',
+    inlog: 'var(--yellow)',
+  }[s.key] || 'var(--gray)';
+  return `<span style="color:${color};" title="${escapeAttr(s.title || s.label || '')}">${escapeHtml(s.label || '—')}</span>`;
 }
 
 function filterToneKey(name) {
@@ -5678,18 +6002,14 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   if (!sh.complete) return { ok: false, error: 'Shoot is not Captured' };
   if (!night) return { ok: false, error: 'Shoot needs a YYMMDD date' };
 
-  let sessionPath = opts.sessionPath;
-  if (!sessionPath) {
-    const disc = await window.zukoIngest.discover(project.projectDir);
-    if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
-      return { ok: false, error: (disc && disc.error) || 'No Autorun/Plan found' };
-    }
-    sessionPath = disc.sessions[0].path;
+  const disc = await window.zukoIngest.discover(project.projectDir);
+  if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
+    return { ok: false, error: (disc && disc.error) || 'No Autorun/Plan found' };
   }
 
   const targetHint = projectTargetHint(project);
   const scan = await window.zukoIngest.scanSession({
-    sessionPath,
+    projectDir: project.projectDir,
     nightDate: night,
     targetHint,
     shootFilter: ft ? ft.filter : null,
@@ -5707,11 +6027,10 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     ? darkInfo.useMasterDarks
     : !!opts.useMasterDarks;
   const shootFolder = buildShootCode(sh, ft);
-  const session = { path: sessionPath };
+  const session = { path: project.projectDir, paths: scan.sessionPaths || [] };
 
   const stageWork = () => window.zukoIngest.stage({
     projectDir: project.projectDir,
-    sessionPath,
     nightDate: night,
     shootFolder,
     shootFilter,
@@ -5753,7 +6072,117 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   };
 }
 
-let ingestBatch = null; // { mode:'multi', pi, queue:[si], filters:[], plannedByFilter:{}, night }
+let ingestBatch = null;
+// multi: {
+//   mode:'multi', pi,
+//   byNight: { [nightYmd]: { queue:[si], filters:[], plannedByFilter:{} } },
+//   nightOrder: [ymd...],
+//   night, queue, filters, plannedByFilter  // active night mirrors
+// }
+
+function formatNightTabLabel(ymd) {
+  const n = String(ymd || '');
+  if (n.length === 8) return n.slice(2); // YYMMDD
+  return n || '—';
+}
+
+function buildIngestNightEntry(project, items) {
+  const filters = [];
+  const plannedByFilter = {};
+  const queue = [];
+  for (const { sh, si } of items) {
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) continue;
+    queue.push(si);
+    if (!filters.includes(ft.filter)) filters.push(ft.filter);
+    plannedByFilter[ft.filter] = Number(sh.hours) || 0;
+  }
+  return { queue, filters, plannedByFilter };
+}
+
+function syncIngestBatchActiveNight(nightYmd) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  const entry = ingestBatch.byNight[nightYmd];
+  if (!entry) return;
+  ingestBatch.night = nightYmd;
+  ingestBatch.queue = entry.queue.slice();
+  ingestBatch.filters = entry.filters.slice();
+  ingestBatch.plannedByFilter = { ...entry.plannedByFilter };
+  if (entry.queue.length) ingestCtx.si = entry.queue[0];
+}
+
+function totalIngestBatchShoots() {
+  if (!ingestBatch || !ingestBatch.byNight) return (ingestBatch && ingestBatch.queue && ingestBatch.queue.length) || 0;
+  return Object.values(ingestBatch.byNight).reduce((n, e) => n + ((e.queue && e.queue.length) || 0), 0);
+}
+
+function renderIngestNightTabs() {
+  const tabs = document.getElementById('ingest-night-tabs');
+  if (!tabs) return;
+  if (!ingestBatch || ingestBatch.mode !== 'multi' || !ingestBatch.nightOrder || ingestBatch.nightOrder.length < 2) {
+    tabs.classList.remove('visible');
+    tabs.innerHTML = '';
+    return;
+  }
+  tabs.classList.add('visible');
+  tabs.innerHTML = ingestBatch.nightOrder.map((night) => {
+    const entry = ingestBatch.byNight[night] || { queue: [] };
+    const active = night === ingestBatch.night ? ' active' : '';
+    const count = (entry.queue || []).length;
+    return `<button type="button" role="tab" class="ingest-night-tab${active}" aria-selected="${active ? 'true' : 'false'}" onclick="selectIngestNightTab('${escapeAttr(night)}')">${escapeHtml(formatNightTabLabel(night))}<span class="tab-count">${count}</span></button>`;
+  }).join('');
+}
+
+function updateIngestMultiStageButtons(canStageDay, blockReason) {
+  const dayBtn = document.getElementById('ingest-stage-day-btn');
+  const allBtn = document.getElementById('ingest-stage-btn');
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  const dayN = (ingestBatch.queue || []).length;
+  const allN = totalIngestBatchShoots();
+  const multiNight = ingestBatch.nightOrder && ingestBatch.nightOrder.length > 1;
+  const reason = blockReason || 'Cannot stage — fix missing frames first';
+  if (dayBtn) {
+    dayBtn.style.display = multiNight ? '' : 'none';
+    dayBtn.disabled = !canStageDay || dayN === 0;
+    dayBtn.title = dayBtn.disabled ? reason : 'Stage pending shoots for this night';
+    dayBtn.textContent = `Stage day (${dayN})`;
+  }
+  if (allBtn) {
+    // For single-night multi, Stage all is the primary (same as day) — must be ready.
+    // For multi-night, Stage all stays available if any nights remain; per-shoot gate still applies.
+    if (multiNight) {
+      allBtn.disabled = allN === 0;
+      allBtn.title = allN === 0 ? 'Nothing left to stage' : 'Stage every remaining night (each shoot still requires Light/Flat/Bias/Dark)';
+      allBtn.textContent = `Stage all (${allN})`;
+    } else {
+      allBtn.disabled = !canStageDay || allN === 0;
+      allBtn.title = allBtn.disabled ? reason : 'Stage all pending shoots for this night';
+      allBtn.textContent = `Stage all (${allN})`;
+    }
+  }
+}
+
+async function selectIngestNightTab(nightYmd) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  if (!ingestBatch.byNight[nightYmd]) return;
+  if (ingestBatch.night === nightYmd && ingestCtx.scan) {
+    renderIngestNightTabs();
+    return;
+  }
+  syncIngestBatchActiveNight(nightYmd);
+  renderIngestNightTabs();
+  const project = data.projects[ingestBatch.pi];
+  const filterBits = (ingestBatch.filters || []).map((f) => filterLabelHtml(f)).join(' · ');
+  document.getElementById('ingest-sub').innerHTML =
+    `Night ${escapeHtml(formatNightTabLabel(nightYmd))} · ${ingestBatch.queue.length} shoot${ingestBatch.queue.length === 1 ? '' : 's'} · ${filterBits}` +
+    (ingestBatch.nightOrder.length > 1
+      ? ` · <span style="color:var(--gray);">${ingestBatch.nightOrder.length} nights</span>`
+      : '');
+  document.getElementById('ingest-progress').textContent = 'Scanning…';
+  document.getElementById('ingest-filter-body').innerHTML =
+    '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
+  await runIngestScan();
+}
 
 async function ingestAllCapturedShoots(pi) {
   if (!window.zukoIngest) {
@@ -5774,38 +6203,51 @@ async function ingestAllCapturedShoots(pi) {
     return;
   }
 
-  const nights = [...new Set(pending.map(({ sh }) => shootNightYmd(sh)).filter(Boolean))];
-  if (nights.length > 1) {
-    alert('Ingest all currently needs all pending shoots on the same night. Split by night or ingest individually.');
-    return;
+  const byNight = {};
+  const nightOrder = [];
+  for (const item of pending) {
+    const night = shootNightYmd(item.sh);
+    if (!night) continue;
+    if (!byNight[night]) {
+      byNight[night] = [];
+      nightOrder.push(night);
+    }
+    byNight[night].push(item);
   }
-  const night = nights[0] || shootNightYmd(pending[0].sh);
-  if (!night) {
+  nightOrder.sort();
+  if (!nightOrder.length) {
     alert('Pending shoots need YYMMDD dates.');
     return;
   }
 
-  const filters = [];
-  const plannedByFilter = {};
-  const queue = [];
-  for (const { sh, si } of pending) {
-    const ft = project.filterTargets[sh.filterIndex];
-    if (!ft || !ft.filter) continue;
-    queue.push(si);
-    if (!filters.includes(ft.filter)) filters.push(ft.filter);
-    plannedByFilter[ft.filter] = Number(sh.hours) || 0;
+  const built = {};
+  for (const night of nightOrder) {
+    const entry = buildIngestNightEntry(project, byNight[night]);
+    if (!entry.queue.length) continue;
+    built[night] = entry;
   }
-  if (!queue.length) {
+  const nights = Object.keys(built).sort();
+  if (!nights.length) {
     alert('Pending shoots need a filter target.');
     return;
   }
 
   openProjects.add(pi);
-  ingestBatch = { mode: 'multi', pi, queue, filters, plannedByFilter, night };
+  const active = nights[nights.length - 1]; // prefer most recent night
+  ingestBatch = {
+    mode: 'multi',
+    pi,
+    byNight: built,
+    nightOrder: nights,
+    night: active,
+    queue: built[active].queue.slice(),
+    filters: built[active].filters.slice(),
+    plannedByFilter: { ...built[active].plannedByFilter },
+  };
 
   ingestCtx = {
     pi,
-    si: queue[0],
+    si: ingestBatch.queue[0],
     scan: null,
     sessions: [],
     darkMatchesByFilter: {},
@@ -5817,28 +6259,28 @@ async function ingestAllCapturedShoots(pi) {
     _darksTouched: false,
   };
 
-  const filterBits = filters.map((f) => filterLabelHtml(f)).join(' · ');
+  const total = totalIngestBatchShoots();
   document.getElementById('ingest-title').textContent =
     `Ingest all — ${project.name || 'Project'}`;
-  document.getElementById('ingest-sub').innerHTML =
-    `Night ${escapeHtml(night)} · ${queue.length} shoot${queue.length === 1 ? '' : 's'} · ${filterBits}`;
   document.getElementById('ingest-project-path').textContent = project.projectDir;
   document.getElementById('ingest-session-path').textContent = '…';
   document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
-  document.getElementById('ingest-stage-btn').disabled = true;
-  document.getElementById('ingest-stage-btn').textContent =
-    `Stage all (${queue.length})`;
   document.getElementById('ingest-filter-body').innerHTML =
-    '<tr><td colspan="9" style="color:var(--gray);">Scanning all pending filters…</td></tr>';
+    '<tr><td colspan="10" style="color:var(--gray);">Scanning pending filters…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
   document.getElementById('ingest-confirm').innerHTML = '';
-  const wrap = document.getElementById('ingest-session-wrap');
-  if (wrap) wrap.style.display = 'none';
+
+  renderIngestNightTabs();
+  updateIngestMultiStageButtons(false);
+  const filterBits = (ingestBatch.filters || []).map((f) => filterLabelHtml(f)).join(' · ');
+  document.getElementById('ingest-sub').innerHTML =
+    `Night ${escapeHtml(formatNightTabLabel(active))} · ${ingestBatch.queue.length} shoot${ingestBatch.queue.length === 1 ? '' : 's'} · ${filterBits}` +
+    (nights.length > 1 ? ` · <span style="color:var(--gray);">${nights.length} nights · ${total} total</span>` : '');
+
   document.getElementById('ingest-overlay').classList.add('open');
 
   await ensureDarkLibraryIndexed({ quiet: true });
   const disc = await window.zukoIngest.discover(project.projectDir);
-  const sel = document.getElementById('ingest-session');
   if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
     document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under project directory';
     document.getElementById('ingest-progress').textContent =
@@ -5846,27 +6288,17 @@ async function ingestAllCapturedShoots(pi) {
     return;
   }
   ingestCtx.sessions = disc.sessions;
-  if (disc.sessions.length === 1) {
-    if (wrap) wrap.style.display = 'none';
-    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
-  } else {
-    if (wrap) wrap.style.display = 'block';
-    sel.innerHTML = disc.sessions.map((s, i) =>
-      `<option value="${i}">${escapeHtml(s.name)}</option>`).join('');
-    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
-  }
+  document.getElementById('ingest-session-path').textContent = formatIngestSourcesLabel(disc.sessions);
   await runIngestScan();
 }
 
-async function runIngestStageAll(force = false) {
-  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
-  const { pi, queue } = ingestBatch;
+async function stageIngestQueue(queue, force = false) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return { ok: [], fail: [] };
+  const { pi } = ingestBatch;
   const project = data.projects[pi];
-  const session = selectedIngestSession();
-  if (!session) return;
+  if (!project.projectDir) return { ok: [], fail: ['No project directory'] };
 
   const useDarks = !!(document.getElementById('ingest-use-darks') || {}).checked;
-  const darkMatchesByFilter = useDarks ? (ingestCtx.darkMatchesByFilter || {}) : {};
   const ok = [];
   const fail = [];
 
@@ -5878,24 +6310,98 @@ async function runIngestStageAll(force = false) {
     document.getElementById('ingest-progress').textContent =
       `Staging ${i + 1}/${queue.length} · ${code}`;
     const res = await ingestSingleShootProgrammatic(pi, si, {
-      sessionPath: session.path,
       useMasterDarks: useDarks,
       force: !!force,
       minBusyMs: i === 0 ? 1000 : 350,
       busyMessage: `Staging ${i + 1}/${queue.length}: ${code}`,
     });
-    // Prefer shared dark matches from the multi scan when staging via programmatic API
-    // (ingestSingleShootProgrammatic rematches; OK for correctness).
-    if (res.ok) ok.push(code);
+    if (res.ok) ok.push({ si, code });
     else if (res.code === 'DEST_EXISTS') fail.push(`${code} (already on disk)`);
     else fail.push(`${code}: ${res.error || 'failed'}`);
   }
+  return { ok, fail };
+}
 
-  // If programmatic path didn't use the UI darkMatches map, force rematch was fine.
-  // Re-apply dark matches for any that succeeded without master when checkbox on —
-  // already handled inside ingestSingleShootProgrammatic.
+function pruneIngestBatchAfterStage(stagedIndices) {
+  if (!ingestBatch || !ingestBatch.byNight) return;
+  const done = new Set(stagedIndices);
+  for (const night of Object.keys(ingestBatch.byNight)) {
+    const entry = ingestBatch.byNight[night];
+    entry.queue = entry.queue.filter((si) => !done.has(si));
+    // rebuild filters from remaining queue
+    const project = data.projects[ingestBatch.pi];
+    const rebuilt = buildIngestNightEntry(
+      project,
+      entry.queue.map((si) => ({ si, sh: project.shoots[si] })),
+    );
+    entry.filters = rebuilt.filters;
+    entry.plannedByFilter = rebuilt.plannedByFilter;
+    if (!entry.queue.length) delete ingestBatch.byNight[night];
+  }
+  ingestBatch.nightOrder = Object.keys(ingestBatch.byNight).sort();
+  if (!ingestBatch.nightOrder.length) {
+    ingestBatch.queue = [];
+    ingestBatch.filters = [];
+    ingestBatch.plannedByFilter = {};
+    return;
+  }
+  const next = ingestBatch.nightOrder.includes(ingestBatch.night)
+    ? ingestBatch.night
+    : ingestBatch.nightOrder[ingestBatch.nightOrder.length - 1];
+  syncIngestBatchActiveNight(next);
+}
 
-  recomputeProjectFilterHours(project);
+async function runIngestStageDay(force = false) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  const night = ingestBatch.night;
+  const queue = (ingestBatch.queue || []).slice();
+  if (!queue.length) return;
+
+  const { ok, fail } = await stageIngestQueue(queue, force);
+  recomputeProjectFilterHours(data.projects[ingestBatch.pi]);
+  save();
+  pruneIngestBatchAfterStage(ok.map((x) => x.si));
+
+  const okCodes = ok.map((x) => x.code);
+  document.getElementById('ingest-progress').textContent =
+    (okCodes.length ? `Staged ${okCodes.length} on ${formatNightTabLabel(night)}: ${okCodes.join(', ')}` : 'Nothing staged') +
+    (fail.length ? ` · issues: ${fail.join(' · ')}` : '');
+  document.getElementById('ingest-confirm').innerHTML = okCodes.length
+    ? `<div class="line"><span style="color:var(--green);">Day staged</span> — ${escapeHtml(formatNightTabLabel(night))} · ${okCodes.length}</div>` +
+      (fail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(fail.join(' · '))}</div>` : '')
+    : `<div class="line" style="color:var(--yellow);">Nothing staged${fail.length ? ' — ' + escapeHtml(fail.join(' · ')) : ''}</div>`;
+
+  if (!ingestBatch.nightOrder.length) {
+    setTimeout(() => closeIngestModal(), fail.length ? 2200 : 900);
+    return;
+  }
+  renderIngestNightTabs();
+  const filterBits = (ingestBatch.filters || []).map((f) => filterLabelHtml(f)).join(' · ');
+  document.getElementById('ingest-sub').innerHTML =
+    `Night ${escapeHtml(formatNightTabLabel(ingestBatch.night))} · ${ingestBatch.queue.length} remaining · ${filterBits}`;
+  await runIngestScan();
+}
+
+async function runIngestStageAll(force = false) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  const nights = (ingestBatch.nightOrder || [ingestBatch.night]).slice();
+  const allOk = [];
+  const allFail = [];
+
+  for (const night of nights) {
+    syncIngestBatchActiveNight(night);
+    renderIngestNightTabs();
+    const queue = (ingestBatch.byNight[night] && ingestBatch.byNight[night].queue.slice()) || [];
+    if (!queue.length) continue;
+    document.getElementById('ingest-progress').textContent =
+      `Staging night ${formatNightTabLabel(night)}…`;
+    const { ok, fail } = await stageIngestQueue(queue, force);
+    allOk.push(...ok.map((x) => x.code));
+    allFail.push(...fail);
+    pruneIngestBatchAfterStage(ok.map((x) => x.si));
+  }
+
+  recomputeProjectFilterHours(data.projects[ingestBatch.pi]);
   save();
   ingestBatch = null;
   const stageBtn = document.getElementById('ingest-stage-btn');
@@ -5903,14 +6409,19 @@ async function runIngestStageAll(force = false) {
     stageBtn.textContent = 'Stage for Siril';
     stageBtn.disabled = true;
   }
+  const dayBtn = document.getElementById('ingest-stage-day-btn');
+  if (dayBtn) {
+    dayBtn.style.display = 'none';
+    dayBtn.disabled = true;
+  }
   document.getElementById('ingest-progress').textContent =
-    (ok.length ? `Staged ${ok.length}: ${ok.join(', ')}` : 'Nothing staged') +
-    (fail.length ? ` · issues: ${fail.join(' · ')}` : '');
-  document.getElementById('ingest-confirm').innerHTML = ok.length
-    ? `<div class="line"><span style="color:var(--green);">Ingest all complete</span> — ${ok.length} staged</div>` +
-      (fail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(fail.join(' · '))}</div>` : '')
-    : `<div class="line" style="color:var(--yellow);">Nothing staged${fail.length ? ' — ' + escapeHtml(fail.join(' · ')) : ''}</div>`;
-  setTimeout(() => closeIngestModal(), fail.length ? 2200 : 900);
+    (allOk.length ? `Staged ${allOk.length}: ${allOk.join(', ')}` : 'Nothing staged') +
+    (allFail.length ? ` · issues: ${allFail.join(' · ')}` : '');
+  document.getElementById('ingest-confirm').innerHTML = allOk.length
+    ? `<div class="line"><span style="color:var(--green);">Ingest all complete</span> — ${allOk.length} staged</div>` +
+      (allFail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(allFail.join(' · '))}</div>` : '')
+    : `<div class="line" style="color:var(--yellow);">Nothing staged${allFail.length ? ' — ' + escapeHtml(allFail.join(' · ')) : ''}</div>`;
+  setTimeout(() => closeIngestModal(), allFail.length ? 2200 : 900);
 }
 
 async function runIngestStage(force = false) {
@@ -5924,8 +6435,7 @@ async function runIngestStage(force = false) {
   const project = data.projects[pi];
   const sh = project.shoots[si];
   const night = shootNightYmd(sh);
-  const session = selectedIngestSession();
-  if (!session || !night) return;
+  if (!project.projectDir || !night) return;
 
   const useDarks = !!(document.getElementById('ingest-use-darks') || {}).checked;
   document.getElementById('ingest-progress').textContent = 'Staging…';
@@ -5936,7 +6446,6 @@ async function runIngestStage(force = false) {
   const result = await withIngestBusy('Staging (copy lights/flats; calib copy + symlink biases/darks)…', () =>
     window.zukoIngest.stage({
       projectDir: project.projectDir,
-      sessionPath: session.path,
       nightDate: night,
       shootFolder,
       shootFilter: ft ? ft.filter : null,
@@ -5958,15 +6467,20 @@ async function runIngestStage(force = false) {
       document.getElementById('ingest-restage-path').textContent = root;
       document.getElementById('ingest-restage-overlay').classList.add('open');
       document.getElementById('ingest-progress').textContent = 'Staging blocked — folder already exists.';
-      document.getElementById('ingest-stage-btn').disabled = false;
+      applyIngestStageGate();
+      return;
+    }
+    if (result && result.code === 'MISSING_FRAMES') {
+      document.getElementById('ingest-progress').textContent = result.error || 'Missing required frames.';
+      applyIngestStageGate();
       return;
     }
     document.getElementById('ingest-progress').textContent = 'Stage failed: ' + ((result && result.error) || 'unknown');
-    document.getElementById('ingest-stage-btn').disabled = false;
+    applyIngestStageGate();
     return;
   }
 
-  applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft);
+  applyIngestStageResult(project, sh, { path: project.projectDir }, scan, result, shootFolder, ft);
   recomputeProjectFilterHours(project);
   save();
   const meta = result.meta || {};
