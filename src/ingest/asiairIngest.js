@@ -566,7 +566,8 @@ async function scanSession(opts = {}) {
     for (const fp of await walkFitFiles(frameDirs.bias)) {
       const parsed = await parseFitFile(fp, 'bias');
       parsed.type = 'darkflat';
-      if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
+      // Dark flats / biases are reusable calibration — do not gate on shoot night
+      // (ASIAIR often keeps a Bias library dated differently from the lights).
       biases.push(parsed);
     }
   }
@@ -704,6 +705,17 @@ function matchMasterDarks(opts = {}) {
     });
   }
   return { ok: true, matches, rejected, rejectedCount: rejected.length };
+}
+
+/** Prefer the dark *set* folder (e.g. Darks_180s_…), not filter letter children (H/O/S). */
+function masterDarkSourceSetDir(filePath) {
+  if (!filePath) return null;
+  let dir = path.dirname(path.resolve(filePath));
+  const leaf = path.basename(dir);
+  if (/^(H|Ha|O|OIII|S|SII|Hb|Hbeta|L|R|G|B)$/i.test(leaf)) {
+    dir = path.dirname(dir);
+  }
+  return dir;
 }
 
 async function ensureCopied(src, dest) {
@@ -923,7 +935,9 @@ async function stageSirilTree(opts = {}) {
 
   if (useMasterDarks) {
     for (const d of darkByName.values()) {
-      if (!masterDarkSourceDir && d.filePath) masterDarkSourceDir = path.dirname(d.filePath);
+      if (!masterDarkSourceDir && d.filePath) {
+        masterDarkSourceDir = masterDarkSourceSetDir(d.filePath);
+      }
       calibDarkFiles.push(d.filePath);
       copiedDarks.push({
         from: d.filePath,
@@ -1243,4 +1257,5 @@ module.exports = {
   indexDarkLibrary,
   matchMasterDarks,
   stageSirilTree,
+  masterDarkSourceSetDir,
 };

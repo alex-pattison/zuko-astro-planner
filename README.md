@@ -38,7 +38,7 @@ Each project needs a **Project directory** (edit project) that contains an ASIAI
 From a shoot’s **Ingest** button:
 
 1. Discovers `Autorun` / `Plan` under the project directory.
-2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`).
+2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`). Lights and flats are night-gated; session **Bias** (dark flats) and **Dark** frames are treated as reusable calibration and are not night-gated.
 3. Shows status chips for Light / Flat / Bias (dark flats) / session Dark, plus per-filter light/flat counts.
 4. Stages session **darks** into each channel (exp+gain+temp match; filter ignored). On Ingest open, matches the shoot’s exp/gain/temp against the **master dark library** (`H:\Photography\Astrophotography\Zuko\Dark Library`) and notes hits; optionally stages those library darks when the checkbox is on (symlinked from the master library — not copied into `_calibration`).
 5. **Stage for Siril** builds:

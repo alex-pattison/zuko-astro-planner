@@ -107,7 +107,7 @@
               "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260725_Ha_B9_Home"
             ],
             "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
             "calibReuse": {
               "nightDate": "20260725",
               "biasesPreexisting": 5,
@@ -150,7 +150,7 @@
               "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\OIII\\260725_OIII_B9_Home"
             ],
             "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
             "calibReuse": {
               "nightDate": "20260725",
               "biasesPreexisting": 5,
@@ -193,7 +193,7 @@
               "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\SII\\260725_SII_B5_Queechy"
             ],
             "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
             "calibReuse": {
               "nightDate": "20260725",
               "biasesPreexisting": 5,
