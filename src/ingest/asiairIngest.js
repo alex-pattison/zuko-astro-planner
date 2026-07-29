@@ -677,12 +677,13 @@ function matchMasterDarks(opts = {}) {
   const matches = [];
   const rejected = [];
   for (const d of index) {
-    const acquiredMs = d.acquiredAt ? Date.parse(d.acquiredAt + 'T12:00:00Z') : null;
-    const expired = acquiredMs != null ? (asOf - acquiredMs) > SIX_MONTHS_MS : false;
-    if (expired) {
-      rejected.push({ ...d, reason: 'expired (>6 months)' });
-      continue;
-    }
+    const acquiredMs = d.acquiredAt
+      ? Date.parse(d.acquiredAt + 'T12:00:00Z')
+      : (d.date && String(d.date).length >= 8
+        ? Date.parse(`${String(d.date).slice(0, 4)}-${String(d.date).slice(4, 6)}-${String(d.date).slice(6, 8)}T12:00:00Z`)
+        : null);
+    const ageMs = acquiredMs != null ? asOf - acquiredMs : null;
+    const expired = ageMs != null ? ageMs > SIX_MONTHS_MS : !!d.expired;
     if (exposureSec != null && !nearlyEqual(d.exposureSec, exposureSec, 0.05)) {
       rejected.push({ ...d, reason: 'exposure mismatch' });
       continue;
@@ -695,7 +696,12 @@ function matchMasterDarks(opts = {}) {
       rejected.push({ ...d, reason: 'temp out of ±3°C' });
       continue;
     }
-    matches.push(d);
+    // Age is flagged for UI (yellow/red) but never excludes a match.
+    matches.push({
+      ...d,
+      expired,
+      ageDays: ageMs != null ? Math.round(ageMs / 86400000) : (d.ageDays != null ? d.ageDays : null),
+    });
   }
   return { ok: true, matches, rejected, rejectedCount: rejected.length };
 }
@@ -707,23 +713,35 @@ async function ensureCopied(src, dest) {
   return { dest, action: 'copied' };
 }
 
-/** Prefer file symlink into an existing folder; fall back to hardlink, then copy. */
+/** Prefer file symlink; fall back to hardlink, then copy. Uses absolute targets across drives. */
 async function ensureLink(src, dest) {
   await fsp.mkdir(path.dirname(dest), { recursive: true });
   if (fs.existsSync(dest)) return { dest, action: 'skipped' };
 
+  const absSrc = path.resolve(src);
+  const absDest = path.resolve(dest);
+  const sameRoot = path.parse(absSrc).root.toLowerCase() === path.parse(absDest).root.toLowerCase();
+
+  if (sameRoot) {
+    try {
+      const rel = path.relative(path.dirname(absDest), absSrc);
+      await fsp.symlink(rel || absSrc, dest, 'file');
+      return { dest, action: 'symlink' };
+    } catch {
+      // fall through to absolute
+    }
+  }
   try {
-    const rel = path.relative(path.dirname(dest), src);
-    await fsp.symlink(rel || src, dest, 'file');
+    await fsp.symlink(absSrc, dest, 'file');
     return { dest, action: 'symlink' };
   } catch {
     // fall through
   }
   try {
-    await fsp.link(src, dest);
+    await fsp.link(absSrc, dest);
     return { dest, action: 'hardlink' };
   } catch {
-    await fsp.copyFile(src, dest);
+    await fsp.copyFile(absSrc, dest);
     return { dest, action: 'copy' };
   }
 }
@@ -841,7 +859,7 @@ async function stageSirilTree(opts = {}) {
   const biasLibDir = path.join(projectDir, '_calibration', 'darkflats', nightDate);
   const darkLibDir = path.join(projectDir, '_calibration', 'darks', nightDate);
   await fsp.mkdir(biasLibDir, { recursive: true });
-  await fsp.mkdir(darkLibDir, { recursive: true });
+  if (!useMasterDarks) await fsp.mkdir(darkLibDir, { recursive: true });
 
   // Reuse any calibration already on disk for this night (other filters / prior stages).
   let preexistingBiasCount = 0;
@@ -849,9 +867,11 @@ async function stageSirilTree(opts = {}) {
   try {
     preexistingBiasCount = (await fsp.readdir(biasLibDir)).filter((n) => FIT_EXT.test(n)).length;
   } catch { /* ignore */ }
-  try {
-    preexistingDarkCount = (await fsp.readdir(darkLibDir)).filter((n) => FIT_EXT.test(n)).length;
-  } catch { /* ignore */ }
+  if (!useMasterDarks) {
+    try {
+      preexistingDarkCount = (await fsp.readdir(darkLibDir)).filter((n) => FIT_EXT.test(n)).length;
+    } catch { /* ignore */ }
+  }
 
   const staged = [];
   const errors = [];
@@ -868,14 +888,16 @@ async function stageSirilTree(opts = {}) {
     }
   }
 
-  // Collect unique darks, copy into calibration.
+  // Collect unique darks.
+  // Master library: symlink straight into each channel's darks/ (no _calibration copy).
+  // Session darks: copy into _calibration/darks/<night>/, then symlink into channels.
   const darkByName = new Map();
   if (useMasterDarks) {
     for (const filter of filters) {
       const matches = darkMatchesByFilter[filter] || darkMatchesByFilter['*'] || [];
       for (const d of matches) {
         const name = path.basename(d.filePath || d.fileName || '');
-        if (name && !darkByName.has(name)) darkByName.set(name, d);
+        if (name && d.filePath && !darkByName.has(name)) darkByName.set(name, d);
       }
     }
   } else if (sessionDarkIndex.length) {
@@ -896,18 +918,42 @@ async function stageSirilTree(opts = {}) {
   }
 
   const copiedDarks = [];
-  for (const d of darkByName.values()) {
-    const dest = path.join(darkLibDir, path.basename(d.filePath || d.fileName));
-    try {
-      const result = await ensureCopied(d.filePath, dest);
+  let masterDarkSourceDir = null;
+  let calibDarkFiles = [];
+
+  if (useMasterDarks) {
+    for (const d of darkByName.values()) {
+      if (!masterDarkSourceDir && d.filePath) masterDarkSourceDir = path.dirname(d.filePath);
+      calibDarkFiles.push(d.filePath);
       copiedDarks.push({
         from: d.filePath,
-        to: dest,
-        action: result.action,
-        source: useMasterDarks ? 'master' : 'session',
+        to: d.filePath,
+        action: 'link-source',
+        source: 'master',
       });
-    } catch (err) {
-      errors.push({ file: d.filePath, error: String(err.message || err) });
+    }
+  } else {
+    await fsp.mkdir(darkLibDir, { recursive: true });
+    for (const d of darkByName.values()) {
+      const dest = path.join(darkLibDir, path.basename(d.filePath || d.fileName));
+      try {
+        const result = await ensureCopied(d.filePath, dest);
+        copiedDarks.push({
+          from: d.filePath,
+          to: dest,
+          action: result.action,
+          source: 'session',
+        });
+      } catch (err) {
+        errors.push({ file: d.filePath, error: String(err.message || err) });
+      }
+    }
+    try {
+      calibDarkFiles = (await fsp.readdir(darkLibDir))
+        .filter((n) => FIT_EXT.test(n))
+        .map((n) => path.join(darkLibDir, n));
+    } catch {
+      calibDarkFiles = [];
     }
   }
 
@@ -918,15 +964,6 @@ async function stageSirilTree(opts = {}) {
       .map((n) => path.join(biasLibDir, n));
   } catch {
     calibBiasFiles = [];
-  }
-
-  let calibDarkFiles = [];
-  try {
-    calibDarkFiles = (await fsp.readdir(darkLibDir))
-      .filter((n) => FIT_EXT.test(n))
-      .map((n) => path.join(darkLibDir, n));
-  } catch {
-    calibDarkFiles = [];
   }
 
   for (const filter of filters) {
@@ -998,7 +1035,8 @@ async function stageSirilTree(opts = {}) {
       filters,
       destRoots: filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder)),
       biasLibrary: biasLibDir,
-      darkLibrary: darkLibDir,
+      darkLibrary: useMasterDarks ? (masterDarkSourceDir || darkLibDir) : darkLibDir,
+      darkSource: useMasterDarks ? 'master-symlink' : 'session-calibration',
       calibReuse: {
         nightDate,
         biasesPreexisting: preexistingBiasCount,

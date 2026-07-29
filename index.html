@@ -483,6 +483,14 @@
     word-break: break-all;
     max-width: 420px;
   }
+  tr.ingest-files-flt.flt-ha td.filter-cell { color: #f87171; font-weight: 600; }
+  tr.ingest-files-flt.flt-oiii td.filter-cell { color: #67e8f9; font-weight: 600; }
+  tr.ingest-files-flt.flt-sii td.filter-cell { color: #fde68a; font-weight: 600; }
+  tr.ingest-files-flt.flt-r td.filter-cell { color: #fca5a5; font-weight: 600; }
+  tr.ingest-files-flt.flt-g td.filter-cell { color: #86efac; font-weight: 600; }
+  tr.ingest-files-flt.flt-b td.filter-cell { color: #93c5fd; font-weight: 600; }
+  tr.ingest-files-flt.flt-l td.filter-cell { color: #e2e8f0; font-weight: 600; }
+  tr.ingest-files-flt.flt-hb td.filter-cell { color: #818cf8; font-weight: 600; }
   .ingest-files-actions {
     display: flex;
     justify-content: flex-end;
@@ -521,6 +529,68 @@
   .shoot-integ-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
   tr.ingest-row-other { opacity: 0.55; }
   tr.ingest-row-other td:last-child { color: var(--yellow); }
+  tr.ingest-row-match.flt-ha td:first-child { color: #f87171; font-weight: 600; }
+  tr.ingest-row-match.flt-oiii td:first-child { color: #67e8f9; font-weight: 600; }
+  tr.ingest-row-match.flt-sii td:first-child { color: #fde68a; font-weight: 600; }
+  tr.ingest-row-match.flt-rgb td:first-child,
+  tr.ingest-row-match.flt-r td:first-child { color: #fca5a5; font-weight: 600; }
+  tr.ingest-row-match.flt-g td:first-child { color: #86efac; font-weight: 600; }
+  tr.ingest-row-match.flt-b td:first-child { color: #93c5fd; font-weight: 600; }
+  tr.ingest-row-match.flt-l td:first-child { color: #e2e8f0; font-weight: 600; }
+  tr.ingest-row-match {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  .ingest-flt-swatch {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: 0.05em;
+  }
+  .ingest-meta-card {
+    margin: 8px 0 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg3);
+    display: grid;
+    gap: 6px;
+  }
+  .ingest-meta-row {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 12px;
+  }
+  .ingest-meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ingest-meta-val { color: var(--text2); }
+  .ingest-meta-val.ok { color: var(--green); }
+  .ingest-meta-val.warn { color: var(--yellow); }
+  .ingest-meta-val.mono {
+    font-family: var(--mono);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ingest-confirm-block {
+    font-size: 12px;
+    color: var(--text2);
+    margin: 0 0 8px;
+    line-height: 1.45;
+  }
+  .ingest-confirm-block .line { margin: 0 0 2px; }
+  .ingest-chip .flt-ha { color: #f87171; }
+  .ingest-chip .flt-oiii { color: #67e8f9; }
+  .ingest-chip .flt-sii { color: #fde68a; }
   tr.ingest-dark-reject {
     background: color-mix(in srgb, var(--yellow) 14%, transparent);
   }
@@ -1762,6 +1832,14 @@
   .proj-step-remove { background: none; border: none; color: var(--gray); font-size: 11px; cursor: pointer; padding: 2px 6px; }
   .proj-step-remove:hover { color: var(--red); }
 
+  .shoot-log-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .shoot-log-actions .mini-btn { margin-top: 0; }
   .mini-btn {
     font-family: var(--mono); font-size: 9px;
     background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.35);
@@ -2372,7 +2450,6 @@
       <h2>Calibration — Dark Library</h2>
       <div class="section-line"></div>
     </summary>
-    <div class="info-banner" style="margin-bottom:12px;">Master darks are shared across projects and filters. Matching requires same exposure + gain and temp within ±3°C; sets older than 6 months are marked expired.</div>
     <div class="darklib-path-row">
       <input id="darklib-path" type="text" placeholder="H:\Photography\Astrophotography\Zuko\Dark Library"
         style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;">
@@ -2382,8 +2459,8 @@
     <div id="darklib-status" class="ingest-status-line" style="margin-bottom:8px;">Not indexed yet.</div>
     <div class="table-scroll">
       <table class="ingest-table" id="darklib-table">
-        <thead><tr><th>File</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Date</th><th>Age</th></tr></thead>
-        <tbody id="darklib-tbody"><tr><td colspan="7" style="color:var(--gray);">Index the library to list darks.</td></tr></tbody>
+        <thead><tr><th>Folder</th><th>Files</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Age</th></tr></thead>
+        <tbody id="darklib-tbody"><tr><td colspan="7" style="color:var(--gray);">Index the library to list dark sets.</td></tr></tbody>
       </table>
     </div>
   </details>
@@ -2534,17 +2611,16 @@
       <select id="ingest-session" onchange="onIngestSessionChange()" style="width:100%;margin-top:4px;"></select>
     </div>
     <div class="ingest-chips" id="ingest-chips"></div>
-    <div id="ingest-confirm" style="font-size:12px;color:var(--text2);margin-bottom:8px;"></div>
+    <div id="ingest-confirm" class="ingest-confirm-block"></div>
     <div class="table-scroll">
       <table class="ingest-table">
         <thead><tr><th>Filter</th><th>Lights</th><th>Flats</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Actual</th><th>Target</th><th>Shoot?</th></tr></thead>
         <tbody id="ingest-filter-body"><tr><td colspan="9" style="color:var(--gray);">Scanning…</td></tr></tbody>
       </table>
     </div>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:8px 0;">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0 8px;">
       <input type="checkbox" id="ingest-use-darks" onchange="onIngestUseDarksChange()"> Use matching master darks when staging
     </label>
-    <div id="ingest-dark-summary" class="ingest-status-line"></div>
     <div class="ingest-busy" id="ingest-busy" aria-live="polite">
       <div class="ingest-busy-row">
         <div class="ingest-busy-spinner" aria-hidden="true"></div>
@@ -3441,9 +3517,15 @@ async function refreshHeaderSky() {
   }
 }
 
-function save() {
+function save(opts) {
   persistData();
+  if (opts && opts.render === false) return;
   render();
+}
+
+/** Persist without rebuilding the DOM (keeps Aladin / open UI intact). */
+function saveQuiet() {
+  save({ render: false });
 }
 
 // ============ FILE SYNC ============
@@ -3768,9 +3850,52 @@ function renderUnsafe() {
 let openProjects = new Set();
 let modalProjectIndex = null;
 
+function detachLiveFramers() {
+  const bag = {};
+  Object.keys(framerInstances).forEach((key) => {
+    const pi = Number(key);
+    if (!framerInstances[pi]) return;
+    // Preserve the whole Target Framer <details> so Aladin is never reparented alone
+    // (reparenting the canvas triggers its "Searching…" / survey link status flash).
+    const details = document.getElementById(`framer-details-${pi}`);
+    if (!details) return;
+    bag[pi] = details;
+    details.remove();
+  });
+  return bag;
+}
+
+function restoreLiveFramers(bag) {
+  Object.keys(bag).forEach((key) => {
+    const pi = Number(key);
+    const live = bag[pi];
+    const slot = document.getElementById(`framer-slot-${pi}`);
+    const p = data.projects[pi];
+    if (slot && live && p && p.savedTarget && openProjects.has(pi)) {
+      slot.replaceWith(live);
+      live.id = `framer-details-${pi}`;
+      // Keep open/closed in sync without firing a real user toggle side-effect.
+      if (closedFramers.has(pi)) live.removeAttribute('open');
+      else live.setAttribute('open', '');
+      // Refresh lock overlay / button labels from current state.
+      const overlay = document.getElementById(`framer-lock-overlay-${pi}`);
+      const btn = document.getElementById(`framer-lock-btn-${pi}`);
+      if (overlay) overlay.style.display = unlockedFramers.has(pi) ? 'none' : 'flex';
+      if (btn) btn.textContent = unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked';
+    } else {
+      delete framerInstances[pi];
+    }
+  });
+}
+
+function clearAllFramerInstances() {
+  Object.keys(framerInstances).forEach((k) => { delete framerInstances[k]; });
+}
+
 function renderProjects() {
   const el = document.getElementById('projects-container');
   if (!data.projects || !data.projects.length) {
+    clearAllFramerInstances();
     el.innerHTML = '<div style="color:var(--gray);font-size:12px;">No tracked projects yet — add one to start logging sessions.</div>';
     return;
   }
@@ -3792,6 +3917,9 @@ function renderProjects() {
       if (sh.ingestMeta === undefined) sh.ingestMeta = null;
     });
   });
+  // Keep live Aladin canvases across the projects rebuild — full re-init is expensive and jarring.
+  window._suppressFramerToggle = true;
+  const liveFramers = detachLiveFramers();
   el.innerHTML = data.projects.map((p, pi) => {
     const totalTarget = p.filterTargets.reduce((s,f) => s + f.targetHrs, 0);
     const totalLogged = p.filterTargets.reduce((s,f) => s + f.loggedHrs, 0);
@@ -3835,8 +3963,11 @@ function renderProjects() {
           <div class="gaia-note">Resolves a name to coordinates via public astronomy catalogs (CDS Sesame, then MAST as a fallback). Setting a target replaces this with the Target Framer.</div>
         </div>` : ''}
 
-        ${p.savedTarget ? `
-        <details class="sub-details" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
+        ${p.savedTarget ? (
+          liveFramers[pi]
+            ? `<div id="framer-slot-${pi}"></div>`
+            : `<div id="framer-slot-${pi}">
+        <details class="sub-details" id="framer-details-${pi}" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
           <summary><span class="sec-chevron">▶</span> 🎯 Target Framer — ${p.savedTarget.name}</summary>
           <div style="padding: 4px 16px 16px;">
             <div class="gaia-inputs" style="align-items:center;">
@@ -3859,7 +3990,9 @@ function renderProjects() {
               </div>
             </div>
           </div>
-        </details>` : ''}
+        </details>
+        </div>`
+        ) : ''}
 
         <div class="shoot-box">
           <div class="pm-label">✅ Steps</div>
@@ -3969,7 +4102,15 @@ function renderProjects() {
             </tbody>
           </table>
           </div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No shoots planned yet.</div>'}
-          <button class="mini-btn" onclick="addShoot(${pi})">+ Plan Shoot</button>
+          <div class="shoot-log-actions">
+            <button class="mini-btn" onclick="addShoot(${pi})">+ Plan Shoot</button>
+            ${(() => {
+              const pending = (p.shoots || []).filter(isShootNeedingIngest).length;
+              return pending
+                ? `<button class="mini-btn ingest-btn" onclick="ingestAllCapturedShoots(${pi})" title="Open ingest for all Captured shoots that are not already staged">Ingest all (${pending})</button>`
+                : `<button class="mini-btn ingest-btn locked" disabled title="No Captured shoots waiting for ingest">Ingest all</button>`;
+            })()}
+          </div>
         </div>
 
         <div class="shoot-box">
@@ -3997,10 +4138,14 @@ function renderProjects() {
       </div>
     </div>`;
   }).join('');
-  // Init framers for open project cards (Aladin needs the div in the DOM)
+  restoreLiveFramers(liveFramers);
+  setTimeout(() => { window._suppressFramerToggle = false; }, 0);
+  // Init framers only when missing — never tear down a preserved viewer on routine saves.
   setTimeout(() => {
     data.projects.forEach((p, pi) => {
-      if (openProjects.has(pi) && p.savedTarget && !closedFramers.has(pi)) initFramer(pi);
+      if (!openProjects.has(pi) || !p.savedTarget || closedFramers.has(pi)) return;
+      if (framerInstances[pi]) return;
+      initFramer(pi);
     });
   }, 50);
 }
@@ -4105,12 +4250,20 @@ function drawFramerFootprint(pi) {
 }
 
 function onFramerToggle(pi, isOpen) {
+  // Ignore synthetic toggle events from project re-renders / restore.
+  if (window._suppressFramerToggle) {
+    if (isOpen) closedFramers.delete(pi);
+    else closedFramers.add(pi);
+    return;
+  }
   if (isOpen) {
     closedFramers.delete(pi);
-    setTimeout(() => initFramer(pi), 50);
+    setTimeout(() => {
+      if (framerInstances[pi]) return;
+      initFramer(pi);
+    }, 50);
   } else {
     closedFramers.add(pi);
-    delete framerInstances[pi];
   }
 }
 
@@ -4184,13 +4337,23 @@ function ensureAladinLoaded() {
 function initFramer(pi) {
   const p = data.projects[pi];
   const el = document.getElementById(`aladin-framer-${pi}`);
-  if (!el || !p.savedTarget) return;
+  if (!el || !p || !p.savedTarget) return;
+  // Reuse a live viewer instead of wiping the canvas on every save/render.
+  if (framerInstances[pi] && framerInstances[pi].aladin && el.childNodes.length) {
+    try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+    return;
+  }
   delete framerInstances[pi];
   el.innerHTML = '<div style="padding:20px;color:var(--gray);font-size:12px;">Loading sky viewer…</div>';
 
   ensureAladinLoaded().then(() => {
     const host = document.getElementById(`aladin-framer-${pi}`);
     if (!host) return;
+    // Another render may have restored a live viewer while we were loading.
+    if (framerInstances[pi] && framerInstances[pi].aladin && host.childNodes.length && !host.textContent.includes('Loading sky')) {
+      try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+      return;
+    }
     host.innerHTML = '';
     const rot = p.framerRotation || 0;
     const aladin = A.aladin(`#aladin-framer-${pi}`, {
@@ -4282,7 +4445,15 @@ function toggleProjectCard(headerEl, pi) {
   card.classList.toggle('open');
   if (card.classList.contains('open')) {
     openProjects.add(pi);
-    if (data.projects[pi] && data.projects[pi].savedTarget && !closedFramers.has(pi)) setTimeout(() => initFramer(pi), 50);
+    if (data.projects[pi] && data.projects[pi].savedTarget && !closedFramers.has(pi)) {
+      setTimeout(() => {
+        if (framerInstances[pi]) {
+          try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+          return;
+        }
+        initFramer(pi);
+      }, 50);
+    }
   } else {
     openProjects.delete(pi);
   }
@@ -4296,7 +4467,10 @@ function updateProjectStatus(pi, status) {
 function removeProject(pi) {
   if (confirm('Remove project "' + data.projects[pi].name + '"?')) {
     data.projects.splice(pi, 1);
-    openProjects.delete(pi);
+    openProjects.clear();
+    closedFramers.clear();
+    unlockedFramers.clear();
+    clearAllFramerInstances();
     save();
   }
 }
@@ -4449,6 +4623,44 @@ function ensureDarkLibrary() {
   }
 }
 
+function formatDarkLibraryAge(d) {
+  if (d == null) return '—';
+  const days = d.ageDays != null ? Number(d.ageDays) : null;
+  if (d.expired || (days != null && days >= 183)) {
+    const label = days != null ? days + 'd' : '6mo+';
+    return `<span style="color:var(--red);" title="6+ months — flagged (still usable)">${escapeHtml(label)}</span>`;
+  }
+  if (days != null && days >= 152) {
+    return `<span style="color:var(--yellow);" title="5+ months — consider refreshing this dark set">${days}d</span>`;
+  }
+  if (days != null) return days + 'd';
+  return '—';
+}
+
+function statisticalMode(values) {
+  const counts = new Map();
+  for (const raw of values || []) {
+    if (raw == null || raw === '') continue;
+    if (typeof raw === 'number' && Number.isNaN(raw)) continue;
+    const key = typeof raw === 'number' ? String(raw) : String(raw);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  let bestKey = null;
+  let bestN = -1;
+  for (const [k, n] of counts) {
+    if (n > bestN) {
+      bestKey = k;
+      bestN = n;
+    }
+  }
+  if (bestKey == null) return null;
+  if (/^-?\d+(\.\d+)?$/.test(bestKey)) {
+    const num = Number(bestKey);
+    return Number.isInteger(num) && !bestKey.includes('.') ? num : num;
+  }
+  return bestKey;
+}
+
 function renderDarkLibraryPanel() {
   ensureDarkLibrary();
   const pathEl = document.getElementById('darklib-path');
@@ -4456,14 +4668,17 @@ function renderDarkLibraryPanel() {
   const tbody = document.getElementById('darklib-tbody');
   if (pathEl) pathEl.value = data.darkLibrary.path || '';
   const idx = data.darkLibrary.index || [];
+  const folders = groupMasterDarkFolders(idx, data.darkLibrary.path);
   if (statusEl) {
     statusEl.textContent = data.darkLibrary.indexedAt
-      ? `Indexed ${idx.length} darks · ${data.darkLibrary.indexedAt}`
-      : (idx.length ? `${idx.length} darks cached` : 'Not indexed yet — click Re-index (or open Ingest to auto-index).');
+      ? `Indexed ${idx.length} darks in ${folders.length} set${folders.length === 1 ? '' : 's'} · ${data.darkLibrary.indexedAt}`
+      : (idx.length
+        ? `${idx.length} darks in ${folders.length} set${folders.length === 1 ? '' : 's'} cached`
+        : 'Not indexed yet — click Re-index (or open Ingest to auto-index).');
   }
   if (!tbody) return;
   if (!idx.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--gray);">Index the library to list darks.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--gray);">Index the library to list dark sets.</td></tr>';
     // Kick off a quiet index once Electron is ready so Calibration fills itself.
     if (window.zukoIngest && data.darkLibrary.path && !renderDarkLibraryPanel._indexing) {
       renderDarkLibraryPanel._indexing = true;
@@ -4473,16 +4688,16 @@ function renderDarkLibraryPanel() {
     }
     return;
   }
-  tbody.innerHTML = idx.slice(0, 80).map((d) => `
-    <tr style="${d.expired ? 'opacity:0.55;' : ''}">
-      <td class="mono" style="font-size:11px;" title="${escapeAttr(d.filePath)}">${escapeHtml(d.fileName || '')}</td>
-      <td>${d.exposureSec != null ? d.exposureSec + 's' : '—'}</td>
-      <td>${d.gain != null ? d.gain : '—'}</td>
-      <td>${d.tempC != null ? d.tempC + '°C' : '—'}</td>
-      <td>${d.bin != null ? d.bin : '—'}</td>
-      <td>${d.date || '—'}</td>
-      <td>${d.expired ? '<span style="color:var(--red);">expired</span>' : (d.ageDays != null ? d.ageDays + 'd' : '—')}</td>
-    </tr>`).join('') + (idx.length > 80 ? `<tr><td colspan="7" style="color:var(--gray);">…and ${idx.length - 80} more</td></tr>` : '');
+  tbody.innerHTML = folders.map((f) => `
+    <tr>
+      <td class="mono path-cell" style="font-size:11px;cursor:pointer;" title="${escapeAttr(f.folder)} — click to copy" data-path="${escapeAttr(f.folder)}" onclick="copyIngestFilePath(this)">${escapeHtml(f.name)}</td>
+      <td class="mono">${f.count}</td>
+      <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
+      <td>${f.gain != null ? f.gain : '—'}</td>
+      <td>${f.tempC != null ? f.tempC + '°C' : '—'}</td>
+      <td>${f.bin != null ? f.bin : '—'}</td>
+      <td>${formatDarkLibraryAge(f)}</td>
+    </tr>`).join('');
 }
 
 async function browseDarkLibraryPath() {
@@ -4596,6 +4811,9 @@ function closeIngestModal() {
   closeIngestFilesPopup();
   closeIngestRestagePopup();
   setIngestBusy(false);
+  ingestBatch = null;
+  const stageBtn = document.getElementById('ingest-stage-btn');
+  if (stageBtn) stageBtn.textContent = 'Stage for Siril';
   const el = document.getElementById('ingest-overlay');
   if (el) el.classList.remove('open');
   ingestCtx = { pi: null, si: null, scan: null, sessions: [], darkMatchesByFilter: {} };
@@ -4674,34 +4892,84 @@ function openIngestFilesPopup(kind) {
       ? `${rejected.length} highlighted frame(s) are out of exp/gain/temp range and will be skipped when staging.`
       : 'All session darks match light exp/gain/temp (±3°C).';
   } else if (kind === 'master-darks') {
-    title = 'Master dark library (matched)';
-    frames = (ingestCtx.masterDarkMatches || []).map((d) => ({ ...d, excluded: false }));
+    title = 'Master dark library (matched sets)';
+    const libPath = (data.darkLibrary && data.darkLibrary.path) || '';
+    const folders = ingestCtx.masterDarkFolders
+      || groupMasterDarkFolders(ingestCtx.masterDarkMatches || [], libPath);
     const profile = ingestCtx.masterDarkProfile;
     sub = profile
-      ? `Matched ${frames.length} library dark(s) for ${profile} (exp + gain + temp ±3°C; filter ignored).`
-      : 'Matched frames from the master dark library.';
+      ? `Matched ${folders.length} set folder(s) for ${profile} (mode metadata; age flagged only).`
+      : 'Matched set folders from the master dark library.';
+    document.getElementById('ingest-files-title').textContent =
+      title + ' — ' + folders.length + ' folder' + (folders.length === 1 ? '' : 's');
+    document.getElementById('ingest-files-sub').textContent =
+      folders.length ? sub : 'No matching master dark sets.';
+    const body = document.getElementById('ingest-files-body');
+    const head = document.querySelector('#ingest-files-overlay thead tr');
+    if (head) {
+      head.innerHTML = '<th>#</th><th>Folder</th><th>Files</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Age</th>';
+    }
+    if (!folders.length) {
+      body.innerHTML = '<tr><td colspan="8" style="color:var(--gray);padding:14px;">None found.</td></tr>';
+    } else {
+      body.innerHTML = folders.map((f, i) => `
+        <tr>
+          <td class="mono">${i + 1}</td>
+          <td class="path-cell mono" style="cursor:pointer;" title="Copy folder path" data-path="${escapeAttr(f.folder)}" onclick="copyIngestFilePath(this)">${escapeHtml(f.name)}</td>
+          <td class="mono">${f.count}</td>
+          <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
+          <td>${f.gain != null ? f.gain : '—'}</td>
+          <td>${f.tempC != null ? f.tempC + '°C' : '—'}</td>
+          <td>${f.bin != null ? f.bin : '—'}</td>
+          <td>${formatDarkLibraryAge(f)}</td>
+        </tr>`).join('');
+    }
+    document.getElementById('ingest-files-overlay').classList.add('open');
+    return;
   } else if (kind === 'lights') {
-    title = 'Lights' + (shootFilter ? ' · shoot ' + shootFilter : '');
+    title = 'Lights' + (ingestCtx.multiFilters
+      ? ' · ' + ingestCtx.multiFilters.join(', ')
+      : (shootFilter ? ' · shoot ' + shootFilter : ''));
+    const allow = ingestCtx.multiFilters
+      ? new Set(ingestCtx.multiFilters)
+      : null;
     frames = (scan.lights || []).map((f) => ({
       ...f,
-      excluded: !!(shootFilter && f.filter && f.filter !== shootFilter),
-      reason: (shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : '',
+      excluded: allow
+        ? !allow.has(f.filter)
+        : !!(shootFilter && f.filter && f.filter !== shootFilter),
+      reason: allow
+        ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
+        : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : ''),
     }));
     showReason = frames.some((f) => f.excluded);
-    sub = shootFilter
-      ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
-      : 'Folder path copies to clipboard when clicked.';
+    sub = allow
+      ? `Pending ingest filters highlighted; others dimmed.`
+      : (shootFilter
+        ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
+        : 'Folder path copies to clipboard when clicked.');
   } else if (kind === 'flats') {
-    title = 'Flats' + (shootFilter ? ' · shoot ' + shootFilter : '');
+    title = 'Flats' + (ingestCtx.multiFilters
+      ? ' · ' + ingestCtx.multiFilters.join(', ')
+      : (shootFilter ? ' · shoot ' + shootFilter : ''));
+    const allow = ingestCtx.multiFilters
+      ? new Set(ingestCtx.multiFilters)
+      : null;
     frames = (scan.flats || []).map((f) => ({
       ...f,
-      excluded: !!(shootFilter && f.filter && f.filter !== shootFilter),
-      reason: (shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : '',
+      excluded: allow
+        ? !allow.has(f.filter)
+        : !!(shootFilter && f.filter && f.filter !== shootFilter),
+      reason: allow
+        ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
+        : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : ''),
     }));
     showReason = frames.some((f) => f.excluded);
-    sub = shootFilter
-      ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
-      : 'Folder path copies to clipboard when clicked.';
+    sub = allow
+      ? `Pending ingest filters highlighted; others dimmed.`
+      : (shootFilter
+        ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
+        : 'Folder path copies to clipboard when clicked.');
   } else if (kind === 'biases') {
     title = 'Bias (dark flats)';
     frames = (scan.biases || []).slice();
@@ -4728,16 +4996,24 @@ function openIngestFilesPopup(kind) {
   if (!frames.length) {
     body.innerHTML = `<tr><td colspan="${showReason ? 10 : 9}" style="color:var(--gray);padding:14px;">None found.</td></tr>`;
   } else {
+    const colorFilters = (kind === 'lights' || kind === 'flats');
     body.innerHTML = frames.map((f, i) => {
       const name = f.fileName || (f.filePath ? String(f.filePath).split(/[/\\]/).pop() : '—');
       const folder = ingestFrameFolder(f.filePath);
       const date = [f.date, f.time].filter(Boolean).join(' ') || (f.night ? 'night ' + f.night : '—');
-      const rowCls = f.excluded ? 'ingest-dark-reject' : '';
+      const tone = colorFilters ? filterToneKey(f.filter) : '';
+      const rowCls = [
+        f.excluded ? 'ingest-dark-reject' : '',
+        colorFilters && !f.excluded ? `ingest-files-flt flt-${tone}` : '',
+      ].filter(Boolean).join(' ');
+      const filterCell = colorFilters
+        ? `<td class="filter-cell">${filterLabelHtml(f.filter)}</td>`
+        : `<td>${escapeHtml(f.filter || '—')}</td>`;
       return `<tr class="${rowCls}">
         <td class="mono">${i + 1}</td>
         <td title="${escapeAttr(f.filePath || '')}">${escapeHtml(name)}</td>
         <td class="path-cell" style="cursor:pointer;" title="Copy full path" data-path="${escapeAttr(f.filePath || '')}" onclick="copyIngestFilePath(this)">${escapeHtml(folder)}</td>
-        <td>${escapeHtml(f.filter || '—')}</td>
+        ${filterCell}
         <td>${escapeHtml(f.target || '—')}</td>
         <td class="mono">${escapeHtml(date)}</td>
         <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
@@ -4772,9 +5048,14 @@ async function openIngestModal(pi, si) {
     editProjectMeta(pi);
     return;
   }
-  ingestCtx = { pi, si, scan: null, sessions: [], darkMatchesByFilter: {}, darkMatched: [], darkRejected: [], masterDarkMatches: [], masterDarkProfile: '', _chipBase: null, _darksTouched: false };
+  ingestBatch = null; // single-shoot mode
+  ingestCtx = { pi, si, scan: null, sessions: [], darkMatchesByFilter: {}, darkMatched: [], darkRejected: [], masterDarkMatches: [], masterDarkProfile: '', _chipBase: null, _darksTouched: false, multiFilters: null };
   const ft = project.filterTargets[sh.filterIndex];
   const night = shootNightYmd(sh);
+  if (!ingestBatch) {
+    const stageBtn = document.getElementById('ingest-stage-btn');
+    if (stageBtn) stageBtn.textContent = 'Stage for Siril';
+  }
   document.getElementById('ingest-title').textContent = 'ASIAIR Ingest — ' + (project.name || 'Project');
   document.getElementById('ingest-sub').textContent =
     `Night ${night || '(set shoot date)'} · shoot filter ${ft ? ft.filter : '—'} · folder ${buildShootCode(sh, ft)}`;
@@ -4785,7 +5066,6 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-filter-body').innerHTML = '<tr><td colspan="9" style="color:var(--gray);">Scanning…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
   document.getElementById('ingest-confirm').textContent = '';
-  document.getElementById('ingest-dark-summary').textContent = 'Checking master dark library…';
   const useEl = document.getElementById('ingest-use-darks');
   // Leave checkbox as-is if user toggled before; default on when we find matches later.
   if (useEl && !ingestCtx._darksTouched) useEl.checked = true;
@@ -4839,7 +5119,8 @@ async function runIngestScan(opts = {}) {
   const project = data.projects[pi];
   const sh = project.shoots[si];
   const ft = project.filterTargets[sh.filterIndex];
-  const night = shootNightYmd(sh);
+  const multi = !!(ingestBatch && ingestBatch.mode === 'multi' && ingestBatch.pi === pi);
+  const night = multi ? (ingestBatch.night || shootNightYmd(sh)) : shootNightYmd(sh);
   if (!night) {
     document.getElementById('ingest-progress').textContent = 'Shoot needs a YYMMDD / YYYYMMDD date.';
     return;
@@ -4851,16 +5132,13 @@ async function runIngestScan(opts = {}) {
   }
   document.getElementById('ingest-session-path').textContent = session.path;
   document.getElementById('ingest-progress').textContent = 'Scanning…';
-  const targetHint = [
-    project.target,
-    project.savedTarget && project.savedTarget.name,
-    project.name,
-  ].filter(Boolean).join(' · ');
+  const targetHint = projectTargetHint(project);
   const doScan = () => window.zukoIngest.scanSession({
     sessionPath: session.path,
     nightDate: night,
     targetHint,
-    shootFilter: ft ? ft.filter : null,
+    // Ingest-all scans the whole night so every pending filter shows up.
+    shootFilter: multi ? null : (ft ? ft.filter : null),
   });
   const scan = await doScan();
   if (!scan || !scan.ok) {
@@ -4869,14 +5147,22 @@ async function runIngestScan(opts = {}) {
     return;
   }
   ingestCtx.scan = scan;
+  const pendingSet = multi ? new Set(ingestBatch.filters || []) : null;
   const shootFilter = ft ? ft.filter : null;
-  const lightsForShoot = (scan.lights || []).filter((f) => !shootFilter || f.filter === shootFilter);
-  const flatsForShoot = (scan.flats || []).filter((f) => !shootFilter || f.filter === shootFilter);
+  const lightsForShoot = (scan.lights || []).filter((f) =>
+    multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
+  );
+  const flatsForShoot = (scan.flats || []).filter((f) =>
+    multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
+  );
   const biases = scan.biases || [];
   const sessionDarks = scan.darks || [];
 
-  // Match session darks to this shoot's light params; flag temp/etc rejects.
-  const lightRowAll = (scan.filters || []).find((r) => shootFilter && r.filter === shootFilter);
+  // Match session darks to light params (first pending / shoot filter).
+  const focusFilter = multi
+    ? ((ingestBatch.filters || [])[0] || null)
+    : shootFilter;
+  const lightRowAll = (scan.filters || []).find((r) => focusFilter && r.filter === focusFilter);
   const darkIndex = sessionDarks.map((d) => ({
     ...d,
     acquiredAt: d.date
@@ -4900,6 +5186,12 @@ async function runIngestScan(opts = {}) {
   ingestCtx.darkMatched = darkMatched;
   ingestCtx.darkRejected = darkRejected;
 
+  const lightBreakdown = multi
+    ? (ingestBatch.filters || []).map((f) => {
+      const n = (scan.lights || []).filter((x) => x.filter === f).length;
+      return `<span class="flt-${filterToneKey(f)}">${escapeHtml(f)} ${n}</span>`;
+    }).join(' · ')
+    : '';
   const chip = (kind, label, tone, count, title) =>
     `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('${kind}')" title="${escapeAttr(title || ('Show ' + label + ' files'))}">${escapeHtml(label)}: ${count}</button>`;
   const darkTone = darkRejected.length ? 'warn' : (darkMatched.length ? 'ok' : 'warn');
@@ -4912,30 +5204,46 @@ async function runIngestScan(opts = {}) {
     : 'Show session darks';
 
   ingestCtx._chipBase = [
-    chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'warn', lightsForShoot.length, 'Show lights (shoot filter first; others marked)'),
-    chip('flats', 'Flat', flatsForShoot.length ? 'ok' : 'warn', flatsForShoot.length, 'Show flats (shoot filter first; others marked)'),
+    chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'warn', lightsForShoot.length,
+      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : 'Show lights (shoot filter first; others marked)'),
+    chip('flats', 'Flat', flatsForShoot.length ? 'ok' : 'warn', flatsForShoot.length,
+      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : 'Show flats (shoot filter first; others marked)'),
     chip('biases', 'Bias (dark flats)', biases.length ? 'ok' : 'warn', biases.length),
     chip('darks', darkLabel, darkTone, darkCount, darkTitle),
   ];
-  document.getElementById('ingest-chips').innerHTML = ingestCtx._chipBase.join('');
+  document.getElementById('ingest-chips').innerHTML = ingestCtx._chipBase.join('') +
+    (multi && lightBreakdown ? `<span class="ingest-status-line" style="margin-left:4px;">${lightBreakdown}</span>` : '');
+
+  // Keep filter selection for file popup highlighting
+  ingestCtx.multiFilters = multi ? (ingestBatch.filters || []) : null;
 
   const shootFilterName = shootFilter;
   const plannedHrs = Number(sh.hours) || 0;
+  const pendingFilters = ingestBatch && ingestBatch.mode === 'multi'
+    ? new Set(ingestBatch.filters || [])
+    : null;
   const rows = scan.filters || [];
   document.getElementById('ingest-filter-body').innerHTML = rows.length ? rows.map((r) => {
-    const isMatch = !!(shootFilterName && r.filter === shootFilterName);
+    const isMatch = pendingFilters
+      ? pendingFilters.has(r.filter)
+      : !!(shootFilterName && r.filter === shootFilterName);
     const lightsN = r.lights || 0;
+    const targetHrs = pendingFilters
+      ? (ingestBatch.plannedByFilter && ingestBatch.plannedByFilter[r.filter]) || null
+      : (isMatch ? plannedHrs : null);
     const integ = formatShootIntegration(
       lightsN > 0 ? lightsN : null,
       r.exposureSec,
-      isMatch ? plannedHrs : null
+      targetHrs
     );
     const targetCell = isMatch
       ? integ.targetHtml
       : '<span class="shoot-integ-val na">—</span>';
+    const tone = filterToneKey(r.filter);
+    const rowCls = isMatch ? `ingest-row-match flt-${tone}` : 'ingest-row-other';
     return `
-    <tr class="${isMatch ? '' : 'ingest-row-other'}">
-      <td>${escapeHtml(r.filter)}</td>
+    <tr class="${rowCls}">
+      <td>${filterLabelHtml(r.filter)}</td>
       <td>${lightsN}</td>
       <td>${r.flats || 0}</td>
       <td>${r.exposureSec != null ? r.exposureSec + 's' : '—'}</td>
@@ -4948,28 +5256,43 @@ async function runIngestScan(opts = {}) {
   }).join('') : '<tr><td colspan="9" style="color:var(--yellow);">No lights matched this night/target.</td></tr>';
 
   const matchRow = shootFilterName ? rows.find((r) => r.filter === shootFilterName) : null;
-  const rejectNote = darkRejected.length
-    ? ` · <span style="color:var(--yellow);">${darkRejected.length} dark(s) excluded (temp/exp/gain)</span>`
-    : '';
-  let integNote = '';
-  if (matchRow && matchRow.lights && matchRow.exposureSec != null) {
+  const matchedRows = pendingFilters
+    ? rows.filter((r) => pendingFilters.has(r.filter) && r.lights)
+    : (matchRow && matchRow.lights ? [matchRow] : []);
+  const totalLights = matchedRows.reduce((s, r) => s + (r.lights || 0), 0);
+
+  const confirmEl = document.getElementById('ingest-confirm');
+  if (ingestBatch && ingestBatch.mode === 'multi') {
+    const names = (ingestBatch.filters || []).map((f) => filterLabelHtml(f)).join(' · ');
+    confirmEl.innerHTML = matchedRows.length
+      ? `<div class="line">Ingest all · <strong>${matchedRows.length}</strong> filter${matchedRows.length === 1 ? '' : 's'} · ${totalLights} lights · night ${escapeHtml(night)}</div>
+         <div class="line">${names}</div>`
+      : `<div class="line" style="color:var(--yellow);">No lights found for pending shoot filters on night ${escapeHtml(night)}.</div>`;
+  } else if (matchRow && matchRow.lights) {
     const integ = formatShootIntegration(matchRow.lights, matchRow.exposureSec, plannedHrs);
     const actualStr = integ.actualHrs != null
       ? (integ.actualHrs < 10 ? integ.actualHrs.toFixed(2) : integ.actualHrs.toFixed(1))
       : '—';
-    integNote = ` · actual ${actualStr}h (${matchRow.lights}×${matchRow.exposureSec}s) vs target ${plannedHrs || '—'}h`;
-    if (plannedHrs && integ.actualHtml.includes('over')) integNote += ' <span style="color:var(--red);">over</span>';
-    else if (plannedHrs && integ.actualHtml.includes('under')) integNote += ' <span style="color:var(--yellow);">under</span>';
-    else if (plannedHrs && integ.actualHrs != null) integNote += ' <span style="color:var(--green);">OK</span>';
+    confirmEl.innerHTML =
+      `<div class="line">Shoot ${filterLabelHtml(shootFilterName)} · ${matchRow.lights} lights · night ${escapeHtml(night)}</div>` +
+      `<div class="line">Actual ${escapeHtml(actualStr)}h (${matchRow.lights}×${matchRow.exposureSec}s)` +
+      (plannedHrs ? ` · target ${plannedHrs}h` : '') +
+      (darkRejected.length ? ` · <span style="color:var(--yellow);">${darkRejected.length} session dark(s) excluded</span>` : '') +
+      `</div>`;
+  } else {
+    confirmEl.innerHTML =
+      `<div class="line" style="color:var(--yellow);">Shoot filter <strong>${escapeHtml(shootFilterName || '—')}</strong> not found in lights for this night.</div>`;
   }
-  document.getElementById('ingest-confirm').innerHTML = matchRow && matchRow.lights
-    ? `Shoot log OK for <strong>${escapeHtml(shootFilterName)}</strong>: ${matchRow.lights} lights for night ${night}${integNote}. Targets: ${(scan.targets || []).map(escapeHtml).join(', ') || '—'}${rejectNote}`
-    : `Shoot filter <strong>${escapeHtml(shootFilterName || '—')}</strong> not found in lights for this night — check date / target / headers.`;
 
-  document.getElementById('ingest-stage-btn').disabled = !(lightsForShoot.length > 0);
-  document.getElementById('ingest-progress').textContent =
-    `Scan complete · ${shootFilterName || '—'} · ${lightsForShoot.length} lights` +
-    (darkRejected.length ? ` · ${darkRejected.length} darks excluded` : '');
+  const canStage = ingestBatch && ingestBatch.mode === 'multi'
+    ? matchedRows.length > 0
+    : !!(lightsForShoot.length > 0);
+  document.getElementById('ingest-stage-btn').disabled = !canStage;
+  document.getElementById('ingest-progress').textContent = canStage
+    ? (ingestBatch && ingestBatch.mode === 'multi'
+      ? `Ready · ${matchedRows.length} filter${matchedRows.length === 1 ? '' : 's'} · ${totalLights} lights`
+      : `Ready · ${shootFilterName || '—'} · ${lightsForShoot.length} lights`)
+    : 'Waiting for matching lights…';
   await refreshIngestDarkMatches();
 }
 
@@ -4977,7 +5300,6 @@ async function refreshIngestDarkMatches() {
   ingestCtx.darkMatchesByFilter = {};
   ingestCtx.masterDarkMatches = [];
   ingestCtx.masterDarkProfile = '';
-  const summary = document.getElementById('ingest-dark-summary');
   const use = document.getElementById('ingest-use-darks');
   const chipsEl = document.getElementById('ingest-chips');
 
@@ -4986,7 +5308,6 @@ async function refreshIngestDarkMatches() {
 
   const scan = ingestCtx.scan;
   if (!scan || !scan.filters) {
-    if (summary) summary.textContent = '';
     return;
   }
 
@@ -4994,15 +5315,15 @@ async function refreshIngestDarkMatches() {
   const project = pi != null ? data.projects[pi] : null;
   const sh = project && si != null ? project.shoots[si] : null;
   const ft = project && sh ? project.filterTargets[sh.filterIndex] : null;
-  const shootFilterName = ft ? ft.filter : null;
-  const shootRow = shootFilterName
-    ? (scan.filters || []).find((r) => r.filter === shootFilterName && r.lights)
-    : (scan.filters || []).find((r) => r.lights);
+  const pendingFilters = ingestBatch && ingestBatch.mode === 'multi'
+    ? (ingestBatch.filters || [])
+    : null;
+  const focusFilters = pendingFilters && pendingFilters.length
+    ? pendingFilters
+    : (ft && ft.filter ? [ft.filter] : []);
 
+  const libPath = data.darkLibrary.path || '';
   if (!data.darkLibrary.index || !data.darkLibrary.index.length) {
-    if (summary) {
-      summary.innerHTML = `Master dark library: <span style="color:var(--yellow);">not indexed</span> — set path under Calibration and Re-index.`;
-    }
     if (chipsEl && ingestCtx._chipBase) {
       chipsEl.innerHTML = ingestCtx._chipBase.join('') +
         `<button type="button" class="ingest-chip warn" disabled title="Index the dark library first">Master darks: —</button>`;
@@ -5010,9 +5331,7 @@ async function refreshIngestDarkMatches() {
     return;
   }
 
-  // Match by exposure/gain/temp only — filter is ignored; reuse across channels.
   const byProfile = new Map();
-  const lines = [];
   for (const row of scan.filters) {
     if (!row.lights) continue;
     const key = [row.exposureSec, row.gain, row.tempC].join('|');
@@ -5026,61 +5345,66 @@ async function refreshIngestDarkMatches() {
       });
       matches = (res && res.matches) || [];
       byProfile.set(key, matches);
-      const exp = row.exposureSec != null ? row.exposureSec + 's' : '?s';
-      const gain = row.gain != null ? 'g' + row.gain : 'g?';
-      const temp = row.tempC != null ? row.tempC + '°C' : '?°C';
-      const tone = matches.length ? 'ok' : 'miss';
-      lines.push({ text: `${exp} · ${gain} · ${temp} → ${matches.length} darks`, tone, count: matches.length });
     }
     ingestCtx.darkMatchesByFilter[row.filter] = matches;
   }
   const first = [...byProfile.values()][0];
   if (first) ingestCtx.darkMatchesByFilter['*'] = first;
 
-  // Prefer the shoot filter's profile for the summary chip.
-  const shootKey = shootRow
-    ? [shootRow.exposureSec, shootRow.gain, shootRow.tempC].join('|')
-    : null;
-  const shootMatches = shootKey ? (byProfile.get(shootKey) || []) : (first || []);
-  ingestCtx.masterDarkMatches = shootMatches;
-  if (shootRow) {
-    const exp = shootRow.exposureSec != null ? shootRow.exposureSec + 's' : '?s';
-    const gain = shootRow.gain != null ? 'g' + shootRow.gain : 'g?';
-    const temp = shootRow.tempC != null ? shootRow.tempC + '°C' : '?°C';
-    ingestCtx.masterDarkProfile = `${exp} · ${gain} · ${temp}`;
+  // Aggregate across pending shoot filters (ingest all) or the single shoot filter.
+  let matchCount = 0;
+  const profiles = [];
+  const seenProfile = new Set();
+  let allMatches = [];
+  for (const fname of focusFilters) {
+    const row = (scan.filters || []).find((r) => r.filter === fname && r.lights);
+    if (!row) continue;
+    const key = [row.exposureSec, row.gain, row.tempC].join('|');
+    const matches = byProfile.get(key) || [];
+    if (matches.length > matchCount) matchCount = matches.length;
+    allMatches = allMatches.concat(matches);
+    if (!seenProfile.has(key)) {
+      seenProfile.add(key);
+      const exp = row.exposureSec != null ? row.exposureSec + 's' : '?s';
+      const gain = row.gain != null ? 'g' + row.gain : 'g?';
+      const temp = row.tempC != null ? row.tempC + '°C' : '?°C';
+      profiles.push(`${exp} · ${gain} · ${temp}`);
+    }
   }
+  if (!focusFilters.length && first) {
+    matchCount = first.length;
+    allMatches = first.slice();
+  }
+  // De-dupe by file path (multi-filter same profile).
+  const seenFile = new Set();
+  allMatches = allMatches.filter((d) => {
+    const k = d.filePath || d.fileName;
+    if (!k || seenFile.has(k)) return false;
+    seenFile.add(k);
+    return true;
+  });
+  ingestCtx.masterDarkMatches = allMatches;
+  ingestCtx.masterDarkFolders = groupMasterDarkFolders(allMatches, libPath);
+  ingestCtx.masterDarkProfile = profiles.join(' · ') || '';
+  matchCount = allMatches.length;
 
-  const matchCount = shootMatches.length;
-  const useChecked = !!(use && use.checked);
   if (use && !ingestCtx._darksTouched) {
     use.checked = matchCount > 0;
   }
-
-  if (summary) {
-    const libNote = `${(data.darkLibrary.index || []).length} indexed · ${shortPath(data.darkLibrary.path || '')}`;
-    if (!lines.length) {
-      summary.textContent = `Master darks — no light channels to match · ${libNote}`;
-    } else if (matchCount > 0) {
-      summary.innerHTML =
-        `Master darks for this shoot: <span style="color:var(--green);">${matchCount} match</span>` +
-        (ingestCtx.masterDarkProfile ? ` · ${escapeHtml(ingestCtx.masterDarkProfile)}` : '') +
-        (useChecked || (use && use.checked) ? ' · will stage from library' : ' · enable checkbox to stage them') +
-        ` · ${escapeHtml(libNote)}`;
-    } else {
-      summary.innerHTML =
-        `Master darks for this shoot: <span style="color:var(--yellow);">no match</span>` +
-        (ingestCtx.masterDarkProfile ? ` · need ${escapeHtml(ingestCtx.masterDarkProfile)}` : '') +
-        ` · ${escapeHtml(libNote)}`;
-    }
-  }
+  const folders = ingestCtx.masterDarkFolders || [];
 
   if (chipsEl && ingestCtx._chipBase) {
-    const tone = matchCount > 0 ? 'ok' : 'warn';
-    const title = matchCount > 0
-      ? `Open ${matchCount} matching master darks (${ingestCtx.masterDarkProfile || 'exp/gain/temp'})`
-      : `No master darks match this shoot (${ingestCtx.masterDarkProfile || 'exp/gain/temp'})`;
+    const tone = folders.length ? 'ok' : 'warn';
+    const label = folders.length
+      ? (folders.length === 1
+        ? `${folders[0].name} (${folders[0].count})`
+        : `${folders.length} folders · ${matchCount}`)
+      : 'none';
+    const title = folders.length
+      ? folders.map((f) => `${f.name}: ${f.count} files`).join('\n')
+      : `No master dark folder matches (${ingestCtx.masterDarkProfile || 'exp/gain/temp'})`;
     chipsEl.innerHTML = ingestCtx._chipBase.join('') +
-      `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('master-darks')" title="${escapeAttr(title)}">Master darks: ${matchCount}</button>`;
+      `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('master-darks')" title="${escapeAttr(title)}">Master: ${escapeHtml(label)}</button>`;
   }
 }
 
@@ -5089,7 +5413,440 @@ function onIngestUseDarksChange() {
   refreshIngestDarkMatches();
 }
 
+function isShootIngested(sh) {
+  return !!(sh && sh.ingestPath && sh.ingestMeta && sh.ingestMeta.stagedAt);
+}
+
+function isShootNeedingIngest(sh) {
+  return !!(sh && sh.complete && !isShootIngested(sh));
+}
+
+function filterToneKey(name) {
+  const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (n === 'ha' || n === 'h' || n === 'halpha' || n === 'hα') return 'ha';
+  if (n === 'oiii' || n === 'o3' || n === 'o' || n === 'oiii') return 'oiii';
+  if (n === 'sii' || n === 's2' || n === 's') return 'sii';
+  if (n === 'hb' || n === 'hbeta') return 'hb';
+  if (n === 'l' || n === 'lum' || n === 'luminance') return 'l';
+  if (n === 'r' || n === 'red') return 'r';
+  if (n === 'g' || n === 'green') return 'g';
+  if (n === 'b' || n === 'blue') return 'b';
+  if (n === 'rgb') return 'rgb';
+  return 'other';
+}
+
+function filterToneColor(name) {
+  const map = {
+    ha: '#f87171', oiii: '#67e8f9', sii: '#fde68a', hb: '#818cf8',
+    l: '#e2e8f0', r: '#fca5a5', g: '#86efac', b: '#93c5fd', rgb: '#fca5a5', other: '#94a3b8',
+  };
+  return map[filterToneKey(name)] || map.other;
+}
+
+function filterSwatchHtml(name) {
+  return `<span class="ingest-flt-swatch" style="background:${filterToneColor(name)};"></span>`;
+}
+
+function filterLabelHtml(name) {
+  const key = filterToneKey(name);
+  return `${filterSwatchHtml(name)}<span class="flt-${key}">${escapeHtml(name || '—')}</span>`;
+}
+
+function masterDarkSetFolder(filePath, libraryRoot) {
+  if (!filePath) return null;
+  const norm = String(filePath).replace(/\//g, '\\');
+  const root = String(libraryRoot || '').replace(/\//g, '\\').replace(/\\+$/, '');
+  if (!root) {
+    const i = norm.lastIndexOf('\\');
+    return i > 0 ? norm.slice(0, i) : norm;
+  }
+  const rootLower = root.toLowerCase();
+  let dir = norm;
+  const slash = dir.lastIndexOf('\\');
+  if (slash > 0) dir = dir.slice(0, slash);
+  for (let n = 0; n < 8; n++) {
+    const parentSlash = dir.lastIndexOf('\\');
+    if (parentSlash <= 0) break;
+    const parent = dir.slice(0, parentSlash);
+    if (parent.toLowerCase() === rootLower) return dir;
+    if (dir.toLowerCase() === rootLower) return dir;
+    dir = parent;
+  }
+  const i = norm.lastIndexOf('\\');
+  return i > 0 ? norm.slice(0, i) : norm;
+}
+
+function groupMasterDarkFolders(matches, libraryRoot) {
+  const map = new Map();
+  for (const d of matches || []) {
+    const folder = masterDarkSetFolder(d.filePath, libraryRoot);
+    if (!folder) continue;
+    let row = map.get(folder);
+    if (!row) {
+      const name = folder.split(/[/\\]/).pop() || folder;
+      row = {
+        folder,
+        name,
+        count: 0,
+        files: [],
+      };
+      map.set(folder, row);
+    }
+    row.count += 1;
+    row.files.push(d);
+  }
+  for (const row of map.values()) {
+    const files = row.files;
+    row.exposureSec = statisticalMode(files.map((d) => d.exposureSec));
+    row.gain = statisticalMode(files.map((d) => d.gain));
+    // Round temp to 1 decimal before mode so tiny sensor outliers don't split the vote.
+    row.tempC = statisticalMode(files.map((d) => (d.tempC == null ? null : Math.round(Number(d.tempC) * 10) / 10)));
+    row.bin = statisticalMode(files.map((d) => d.bin));
+    row.date = statisticalMode(files.map((d) => d.date));
+    row.acquiredAt = statisticalMode(files.map((d) => d.acquiredAt));
+    row.ageDays = statisticalMode(files.map((d) => d.ageDays));
+    if (row.ageDays == null && row.acquiredAt) {
+      const ms = Date.parse(row.acquiredAt + 'T12:00:00Z');
+      if (!Number.isNaN(ms)) row.ageDays = Math.round((Date.now() - ms) / 86400000);
+    } else if (row.ageDays == null && row.date && /^\d{8}$/.test(String(row.date))) {
+      const s = String(row.date);
+      const ms = Date.parse(`${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}T12:00:00Z`);
+      if (!Number.isNaN(ms)) row.ageDays = Math.round((Date.now() - ms) / 86400000);
+    }
+    row.expired = row.ageDays != null ? row.ageDays >= 183 : files.some((d) => d.expired);
+  }
+  return [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+function projectTargetHint(project) {
+  return [
+    project && project.target,
+    project && project.savedTarget && project.savedTarget.name,
+    project && project.name,
+  ].filter(Boolean).join(' · ');
+}
+
+function applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft) {
+  const meta = (result && result.meta) || {};
+  const lightRow = (scan.filters || []).find((r) => ft && r.filter === ft.filter);
+  sh.sourcePath = session.path;
+  sh.ingestPath = (meta.destRoots && meta.destRoots[0]) || project.projectDir;
+  sh.ingestMeta = {
+    nightDate: meta.nightDate,
+    shootFolder: meta.shootFolder || shootFolder,
+    filters: meta.filters,
+    destRoots: meta.destRoots,
+    biasLibrary: meta.biasLibrary,
+    darkLibrary: meta.darkLibrary,
+    calibReuse: meta.calibReuse || null,
+    filesStaged: meta.filesStaged,
+    filesSkipped: meta.filesSkipped,
+    biasesMoved: meta.biasesMoved,
+    byType: meta.byType,
+    lightCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
+    frameCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
+    exposureSec: (lightRow && lightRow.exposureSec != null)
+      ? lightRow.exposureSec
+      : (scan.summary && scan.summary.exposureSec),
+    gain: (lightRow && lightRow.gain != null) ? lightRow.gain : (scan.summary && scan.summary.gain),
+    tempC: (lightRow && lightRow.tempC != null) ? lightRow.tempC : (scan.summary && scan.summary.tempC),
+    stagedAt: meta.stagedAt,
+  };
+  if ((!sh.hours || sh.hours === 0) && lightRow && lightRow.lights && lightRow.exposureSec) {
+    sh.hours = Math.round((lightRow.lights * lightRow.exposureSec / 3600) * 100) / 100;
+  }
+  if (project.status === 'planning') project.status = 'active';
+  if (!project.processStatus || project.processStatus === 'none') project.processStatus = 'ingested';
+}
+
+async function buildMasterDarkMatchesForScan(scan, shootFilterName) {
+  const darkMatchesByFilter = {};
+  ensureDarkLibrary();
+  await ensureDarkLibraryIndexed({ quiet: true });
+  if (!data.darkLibrary.index || !data.darkLibrary.index.length || !scan || !scan.filters) {
+    return { darkMatchesByFilter, matchCount: 0, useMasterDarks: false };
+  }
+  const byProfile = new Map();
+  for (const row of scan.filters) {
+    if (!row.lights) continue;
+    const key = [row.exposureSec, row.gain, row.tempC].join('|');
+    let matches = byProfile.get(key);
+    if (!matches) {
+      const res = await window.zukoIngest.matchDarks({
+        index: data.darkLibrary.index,
+        exposureSec: row.exposureSec,
+        gain: row.gain,
+        tempC: row.tempC,
+      });
+      matches = (res && res.matches) || [];
+      byProfile.set(key, matches);
+    }
+    darkMatchesByFilter[row.filter] = matches;
+  }
+  const first = [...byProfile.values()][0];
+  if (first) darkMatchesByFilter['*'] = first;
+  const shootRow = shootFilterName
+    ? (scan.filters || []).find((r) => r.filter === shootFilterName && r.lights)
+    : (scan.filters || []).find((r) => r.lights);
+  const shootKey = shootRow ? [shootRow.exposureSec, shootRow.gain, shootRow.tempC].join('|') : null;
+  const matchCount = shootKey ? ((byProfile.get(shootKey) || []).length) : ((first || []).length);
+  return { darkMatchesByFilter, matchCount, useMasterDarks: matchCount > 0 };
+}
+
+/**
+ * Stage one shoot without needing the modal pre-scanned.
+ * opts: { force, sessionPath, useMasterDarks (bool|null=auto), minBusyMs, progressEl }
+ */
+async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  const ft = project.filterTargets[sh.filterIndex];
+  const night = shootNightYmd(sh);
+  if (!project.projectDir) return { ok: false, error: 'Project directory not set' };
+  if (!sh.complete) return { ok: false, error: 'Shoot is not Captured' };
+  if (!night) return { ok: false, error: 'Shoot needs a YYMMDD date' };
+
+  let sessionPath = opts.sessionPath;
+  if (!sessionPath) {
+    const disc = await window.zukoIngest.discover(project.projectDir);
+    if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
+      return { ok: false, error: (disc && disc.error) || 'No Autorun/Plan found' };
+    }
+    sessionPath = disc.sessions[0].path;
+  }
+
+  const targetHint = projectTargetHint(project);
+  const scan = await window.zukoIngest.scanSession({
+    sessionPath,
+    nightDate: night,
+    targetHint,
+    shootFilter: ft ? ft.filter : null,
+  });
+  if (!scan || !scan.ok) return { ok: false, error: (scan && scan.error) || 'Scan failed', scan };
+
+  const shootFilter = ft ? ft.filter : null;
+  const lightsForShoot = (scan.lights || []).filter((f) => !shootFilter || f.filter === shootFilter);
+  if (!lightsForShoot.length) {
+    return { ok: false, error: `No lights for filter ${shootFilter || '—'}`, scan };
+  }
+
+  const darkInfo = await buildMasterDarkMatchesForScan(scan, shootFilter);
+  const useMasterDarks = opts.useMasterDarks == null
+    ? darkInfo.useMasterDarks
+    : !!opts.useMasterDarks;
+  const shootFolder = buildShootCode(sh, ft);
+  const session = { path: sessionPath };
+
+  const stageWork = () => window.zukoIngest.stage({
+    projectDir: project.projectDir,
+    sessionPath,
+    nightDate: night,
+    shootFolder,
+    shootFilter,
+    force: !!opts.force,
+    targetHint,
+    useMasterDarks,
+    darkMatchesByFilter: useMasterDarks ? darkInfo.darkMatchesByFilter : {},
+  });
+
+  const minBusyMs = opts.minBusyMs == null ? 800 : opts.minBusyMs;
+  const result = opts.skipBusy
+    ? await stageWork()
+    : await withIngestBusy(
+      opts.busyMessage || (`Staging ${shootFolder}…`),
+      stageWork,
+      { minMs: minBusyMs }
+    );
+
+  if (!result || !result.ok) {
+    return {
+      ok: false,
+      code: result && result.code,
+      error: (result && result.error) || 'Stage failed',
+      result,
+      scan,
+      shootFolder,
+      codeName: shootFolder,
+    };
+  }
+
+  applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft);
+  return {
+    ok: true,
+    result,
+    scan,
+    shootFolder,
+    codeName: shootFolder,
+    masterDarks: useMasterDarks ? darkInfo.matchCount : 0,
+  };
+}
+
+let ingestBatch = null; // { mode:'multi', pi, queue:[si], filters:[], plannedByFilter:{}, night }
+
+async function ingestAllCapturedShoots(pi) {
+  if (!window.zukoIngest) {
+    alert('ASIAIR ingest needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  if (!project.projectDir) {
+    alert('Set a Project directory first (edit project → Project directory).');
+    editProjectMeta(pi);
+    return;
+  }
+  const pending = (project.shoots || [])
+    .map((sh, si) => ({ sh, si }))
+    .filter(({ sh }) => isShootNeedingIngest(sh));
+  if (!pending.length) {
+    alert('No Captured shoots waiting for ingest.');
+    return;
+  }
+
+  const nights = [...new Set(pending.map(({ sh }) => shootNightYmd(sh)).filter(Boolean))];
+  if (nights.length > 1) {
+    alert('Ingest all currently needs all pending shoots on the same night. Split by night or ingest individually.');
+    return;
+  }
+  const night = nights[0] || shootNightYmd(pending[0].sh);
+  if (!night) {
+    alert('Pending shoots need YYMMDD dates.');
+    return;
+  }
+
+  const filters = [];
+  const plannedByFilter = {};
+  const queue = [];
+  for (const { sh, si } of pending) {
+    const ft = project.filterTargets[sh.filterIndex];
+    if (!ft || !ft.filter) continue;
+    queue.push(si);
+    if (!filters.includes(ft.filter)) filters.push(ft.filter);
+    plannedByFilter[ft.filter] = Number(sh.hours) || 0;
+  }
+  if (!queue.length) {
+    alert('Pending shoots need a filter target.');
+    return;
+  }
+
+  openProjects.add(pi);
+  ingestBatch = { mode: 'multi', pi, queue, filters, plannedByFilter, night };
+
+  ingestCtx = {
+    pi,
+    si: queue[0],
+    scan: null,
+    sessions: [],
+    darkMatchesByFilter: {},
+    darkMatched: [],
+    darkRejected: [],
+    masterDarkMatches: [],
+    masterDarkProfile: '',
+    _chipBase: null,
+    _darksTouched: false,
+  };
+
+  const filterBits = filters.map((f) => filterLabelHtml(f)).join(' · ');
+  document.getElementById('ingest-title').textContent =
+    `Ingest all — ${project.name || 'Project'}`;
+  document.getElementById('ingest-sub').innerHTML =
+    `Night ${escapeHtml(night)} · ${queue.length} shoot${queue.length === 1 ? '' : 's'} · ${filterBits}`;
+  document.getElementById('ingest-project-path').textContent = project.projectDir;
+  document.getElementById('ingest-session-path').textContent = '…';
+  document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
+  document.getElementById('ingest-stage-btn').disabled = true;
+  document.getElementById('ingest-stage-btn').textContent =
+    `Stage all (${queue.length})`;
+  document.getElementById('ingest-filter-body').innerHTML =
+    '<tr><td colspan="9" style="color:var(--gray);">Scanning all pending filters…</td></tr>';
+  document.getElementById('ingest-chips').innerHTML = '';
+  document.getElementById('ingest-confirm').innerHTML = '';
+  const wrap = document.getElementById('ingest-session-wrap');
+  if (wrap) wrap.style.display = 'none';
+  document.getElementById('ingest-overlay').classList.add('open');
+
+  await ensureDarkLibraryIndexed({ quiet: true });
+  const disc = await window.zukoIngest.discover(project.projectDir);
+  const sel = document.getElementById('ingest-session');
+  if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
+    document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under project directory';
+    document.getElementById('ingest-progress').textContent =
+      (disc && disc.error) || 'No ASIAIR session folders under project directory.';
+    return;
+  }
+  ingestCtx.sessions = disc.sessions;
+  if (disc.sessions.length === 1) {
+    if (wrap) wrap.style.display = 'none';
+    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
+  } else {
+    if (wrap) wrap.style.display = 'block';
+    sel.innerHTML = disc.sessions.map((s, i) =>
+      `<option value="${i}">${escapeHtml(s.name)}</option>`).join('');
+    document.getElementById('ingest-session-path').textContent = disc.sessions[0].path;
+  }
+  await runIngestScan();
+}
+
+async function runIngestStageAll(force = false) {
+  if (!ingestBatch || ingestBatch.mode !== 'multi') return;
+  const { pi, queue } = ingestBatch;
+  const project = data.projects[pi];
+  const session = selectedIngestSession();
+  if (!session) return;
+
+  const useDarks = !!(document.getElementById('ingest-use-darks') || {}).checked;
+  const darkMatchesByFilter = useDarks ? (ingestCtx.darkMatchesByFilter || {}) : {};
+  const ok = [];
+  const fail = [];
+
+  for (let i = 0; i < queue.length; i++) {
+    const si = queue[i];
+    const sh = project.shoots[si];
+    const ft = project.filterTargets[sh.filterIndex];
+    const code = buildShootCode(sh, ft);
+    document.getElementById('ingest-progress').textContent =
+      `Staging ${i + 1}/${queue.length} · ${code}`;
+    const res = await ingestSingleShootProgrammatic(pi, si, {
+      sessionPath: session.path,
+      useMasterDarks: useDarks,
+      force: !!force,
+      minBusyMs: i === 0 ? 1000 : 350,
+      busyMessage: `Staging ${i + 1}/${queue.length}: ${code}`,
+    });
+    // Prefer shared dark matches from the multi scan when staging via programmatic API
+    // (ingestSingleShootProgrammatic rematches; OK for correctness).
+    if (res.ok) ok.push(code);
+    else if (res.code === 'DEST_EXISTS') fail.push(`${code} (already on disk)`);
+    else fail.push(`${code}: ${res.error || 'failed'}`);
+  }
+
+  // If programmatic path didn't use the UI darkMatches map, force rematch was fine.
+  // Re-apply dark matches for any that succeeded without master when checkbox on —
+  // already handled inside ingestSingleShootProgrammatic.
+
+  recomputeProjectFilterHours(project);
+  save();
+  ingestBatch = null;
+  const stageBtn = document.getElementById('ingest-stage-btn');
+  if (stageBtn) {
+    stageBtn.textContent = 'Stage for Siril';
+    stageBtn.disabled = true;
+  }
+  document.getElementById('ingest-progress').textContent =
+    (ok.length ? `Staged ${ok.length}: ${ok.join(', ')}` : 'Nothing staged') +
+    (fail.length ? ` · issues: ${fail.join(' · ')}` : '');
+  document.getElementById('ingest-confirm').innerHTML = ok.length
+    ? `<div class="line"><span style="color:var(--green);">Ingest all complete</span> — ${ok.length} staged</div>` +
+      (fail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(fail.join(' · '))}</div>` : '')
+    : `<div class="line" style="color:var(--yellow);">Nothing staged${fail.length ? ' — ' + escapeHtml(fail.join(' · ')) : ''}</div>`;
+  setTimeout(() => closeIngestModal(), fail.length ? 2200 : 900);
+}
+
 async function runIngestStage(force = false) {
+  if (ingestBatch && ingestBatch.mode === 'multi') {
+    await runIngestStageAll(force);
+    return;
+  }
+
   const { pi, si, scan, darkMatchesByFilter } = ingestCtx;
   if (pi == null || !scan) return;
   const project = data.projects[pi];
@@ -5101,11 +5858,7 @@ async function runIngestStage(force = false) {
   const useDarks = !!(document.getElementById('ingest-use-darks') || {}).checked;
   document.getElementById('ingest-progress').textContent = 'Staging…';
 
-  const targetHint = [
-    project.target,
-    project.savedTarget && project.savedTarget.name,
-    project.name,
-  ].filter(Boolean).join(' · ');
+  const targetHint = projectTargetHint(project);
   const ft = project.filterTargets[sh.filterIndex];
   const shootFolder = buildShootCode(sh, ft);
   const result = await withIngestBusy('Staging (copy lights/flats; calib copy + symlink biases/darks)…', () =>
@@ -5141,40 +5894,10 @@ async function runIngestStage(force = false) {
     return;
   }
 
-  const meta = result.meta || {};
-  const lightRow = (scan.filters || []).find((r) => ft && r.filter === ft.filter);
-  sh.sourcePath = session.path;
-  sh.ingestPath = (meta.destRoots && meta.destRoots[0]) || project.projectDir;
-  sh.ingestMeta = {
-    nightDate: meta.nightDate,
-    shootFolder: meta.shootFolder || shootFolder,
-    filters: meta.filters,
-    destRoots: meta.destRoots,
-    biasLibrary: meta.biasLibrary,
-    darkLibrary: meta.darkLibrary,
-    calibReuse: meta.calibReuse || null,
-    filesStaged: meta.filesStaged,
-    filesSkipped: meta.filesSkipped,
-    biasesMoved: meta.biasesMoved,
-    byType: meta.byType,
-    lightCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
-    frameCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
-    exposureSec: (lightRow && lightRow.exposureSec != null)
-      ? lightRow.exposureSec
-      : (scan.summary && scan.summary.exposureSec),
-    gain: (lightRow && lightRow.gain != null) ? lightRow.gain : (scan.summary && scan.summary.gain),
-    tempC: (lightRow && lightRow.tempC != null) ? lightRow.tempC : (scan.summary && scan.summary.tempC),
-    stagedAt: meta.stagedAt,
-  };
-
-  if ((!sh.hours || sh.hours === 0) && lightRow && lightRow.lights && lightRow.exposureSec) {
-    sh.hours = Math.round((lightRow.lights * lightRow.exposureSec / 3600) * 100) / 100;
-  }
-  if (project.status === 'planning') project.status = 'active';
-  if (!project.processStatus || project.processStatus === 'none') project.processStatus = 'ingested';
-
+  applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft);
   recomputeProjectFilterHours(project);
   save();
+  const meta = result.meta || {};
   const by = meta.byType || {};
   const reuse = meta.calibReuse;
   const reuseNote = reuse && (reuse.biasesPreexisting || reuse.darksPreexisting)
@@ -5364,11 +6087,16 @@ function renderTargetResult(pi, resultsEl, r) {
 function setProjectTarget(pi, name, ra, dec) {
   data.projects[pi].savedTarget = { name, ra, dec };
   data.projects[pi].centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
+  delete framerInstances[pi];
+  closedFramers.delete(pi);
   save();
 }
 
 function clearProjectTarget(pi) {
   data.projects[pi].savedTarget = null;
+  delete framerInstances[pi];
+  closedFramers.delete(pi);
+  unlockedFramers.delete(pi);
   save();
 }
 
