@@ -135,7 +135,7 @@
 
   .header-top {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
@@ -171,16 +171,19 @@
   .sync-chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     border-radius: 6px;
     font-family: var(--mono);
     font-size: 10px;
+    font-weight: 400;
     cursor: pointer;
-    padding: 4px 10px;
+    padding: 4px 9px;
     line-height: 1.2;
     border: 1px solid var(--border);
     background: var(--bg3);
     color: var(--gray);
+    box-sizing: border-box;
   }
   .sync-chip:hover { filter: brightness(1.08); }
   .sync-chip.ok {
@@ -237,12 +240,14 @@
     background: rgba(255, 0, 0, 0.28);
   }
 
-  .header-brand .browser-sync-links {
+  .header-brand .browser-sync-links,
+  .header-meta .browser-sync-links {
     display: inline-flex;
     gap: 8px;
     margin-left: 4px;
   }
-  .header-brand .browser-sync-links button {
+  .header-brand .browser-sync-links button,
+  .header-meta .browser-sync-links button {
     background: none;
     border: none;
     color: var(--accent2);
@@ -252,30 +257,33 @@
     padding: 0;
     opacity: 0.8;
   }
-  .header-brand .browser-sync-links button:hover { text-decoration: underline; opacity: 1; }
+  .header-brand .browser-sync-links button:hover,
+  .header-meta .browser-sync-links button:hover { text-decoration: underline; opacity: 1; }
 
   .header-meta {
-    text-align: right;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--gray);
-    line-height: 1.55;
-    min-width: 280px;
-    max-width: 420px;
-  }
-
-  .header-meta strong {
-    color: var(--text2);
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .header-meta .meta-row {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
     flex-wrap: wrap;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.2;
+    margin-left: auto;
+  }
+  .header-meta .header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .header-meta strong {
+    color: var(--text2);
   }
 
   .header-meta .meta-muted { color: var(--gray); opacity: 0.85; }
@@ -308,12 +316,180 @@
   }
   .header-meta .meta-btn:hover { filter: brightness(1.08); }
 
+  .shoot-rag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-align: right;
+  }
+  .shoot-rag-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    padding: 4px 9px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    line-height: 1.2;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  .shoot-rag-chip:hover { filter: brightness(1.08); }
+  .shoot-rag-chip .rag-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .shoot-rag-chip.rag-green {
+    color: var(--green);
+    border-color: color-mix(in srgb, var(--green) 45%, transparent);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+  .shoot-rag-chip.rag-green .rag-dot { background: var(--green); }
+  .shoot-rag-chip.rag-amber {
+    color: var(--yellow);
+    border-color: color-mix(in srgb, var(--yellow) 45%, transparent);
+    background: color-mix(in srgb, var(--yellow) 12%, transparent);
+  }
+  .shoot-rag-chip.rag-amber .rag-dot { background: var(--yellow); }
+  .shoot-rag-chip.rag-red {
+    color: var(--red);
+    border-color: color-mix(in srgb, var(--red) 45%, transparent);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+  .shoot-rag-chip.rag-red .rag-dot { background: var(--red); }
+  .shoot-rag-chip.rag-muted {
+    color: var(--gray);
+    border-color: var(--border);
+    background: transparent;
+  }
+  .shoot-rag-chip.rag-muted .rag-dot { background: var(--gray); }
+  #header-offline-chip {
+    display: none;
+  }
+  #header-offline-chip.is-visible {
+    display: inline-flex;
+  }
+  .modal-btn.is-loading {
+    opacity: 0.75;
+    pointer-events: none;
+    cursor: wait;
+  }
+  .modal-btn.is-loading::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 7px;
+    border: 1.5px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    vertical-align: -1px;
+    animation: skyfx-spin 0.7s linear infinite;
+  }
+  @keyframes skyfx-spin {
+    to { transform: rotate(360deg); }
+  }
+  .shoot-rag-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--yellow);
+    max-width: 280px;
+    line-height: 1.35;
+  }
+
+  .settings-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .settings-btn:hover { filter: brightness(1.08); border-color: var(--accent-soft-border); color: var(--accent2); }
+
+  .settings-modal {
+    max-width: 520px;
+  }
+  .settings-section {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .settings-section:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+  .settings-section h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 4px;
+  }
+  .settings-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .settings-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+  .settings-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .settings-about {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.55;
+    word-break: break-all;
+  }
+  .settings-about dt {
+    color: var(--gray);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 8px;
+  }
+  .settings-about dd { margin: 2px 0 0; }
+  .settings-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    margin-top: 10px;
+    min-height: 1.2em;
+  }
+  .settings-status.ok { color: var(--green); }
+  .settings-status.err { color: var(--red); }
+  .settings-status.warn { color: var(--yellow); }
+  #settings-api-key-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
   /* Red mode: mute multi-color diagrams / sky embeds so they don't dump green/blue light */
   html[data-theme="red"] .pd-wire-wrap svg,
   html[data-theme="red"] .train-flow {
     filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(4) brightness(0.7);
   }
-  html[data-theme="red"] .locfx-img-wrap img,
   html[data-theme="red"] [id^="aladin-framer-"] {
     filter: grayscale(1) sepia(1) hue-rotate(-52deg) saturate(5.5) brightness(0.45) contrast(1.1);
   }
@@ -2192,31 +2368,455 @@
     background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
     padding: 8px 10px; color: var(--text); font-family: var(--mono); font-size: 12px;
   }
-  .locfx-img-wrap { display: none; text-align: center; }
-  .locfx-img-wrap > a:first-of-type {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-    line-height: 0;
+
+  .skyfx-panel {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg2);
+    padding: 14px 16px 12px;
+  }
+  .skyfx-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .skyfx-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .skyfx-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    margin-bottom: 10px;
+    line-height: 1.45;
+  }
+  .skyfx-nights {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .skyfx-nights strong { color: var(--text); }
+  .skyfx-nights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .skyfx-night {
+    border: 1px solid var(--border);
     border-radius: 8px;
+    background: var(--bg);
     overflow: hidden;
   }
-  .locfx-img-wrap > a:first-of-type::after {
-    content: '';
-    position: absolute;
-    inset: 0;
+  .skyfx-night > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.45;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    align-items: baseline;
+  }
+  .skyfx-night > summary::-webkit-details-marker { display: none; }
+  .skyfx-night > summary::before {
+    content: '▶';
+    color: var(--gray);
+    font-size: 9px;
+    margin-right: 2px;
+  }
+  .skyfx-night[open] > summary::before { content: '▼'; }
+  .skyfx-night > summary .rag-tag {
+    font-weight: 600;
+  }
+  .skyfx-night > summary .rag-tag.rag-green { color: var(--green); }
+  .skyfx-night > summary .rag-tag.rag-amber { color: var(--yellow); }
+  .skyfx-night > summary .rag-tag.rag-red { color: var(--red); }
+  .skyfx-night .skyfx-table-wrap {
+    border: none;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    max-height: none;
+    overflow: visible;
+  }
+  .skyfx-co {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .skyfx-co-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--yellow);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  .skyfx-co img {
+    max-width: 100%;
     border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .skyfx-source {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .skyfx-credit-ticker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--accent, #3b82f6) 8%, transparent);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .skyfx-credit-ticker strong { color: var(--accent2, var(--text)); }
+  .skyfx-credit-ticker .skyfx-credit-sub {
+    color: var(--gray);
+    font-size: 11px;
+  }
+  .skyfx-data-banner {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    border: 1px solid color-mix(in srgb, var(--yellow) 45%, transparent);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--yellow) 12%, transparent);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .skyfx-data-banner.skyfx-fallback-banner {
+    border-color: color-mix(in srgb, var(--accent2, #60a5fa) 50%, transparent);
+    background: color-mix(in srgb, var(--accent2, #60a5fa) 12%, transparent);
+  }
+  .skyfx-data-banner.skyfx-fallback-banner strong { color: var(--accent2, #60a5fa); }
+  .skyfx-data-banner.skyfx-offline-banner {
+    border-color: color-mix(in srgb, var(--red) 55%, transparent);
+    background: color-mix(in srgb, var(--red) 14%, transparent);
+  }
+  .skyfx-data-banner.skyfx-offline-banner strong { color: var(--red); }
+  .skyfx-data-banner strong { color: var(--yellow); font-weight: 700; }
+  .skyfx-needs-net.is-offline {
+    opacity: 0.55;
     pointer-events: none;
-    background: transparent;
   }
-  /* Slight dim on Clear Outside in dark mode — chart is otherwise very bright */
-  html[data-theme="dark"] .locfx-img-wrap > a:first-of-type::after {
-    background: rgba(4, 8, 16, 0.52);
+  .skyfx-co-offline {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    padding: 12px;
+    border: 1px dashed color-mix(in srgb, var(--red) 40%, transparent);
+    border-radius: 8px;
+    text-align: center;
   }
-  /* Stronger red night-vision wash over the forecast */
-  html[data-theme="red"] .locfx-img-wrap > a:first-of-type::after {
-    background: rgba(40, 0, 0, 0.62);
+  .skyfx-offline-placeholder {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gray);
+    padding: 14px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
   }
+  .skyfx-offline-placeholder strong { color: var(--red); }
+  .skyfx-track-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 820px) {
+    .skyfx-track-grid { grid-template-columns: 1fr; }
+  }
+  .skyfx-track-card {
+    border: 1px solid color-mix(in srgb, var(--text) 18%, var(--border));
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--bg3) 70%, var(--bg));
+    padding: 14px 16px 16px;
+    color: var(--text);
+  }
+  .skyfx-track-card .skyfx-card-title {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin: 0 0 12px;
+  }
+  .skyfx-moon-card-body {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 14px;
+    align-items: start;
+  }
+  @media (max-width: 560px) {
+    .skyfx-moon-card-body { grid-template-columns: 1fr; }
+  }
+  .skyfx-moon-current .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 2px;
+  }
+  .skyfx-moon-current .phase-name {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .skyfx-moon-disc-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0 14px;
+  }
+  .skyfx-moon-svg {
+    width: 120px;
+    height: 120px;
+    display: block;
+  }
+  .skyfx-moon-svg .moon-disk {
+    fill: #0b1220;
+    stroke: color-mix(in srgb, var(--text) 28%, transparent);
+    stroke-width: 1;
+  }
+  .skyfx-moon-svg .moon-lit {
+    fill: #f2efe6;
+  }
+  .skyfx-moon-stats {
+    display: grid;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .skyfx-moon-stats .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .skyfx-moon-stats .k { color: var(--gray); }
+  .skyfx-moon-stats .v { color: var(--text); font-variant-numeric: tabular-nums; }
+  .skyfx-moon-next .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .skyfx-moon-next-list {
+    display: grid;
+    gap: 8px;
+  }
+  .skyfx-moon-next-list .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .skyfx-moon-next-list .phase {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text2);
+  }
+  .skyfx-moon-next-list .date { color: var(--text); white-space: nowrap; }
+  .skyfx-mini-moon-svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: block;
+  }
+  .skyfx-mini-moon-svg .moon-disk {
+    fill: #0b1220;
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+    stroke-width: 1;
+  }
+  .skyfx-mini-moon-svg .moon-lit { fill: #f2efe6; }
+  .skyfx-sun-times-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 18px;
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .skyfx-sun-times-card .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
+  .skyfx-sun-times-card .k { color: var(--gray); }
+  .skyfx-sun-times-card .v { color: var(--text); font-weight: 600; }
+
+  html[data-theme="red"] .skyfx-moon-svg .moon-disk,
+  html[data-theme="red"] .skyfx-mini-moon-svg .moon-disk {
+    fill: #1a0000;
+    stroke: rgba(255, 80, 80, 0.45);
+  }
+  html[data-theme="red"] .skyfx-moon-svg .moon-lit,
+  html[data-theme="red"] .skyfx-mini-moon-svg .moon-lit { fill: #ff6b6b; }
+
+  html[data-theme="light"] .skyfx-moon-svg .moon-disk,
+  html[data-theme="light"] .skyfx-mini-moon-svg .moon-disk {
+    fill: #1e293b;
+    stroke: #94a3b8;
+  }
+  html[data-theme="light"] .skyfx-moon-svg .moon-lit,
+  html[data-theme="light"] .skyfx-mini-moon-svg .moon-lit { fill: #f5f0e1; }
+  .skyfx-metric.dimmed {
+    opacity: 0.42;
+    filter: grayscale(0.35);
+  }
+  .skyfx-metric.dimmed .s { color: var(--gray); }
+  .skyfx-ext {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent2);
+    text-decoration: none;
+  }
+  .skyfx-ext:hover { text-decoration: underline; }
+  .skyfx-fallback {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--yellow);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .skyfx-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .skyfx-metric {
+    border: 1px solid color-mix(in srgb, var(--text) 16%, var(--border));
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: color-mix(in srgb, var(--bg3) 55%, var(--bg));
+  }
+  .skyfx-metric .k {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .skyfx-metric .v {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--text);
+    margin-top: 2px;
+  }
+  .skyfx-metric .s {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-top: 2px;
+  }
+  .skyfx-metric.rag-green {
+    border-color: color-mix(in srgb, var(--green) 72%, transparent);
+    background: color-mix(in srgb, var(--green) 20%, var(--bg));
+  }
+  .skyfx-metric.rag-amber {
+    border-color: color-mix(in srgb, var(--yellow) 72%, transparent);
+    background: color-mix(in srgb, var(--yellow) 18%, var(--bg));
+  }
+  .skyfx-metric.rag-red {
+    border-color: color-mix(in srgb, var(--red) 72%, transparent);
+    background: color-mix(in srgb, var(--red) 18%, var(--bg));
+  }
+  .skyfx-windows {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
+  .skyfx-windows strong { color: var(--text); }
+  .skyfx-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .skyfx-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .skyfx-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg3);
+    color: var(--gray);
+    text-align: left;
+    padding: 8px 8px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 10px;
+    z-index: 1;
+  }
+  .skyfx-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  .skyfx-table col.c-local { width: 17%; }
+  .skyfx-table col.c-rag { width: 12%; }
+  .skyfx-table col.c-cloud { width: 11%; }
+  .skyfx-table col.c-trans { width: 20%; }
+  .skyfx-table col.c-seeing { width: 18%; }
+  .skyfx-table col.c-temp { width: 11%; }
+  .skyfx-table col.c-precip { width: 11%; }
+  .skyfx-table tr.astro-dark td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .skyfx-table tr.rag-green td.rag-cell { color: var(--green); }
+  .skyfx-table tr.rag-amber td.rag-cell { color: var(--yellow); }
+  .skyfx-table tr.rag-red td.rag-cell { color: var(--red); }
+  .skyfx-swatch {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: middle;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  }
+  .skyfx-legend {
+    display: none;
+  }
+  html[data-theme="red"] .skyfx-table tr.astro-dark td {
+    background: color-mix(in srgb, #ff0000 8%, transparent);
+  }
+
   .framer-lock-overlay {
     position: absolute;
     inset: 0;
@@ -2239,8 +2839,6 @@
     padding: 5px 12px;
     letter-spacing: 0.03em;
   }
-  .locfx-img-wrap img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
-  .locfx-img-wrap a { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 11px; color: var(--accent2); }
 
   .table-scroll {
     overflow-x: auto;
@@ -2294,9 +2892,8 @@
     /* Modal: fit small screens */
     .modal { max-width: calc(100vw - 24px); padding: 16px; }
 
-    /* Forecast image: scroll horizontally at readable size instead of shrinking to unreadable */
-    .locfx-img-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .locfx-img-wrap img { max-width: none; }
+    /* Forecast table: allow horizontal scroll on small screens */
+    .skyfx-table-wrap { -webkit-overflow-scrolling: touch; }
 
     /* Larger touch targets */
     .mini-btn, .add-btn { padding: 8px 12px; }
@@ -2382,18 +2979,23 @@
           <button type="button" data-testid="theme-light" data-theme-set="light" onclick="setUiTheme('light')" title="Light mode">Light</button>
           <button type="button" data-testid="theme-red" data-theme-set="red" onclick="setUiTheme('red')" title="Red night-vision mode for the field">Red</button>
         </div>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;">
+      </div>
+      <div class="header-meta" id="header-meta">
+        <div class="header-actions">
           <button type="button" class="sync-chip muted" id="sync-status" data-testid="sync-status" onclick="onSyncChipClick()" title="Open data folder">Local only</button>
           <span class="browser-sync-links" id="browser-sync-links">
             <button type="button" id="sync-open-btn" data-testid="sync-open" onclick="connectDataFile()">link file</button>
             <button type="button" id="sync-create-btn" data-testid="sync-create" onclick="createNewDataFile()">new file</button>
           </span>
+          <button type="button" class="sync-chip err" id="header-offline-chip" hidden onclick="scrollToSkyForecast()" title="Offline — showing cached forecast when available. Click to open Sky Forecast.">Offline · cached</button>
+          <div class="shoot-rag" id="header-shoot-rag" title="Tonight’s shoot recommendation — click to open Sky Forecast">
+            <div class="shoot-rag-chip rag-muted" id="header-shoot-chip" role="button" tabindex="0" onclick="scrollToSkyForecast()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();scrollToSkyForecast();}">
+              <span class="rag-dot" aria-hidden="true"></span>
+              <span id="header-shoot-label">Tonight —</span>
+            </div>
+            <div class="shoot-rag-note" id="header-shoot-note" hidden></div>
+          </div>
         </div>
-      </div>
-      <div class="header-meta" id="header-meta">
-        <div class="meta-row" id="header-moon">Moon —</div>
-        <div class="meta-row" id="header-astro">Astro dark —</div>
-        <div class="meta-row" id="header-weather">At sunset —</div>
       </div>
     </div>
   </header>
@@ -2436,29 +3038,58 @@
     <div id="projects-container"></div>
   </details>
 
-  <!-- Location & Sky Forecast -->
-  <details class="collapsible" open>
+  <!-- Sky Forecast -->
+  <details class="collapsible" open id="sky-forecast-section">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
-      <h2>Location &amp; Sky Forecast</h2>
+      <h2>Sky Forecast</h2>
       <div class="section-line"></div>
     </summary>
-    <div class="locfx-inputs">
+    <div class="locfx-inputs skyfx-needs-net" id="locfx-search-row">
       <input id="locfx-search" placeholder="Search a place e.g. Boston, MA" style="width:220px;">
-      <button class="add-btn" data-testid="search-location" onclick="searchLocation()">Search Location</button>
+      <button class="add-btn" data-testid="search-location" id="locfx-search-btn" onclick="searchLocation()">Search Location</button>
     </div>
     <div id="locfx-search-results" style="margin-bottom:10px;"></div>
     <div class="locfx-inputs">
       <input id="locfx-name" placeholder="Location name (e.g. Tenafly, NJ)">
       <input id="locfx-lat" placeholder="Latitude e.g. 40.9" onchange="loadForecast()" onkeydown="if(event.key==='Enter')loadForecast()">
       <input id="locfx-lon" placeholder="Longitude e.g. -73.96" onchange="loadForecast()" onkeydown="if(event.key==='Enter')loadForecast()">
+      <button class="add-btn" id="locfx-home-btn" onclick="useHomeLocation()" title="Use saved home location from Settings">Home</button>
       <button class="add-btn" onclick="useMyLocation()" title="Ask Windows for your current location">Use my location</button>
     </div>
-    <div id="locfx-status" style="font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:10px;"></div>
-    <div class="locfx-img-wrap" id="locfx-wrap">
-      <a id="locfx-link" target="_blank" rel="noopener">
-        <img id="locfx-img" alt="Clear Outside forecast">
-      </a>
+    <div id="locfx-status" style="font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:10px;" hidden></div>
+    <div class="skyfx-data-banner skyfx-offline-banner" id="skyfx-offline-banner" role="status" hidden>
+      <div id="skyfx-offline-banner-text"><strong>No internet</strong> · Astrospheric, Open-Meteo, location search, and Clear Outside need a connection. Moon &amp; sun times still work offline.</div>
+    </div>
+    <div class="skyfx-panel" id="locfx-wrap" hidden>
+      <div class="skyfx-data-banner" id="skyfx-synth-banner" role="status" hidden>
+        <div id="skyfx-synth-banner-text"><strong>Synthetic data</strong> · not real Astrospheric — Dev setting is on</div>
+      </div>
+      <div class="skyfx-data-banner skyfx-fallback-banner" id="skyfx-fallback-banner" role="status" hidden>
+        <div><strong>Open-Meteo fallback</strong> · Astrospheric unavailable — cloud/temp/precip only · no shoot RAG</div>
+      </div>
+      <div class="skyfx-credit-ticker" id="skyfx-credit-ticker" title="Astrospheric monthly API allowance">
+        <div id="skyfx-credit-ticker-main">API pulls · loading…</div>
+        <div class="skyfx-credit-sub" id="skyfx-credit-ticker-sub"></div>
+      </div>
+      <div class="skyfx-top">
+        <div class="skyfx-top-actions">
+          <button type="button" class="modal-btn skyfx-needs-net" id="skyfx-refresh-btn" onclick="refreshSkyForecastPanel(true)" title="Force a new Astrospheric pull (~65 credits)">Pull fresh data</button>
+          <a class="skyfx-ext skyfx-needs-net" id="skyfx-link" href="https://www.astrospheric.com/" target="_blank" rel="noopener">Open Astrospheric ↗</a>
+        </div>
+      </div>
+      <div class="skyfx-track-grid" id="skyfx-track-grid">
+        <div class="skyfx-track-card" id="skyfx-moon-card"></div>
+        <div class="skyfx-track-card" id="skyfx-sun-card"></div>
+      </div>
+      <div class="skyfx-metrics" id="skyfx-metrics"></div>
+      <div class="skyfx-nights-list" id="skyfx-nights-list"></div>
+      <div class="skyfx-co skyfx-needs-net" id="skyfx-co-wrap" hidden>
+        <a id="skyfx-co-link" target="_blank" rel="noopener">
+          <img id="skyfx-co-img" alt="Clear Outside forecast">
+        </a>
+        <div class="skyfx-co-offline" id="skyfx-co-offline" hidden>Clear Outside unavailable offline</div>
+      </div>
     </div>
   </details>
 
@@ -2858,6 +3489,73 @@
     <div class="modal-actions">
       <button class="modal-btn" data-testid="modal-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn primary" data-testid="modal-save" onclick="saveModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settings-overlay" data-testid="settings-overlay">
+  <div class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <h3 id="settings-title">Settings</h3>
+
+    <div class="settings-section">
+      <h4>Rig</h4>
+      <label for="settings-rig-name">Display name</label>
+      <input id="settings-rig-name" data-testid="settings-rig-name" type="text" autocomplete="off" placeholder="Zuko">
+    </div>
+
+    <div class="settings-section">
+      <h4>Home location</h4>
+      <p class="settings-hint">Used for tonight’s shoot recommendation (astro-dark window + Astrospheric).</p>
+      <label for="settings-home-name">Name</label>
+      <input id="settings-home-name" data-testid="settings-home-name" type="text" autocomplete="off" placeholder="NYC 10002">
+      <div class="settings-grid-2">
+        <div>
+          <label for="settings-home-lat">Latitude</label>
+          <input id="settings-home-lat" data-testid="settings-home-lat" type="text" inputmode="decimal" autocomplete="off" placeholder="40.7157">
+        </div>
+        <div>
+          <label for="settings-home-lon">Longitude</label>
+          <input id="settings-home-lon" data-testid="settings-home-lon" type="text" inputmode="decimal" autocomplete="off" placeholder="-73.9860">
+        </div>
+        <div>
+          <label for="settings-home-zip">ZIP / code</label>
+          <input id="settings-home-zip" data-testid="settings-home-zip" type="text" autocomplete="off" placeholder="10002">
+        </div>
+        <div>
+          <label for="settings-home-bortle">Bortle</label>
+          <input id="settings-home-bortle" data-testid="settings-home-bortle" type="text" autocomplete="off" placeholder="9">
+        </div>
+      </div>
+      <div class="settings-row-actions">
+        <button type="button" class="modal-btn" data-testid="settings-use-location" onclick="settingsUseMyLocation()">Use my location</button>
+        <button type="button" class="modal-btn" data-testid="settings-reset-home" onclick="settingsResetHome()">Reset to NYC default</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>Astrospheric</h4>
+      <p class="settings-hint">Pro API key from Astrospheric → My Profile. Stored in local <code>.env</code> (not in the dashboard JSON). Pulls request cloud, transparency, seeing, and temperature only (~80 credits each; monthly allowance).</p>
+      <label for="settings-api-key">API key</label>
+      <input id="settings-api-key" data-testid="settings-api-key" type="password" autocomplete="off" placeholder="Paste key to update">
+      <div id="settings-api-key-status">Not configured</div>
+      <div class="settings-row-actions">
+        <button type="button" class="modal-btn" data-testid="settings-clear-key" onclick="settingsClearApiKey()">Clear key</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h4>About</h4>
+      <dl class="settings-about" id="settings-about">
+        <dt>App</dt><dd id="settings-about-app">—</dd>
+        <dt>Data file</dt><dd id="settings-about-data">—</dd>
+        <dt>Projects root</dt><dd id="settings-about-projects">—</dd>
+      </dl>
+    </div>
+
+    <div class="settings-status" id="settings-status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" data-testid="settings-cancel" onclick="closeSettings()">Cancel</button>
+      <button type="button" class="modal-btn primary" data-testid="settings-save" onclick="saveSettings()">Save</button>
     </div>
   </div>
 </div>
@@ -3540,11 +4238,23 @@ function stampAppMeta() {
 }
 
 function ensureHomeSite() {
-  if (!data.homeSite || data.homeSite.zip !== HOME_SITE.zip) {
+  if (!data.homeSite || !Number.isFinite(Number(data.homeSite.lat)) || !Number.isFinite(Number(data.homeSite.lon))) {
     data.homeSite = { ...HOME_SITE };
+  } else {
+    data.homeSite = {
+      zip: data.homeSite.zip != null ? String(data.homeSite.zip) : HOME_SITE.zip,
+      name: data.homeSite.name || HOME_SITE.name,
+      lat: Number(data.homeSite.lat),
+      lon: Number(data.homeSite.lon),
+      bortle: data.homeSite.bortle != null ? String(data.homeSite.bortle) : HOME_SITE.bortle,
+    };
   }
-  if (!data.forecastLocation) {
-    data.forecastLocation = { name: HOME_SITE.name, lat: HOME_SITE.lat, lon: HOME_SITE.lon };
+  if (!data.forecastLocation || !Number.isFinite(Number(data.forecastLocation.lat))) {
+    data.forecastLocation = {
+      name: data.homeSite.name,
+      lat: data.homeSite.lat,
+      lon: data.homeSite.lon,
+    };
   }
 }
 
@@ -3700,10 +4410,14 @@ const _ASTRO = (() => {
       }
     }
     const astro = pair(-18);
+    const civil = pair(-6);
     const sun = pair(-0.833);
     return {
       sunrise: sun.rise,
       sunset: sun.set,
+      solarNoon: fromJulian(Jnoon),
+      civilDawn: civil.rise,
+      civilDusk: civil.set,
       // astronomical dawn / dusk (true night ends / begins)
       astroDawn: astro.rise,
       astroDusk: astro.set
@@ -3730,6 +4444,14 @@ const _ASTRO = (() => {
     return h - Math.asin(6378.14 / c.dist) * Math.cos(h);
   }
 
+  function sunAltitude(date, lat, lng) {
+    const lw = rad * -lng, phi = rad * lat;
+    const d = toDays(date);
+    const c = sunCoords(d);
+    const H = rad * (280.16 + 360.9856235 * d) - lw - c.ra;
+    return Math.asin(Math.sin(phi) * Math.sin(c.dec) + Math.cos(phi) * Math.cos(c.dec) * Math.cos(H));
+  }
+
   function getMoonTimes(date, lat, lng) {
     const dayStart = new Date(date);
     dayStart.setHours(0, 0, 0, 0);
@@ -3752,7 +4474,7 @@ const _ASTRO = (() => {
     return { rise, set };
   }
 
-  return { getTimes, getMoonTimes };
+  return { getTimes, getMoonTimes, moonAltitude, sunAltitude };
 })();
 
 function moonPhaseInfo(date = new Date()) {
@@ -3772,7 +4494,7 @@ function moonPhaseInfo(date = new Date()) {
   else if (t < 0.72) { name = 'Waning gibbous'; icon = '🌖'; }
   else if (t < 0.78) { name = 'Last quarter'; icon = '🌗'; }
   else { name = 'Waning crescent'; icon = '🌘'; }
-  return { name, icon, illum, ageDays: age };
+  return { name, icon, illum, ageDays: age, phase: t };
 }
 
 const WMO_LABELS = {
@@ -3822,6 +4544,46 @@ function nextAstroNight(lat, lon, now = new Date()) {
   return { darkStart: last.darkStart, darkEnd: last.darkEnd, dusk: last.darkStart, dawn: last.darkEnd };
 }
 
+/** Next N imaging windows: 1 hour before astro dusk → astro dawn (calendar nights). */
+function upcomingImagingNights(lat, lon, count = 3, padHoursBefore = 1, now = new Date()) {
+  const nights = [];
+  const base = new Date(now);
+  base.setHours(12, 0, 0, 0);
+  for (let day = -1; day < count + 4 && nights.length < count; day++) {
+    const d0 = new Date(base);
+    d0.setDate(base.getDate() + day);
+    const d1 = new Date(base);
+    d1.setDate(base.getDate() + day + 1);
+    const t0 = _ASTRO.getTimes(d0, lat, lon);
+    const t1 = _ASTRO.getTimes(d1, lat, lon);
+    const dusk = t0 && t0.astroDusk;
+    const dawn = t1 && t1.astroDawn;
+    if (!dusk || !dawn) continue;
+    const start = new Date(dusk.getTime() - padHoursBefore * 3600 * 1000);
+    const end = dawn;
+    if (!(end > now)) continue;
+    const key = start.toISOString() + '|' + end.toISOString();
+    if (nights.some((x) => x.key === key)) continue;
+    const label = dusk.toLocaleDateString('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    });
+    nights.push({
+      key,
+      label,
+      start,
+      end,
+      dusk,
+      dawn,
+      startIso: start.toISOString(),
+      endIso: end.toISOString(),
+    });
+  }
+  return nights;
+}
+
 function pickHourlyAt(hourly, when) {
   if (!hourly || !hourly.time || !hourly.time.length || !when) return null;
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -3854,53 +4616,154 @@ function pickHourlyAt(hourly, when) {
 }
 
 async function refreshHeaderSky() {
-  const moonEl = document.getElementById('header-moon');
-  const astroEl = document.getElementById('header-astro');
-  const wxEl = document.getElementById('header-weather');
+  const chipEl = document.getElementById('header-shoot-chip');
+  const labelEl = document.getElementById('header-shoot-label');
+  const noteEl = document.getElementById('header-shoot-note');
+  const offlineChip = document.getElementById('header-offline-chip');
+  const wrapEl = document.getElementById('header-shoot-rag');
   ensureHomeSite();
   const home = data.homeSite || HOME_SITE;
   const lat = home.lat, lon = home.lon;
   const now = new Date();
-  const moon = moonPhaseInfo(now);
   const night = nextAstroNight(lat, lon, now);
-  const moonToday = _ASTRO.getMoonTimes(now, lat, lon);
-  const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
-  const moonTom = _ASTRO.getMoonTimes(tomorrow, lat, lon);
-  const moonRise = moonToday.rise || moonTom.rise;
-  const moonSet = moonToday.set || moonTom.set;
+  const imaging = upcomingImagingNights(lat, lon, 1, 1, now)[0];
 
-  if (moonEl) {
-    moonEl.innerHTML = moon.icon + ' ' + moon.name + ' · ' + moon.illum + '%' +
-      ' · rise <strong>' + fmtSkyTime(moonRise) + '</strong>' +
-      ' · set <strong>' + fmtSkyTime(moonSet) + '</strong>';
+  function setOfflineChip(show, label, title) {
+    if (!offlineChip) return;
+    if (show) {
+      offlineChip.hidden = false;
+      offlineChip.classList.add('is-visible');
+      offlineChip.textContent = label || 'Offline';
+      offlineChip.title = title || 'Offline — click to open Sky Forecast';
+    } else {
+      offlineChip.hidden = true;
+      offlineChip.classList.remove('is-visible');
+    }
   }
-  if (astroEl) {
-    astroEl.innerHTML = 'Astro sunset <strong>' + fmtSkyTime(night.dusk) + '</strong>' +
-      ' · sunrise <strong>' + fmtSkyTime(night.dawn) + '</strong>' +
-      ' <span class="meta-muted">(' + (home.name || home.zip) + ')</span>';
+
+  function setChip(rag, label, title, note, offlineState) {
+    if (chipEl) {
+      chipEl.className = 'shoot-rag-chip rag-' + (rag || 'muted');
+    }
+    if (labelEl) labelEl.textContent = label || 'Tonight —';
+    if (wrapEl) wrapEl.title = title || 'Tonight’s shoot recommendation';
+    if (noteEl) {
+      // Non-offline notes (e.g. synthetic) still use the small note under the RAG chip
+      if (note && !offlineState) {
+        noteEl.hidden = false;
+        noteEl.textContent = note;
+      } else {
+        noteEl.hidden = true;
+        noteEl.textContent = '';
+      }
+    }
+    if (offlineState) {
+      setOfflineChip(true, offlineState.label, offlineState.title);
+    } else {
+      setOfflineChip(false);
+    }
   }
-  if (wxEl) wxEl.textContent = 'At astro sunset · loading…';
+
+  setChip('muted', 'Tonight · …', 'Loading tonight’s recommendation');
+
+  const windowStart = (imaging && imaging.start) || night.dusk || night.darkStart;
+  const windowEnd = (imaging && imaging.end) || night.dawn || night.darkEnd;
+  if (!windowStart || !windowEnd) {
+    setChip('muted', 'Tonight · —', 'Astro-dark window unavailable');
+    return;
+  }
 
   try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
-      '&longitude=' + lon +
-      '&hourly=temperature_2m,cloud_cover,weather_code' +
-      '&temperature_unit=fahrenheit&timezone=America%2FNew_York&forecast_days=2';
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('wx ' + res.status);
-    const j = await res.json();
-    const sampleAt = night.dusk || night.darkStart || now;
-    const hr = pickHourlyAt(j.hourly, sampleAt);
-    if (!hr) throw new Error('no hourly');
-    const label = WMO_LABELS[hr.code] || ('code ' + hr.code);
-    const temp = hr.temp != null ? Math.round(hr.temp) + '°F' : '—';
-    const cloud = hr.cloud != null ? hr.cloud + '% cloud' : '';
-    if (wxEl) {
-      wxEl.innerHTML = 'At astro sunset <strong>' + temp + '</strong> · ' + label +
-        (cloud ? ' · ' + cloud : '');
+    let res = null;
+    if (window.zukoApp && typeof window.zukoApp.tonightShoot === 'function') {
+      res = await window.zukoApp.tonightShoot({
+        lat,
+        lon,
+        windowStartIso: windowStart.toISOString(),
+        windowEndIso: windowEnd.toISOString(),
+        forceRefresh: false,
+        preferFallback: skyFxPreferFallback(),
+        preferSynthetic: skyFxPreferSynthetic() && !skyFxPreferFallback(),
+        simulateOffline: skyFxSimulateOffline(),
+      });
+    } else {
+      res = {
+        ok: true,
+        rag: 'muted',
+        label: '—',
+        fallback: true,
+        noRag: true,
+        source: 'open-meteo',
+        primaryError: 'Astrospheric requires the desktop app',
+      };
     }
+
+    const offline = !skyFxIsOnline() || !!(res && res.offline);
+    const offlineState = offline
+      ? {
+          label: (res && res.ok && res.cached) ? 'Offline · cached' : 'Offline',
+          title: (res && res.ok && res.cached)
+            ? 'Offline — showing cached forecast. Click to open Sky Forecast.'
+            : 'No internet — live forecast unavailable. Click to open Sky Forecast.',
+        }
+      : null;
+
+    if (!res || !res.ok) {
+      const detail = (res && (res.primaryError || res.error)) || 'unavailable';
+      setChip(
+        'muted',
+        'Tonight · —',
+        offline ? 'No internet — live forecast unavailable' : detail,
+        null,
+        offlineState
+      );
+      return;
+    }
+
+    if (res.fallback || res.noRag) {
+      setChip(
+        'muted',
+        'Tonight · —',
+        offline
+          ? 'No internet — no shoot RAG'
+          : 'No RAG on fallback data · click to open Sky Forecast',
+        null,
+        offlineState
+      );
+      return;
+    }
+
+    const rag = res.rag || 'amber';
+    const chipLabel = 'Tonight · ' + (res.label || rag);
+    let title = 'Tonight’s shoot · click to open Sky Forecast';
+    if (res.averages) {
+      const bits = [];
+      if (res.averages.cloud != null) bits.push(res.averages.cloud + '% cloud');
+      if (res.averages.transparency != null) bits.push('trans ' + res.averages.transparency);
+      if (res.averages.seeing != null) bits.push('seeing ' + res.averages.seeing);
+      if (bits.length) title += ' · ' + bits.join(' · ');
+    }
+    if (res.pullsRemaining != null) title += ' · ' + res.pullsRemaining + ' pulls left this month';
+
+    let note = null;
+    if (res.synthetic) {
+      note = 'synthetic · Dev setting';
+      title += ' (synthetic)';
+    }
+    if (offline) title += ' (offline cache)';
+
+    setChip(rag, chipLabel, title, note, offlineState);
   } catch (e) {
-    if (wxEl) wxEl.textContent = 'At astro sunset · weather unavailable';
+    const offline = !skyFxIsOnline() || /fetch|network|offline/i.test(String(e && e.message));
+    setChip(
+      'muted',
+      'Tonight · —',
+      offline ? 'No internet — live forecast unavailable' : String(e && e.message ? e.message : e),
+      null,
+      offline
+        ? { label: 'Offline', title: 'No internet — live forecast unavailable' }
+        : null
+    );
   }
 }
 
@@ -4049,10 +4912,81 @@ async function bootFromElectronFile() {
 }
 
 // ============ LOCATION & SKY FORECAST ============
+function skyFxIsOnline() {
+  if (skyFxSimulateOffline()) return false;
+  return typeof navigator === 'undefined' || navigator.onLine !== false;
+}
+
+function setSkyFxOfflineBanner(forceOffline, detail) {
+  const banner = document.getElementById('skyfx-offline-banner');
+  const text = document.getElementById('skyfx-offline-banner-text');
+  const offline = forceOffline === true || (forceOffline == null && !skyFxIsOnline());
+  const simulated = skyFxSimulateOffline();
+  if (banner) banner.hidden = !offline;
+  if (text && offline) {
+    const head = simulated
+      ? '<strong>No internet</strong> <span style="color:var(--yellow)">(simulated)</span>'
+      : '<strong>No internet</strong>';
+    text.innerHTML = detail
+      ? head + ' · ' + escapeHtml(detail)
+      : head + ' · Astrospheric, Open-Meteo, location search, and Clear Outside need a connection. Moon &amp; sun times still work offline.';
+  }
+  document.querySelectorAll('#sky-forecast-section .skyfx-needs-net').forEach((el) => {
+    el.classList.toggle('is-offline', offline);
+  });
+  const refreshBtn = document.getElementById('skyfx-refresh-btn');
+  if (refreshBtn) {
+    if (offline) {
+      refreshBtn.disabled = true;
+      refreshBtn.title = 'Needs internet to pull fresh Astrospheric data';
+    } else if (!refreshBtn.classList.contains('is-loading')) {
+      // Only lock Pull when the machine is actually offline (or simulated).
+      // A prior response with res.offline (cached after a failed pull) must not stick.
+      refreshBtn.disabled = skyFxPreferFallback() || skyFxPreferSynthetic();
+      refreshBtn.title = 'Force a new Astrospheric pull (~65 credits)';
+    }
+  }
+  const searchBtn = document.getElementById('locfx-search-btn');
+  if (searchBtn) searchBtn.disabled = offline;
+  const searchInput = document.getElementById('locfx-search');
+  if (searchInput) searchInput.disabled = offline;
+}
+
+function initSkyFxConnectivityListeners() {
+  if (initSkyFxConnectivityListeners._done) return;
+  initSkyFxConnectivityListeners._done = true;
+  window.addEventListener('offline', () => {
+    setSkyFxOfflineBanner(true);
+    const offlineChip = document.getElementById('header-offline-chip');
+    if (offlineChip) {
+      offlineChip.hidden = false;
+      offlineChip.classList.add('is-visible');
+      offlineChip.textContent = 'Offline';
+      offlineChip.title = 'No internet — live forecast unavailable';
+    }
+  });
+  window.addEventListener('online', () => {
+    setSkyFxOfflineBanner(false);
+    const offlineChip = document.getElementById('header-offline-chip');
+    if (offlineChip && !skyFxSimulateOffline()) {
+      offlineChip.hidden = true;
+      offlineChip.classList.remove('is-visible');
+    }
+    try { refreshSkyForecastPanel(false); } catch (e) {}
+    try { refreshHeaderSky(); } catch (e) {}
+  });
+  setSkyFxOfflineBanner(!skyFxIsOnline());
+}
+
 async function searchLocation() {
   const q = document.getElementById('locfx-search').value.trim();
   const resultsEl = document.getElementById('locfx-search-results');
   if (!q) { resultsEl.innerHTML = ''; return; }
+  if (!skyFxIsOnline()) {
+    setSkyFxOfflineBanner(true, 'Location search unavailable offline');
+    resultsEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · location search unavailable</div>';
+    return;
+  }
   resultsEl.innerHTML = '<div style="color:var(--gray);font-size:11px;">Searching…</div>';
   try {
     const resp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
@@ -4071,7 +5005,11 @@ async function searchLocation() {
       </div>`;
     }).join('');
   } catch (e) {
-    resultsEl.innerHTML = `<div style="color:var(--red);font-size:11px;">Search failed (${e.message}). Needs live internet access.</div>`;
+    const offline = !skyFxIsOnline() || /failed to fetch|network|offline/i.test(String(e && e.message));
+    if (offline) setSkyFxOfflineBanner(true, 'Location search unavailable offline');
+    resultsEl.innerHTML = offline
+      ? '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · location search unavailable</div>'
+      : `<div style="color:var(--red);font-size:11px;">Search failed (${escapeHtml(e.message)}).</div>`;
   }
 }
 
@@ -4095,6 +5033,7 @@ function applyForecastCoords(lat, lon, name) {
 }
 
 async function reverseGeocodeName(lat, lon) {
+  if (!skyFxIsOnline()) return '';
   try {
     const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' +
       encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
@@ -4113,17 +5052,20 @@ async function reverseGeocodeName(lat, lon) {
 
 async function useMyLocation() {
   const statusEl = document.getElementById('locfx-status');
+  statusEl.hidden = false;
   statusEl.textContent = 'Getting Windows location…';
 
   if (window.zukoApp && window.zukoApp.geolocate) {
     try {
       const res = await window.zukoApp.geolocate();
       if (res && res.ok) {
+        let name = '';
+        if (skyFxIsOnline()) {
+          try { name = await reverseGeocodeName(res.lat, res.lon); } catch (e) {}
+        }
         statusEl.textContent = 'Location found' +
           (res.accuracy != null ? ' (±' + Math.round(res.accuracy) + 'm)' : '') +
-          ' — loading forecast.';
-        let name = '';
-        try { name = await reverseGeocodeName(res.lat, res.lon); } catch (e) {}
+          (skyFxIsOnline() ? ' — loading forecast.' : ' — offline; moon/sun local, forecast needs internet or cache.');
         applyForecastCoords(res.lat, res.lon, name || '');
         return;
       }
@@ -4158,36 +5100,729 @@ async function useMyLocation() {
   );
 }
 
+function updateHomeLocationButton() {
+  ensureHomeSite();
+  const home = data.homeSite || HOME_SITE;
+  const btn = document.getElementById('locfx-home-btn');
+  if (!btn) return;
+  const name = (home.name && String(home.name).trim()) || 'Home';
+  const short = name.length > 18 ? name.slice(0, 16) + '…' : name;
+  btn.textContent = short;
+  btn.title = 'Use saved home · ' + name +
+    ' (' + Number(home.lat).toFixed(2) + ', ' + Number(home.lon).toFixed(2) + ')';
+}
+
+function useHomeLocation() {
+  ensureHomeSite();
+  const home = data.homeSite || HOME_SITE;
+  const statusEl = document.getElementById('locfx-status');
+  if (statusEl) statusEl.textContent = 'Using home · ' + (home.name || 'saved location');
+  applyForecastCoords(home.lat, home.lon, home.name || '');
+}
+
+function skyFxDevFlags() {
+  return window._zukoDevFlags || {
+    forceFallback: false,
+    syntheticAstrospheric: false,
+    simulateOffline: false,
+  };
+}
+
+function skyFxPreferFallback() {
+  return !!skyFxDevFlags().forceFallback;
+}
+
+function skyFxPreferSynthetic() {
+  return !!skyFxDevFlags().syntheticAstrospheric;
+}
+
+function skyFxSimulateOffline() {
+  return !!skyFxDevFlags().simulateOffline;
+}
+
+async function loadSkyFxDevFlags() {
+  if (window.zukoApp && typeof window.zukoApp.getDevFlags === 'function') {
+    try {
+      const res = await window.zukoApp.getDevFlags();
+      if (res && res.ok !== false) {
+        window._zukoDevFlags = {
+          forceFallback: !!res.forceFallback,
+          syntheticAstrospheric: !!res.syntheticAstrospheric,
+          simulateOffline: !!res.simulateOffline,
+        };
+      }
+    } catch (e) {}
+  }
+}
+
+function applySkyFxDevFlags(flags) {
+  window._zukoDevFlags = {
+    forceFallback: !!(flags && flags.forceFallback),
+    syntheticAstrospheric: !!(flags && flags.syntheticAstrospheric),
+    simulateOffline: !!(flags && flags.simulateOffline),
+  };
+  _skyFxRequestKey = '';
+  setSkyFxOfflineBanner(!skyFxIsOnline());
+  refreshSkyForecastPanel(false);
+  refreshHeaderSky();
+}
+
+function scrollToSkyForecast() {
+  const el = document.getElementById('sky-forecast-section');
+  if (!el) return;
+  el.open = true;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function onSkyFxSourceToggle() {
+  // legacy no-op — toggles live under File → Dev
+}
+
 function loadForecast() {
   const name = document.getElementById('locfx-name').value.trim();
   const lat = parseFloat(document.getElementById('locfx-lat').value);
   const lon = parseFloat(document.getElementById('locfx-lon').value);
   const statusEl = document.getElementById('locfx-status');
-  const frame = document.getElementById('locfx-frame');
   if (isNaN(lat) || isNaN(lon)) {
-    statusEl.textContent = 'Enter a valid latitude and longitude, use my location, or search.';
+    statusEl.textContent = 'Enter a valid latitude and longitude, use home / my location, or search.';
     return;
   }
   data.forecastLocation = { name, lat, lon };
-  save();
+  save({ render: false });
+  _skyFxRequestKey = '';
   renderForecastFrame();
 }
 
+function skyfxSwatch(color) {
+  if (!color) return '';
+  return '<span class="skyfx-swatch" style="background:' + escapeAttr(color) + '"></span>';
+}
+
+function metricRagFromCloud(cloud) {
+  if (cloud == null) return '';
+  if (cloud >= 65) return 'red';
+  if (cloud >= 30) return 'amber';
+  return 'green';
+}
+
+function metricRagFromTrans(t) {
+  if (t == null) return '';
+  if (t >= 21) return 'red';
+  if (t >= 14) return 'amber';
+  return 'green';
+}
+
+function metricRagFromSeeing(s) {
+  if (s == null) return '';
+  if (s <= 1) return 'red';
+  if (s < 2.5) return 'amber';
+  return 'green';
+}
+
+function isIsoInImagingWindow(iso, windows) {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return false;
+  return (windows || []).some((w) => {
+    const start = w.start || new Date(w.startIso);
+    const end = w.end || new Date(w.endIso);
+    return t >= start && t < end;
+  });
+}
+
+function isIsoInAstroDark(iso, lat, lon) {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return false;
+  const night = nextAstroNight(lat, lon, t);
+  const start = night.dusk || night.darkStart;
+  const end = night.dawn || night.darkEnd;
+  return !!(start && end && t >= start && t < end);
+}
+
+let _skyFxRequestKey = '';
+
 function renderForecastFrame() {
+  updateHomeLocationButton();
+  refreshSkyFxCreditTickerOnly();
   const loc = data.forecastLocation;
   const wrap = document.getElementById('locfx-wrap');
   const statusEl = document.getElementById('locfx-status');
-  if (!loc) { wrap.style.display = 'none'; return; }
-  const lat = Number(loc.lat).toFixed(2);
-  const lon = Number(loc.lon).toFixed(2);
-  document.getElementById('locfx-img').src = `https://clearoutside.com/forecast_image_large/${lat}/${lon}/forecast.png`;
-  document.getElementById('locfx-link').href = `https://clearoutside.com/forecast/${lat}/${lon}`;
-  wrap.style.display = 'block';
-  statusEl.textContent = loc.name ? `Showing forecast for ${loc.name} (${lat}, ${lon})` : `Showing forecast for ${lat}, ${lon}`;
+  if (!loc || !Number.isFinite(Number(loc.lat)) || !Number.isFinite(Number(loc.lon))) {
+    if (wrap) wrap.hidden = true;
+    return;
+  }
   document.getElementById('locfx-name').value = loc.name || '';
   document.getElementById('locfx-lat').value = loc.lat;
   document.getElementById('locfx-lon').value = loc.lon;
+  if (wrap) wrap.hidden = false;
+  const preferFallback = skyFxPreferFallback();
+  const preferSynthetic = skyFxPreferSynthetic() && !preferFallback;
+  const key = Number(loc.lat).toFixed(4) + ',' + Number(loc.lon).toFixed(4) +
+    (preferFallback ? '|fb' : preferSynthetic ? '|syn' : '|live');
+  const list = document.getElementById('skyfx-nights-list');
+  if (key === _skyFxRequestKey && list && list.children.length) return;
+  refreshSkyForecastPanel(false);
 }
+
+function fmtFetchedAt(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function showClearOutsideFallback(lat, lon, show) {
+  const wrap = document.getElementById('skyfx-co-wrap');
+  const img = document.getElementById('skyfx-co-img');
+  const link = document.getElementById('skyfx-co-link');
+  const offlineEl = document.getElementById('skyfx-co-offline');
+  if (!wrap || !img || !link) return;
+  if (!show) {
+    wrap.hidden = true;
+    if (offlineEl) offlineEl.hidden = true;
+    img.hidden = false;
+    return;
+  }
+  wrap.hidden = false;
+  if (!skyFxIsOnline()) {
+    img.removeAttribute('src');
+    img.hidden = true;
+    if (offlineEl) offlineEl.hidden = false;
+    link.removeAttribute('href');
+    return;
+  }
+  img.hidden = false;
+  if (offlineEl) offlineEl.hidden = true;
+  const la = Number(lat).toFixed(2);
+  const lo = Number(lon).toFixed(2);
+  img.onerror = () => {
+    img.hidden = true;
+    if (offlineEl) {
+      offlineEl.hidden = false;
+      offlineEl.textContent = skyFxIsOnline()
+        ? 'Clear Outside image failed to load'
+        : 'Clear Outside unavailable offline';
+    }
+  };
+  img.src = 'https://clearoutside.com/forecast_image_large/' + la + '/' + lo + '/forecast.png';
+  link.href = 'https://clearoutside.com/forecast/' + la + '/' + lo;
+}
+
+function setSkyFxDataBanner(res) {
+  const synthBanner = document.getElementById('skyfx-synth-banner');
+  const fallbackBanner = document.getElementById('skyfx-fallback-banner');
+  const isSynth = !!(res && res.synthetic);
+  const isFallback = !!(res && (res.fallback || res.noRag || res.source === 'open-meteo'));
+  // Gate network UI on real connectivity — not on res.offline (that only means
+  // this payload was served from cache after a failed live call).
+  const netDown = !skyFxIsOnline();
+  const usedOfflineCache = !!(res && res.offline);
+  if (synthBanner) synthBanner.hidden = !isSynth;
+  if (fallbackBanner) fallbackBanner.hidden = isSynth || netDown || !isFallback;
+  if (netDown) {
+    setSkyFxOfflineBanner(true, usedOfflineCache && res && res.cached
+      ? 'Showing last cached forecast — live pull unavailable'
+      : 'Forecast APIs unavailable offline');
+  } else {
+    setSkyFxOfflineBanner(false);
+  }
+}
+
+/** Lit-fraction moon glyph via elliptical terminator (sen-ltd / classic SVG arc method). */
+function moonLitPath(phase, r) {
+  const p = ((Number(phase) % 1) + 1) % 1;
+  if (p < 0.001 || p > 0.999) return '';
+  if (Math.abs(p - 0.5) < 0.001) {
+    return 'M 0 ' + (-r) + ' A ' + r + ' ' + r + ' 0 1 1 0 ' + r +
+      ' A ' + r + ' ' + r + ' 0 1 1 0 ' + (-r) + ' Z';
+  }
+  const cosPhase = Math.cos(2 * Math.PI * p);
+  const minor = Math.max(0.01, Math.abs(cosPhase) * r);
+  const waxing = p < 0.5;
+  const outerSweep = waxing ? 1 : 0;
+  const innerSweep = cosPhase < 0 ? 1 : 0;
+  return 'M 0 ' + (-r) +
+    ' A ' + r + ' ' + r + ' 0 0 ' + outerSweep + ' 0 ' + r +
+    ' A ' + minor + ' ' + r + ' 0 0 ' + innerSweep + ' 0 ' + (-r) + ' Z';
+}
+
+function moonSvgMarkup(phase, size, className) {
+  const r = 48;
+  const lit = moonLitPath(phase, r);
+  return '<svg class="' + className + '" viewBox="-56 -56 112 112" width="' + size +
+    '" height="' + size + '" aria-hidden="true">' +
+    '<circle class="moon-disk" cx="0" cy="0" r="' + r + '"/>' +
+    (lit ? '<path class="moon-lit" d="' + lit + '"/>' : '') +
+  '</svg>';
+}
+
+function miniMoonSvg(kind) {
+  const phase =
+    kind === 'new' ? 0 :
+    kind === 'first' ? 0.25 :
+    kind === 'full' ? 0.5 :
+    kind === 'last' ? 0.75 : 0;
+  return moonSvgMarkup(phase, 16, 'skyfx-mini-moon-svg');
+}
+
+function nextMajorMoonPhases(now = new Date()) {
+  const synodic = 29.530588853;
+  const info = moonPhaseInfo(now);
+  const age = info.ageDays;
+  const marks = [
+    { name: 'First Quarter', age: synodic * 0.25, kind: 'first' },
+    { name: 'Full Moon', age: synodic * 0.5, kind: 'full' },
+    { name: 'Last Quarter', age: synodic * 0.75, kind: 'last' },
+    { name: 'New Moon', age: synodic, kind: 'new' },
+  ];
+  const upcoming = [];
+  for (let cycle = 0; cycle < 2 && upcoming.length < 4; cycle++) {
+    for (const m of marks) {
+      let delta = m.age - age + cycle * synodic;
+      if (delta <= 0.05) continue;
+      const when = new Date(now.getTime() + delta * 86400000);
+      upcoming.push({
+        name: m.name,
+        kind: m.kind,
+        when,
+        label: when.toLocaleDateString('en-US', {
+          timeZone: 'America/New_York',
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        }),
+      });
+      if (upcoming.length >= 4) break;
+    }
+  }
+  return upcoming;
+}
+
+function renderMoonTrackCard(lat, lon) {
+  const el = document.getElementById('skyfx-moon-card');
+  if (!el) return;
+  const now = new Date();
+  const moon = moonPhaseInfo(now);
+  const altRad = _ASTRO.moonAltitude(now, lat, lon);
+  const altDeg = altRad != null && Number.isFinite(altRad)
+    ? Math.round((altRad * 180) / Math.PI)
+    : null;
+  const next = nextMajorMoonPhases(now);
+  el.innerHTML =
+    '<div class="skyfx-card-title">Moon Details</div>' +
+    '<div class="skyfx-moon-card-body">' +
+      '<div class="skyfx-moon-current">' +
+        '<div class="eyebrow">Current Moon Phase</div>' +
+        '<div class="phase-name">' + escapeHtml(moon.name) + '</div>' +
+        '<div class="skyfx-moon-disc-wrap">' +
+          moonSvgMarkup(moon.phase, 120, 'skyfx-moon-svg') +
+        '</div>' +
+        '<div class="skyfx-moon-stats">' +
+          '<div class="row"><span class="k">Altitude</span><span class="v">' +
+            (altDeg != null ? altDeg + '°' : '—') + '</span></div>' +
+          '<div class="row"><span class="k">Illuminated</span><span class="v">' +
+            moon.illum + '%</span></div>' +
+          '<div class="row"><span class="k">Age (days)</span><span class="v">' +
+            Math.round(moon.ageDays) + '</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="skyfx-moon-next">' +
+        '<div class="eyebrow">Next Moon Phase</div>' +
+        '<div class="skyfx-moon-next-list">' +
+          next.map((p) =>
+            '<div class="row"><span class="phase">' + miniMoonSvg(p.kind) +
+              escapeHtml(p.name) +
+              '</span><span class="date">' + escapeHtml(p.label) + '</span></div>'
+          ).join('') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function renderSunTrackCard(lat, lon) {
+  const el = document.getElementById('skyfx-sun-card');
+  if (!el) return;
+  const now = new Date();
+  const times = _ASTRO.getTimes(now, lat, lon);
+  // Diagram removed: third-party sun-path embeds need net and fight red-mode;
+  // custom SVG kept looking wrong. Times-only card stays useful for planning.
+  el.innerHTML =
+    '<div class="skyfx-card-title">Sun Times</div>' +
+    '<div class="skyfx-sun-times-card">' +
+      '<div class="row"><span class="k">Sunrise</span><span class="v">' + fmtSkyTime(times.sunrise) + '</span></div>' +
+      '<div class="row"><span class="k">Solar noon</span><span class="v">' + fmtSkyTime(times.solarNoon) + '</span></div>' +
+      '<div class="row"><span class="k">Sunset</span><span class="v">' + fmtSkyTime(times.sunset) + '</span></div>' +
+      '<div class="row"><span class="k">Civil dawn</span><span class="v">' + fmtSkyTime(times.civilDawn) + '</span></div>' +
+      '<div class="row"><span class="k">Civil dusk</span><span class="v">' + fmtSkyTime(times.civilDusk) + '</span></div>' +
+      '<div class="row"><span class="k">Astro dusk</span><span class="v">' + fmtSkyTime(times.astroDusk) + '</span></div>' +
+      '<div class="row"><span class="k">Astro dawn</span><span class="v">' + fmtSkyTime(times.astroDawn) + '</span></div>' +
+    '</div>';
+}
+
+async function refreshSkyFxConditions(lat, lon) {
+  renderMoonTrackCard(lat, lon);
+  renderSunTrackCard(lat, lon);
+}
+
+function skyfxMetric(key, value, sub, rag, dimmed) {
+  return '<div class="skyfx-metric' +
+    (rag ? ' rag-' + rag : '') +
+    (dimmed ? ' dimmed' : '') + '">' +
+    '<div class="k">' + escapeHtml(key) + '</div>' +
+    '<div class="v">' + escapeHtml(value == null || value === '' ? '—' : String(value)) + '</div>' +
+    (sub ? '<div class="s">' + escapeHtml(sub) + '</div>' : '') +
+    '</div>';
+}
+
+function updateSkyFxCreditTicker(res) {
+  const main = document.getElementById('skyfx-credit-ticker-main');
+  const sub = document.getElementById('skyfx-credit-ticker-sub');
+  if (!main) return;
+
+  const pullsLeft = res && res.pullsRemaining != null ? res.pullsRemaining : null;
+  const pullsCap = res && res.pullsPerMonth != null ? res.pullsPerMonth : null;
+  const days = res && res.daysUntilReset != null ? res.daysUntilReset : null;
+  const offline = !skyFxIsOnline() || !!(res && res.offline);
+
+  if (pullsLeft == null || pullsCap == null) {
+    main.innerHTML = offline
+      ? '<strong>API pulls</strong> · offline'
+      : '<strong>API pulls</strong> · unknown until first Astrospheric pull';
+  } else {
+    const resetBit = days == null
+      ? 'resets 1st of month (UTC)'
+      : (days === 0
+        ? 'resets today (midnight UTC)'
+        : (days === 1 ? 'resets in 1 day' : 'resets in ' + days + ' days'));
+    main.innerHTML = '<strong>' + pullsLeft + '/' + pullsCap + ' requests remaining</strong>' +
+      ' · ' + escapeHtml(resetBit) +
+      (offline ? ' · <span style="color:var(--red)">offline</span>' : '');
+  }
+
+  if (sub) {
+    if (res && res.fetchedAt) {
+      sub.textContent = 'Last updated ' + fmtFetchedAt(res.fetchedAt) +
+        (offline && res.cached ? ' · cached' : '') +
+        (res.refreshError ? ' · pull failed: ' + String(res.refreshError) : '');
+    } else if (!sub.textContent || !sub.textContent.startsWith('Last updated')) {
+      sub.textContent = offline ? 'No internet' : '';
+    }
+  }
+}
+
+async function refreshSkyFxCreditTickerOnly() {
+  if (!(window.zukoApp && typeof window.zukoApp.astrosphericCredits === 'function')) {
+    updateSkyFxCreditTicker(null);
+    return;
+  }
+  try {
+    const res = await window.zukoApp.astrosphericCredits();
+    if (res && res.ok !== false) updateSkyFxCreditTicker(res);
+    else updateSkyFxCreditTicker(null);
+  } catch (e) {
+    updateSkyFxCreditTicker(null);
+  }
+}
+
+async function refreshSkyForecastPanel(forceRefresh) {
+  const loc = data.forecastLocation;
+  const wrap = document.getElementById('locfx-wrap');
+  const statusEl = document.getElementById('locfx-status');
+  const metricsEl = document.getElementById('skyfx-metrics');
+  const nightsListEl = document.getElementById('skyfx-nights-list');
+  const linkEl = document.getElementById('skyfx-link');
+  const refreshBtn = document.getElementById('skyfx-refresh-btn');
+  if (!loc || !wrap) return;
+
+  initSkyFxConnectivityListeners();
+  const online = skyFxIsOnline();
+  setSkyFxOfflineBanner(!online);
+
+  const lat = Number(loc.lat);
+  const lon = Number(loc.lon);
+  const preferFallback = skyFxPreferFallback();
+  const preferSynthetic = skyFxPreferSynthetic() && !preferFallback;
+  const requestKey = lat.toFixed(4) + ',' + lon.toFixed(4) +
+    (preferFallback ? '|fb' : preferSynthetic ? '|syn' : '|live');
+  _skyFxRequestKey = requestKey;
+  const nights = upcomingImagingNights(lat, lon, 3, 1);
+  if (!nights.length) {
+    if (statusEl) {
+      statusEl.hidden = false;
+      statusEl.textContent = 'Astro-dark windows unavailable for this location.';
+    }
+    return;
+  }
+
+  if (linkEl) {
+    linkEl.href = 'https://www.astrospheric.com/?Latitude=' + encodeURIComponent(lat) +
+      '&Longitude=' + encodeURIComponent(lon);
+  }
+  const willForcePull = !!forceRefresh && online && !preferFallback && !preferSynthetic;
+  if (refreshBtn) {
+    refreshBtn.hidden = preferFallback || preferSynthetic;
+    refreshBtn.title = !online
+      ? 'Needs internet to pull fresh Astrospheric data'
+      : 'Force a new Astrospheric pull (~65 credits)';
+    if (willForcePull) {
+      refreshBtn.disabled = true;
+      refreshBtn.classList.add('is-loading');
+      refreshBtn.dataset.labelRestore = refreshBtn.textContent || 'Pull fresh data';
+      refreshBtn.textContent = 'Pulling…';
+    } else {
+      refreshBtn.disabled = !online || preferFallback || preferSynthetic;
+      refreshBtn.classList.remove('is-loading');
+    }
+  }
+  refreshSkyFxConditions(lat, lon);
+  if (statusEl) {
+    statusEl.hidden = true;
+    statusEl.textContent = '';
+  }
+
+  try {
+    let res = null;
+    const payload = {
+      lat,
+      lon,
+      windows: nights.map((n) => ({
+        startIso: n.startIso,
+        endIso: n.endIso,
+        label: n.label,
+      })),
+      windowStartIso: nights[0].startIso,
+      windowEndIso: nights[0].endIso,
+      forceRefresh: willForcePull,
+      preferFallback,
+      preferSynthetic,
+      simulateOffline: skyFxSimulateOffline(),
+    };
+
+    const pullStarted = Date.now();
+    if (window.zukoApp && typeof window.zukoApp.skyForecast === 'function') {
+      res = await window.zukoApp.skyForecast(payload);
+    } else {
+      res = {
+        ok: false,
+        primaryError: 'Astrospheric requires the desktop app',
+        fallback: true,
+        noRag: true,
+        clearOutsideSuggested: true,
+      };
+    }
+    if (willForcePull) {
+      const remain = 1500 - (Date.now() - pullStarted);
+      if (remain > 0) await new Promise((r) => setTimeout(r, remain));
+    }
+
+    const offline = !online || !!(res && res.offline);
+
+    if (!res || !res.ok) {
+      wrap.hidden = false;
+      setSkyFxDataBanner(res || { offline: true, fallback: true, noRag: true });
+      updateSkyFxCreditTicker(res);
+      if (statusEl) {
+        statusEl.hidden = false;
+        statusEl.textContent = offline
+          ? 'No internet — live forecast unavailable' +
+            (res && res.primaryError && !/internet|offline|fetch/i.test(res.primaryError)
+              ? ' — ' + res.primaryError
+              : '')
+          : ('Forecast unavailable' +
+            (res && (res.primaryError || res.error) ? ' — ' + (res.primaryError || res.error) : ''));
+      }
+      if (metricsEl) {
+        metricsEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · shoot metrics unavailable' +
+          (res && res.cached ? ' (no usable cache)' : '') + '</div>';
+      }
+      if (nightsListEl) {
+        nightsListEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · hourly night forecast unavailable</div>';
+      }
+      showClearOutsideFallback(lat, lon, true);
+      return;
+    }
+
+    wrap.hidden = false;
+    const a = res.averages || {};
+    const isFallback = !!(res.fallback || res.noRag || res.source === 'open-meteo');
+    if (offline) res = { ...res, offline: true };
+    setSkyFxDataBanner(res);
+    updateSkyFxCreditTicker(res);
+    showClearOutsideFallback(lat, lon, isFallback || offline);
+
+    if (metricsEl) {
+      const night0 = (res.nights && res.nights[0]) || null;
+      const tonightAvg = (night0 && night0.averages) || a;
+      const dayLabel = nights[0].label || 'Tonight';
+      const precipVal = tonightAvg.precipChance != null
+        ? tonightAvg.precipChance
+        : a.precipChance;
+      const items = [];
+      if (!isFallback) {
+        items.push(skyfxMetric(dayLabel, res.label || res.rag, (night0
+          ? night0.greenHours + ' green / ' + night0.hoursScored + 'h'
+          : ''), res.rag));
+      } else {
+        items.push(skyfxMetric(dayLabel, 'No RAG', 'fallback · observational only', '', true));
+      }
+      items.push(
+        skyfxMetric('Cloud', tonightAvg.cloud != null ? tonightAvg.cloud + '%' : '—', 'night avg', metricRagFromCloud(tonightAvg.cloud)),
+        skyfxMetric('Transparency', tonightAvg.transparency != null ? String(tonightAvg.transparency) : '—',
+          isFallback ? 'Astrospheric only' : ((tonightAvg.transparencyLabel || '') + ' · 0–27+'),
+          isFallback ? '' : metricRagFromTrans(tonightAvg.transparency),
+          isFallback || tonightAvg.transparency == null),
+        skyfxMetric('Seeing', tonightAvg.seeing != null ? String(tonightAvg.seeing) : '—',
+          isFallback ? 'Astrospheric only' : ((tonightAvg.seeingLabel || '') + ' · 0–5'),
+          isFallback ? '' : metricRagFromSeeing(tonightAvg.seeing),
+          isFallback || tonightAvg.seeing == null),
+        skyfxMetric('Temp', tonightAvg.tempF != null ? tonightAvg.tempF + '°F' : '—', 'night avg'),
+        skyfxMetric('Precip', precipVal != null ? precipVal + '%' : '—', 'night avg')
+      );
+      metricsEl.innerHTML = items.join('');
+    }
+
+    if (nightsListEl) {
+      const byKey = new Map();
+      (res.nights || []).forEach((n) => {
+        if (n && n.startIso && n.endIso) byKey.set(n.startIso + '|' + n.endIso, n);
+      });
+      const nightBlocks = nights.map((cal, idx) => {
+        const scored = byKey.get(cal.key) || (res.nights && res.nights[idx]) || null;
+        const moonAt = moonPhaseInfo(cal.dusk || new Date(cal.startIso));
+        return {
+          label: cal.label,
+          rag: isFallback ? null : ((scored && scored.rag) || null),
+          labelGo: isFallback ? null : ((scored && scored.labelGo) || null),
+          startIso: cal.startIso,
+          endIso: cal.endIso,
+          hoursScored: scored ? scored.hoursScored : 0,
+          greenHours: scored ? scored.greenHours : 0,
+          averages: (scored && scored.averages) || {},
+          hours: (scored && scored.hours) || [],
+          moon: moonAt,
+        };
+      });
+
+      nightsListEl.innerHTML = nightBlocks.map((n, idx) => {
+        const avg = n.averages || {};
+        const openAttr = idx === 0 ? ' open' : '';
+        const rag = n.rag;
+        const moonBit = n.moon
+          ? (n.moon.icon + ' ' + n.moon.illum + '%')
+          : null;
+        const summaryBits = [
+          escapeHtml(n.label || ('Night ' + (idx + 1))),
+          (!isFallback && rag
+            ? '<span class="rag-tag rag-' + rag + '">' + escapeHtml(n.labelGo || rag) + '</span>'
+            : null),
+          (n.hoursScored != null ? n.hoursScored + 'h' : null),
+          moonBit,
+          (avg.cloud != null ? avg.cloud + '% cloud' : null),
+          (!isFallback && avg.transparency != null ? 'trans ' + avg.transparency : null),
+          (!isFallback && avg.seeing != null ? 'seeing ' + avg.seeing : null),
+          (avg.tempF != null ? avg.tempF + '°F' : null),
+          (avg.precipChance != null ? avg.precipChance + '% precip' : null),
+        ].filter(Boolean);
+        const rows = (n.hours || []).map((h) => {
+          const local = fmtSkyTime(new Date(h.iso));
+          const dayBit = new Date(h.iso).toLocaleDateString('en-US', {
+            timeZone: 'America/New_York',
+            weekday: 'short',
+            hour: 'numeric',
+            minute: '2-digit',
+          });
+          const hrRag = isFallback ? null : (h.rag || null);
+          const cloudCell = h.cloud != null ? skyfxSwatch(h.cloudColor) + h.cloud + '%' : '—';
+          const transCell = isFallback
+            ? '<span class="meta-muted">—</span>'
+            : (h.transparency != null
+              ? skyfxSwatch(h.transparencyColor) + h.transparency +
+                (h.transparencyLabel ? ' · ' + h.transparencyLabel : '')
+              : '—');
+          const seeCell = isFallback
+            ? '<span class="meta-muted">—</span>'
+            : (h.seeing != null
+              ? skyfxSwatch(h.seeingColor) + h.seeing +
+                (h.seeingLabel ? ' · ' + h.seeingLabel : '')
+              : '—');
+          const tempCell = h.tempF != null ? h.tempF + '°F' : '—';
+          const precipCell = h.precipChance != null ? h.precipChance + '%' : '—';
+          const ragCell = isFallback
+            ? '—'
+            : (hrRag === 'green' ? 'GO' : hrRag === 'red' ? 'NO' : hrRag === 'amber' ? 'OK' : '—') +
+              (h.score != null ? ' · ' + h.score : '');
+          return '<tr class="' + (hrRag ? 'rag-' + hrRag + ' ' : '') + 'astro-dark">' +
+            '<td>' + escapeHtml(dayBit || local) + '</td>' +
+            '<td class="rag-cell">' + escapeHtml(ragCell) + '</td>' +
+            '<td>' + cloudCell + '</td>' +
+            '<td class="' + (isFallback ? 'meta-muted' : '') + '">' + transCell + '</td>' +
+            '<td class="' + (isFallback ? 'meta-muted' : '') + '">' + seeCell + '</td>' +
+            '<td>' + escapeHtml(tempCell) + '</td>' +
+            '<td>' + escapeHtml(precipCell) + '</td>' +
+            '</tr>';
+        }).join('');
+
+        return '<details class="skyfx-night"' + openAttr + '>' +
+          '<summary>' + summaryBits.join(' · ') + '</summary>' +
+          '<div class="skyfx-table-wrap">' +
+            '<table class="skyfx-table">' +
+              '<colgroup>' +
+                '<col class="c-local"><col class="c-rag"><col class="c-cloud">' +
+                '<col class="c-trans"><col class="c-seeing"><col class="c-temp"><col class="c-precip">' +
+              '</colgroup>' +
+              '<thead><tr>' +
+                '<th>Local</th><th>RAG</th><th>Cloud</th>' +
+                '<th title="Transparency 0–27+ (lower better)">Trans</th>' +
+                '<th title="Seeing 0–5 (higher better)">Seeing</th>' +
+                '<th>Temp</th>' +
+                '<th>Precip</th>' +
+              '</tr></thead>' +
+              '<tbody>' + (rows || '<tr><td colspan="7">No hourly rows</td></tr>') + '</tbody>' +
+            '</table>' +
+          '</div>' +
+        '</details>';
+      }).join('');
+    }
+  } catch (e) {
+    const offline = !skyFxIsOnline() || /fetch|network|offline/i.test(String(e && e.message));
+    setSkyFxDataBanner({ ok: false, fallback: true, noRag: true, offline });
+    if (statusEl) {
+      statusEl.hidden = false;
+      statusEl.textContent = offline
+        ? 'No internet — live forecast unavailable'
+        : ('Forecast error: ' + (e && e.message ? e.message : e));
+    }
+    if (metricsEl) {
+      metricsEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · shoot metrics unavailable</div>';
+    }
+    if (nightsListEl) {
+      nightsListEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · hourly night forecast unavailable</div>';
+    }
+    showClearOutsideFallback(lat, lon, true);
+  } finally {
+    if (refreshBtn) {
+      refreshBtn.classList.remove('is-loading');
+      if (refreshBtn.dataset.labelRestore) {
+        refreshBtn.textContent = refreshBtn.dataset.labelRestore;
+        delete refreshBtn.dataset.labelRestore;
+      } else if (/^Pulling/i.test(refreshBtn.textContent || '')) {
+        refreshBtn.textContent = 'Pull fresh data';
+      }
+      const canPull = skyFxIsOnline() && !skyFxPreferFallback() && !skyFxPreferSynthetic();
+      refreshBtn.classList.toggle('is-offline', !skyFxIsOnline());
+      refreshBtn.disabled = !canPull;
+      refreshBtn.title = canPull
+        ? 'Force a new Astrospheric pull (~65 credits)'
+        : 'Needs internet to pull fresh Astrospheric data';
+    }
+  }
+}
+
 
 // ============ RENDER ============
 function render() {
@@ -4204,6 +5839,11 @@ function render() {
 
 function renderUnsafe() {
   document.title = 'Zuko Astrophotography Dashboard';
+  const rigEl = document.getElementById('rig-name-el');
+  if (rigEl) {
+    const name = (data.rigName && String(data.rigName).trim()) || 'Zuko';
+    rigEl.textContent = name + ' Astrophotography Dashboard';
+  }
 
   renderProjects();
   renderForecastFrame();
@@ -5205,9 +6845,9 @@ function setIngestBusy(on, message) {
   }
 }
 
-/** Show busy UI; stays at least `minMs` (default 3s), longer while work is still running. */
+/** Show busy UI; stays at least `minMs` (default 2s), longer while work is still running. */
 async function withIngestBusy(message, work, opts = {}) {
-  const minMs = opts.minMs == null ? 3000 : opts.minMs;
+  const minMs = opts.minMs == null ? 2000 : opts.minMs;
   const gen = ++ingestBusyState.gen;
   const started = Date.now();
   setIngestBusy(true, message);
@@ -8041,7 +9681,7 @@ async function runIngestStage(force = false) {
       includeTargets: targetOpts.includeTargets,
       targetCoords: targetOpts.targetCoords,
       skipTargetHint: targetOpts.skipTargetHint,
-    }), { minMs: 3000 });
+    }), { minMs: 2000 });
 
   if (!result || !result.ok) {
     if (result && result.code === 'DEST_EXISTS') {
@@ -8624,6 +10264,223 @@ function setUiTheme(theme) {
   persistData();
 }
 
+// ============ SETTINGS ============
+let settingsApiKeyConfigured = false;
+
+function setSettingsStatus(msg, kind) {
+  const el = document.getElementById('settings-status');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.className = 'settings-status' + (kind ? ' ' + kind : '');
+}
+
+function updateSettingsApiKeyStatus(status) {
+  const el = document.getElementById('settings-api-key-status');
+  settingsApiKeyConfigured = !!(status && status.configured);
+  if (!el) return;
+  if (status && status.configured) {
+    el.textContent = 'Configured · ' + (status.masked || '••••') + ' (leave blank to keep)';
+  } else {
+    el.textContent = 'Not configured — paste a key below and Save';
+  }
+}
+
+async function openSettings() {
+  ensureHomeSite();
+  const home = data.homeSite || HOME_SITE;
+  const rig = document.getElementById('settings-rig-name');
+  if (rig) rig.value = data.rigName || 'Zuko';
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val != null ? String(val) : '';
+  };
+  set('settings-home-name', home.name);
+  set('settings-home-lat', home.lat);
+  set('settings-home-lon', home.lon);
+  set('settings-home-zip', home.zip);
+  set('settings-home-bortle', home.bortle);
+  const keyInput = document.getElementById('settings-api-key');
+  if (keyInput) {
+    keyInput.value = '';
+    keyInput.disabled = !(window.zukoApp && typeof window.zukoApp.setAstrosphericKey === 'function');
+  }
+
+  setSettingsStatus('');
+  updateSettingsApiKeyStatus({ configured: false, masked: '' });
+
+  const aboutApp = document.getElementById('settings-about-app');
+  const aboutData = document.getElementById('settings-about-data');
+  const aboutProjects = document.getElementById('settings-about-projects');
+  if (aboutApp) aboutApp.textContent = formatAppMetaLabel(APP_META);
+
+  if (window.zukoApp && typeof window.zukoApp.getSettings === 'function') {
+    try {
+      const s = await window.zukoApp.getSettings();
+      if (s && s.ok) {
+        if (aboutApp && s.app) aboutApp.textContent = formatAppMetaLabel(s.app);
+        if (aboutData) aboutData.textContent = s.dataPath || '—';
+        if (aboutProjects) aboutProjects.textContent = s.projectsRoot || '—';
+        updateSettingsApiKeyStatus(s.astrospheric || {});
+      }
+    } catch (e) {
+      setSettingsStatus(String(e && e.message ? e.message : e), 'err');
+    }
+  } else {
+    if (aboutData) {
+      aboutData.textContent = window.zukoFs
+        ? 'Electron data file'
+        : 'Browser local / linked JSON';
+    }
+    if (aboutProjects) aboutProjects.textContent = '—';
+    updateSettingsApiKeyStatus({ configured: false });
+    const hint = document.getElementById('settings-api-key-status');
+    if (hint) hint.textContent = 'Astrospheric key can only be set in the desktop app';
+  }
+
+  const overlay = document.getElementById('settings-overlay');
+  if (overlay) overlay.classList.add('open');
+  setTimeout(() => {
+    const el = document.getElementById('settings-rig-name');
+    if (el) el.focus();
+  }, 40);
+}
+
+function closeSettings() {
+  const overlay = document.getElementById('settings-overlay');
+  if (overlay) overlay.classList.remove('open');
+  setSettingsStatus('');
+}
+
+function settingsResetHome() {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = String(val);
+  };
+  set('settings-home-name', HOME_SITE.name);
+  set('settings-home-lat', HOME_SITE.lat);
+  set('settings-home-lon', HOME_SITE.lon);
+  set('settings-home-zip', HOME_SITE.zip);
+  set('settings-home-bortle', HOME_SITE.bortle);
+  setSettingsStatus('Reset fields to NYC default — Save to apply', 'warn');
+}
+
+async function settingsUseMyLocation() {
+  setSettingsStatus('Getting location…', 'warn');
+  try {
+    let lat = null;
+    let lon = null;
+    if (window.zukoApp && window.zukoApp.geolocate) {
+      const res = await window.zukoApp.geolocate();
+      if (res && res.ok) {
+        lat = res.lat;
+        lon = res.lon;
+      } else {
+        throw new Error((res && res.error) || 'Location unavailable');
+      }
+    } else if (navigator.geolocation) {
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 15000,
+        });
+      });
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+    } else {
+      throw new Error('Geolocation not available');
+    }
+    document.getElementById('settings-home-lat').value = Number(lat).toFixed(4);
+    document.getElementById('settings-home-lon').value = Number(lon).toFixed(4);
+    setSettingsStatus('Location filled — Save to apply', 'ok');
+  } catch (e) {
+    setSettingsStatus(String(e && e.message ? e.message : e), 'err');
+  }
+}
+
+async function settingsClearApiKey() {
+  if (!(window.zukoApp && typeof window.zukoApp.setAstrosphericKey === 'function')) {
+    setSettingsStatus('Desktop app required to clear API key', 'err');
+    return;
+  }
+  if (!confirm('Clear the Astrospheric API key from local .env?')) return;
+  try {
+    const res = await window.zukoApp.setAstrosphericKey('');
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Clear failed');
+    const keyInput = document.getElementById('settings-api-key');
+    if (keyInput) keyInput.value = '';
+    updateSettingsApiKeyStatus(res);
+    setSettingsStatus('API key cleared', 'ok');
+    refreshHeaderSky();
+  } catch (e) {
+    setSettingsStatus(String(e && e.message ? e.message : e), 'err');
+  }
+}
+
+async function saveSettings() {
+  const rigName = (document.getElementById('settings-rig-name').value || '').trim() || 'Zuko';
+  const name = (document.getElementById('settings-home-name').value || '').trim() || 'Home';
+  const lat = parseFloat(document.getElementById('settings-home-lat').value);
+  const lon = parseFloat(document.getElementById('settings-home-lon').value);
+  const zip = (document.getElementById('settings-home-zip').value || '').trim();
+  const bortle = (document.getElementById('settings-home-bortle').value || '').trim();
+
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
+    setSettingsStatus('Enter a valid latitude (−90…90)', 'err');
+    return;
+  }
+  if (!Number.isFinite(lon) || lon < -180 || lon > 180) {
+    setSettingsStatus('Enter a valid longitude (−180…180)', 'err');
+    return;
+  }
+
+  data.rigName = rigName;
+  data.homeSite = { name, lat, lon, zip, bortle };
+  data.forecastLocation = { name, lat, lon };
+
+  const keyInput = document.getElementById('settings-api-key');
+  const newKey = keyInput ? keyInput.value.trim() : '';
+  if (newKey) {
+    if (!(window.zukoApp && typeof window.zukoApp.setAstrosphericKey === 'function')) {
+      setSettingsStatus('Desktop app required to save Astrospheric key', 'err');
+      return;
+    }
+    try {
+      const res = await window.zukoApp.setAstrosphericKey(newKey);
+      if (!res || !res.ok) throw new Error((res && res.error) || 'Key save failed');
+      updateSettingsApiKeyStatus(res);
+      keyInput.value = '';
+    } catch (e) {
+      setSettingsStatus(String(e && e.message ? e.message : e), 'err');
+      return;
+    }
+  }
+
+  save();
+  closeSettings();
+  _skyFxRequestKey = '';
+  refreshHeaderSky();
+  renderForecastFrame();
+}
+
+document.getElementById('settings-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'settings-overlay') closeSettings();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const overlay = document.getElementById('settings-overlay');
+  if (overlay && overlay.classList.contains('open')) {
+    closeSettings();
+    e.preventDefault();
+  }
+});
+
+if (window.zukoApp && typeof window.zukoApp.onOpenSettings === 'function') {
+  window.zukoApp.onOpenSettings(() => openSettings());
+}
+if (window.zukoApp && typeof window.zukoApp.onDevFlags === 'function') {
+  window.zukoApp.onDevFlags((flags) => applySkyFxDevFlags(flags));
+}
+
 // Sync toggle active state to whatever was applied in <head>
 try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute('data-theme'))); } catch (e) {}
 
@@ -8633,6 +10490,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
   try {
     setBootStatus('Loading app…');
     await initAppMeta();
+    await loadSkyFxDevFlags();
     if (data && data.appMeta) adoptLoadedData(data);
     setBootStatus(window.zukoFs ? 'Reading data file…' : 'Loading local data…');
     const electron = await bootFromElectronFile();
@@ -8645,6 +10503,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     // Persist recomputed filter hours (and any other adopt fixes) back to disk
     persistData();
     syncHeaderVersion();
+    initSkyFxConnectivityListeners();
     dismissBootSplash();
     // Weather / moon after first paint — don't block the UI
     refreshHeaderSky();

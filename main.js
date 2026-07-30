@@ -7,6 +7,50 @@ const { promisify } = require('util');
 const execFileAsync = promisify(execFile);
 
 const ASIAIR_INGEST_PATH = path.join(__dirname, 'src', 'ingest', 'asiairIngest.js');
+const {
+  loadDotEnv,
+  recommendTonightShoot,
+  getSkyForecast,
+  getApiKeyStatus,
+  setApiKey,
+  setForecastCacheDir,
+  getStoredCreditInfo,
+} = require('./src/weather/tonightShoot');
+
+loadDotEnv(__dirname);
+
+const DEV_FLAGS_FILE = path.join(__dirname, 'data', 'dev-flags.json');
+
+function readDevFlags() {
+  try {
+    if (!fs.existsSync(DEV_FLAGS_FILE)) {
+      return { forceFallback: false, syntheticAstrospheric: false, simulateOffline: false };
+    }
+    const parsed = JSON.parse(fs.readFileSync(DEV_FLAGS_FILE, 'utf8'));
+    return {
+      forceFallback: !!parsed.forceFallback,
+      syntheticAstrospheric: !!parsed.syntheticAstrospheric,
+      simulateOffline: !!parsed.simulateOffline,
+    };
+  } catch {
+    return { forceFallback: false, syntheticAstrospheric: false, simulateOffline: false };
+  }
+}
+
+function writeDevFlags(flags) {
+  const next = {
+    forceFallback: !!(flags && flags.forceFallback),
+    syntheticAstrospheric: !!(flags && flags.syntheticAstrospheric),
+    simulateOffline: !!(flags && flags.simulateOffline),
+  };
+  try {
+    fs.mkdirSync(path.dirname(DEV_FLAGS_FILE), { recursive: true });
+    fs.writeFileSync(DEV_FLAGS_FILE, JSON.stringify(next, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('dev-flags write failed:', err && err.message ? err.message : err);
+  }
+  return next;
+}
 
 /** Always reload ingest module so staging fixes apply without restarting Electron. */
 function loadAsiairIngest() {
@@ -212,11 +256,60 @@ function createWindow() {
       label: 'File',
       submenu: [
         {
+          label: 'Settings…',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => {
+            win.webContents.send('zuko-open-settings');
+          },
+        },
+        {
           label: 'Open Data Folder',
           click: () => {
             const { dir: dataDir } = resolveDataPaths();
             shell.openPath(dataDir);
           },
+        },
+        { type: 'separator' },
+        {
+          label: 'Dev',
+          submenu: [
+            {
+              label: 'Force Open-Meteo fallback',
+              type: 'checkbox',
+              checked: !!readDevFlags().forceFallback,
+              click: (item) => {
+                const flags = writeDevFlags({
+                  ...readDevFlags(),
+                  forceFallback: !!item.checked,
+                });
+                win.webContents.send('zuko-dev-flags', flags);
+              },
+            },
+            {
+              label: 'Use synthetic Astrospheric data',
+              type: 'checkbox',
+              checked: !!readDevFlags().syntheticAstrospheric,
+              click: (item) => {
+                const flags = writeDevFlags({
+                  ...readDevFlags(),
+                  syntheticAstrospheric: !!item.checked,
+                });
+                win.webContents.send('zuko-dev-flags', flags);
+              },
+            },
+            {
+              label: 'Simulate no internet',
+              type: 'checkbox',
+              checked: !!readDevFlags().simulateOffline,
+              click: (item) => {
+                const flags = writeDevFlags({
+                  ...readDevFlags(),
+                  simulateOffline: !!item.checked,
+                });
+                win.webContents.send('zuko-dev-flags', flags);
+              },
+            },
+          ],
         },
         { type: 'separator' },
         { role: 'quit' },
@@ -240,7 +333,7 @@ function createWindow() {
 
   win.loadFile('index.html');
 
-  // Open any target="_blank" links (AstroBin embed, Clear Outside, etc.) in the
+  // Open any target="_blank" links (AstroBin embed, Astrospheric, etc.) in the
   // system browser instead of a new Electron window.
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -303,6 +396,78 @@ ipcMain.handle('zuko-app-meta', () => readPackageMeta());
 ipcMain.handle('zuko-geolocate', async () => {
   if (process.platform === 'win32') return windowsGeolocate();
   return { ok: false, error: 'Native geolocation is only wired for Windows right now' };
+});
+
+ipcMain.handle('zuko-tonight-shoot', async (_event, payload = {}) => {
+  try {
+    return await recommendTonightShoot(payload || {});
+  } catch (err) {
+    return {
+      ok: false,
+      error: String(err && err.message ? err.message : err),
+    };
+  }
+});
+
+ipcMain.handle('zuko-sky-forecast', async (_event, payload = {}) => {
+  try {
+    return await getSkyForecast({ ...(payload || {}), includeHours: true });
+  } catch (err) {
+    return {
+      ok: false,
+      error: String(err && err.message ? err.message : err),
+    };
+  }
+});
+
+ipcMain.handle('zuko-astrospheric-credits', async () => {
+  try {
+    return { ok: true, ...getStoredCreditInfo() };
+  } catch (err) {
+    return {
+      ok: false,
+      error: String(err && err.message ? err.message : err),
+    };
+  }
+});
+
+ipcMain.handle('zuko-dev-flags-get', async () => ({ ok: true, ...readDevFlags() }));
+
+ipcMain.handle('zuko-dev-flags-set', async (_event, payload = {}) => {
+  const flags = writeDevFlags({
+    ...readDevFlags(),
+    ...(payload || {}),
+  });
+  return { ok: true, ...flags };
+});
+
+ipcMain.handle('zuko-settings-get', async () => {
+  const meta = readPackageMeta();
+  const { label, dir } = resolveDataPaths();
+  return {
+    ok: true,
+    app: meta,
+    dataPath: label,
+    dataDir: dir,
+    projectsRoot: resolveProjectsRoot(),
+    astrospheric: getApiKeyStatus(),
+  };
+});
+
+ipcMain.handle('zuko-astrospheric-key-get', async () => {
+  return { ok: true, ...getApiKeyStatus() };
+});
+
+ipcMain.handle('zuko-astrospheric-key-set', async (_event, payload = {}) => {
+  try {
+    const key = payload && Object.prototype.hasOwnProperty.call(payload, 'key')
+      ? payload.key
+      : '';
+    const status = setApiKey(__dirname, key);
+    return { ok: true, ...status };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
 });
 
 ipcMain.handle('zuko-data-path', () => resolveDataPaths().label);
@@ -454,6 +619,7 @@ ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
 });
 
 app.whenReady().then(() => {
+  setForecastCacheDir(resolveDataPaths().dir);
   createWindow();
 
   app.on('activate', () => {
