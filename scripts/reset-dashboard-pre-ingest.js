@@ -66,6 +66,11 @@ for (const p of d.projects) {
         ingestMeta: null,
       },
     ];
+    // Real Queechy dump (folder that contains Autorun). Keep when present on disk.
+    const realDir = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725';
+    if (fs.existsSync(path.join(realDir, 'Autorun'))) {
+      p.projectDir = realDir;
+    }
   } else {
     for (const sh of p.shoots || []) {
       sh.sourcePath = null;
