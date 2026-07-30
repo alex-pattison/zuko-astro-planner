@@ -21,14 +21,14 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 0.25
+          "loggedHrs": 0
         },
         {
           "filter": "OIII",
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4.5,
-          "loggedHrs": 0.25
+          "loggedHrs": 0
         },
         {
           "filter": "SII",
@@ -91,33 +91,46 @@
       "shoots": [
         {
           "date": "260725",
-          "filterIndex": 0,
-          "hours": 0.25,
-          "complete": true,
-          "creditedHours": 0.25,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        },
-        {
-          "date": "260725",
-          "filterIndex": 1,
-          "hours": 0.25,
-          "complete": true,
-          "creditedHours": 0.25,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        },
-        {
-          "date": "260725",
           "filterIndex": 3,
           "hours": 1,
           "complete": true,
           "creditedHours": 1,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
+          "sourcePath": "H:\\\\Photography\\\\Astrophotography\\\\Zuko\\\\NGC6960_Q326\\\\260725",
+          "ingestPath": "H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725\\SII\\260725_SII_B5_Queechy",
+          "ingestMeta": {
+            "nightDate": "20260725",
+            "shootFolder": "260725_SII_B5_Queechy",
+            "filters": [
+              "SII"
+            ],
+            "destRoots": [
+              "H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725\\SII\\260725_SII_B5_Queechy"
+            ],
+            "biasLibrary": "H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725\\_calibration\\darkflats\\20260725",
+            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260725",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 180,
+              "darksAfter": 75
+            },
+            "filesStaged": 305,
+            "filesSkipped": 0,
+            "biasesMoved": 180,
+            "byType": {
+              "light": 20,
+              "flat": 30,
+              "bias": 180,
+              "dark": 75
+            },
+            "lightCount": 20,
+            "frameCount": 20,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-07-30T02:59:24.242Z"
+          }
         }
       ],
       "astrobinLinks": [],
@@ -129,7 +142,7 @@
       "framerMode": "reducer",
       "framerRotation": 27,
       "projectDir": "H:\\\\Photography\\\\Astrophotography\\\\Zuko\\\\NGC6960_Q326\\\\260725",
-      "processStatus": "none",
+      "processStatus": "ingested",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
       "asiairIgnoredSources": []
@@ -788,7 +801,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 7,
-    "savedAt": "2026-07-30T02:57:47.074Z"
+    "savedAt": "2026-07-30T02:59:35.080Z"
   },
   "uiTheme": "dark",
   "homeSite": {
