@@ -17,6 +17,11 @@ const {
   normalizeNight,
   astronomicalNightForFrame,
   nightWindowYmds,
+  angularSeparationDeg,
+  buildTargetFolders,
+  targetMatchNeedsConfirm,
+  TARGET_MATCH_AUTO_DEG,
+  TARGET_MATCH_CONFIRM_DEG,
   TEMP_TOLERANCE_C,
   SIX_MONTHS_MS,
 } = require('../src/ingest/asiairIngest');
@@ -952,7 +957,7 @@ async function testDashboardConsistency() {
   console.log('\n== Dashboard data sanity ==');
   const dataPath = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
   const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-  assert('appMeta.build present', data.appMeta && data.appMeta.build >= 5, JSON.stringify(data.appMeta));
+  assert('appMeta.build present', data.appMeta && data.appMeta.build >= 7, JSON.stringify(data.appMeta));
   assert(
     'darkLibrary path normalized',
     data.darkLibrary && !String(data.darkLibrary.path).includes('\\\\Photography'),
@@ -961,9 +966,21 @@ async function testDashboardConsistency() {
   const veil = (data.projects || []).find((p) => /veil/i.test(p.name || ''));
   assert('Veil project exists', !!veil);
   if (veil) {
-    assert('Veil has projectDir', !!(veil.projectDir && veil.projectDir.trim()));
+    // projectDir is optional until a real ASIAIR dump is linked (no synthetic staging paths)
+    if (veil.projectDir && String(veil.projectDir).trim()) {
+      assert(
+        'Veil projectDir is not a staging fixture',
+        !/[/\\]staging[/\\]/i.test(String(veil.projectDir)),
+        veil.projectDir,
+      );
+    }
     const captured = (veil.shoots || []).filter((s) => s.complete);
     assert('Veil has captured shoots', captured.length >= 1, `n=${captured.length}`);
+    assert(
+      'Veil shoots are pre-ingest (no ingestPath)',
+      captured.every((s) => !s.ingestPath),
+      JSON.stringify(captured.map((s) => s.ingestPath)),
+    );
     // loggedHrs should match complete shoot hours per filterIndex
     const totals = new Map();
     for (const sh of veil.shoots || []) {
@@ -1007,18 +1024,120 @@ async function testDashboardConsistency() {
   );
 }
 
+async function testTargetMatchCoords() {
+  console.log('\n== RA/Dec target match bands ==');
+  assert('auto threshold 0.75', TARGET_MATCH_AUTO_DEG === 0.75);
+  assert('confirm threshold 2.5', TARGET_MATCH_CONFIRM_DEG === 2.5);
+
+  const sepNear = angularSeparationDeg(312.86, 31.12, 312.96, 31.30);
+  assert('sep near finite', sepNear != null && sepNear < TARGET_MATCH_AUTO_DEG, `sep=${sepNear}`);
+  const sepMid = angularSeparationDeg(0, 0, 1.5, 0);
+  assert('sep mid in confirm band', sepMid > TARGET_MATCH_AUTO_DEG && sepMid <= TARGET_MATCH_CONFIRM_DEG, `sep=${sepMid}`);
+  const sepFar = angularSeparationDeg(0, 0, 10, 0);
+  assert('sep far is other', sepFar > TARGET_MATCH_CONFIRM_DEG, `sep=${sepFar}`);
+
+  const synthetic = buildTargetFolders(
+    [
+      { targetFolder: 'Near', target: 'Near', ra: 10, dec: 20 },
+      { targetFolder: 'Near', target: 'Near', ra: 10.1, dec: 20.05 },
+      { targetFolder: 'Mid', target: 'Mid', ra: 11.5, dec: 20 },
+      { targetFolder: 'Far', target: 'Far', ra: 40, dec: 20 },
+      { targetFolder: 'NoCoords', target: 'NoCoords' },
+    ],
+    { ra: 10, dec: 20 },
+  );
+  const by = Object.fromEntries(synthetic.map((t) => [t.folder, t.band]));
+  assert('synthetic Near=auto', by.Near === 'auto', JSON.stringify(by));
+  assert('synthetic Mid=confirm', by.Mid === 'confirm', JSON.stringify(by));
+  assert('synthetic Far=other', by.Far === 'other', JSON.stringify(by));
+  assert('synthetic NoCoords=no_coords', by.NoCoords === 'no_coords', JSON.stringify(by));
+
+  const gate = targetMatchNeedsConfirm(synthetic, { refCoords: { ra: 10, dec: 20 } });
+  assert('auto+siblings → confident (no popup)', gate.needsConfirm === false && gate.reason === 'confident', gate.reason);
+
+  const confirmOnly = targetMatchNeedsConfirm(
+    [
+      { folder: 'Mid', band: 'confirm', separationDeg: 1.5 },
+      { folder: 'Far', band: 'other', separationDeg: 10 },
+    ],
+    { refCoords: { ra: 10, dec: 20 } },
+  );
+  assert('no auto → confirm required', confirmOnly.needsConfirm === true && confirmOnly.reason === 'uncertain_band', confirmOnly.reason);
+
+  const singleAssumed = targetMatchNeedsConfirm(
+    [{ folder: 'Only', band: 'no_coords', separationDeg: null }],
+    { refCoords: null },
+  );
+  assert('single no_coords assumed', singleAssumed.needsConfirm === false && singleAssumed.reason === 'assumed_single', singleAssumed.reason);
+
+  const samplePath = path.join(ROOT, 'staging', 'asiair-sample', 'Autorun');
+  if (!fs.existsSync(samplePath)) {
+    fail('asiair-sample Autorun missing', samplePath);
+    return;
+  }
+
+  const veilCoords = { ra: 312.8625, dec: 31.1244 };
+  const autoScan = await scanSession({
+    sessionPath: samplePath,
+    nightDate: NIGHT,
+    skipTargetHint: true,
+    targetCoords: veilCoords,
+  });
+  assert('sample scan ok', autoScan.ok, autoScan.error);
+  const autoFolder = (autoScan.targets || []).find((t) => t.band === 'auto');
+  assert('sample NGC 6960 auto vs Veil', !!autoFolder && /6960/.test(autoFolder.folder), JSON.stringify(autoScan.targets));
+  assert('sample confident no confirm', autoScan.targetMatch && !autoScan.targetMatch.needsConfirm, JSON.stringify(autoScan.targetMatch));
+  assert('sample auto includeTargets', (autoScan.includeTargets || [])[0] === autoFolder.folder, JSON.stringify(autoScan.includeTargets));
+
+  const farScan = await scanSession({
+    sessionPath: samplePath,
+    nightDate: NIGHT,
+    skipTargetHint: true,
+    targetCoords: { ra: 100, dec: -40 },
+  });
+  assert('far coords need confirm', farScan.targetMatch && farScan.targetMatch.needsConfirm, JSON.stringify(farScan.targetMatch));
+  assert('far band is other', (farScan.targets || []).every((t) => t.band === 'other' || t.band === 'no_coords'), JSON.stringify(farScan.targets));
+
+  const filtered = await scanSession({
+    sessionPath: samplePath,
+    nightDate: NIGHT,
+    skipTargetHint: true,
+    targetCoords: veilCoords,
+    includeTargets: ['__no_such_folder__'],
+  });
+  assert('includeTargets empty lights', (filtered.lights || []).length === 0, `n=${(filtered.lights || []).length}`);
+
+  const blocked = await stageSirilTree({
+    projectDir: samplePath.endsWith('Autorun') ? path.dirname(samplePath) : samplePath,
+    sessionPath: samplePath,
+    nightDate: NIGHT,
+    shootFolder: 'qa_target_block',
+    shootFilter: 'Ha',
+    targetCoords: { ra: 100, dec: -40 },
+    skipTargetHint: true,
+    force: true,
+  });
+  // projectDir for asiair-sample is staging/asiair-sample which has Autorun
+  assert(
+    'stage without includes when uncertain → TARGET_CONFIRM_REQUIRED',
+    blocked.ok === false && blocked.code === 'TARGET_CONFIRM_REQUIRED',
+    `${blocked.code}: ${blocked.error}`,
+  );
+}
+
 async function main() {
   console.log('Zuko ASIAIR QA');
   console.log('QA root:', QA_ROOT);
   await buildFixture();
   // Ensure Rosette synthetic dump is present for permutation matrix
-  require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'build-ingest-test-fixture.js')], {
+  require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'build-ingest-test-fixture.js'), '--upsert'], {
     stdio: 'inherit',
   });
   await testHelpers();
   await testPipeline();
   await testMultiDayAndShootColumn();
   await testRosettePermutations();
+  await testTargetMatchCoords();
   await testDashboardConsistency();
 
   const failed = results.filter((r) => !r.ok);

@@ -38,6 +38,11 @@ data/projects/
 # Local ASIAIR sample dumps for ingest development (large FITS)
 staging/
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+
 # Root-level copies of live data (canonical tracked copy is data/)
 /zuko-dashboard-data.json
 

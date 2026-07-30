@@ -24,7 +24,28 @@ const REPO_DATA_FILE = path.join(REPO_DATA_DIR, 'zuko-dashboard-data.json');
 const REPO_PROJECTS_DIR = path.join(REPO_DATA_DIR, 'projects');
 const DATA_FILENAME = 'zuko-dashboard-data.json';
 
+/** Isolated data root for Playwright / QA (never touch H: live dashboard). */
+function envDataDir() {
+  const raw = process.env.ZUKO_DATA_DIR;
+  return raw && String(raw).trim() ? path.resolve(String(raw).trim()) : null;
+}
+
+function envProjectsDir() {
+  const raw = process.env.ZUKO_PROJECTS_DIR;
+  return raw && String(raw).trim() ? path.resolve(String(raw).trim()) : null;
+}
+
 function resolveDataPaths() {
+  const override = envDataDir();
+  if (override) {
+    const file = path.join(override, DATA_FILENAME);
+    return {
+      dir: override,
+      file,
+      mirrorFile: null,
+      label: file,
+    };
+  }
   const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
   if (fs.existsSync(PREFERRED_DIR)) {
     return {
@@ -72,6 +93,23 @@ async function backupDataFile(filePath) {
 
 /** Pick the newest copy between H: and repo data/, backup+replace the older one. */
 async function reconcileDataFiles() {
+  const override = envDataDir();
+  if (override) {
+    await fsp.mkdir(override, { recursive: true });
+    const file = path.join(override, DATA_FILENAME);
+    const candidate = await readDataCandidate(file);
+    if (!candidate) {
+      return { ok: true, data: { projects: [], assets: [], notes: [] }, path: file, missing: true };
+    }
+    return {
+      ok: true,
+      data: candidate.data,
+      path: candidate.path,
+      missing: false,
+      syncedTo: [],
+      backups: [],
+    };
+  }
   const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
   const paths = [];
   if (fs.existsSync(PREFERRED_DIR)) {
@@ -122,6 +160,11 @@ async function reconcileDataFiles() {
 }
 
 function resolveProjectsRoot() {
+  const override = envProjectsDir();
+  if (override) {
+    fs.mkdirSync(override, { recursive: true });
+    return override;
+  }
   const parent = path.dirname(PREFERRED_PROJECTS_DIR);
   if (fs.existsSync(parent)) {
     try {

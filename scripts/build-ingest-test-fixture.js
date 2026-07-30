@@ -351,6 +351,7 @@ async function upsertProject() {
     console.log('Added project at index', data.projects.length - 1);
   }
   if (!data.appMeta) data.appMeta = {};
+  data.appMeta.build = Math.max(Number(data.appMeta.build) || 0, 6);
   data.appMeta.savedAt = new Date().toISOString();
   const json = JSON.stringify(data, null, 2) + '\n';
   await fsp.writeFile(DATA_PATH, json);
@@ -368,8 +369,13 @@ async function upsertProject() {
 
 async function main() {
   await buildFixture();
-  await upsertProject();
-  console.log('\nDone. Quit/reload Electron, open [TEST] Rosette Nebula — Ingest QA.');
+  const upsert = process.argv.includes('--upsert');
+  if (upsert) {
+    await upsertProject();
+    console.log('\nDone. Quit/reload Electron, open [TEST] Rosette Nebula — Ingest QA.');
+  } else {
+    console.log('\nFixture FITS ready (dashboard not modified). Pass --upsert to add [TEST] project.');
+  }
 }
 
 main().catch((err) => {

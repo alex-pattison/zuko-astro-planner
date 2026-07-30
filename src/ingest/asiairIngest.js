@@ -45,9 +45,15 @@ const FIT_EXT = /\.(fit|fits|fts)$/i;
 const HEADER_KEYS = [
   'OBJECT', 'FILTER', 'EXPTIME', 'EXPOSURE', 'GAIN', 'EGAIN',
   'CCD-TEMP', 'SET-TEMP', 'XBINNING', 'DATE-OBS', 'IMAGETYP', 'FRAME',
+  'RA', 'DEC', 'OBJCTRA', 'OBJCTDEC',
+  'ROTATOR', 'CROTA2', 'CROTA1', 'POSANGLE',
 ];
 const SIX_MONTHS_MS = 1000 * 60 * 60 * 24 * 183;
 const TEMP_TOLERANCE_C = 3;
+/** Median angular separation (deg) at or below this → auto-include ASIAIR Light folder. */
+const TARGET_MATCH_AUTO_DEG = 0.75;
+/** Above auto and at or below this → pre-ingest confirm; farther → other target. */
+const TARGET_MATCH_CONFIRM_DEG = 2.5;
 
 function sanitizeFolderName(name) {
   return String(name || '')
@@ -302,6 +308,17 @@ function mergeHeaderIntoParsed(parsed, header) {
   if (header.OBJECT != null && String(header.OBJECT).trim() !== '') {
     next.target = String(header.OBJECT).trim();
   }
+  const ra = parseFitsAngleDegrees(header.RA != null ? header.RA : header.OBJCTRA);
+  const dec = parseFitsAngleDegrees(header.DEC != null ? header.DEC : header.OBJCTDEC, true);
+  if (ra != null) next.ra = ra;
+  if (dec != null) next.dec = dec;
+  const rotRaw = header.ROTATOR != null ? header.ROTATOR
+    : (header.CROTA2 != null ? header.CROTA2
+      : (header.POSANGLE != null ? header.POSANGLE : header.CROTA1));
+  if (rotRaw != null && rotRaw !== '') {
+    const rot = Number(rotRaw);
+    if (Number.isFinite(rot)) next.rotatorDeg = rot;
+  }
   if (header.EXPTIME != null || header.EXPOSURE != null) {
     next.exposureSec = Number(header.EXPTIME != null ? header.EXPTIME : header.EXPOSURE);
   }
@@ -341,6 +358,137 @@ function extractCatalogIds(text) {
     ids.push((m[1] + m[2]).toLowerCase());
   }
   return ids;
+}
+
+/** Parse FITS RA/Dec card value: decimal degrees or sexagesimal string. */
+function parseFitsAngleDegrees(raw, isDec = false) {
+  if (raw == null || raw === '') return null;
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+  const s = String(raw).trim().replace(/^'|'$/g, '');
+  if (!s) return null;
+  const asNum = Number(s);
+  if (Number.isFinite(asNum) && !/[:hms]/i.test(s)) return asNum;
+  // Sexagesimal: HH:MM:SS / DD:MM:SS or HHhMMmSSs
+  const norm = s.replace(/[hHdD]/g, ':').replace(/[mM]/g, ':').replace(/[sS]/g, '').trim();
+  const parts = norm.split(/[:\s]+/).map((p) => parseFloat(p)).filter((n) => Number.isFinite(n));
+  if (!parts.length) return null;
+  const sign = String(raw).trim().startsWith('-') || parts[0] < 0 ? -1 : 1;
+  const a = Math.abs(parts[0]) || 0;
+  const b = Math.abs(parts[1]) || 0;
+  const c = Math.abs(parts[2]) || 0;
+  let deg = a + b / 60 + c / 3600;
+  if (!isDec) deg *= 15; // RA hours → degrees when sexagesimal
+  return sign * deg;
+}
+
+/** Great-circle separation in degrees. */
+function angularSeparationDeg(ra1, dec1, ra2, dec2) {
+  if (![ra1, dec1, ra2, dec2].every((n) => n != null && Number.isFinite(Number(n)))) return null;
+  const toRad = Math.PI / 180;
+  const r1 = Number(ra1) * toRad;
+  const d1 = Number(dec1) * toRad;
+  const r2 = Number(ra2) * toRad;
+  const d2 = Number(dec2) * toRad;
+  const sin = Math.sin(d1) * Math.sin(d2) + Math.cos(d1) * Math.cos(d2) * Math.cos(r1 - r2);
+  const clamped = Math.max(-1, Math.min(1, sin));
+  return Math.acos(clamped) / toRad;
+}
+
+function median(nums) {
+  const a = (nums || []).filter((n) => n != null && Number.isFinite(Number(n))).map(Number).sort((x, y) => x - y);
+  if (!a.length) return null;
+  const mid = Math.floor(a.length / 2);
+  return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+}
+
+/**
+ * Group lights by Light/<folder>, score vs optional reference coords.
+ * band: auto | confirm | other | no_coords
+ */
+function buildTargetFolders(lights, refCoords = null) {
+  const byFolder = new Map();
+  for (const L of lights || []) {
+    const folder = L.targetFolder || L.target || 'Unknown';
+    let row = byFolder.get(folder);
+    if (!row) {
+      row = { folder, name: L.target || folder, lights: [], ras: [], decs: [], rots: [] };
+      byFolder.set(folder, row);
+    }
+    row.lights.push(L);
+    if (L.ra != null && Number.isFinite(Number(L.ra))) row.ras.push(Number(L.ra));
+    if (L.dec != null && Number.isFinite(Number(L.dec))) row.decs.push(Number(L.dec));
+    if (L.rotatorDeg != null && Number.isFinite(Number(L.rotatorDeg))) row.rots.push(Number(L.rotatorDeg));
+    if (L.target && (!row.name || row.name === folder)) row.name = L.target;
+  }
+
+  const refRa = refCoords && refCoords.ra;
+  const refDec = refCoords && refCoords.dec;
+  const hasRef = refRa != null && refDec != null
+    && Number.isFinite(Number(refRa)) && Number.isFinite(Number(refDec));
+
+  return [...byFolder.values()].map((row) => {
+    const medianRa = median(row.ras);
+    const medianDec = median(row.decs);
+    const medianRotatorDeg = median(row.rots);
+    let separationDeg = null;
+    let band = 'no_coords';
+    if (medianRa != null && medianDec != null && hasRef) {
+      separationDeg = angularSeparationDeg(medianRa, medianDec, refRa, refDec);
+      if (separationDeg == null) band = 'no_coords';
+      else if (separationDeg <= TARGET_MATCH_AUTO_DEG) band = 'auto';
+      else if (separationDeg <= TARGET_MATCH_CONFIRM_DEG) band = 'confirm';
+      else band = 'other';
+    } else if (!hasRef) {
+      band = 'no_coords';
+    }
+    return {
+      folder: row.folder,
+      name: row.name,
+      lightCount: row.lights.length,
+      medianRa,
+      medianDec,
+      medianRotatorDeg,
+      separationDeg,
+      band,
+    };
+  }).sort((a, b) => (a.separationDeg ?? 999) - (b.separationDeg ?? 999));
+}
+
+/** Classify whether pre-ingest confirm is required for these target folders. */
+function targetMatchNeedsConfirm(targets, opts = {}) {
+  const list = targets || [];
+  if (!list.length) return { needsConfirm: false, reason: 'no_light_folders' };
+  const hasRef = !!(opts.refCoords && opts.refCoords.ra != null && opts.refCoords.dec != null);
+  const autos = list.filter((t) => t.band === 'auto');
+
+  if (!hasRef && list.length > 1) {
+    return { needsConfirm: true, reason: 'no_saved_target_multi_folder' };
+  }
+
+  // One confident auto match → use it; uncertain/far/no-coords siblings stay excluded
+  // without a popup (same policy as silent `other` exclusion).
+  if (autos.length === 1) {
+    return { needsConfirm: false, reason: 'confident' };
+  }
+  if (autos.length > 1) {
+    return { needsConfirm: true, reason: 'multiple_auto' };
+  }
+
+  // No auto match — user must pick among uncertain / far / no-coords folders.
+  if (list.some((t) => t.band === 'confirm')) {
+    return { needsConfirm: true, reason: 'uncertain_band' };
+  }
+  if (list.some((t) => t.band === 'no_coords') && list.length > 1) {
+    return { needsConfirm: true, reason: 'no_coords_multi' };
+  }
+  if (list.some((t) => t.band === 'other')) {
+    return { needsConfirm: true, reason: 'only_other_targets' };
+  }
+  // Single Light folder with no coords / no savedTarget → assume and warn in UI.
+  if (list.length === 1 && (!hasRef || list[0].band === 'no_coords')) {
+    return { needsConfirm: false, reason: 'assumed_single' };
+  }
+  return { needsConfirm: false, reason: 'confident' };
 }
 
 /** Loose target match: substring, or shared NGC/IC/M catalog id.
@@ -533,8 +681,11 @@ function shootingTypeLabel(session) {
 async function scanSingleSession(session, opts = {}) {
   const sessionPath = session.path;
   const nightDate = normalizeNight(opts.nightDate);
-  const targetHint = opts.targetHint ? String(opts.targetHint).trim().toLowerCase() : null;
+  const targetHint = opts.skipTargetHint ? null : (opts.targetHint ? String(opts.targetHint).trim().toLowerCase() : null);
   const shootingType = shootingTypeLabel(session);
+  const includeSet = opts.includeTargets && opts.includeTargets.length
+    ? new Set(opts.includeTargets.map(String))
+    : null;
 
   const frameDirs = await findFrameDirs(sessionPath);
   const lights = [];
@@ -552,13 +703,17 @@ async function scanSingleSession(session, opts = {}) {
     const files = await walkFitFiles(frameDirs.light);
     for (const fp of files) {
       const parsed = await parseFitFile(fp, 'light');
-      if (!parsed.target) {
-        const rel = path.relative(frameDirs.light, path.dirname(fp));
-        if (rel && rel !== '.' && !rel.startsWith('..')) {
-          const top = rel.split(path.sep)[0];
-          if (top) parsed.target = top;
+      // Light/<Target>/… → targetFolder
+      const rel = path.relative(frameDirs.light, path.dirname(fp));
+      if (rel && rel !== '.' && !rel.startsWith('..')) {
+        const top = rel.split(path.sep)[0];
+        if (top) {
+          parsed.targetFolder = top;
+          if (!parsed.target) parsed.target = top;
         }
       }
+      if (!parsed.targetFolder) parsed.targetFolder = parsed.target || 'Unknown';
+      if (includeSet && !includeSet.has(parsed.targetFolder) && !includeSet.has(parsed.target)) continue;
       if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
       if (targetHint && !targetMatchesHint(parsed.target, targetHint)) continue;
       lights.push(tag(parsed));
@@ -602,6 +757,11 @@ async function scanSession(opts = {}) {
   const nightDate = normalizeNight(opts.nightDate);
   const targetHint = opts.targetHint || null;
   const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
+  const skipTargetHint = opts.skipTargetHint === true || !!opts.targetCoords || !!(opts.includeTargets && opts.includeTargets.length);
+  const includeTargets = opts.includeTargets && opts.includeTargets.length
+    ? opts.includeTargets.map(String)
+    : null;
+  const targetCoords = opts.targetCoords || null;
 
   let sessions = [];
   let projectDir = opts.projectDir || null;
@@ -636,7 +796,12 @@ async function scanSession(opts = {}) {
   const sessionSummaries = [];
 
   for (const session of sessions) {
-    const part = await scanSingleSession(session, { nightDate, targetHint });
+    const part = await scanSingleSession(session, {
+      nightDate,
+      targetHint,
+      skipTargetHint,
+      includeTargets,
+    });
     lights.push(...part.lights);
     flats.push(...part.flats);
     biases.push(...part.biases);
@@ -653,8 +818,31 @@ async function scanSession(opts = {}) {
     });
   }
 
+  // Target folders scored on full night lights (before shootFilter / auto trim).
+  const allTargets = buildTargetFolders(lights, targetCoords);
+  const matchGate = targetMatchNeedsConfirm(allTargets, { refCoords: targetCoords });
+
+  // includeTargets already applied in scanSingleSession when provided.
+  // When coords are confident, record the auto folder as the default include set
+  // but do NOT drop sibling lights from the scan payload — Review source / reject
+  // actions / QA still need them. Staging applies includeTargets explicitly.
+  let filteredLights = lights;
+  let effectiveIncludes = includeTargets;
+  if (!includeTargets && targetCoords && !matchGate.needsConfirm) {
+    const autos = allTargets.filter((t) => t.band === 'auto').map((t) => t.folder);
+    if (autos.length === 1) {
+      effectiveIncludes = autos;
+    }
+  }
+
+  if (shootFilter) {
+    filteredLights = filteredLights.filter(
+      (L) => (normalizeFilter(L.filter) || 'Unknown') === shootFilter
+    );
+  }
+
   const byFilter = {};
-  for (const L of lights) {
+  for (const L of filteredLights) {
     const f = normalizeFilter(L.filter) || 'Unknown';
     if (!byFilter[f]) {
       byFilter[f] = {
@@ -710,6 +898,7 @@ async function scanSession(opts = {}) {
   });
 
   const shootingTypes = [...new Set(sessionSummaries.map((s) => s.shootingType))];
+  const targetNames = [...new Set(filteredLights.map((l) => l.target).filter(Boolean))];
 
   return {
     ok: true,
@@ -720,22 +909,25 @@ async function scanSession(opts = {}) {
     shootingTypes,
     nightDate,
     status: {
-      light: lights.length,
+      light: filteredLights.length,
       flat: flats.length,
       bias: biases.length,
       dark: darks.length,
-      hasLight: lights.length > 0,
+      hasLight: filteredLights.length > 0,
       hasFlat: flats.length > 0,
       hasBias: biases.length > 0,
       hasDark: darks.length > 0,
     },
     filters: filterRows,
-    targets: [...new Set(lights.map((l) => l.target).filter(Boolean))],
-    lights,
+    targets: allTargets,
+    targetNames,
+    targetMatch: matchGate,
+    includeTargets: effectiveIncludes,
+    lights: filteredLights,
     flats,
     biases,
     darks,
-    summary: summarizeFrames([...lights, ...flats, ...biases, ...darks]),
+    summary: summarizeFrames([...filteredLights, ...flats, ...biases, ...darks]),
   };
 }
 
@@ -973,8 +1165,25 @@ async function stageSirilTree(opts = {}) {
     sessionPath: opts.sessionPath || null,
     nightDate,
     targetHint,
+    includeTargets: opts.includeTargets || null,
+    targetCoords: opts.targetCoords || null,
+    skipTargetHint: opts.skipTargetHint === true,
   });
   if (!scan.ok) return scan;
+
+  if (
+    scan.targetMatch
+    && scan.targetMatch.needsConfirm
+    && !(opts.includeTargets && opts.includeTargets.length)
+  ) {
+    return {
+      ok: false,
+      code: 'TARGET_CONFIRM_REQUIRED',
+      error: 'Target match needs confirmation before staging',
+      targets: scan.targets,
+      targetMatch: scan.targetMatch,
+    };
+  }
 
   let lights = scan.lights;
   let flats = scan.flats;
@@ -1463,6 +1672,8 @@ module.exports = {
   SESSION_DIR_NAMES,
   TEMP_TOLERANCE_C,
   SIX_MONTHS_MS,
+  TARGET_MATCH_AUTO_DEG,
+  TARGET_MATCH_CONFIRM_DEG,
   parseAsiairFilename,
   parseExposureToSeconds,
   normalizeFilter,
@@ -1471,6 +1682,10 @@ module.exports = {
   astronomicalNightForFrame,
   nightWindowYmds,
   readFitsHeaderKeywords,
+  parseFitsAngleDegrees,
+  angularSeparationDeg,
+  buildTargetFolders,
+  targetMatchNeedsConfirm,
   scanAsiairSource,
   summarizeFrames,
   filterFramesForShoot,

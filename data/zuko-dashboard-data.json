@@ -21,7 +21,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 0.4
+          "loggedHrs": 0.25
         },
         {
           "filter": "OIII",
@@ -90,90 +90,14 @@
       ],
       "shoots": [
         {
-          "date": "260720",
-          "filterIndex": 0,
-          "hours": 0.15,
-          "complete": true,
-          "creditedHours": 0.15,
-          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
-          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260720_Ha_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260720",
-            "shootFolder": "260720_Ha_B9_Home",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260720_Ha_B9_Home"
-            ],
-            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260720",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260720",
-              "biasesPreexisting": 0,
-              "darksPreexisting": 0,
-              "biasesAfter": 25,
-              "darksAfter": 75
-            },
-            "filesStaged": 108,
-            "filesSkipped": 0,
-            "biasesMoved": 25,
-            "byType": {
-              "light": 3,
-              "flat": 5,
-              "bias": 25,
-              "dark": 75
-            },
-            "lightCount": 3,
-            "frameCount": 3,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-07-29T20:09:09.871Z"
-          }
-        },
-        {
           "date": "260725",
           "filterIndex": 0,
           "hours": 0.25,
           "complete": true,
           "creditedHours": 0.25,
-          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
-          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260725_Ha_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260725",
-            "shootFolder": "260725_Ha_B9_Home",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Ha\\260725_Ha_B9_Home"
-            ],
-            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260725",
-              "biasesPreexisting": 25,
-              "darksPreexisting": 0,
-              "biasesAfter": 25,
-              "darksAfter": 75
-            },
-            "filesStaged": 110,
-            "filesSkipped": 0,
-            "biasesMoved": 0,
-            "byType": {
-              "light": 5,
-              "flat": 5,
-              "bias": 25,
-              "dark": 75
-            },
-            "lightCount": 5,
-            "frameCount": 5,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-07-29T20:09:10.745Z"
-          }
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
         },
         {
           "date": "260725",
@@ -181,42 +105,9 @@
           "hours": 0.25,
           "complete": true,
           "creditedHours": 0.25,
-          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
-          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\OIII\\260725_OIII_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260725",
-            "shootFolder": "260725_OIII_B9_Home",
-            "filters": [
-              "OIII"
-            ],
-            "destRoots": [
-              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\OIII\\260725_OIII_B9_Home"
-            ],
-            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260725",
-              "biasesPreexisting": 0,
-              "darksPreexisting": 0,
-              "biasesAfter": 25,
-              "darksAfter": 75
-            },
-            "filesStaged": 110,
-            "filesSkipped": 0,
-            "biasesMoved": 25,
-            "byType": {
-              "light": 5,
-              "flat": 5,
-              "bias": 25,
-              "dark": 75
-            },
-            "lightCount": 5,
-            "frameCount": 5,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-07-29T18:56:08.458Z"
-          }
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
         },
         {
           "date": "260725",
@@ -224,42 +115,9 @@
           "hours": 0.5,
           "complete": true,
           "creditedHours": 0.5,
-          "sourcePath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\Autorun",
-          "ingestPath": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\SII\\260725_SII_B5_Queechy",
-          "ingestMeta": {
-            "nightDate": "20260725",
-            "shootFolder": "260725_SII_B5_Queechy",
-            "filters": [
-              "SII"
-            ],
-            "destRoots": [
-              "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\SII\\260725_SII_B5_Queechy"
-            ],
-            "biasLibrary": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample\\_calibration\\darkflats\\20260725",
-            "darkLibrary": "H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260725",
-              "biasesPreexisting": 25,
-              "darksPreexisting": 0,
-              "biasesAfter": 25,
-              "darksAfter": 75
-            },
-            "filesStaged": 115,
-            "filesSkipped": 0,
-            "biasesMoved": 0,
-            "byType": {
-              "light": 10,
-              "flat": 5,
-              "bias": 25,
-              "dark": 75
-            },
-            "lightCount": 10,
-            "frameCount": 10,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-07-29T20:09:11.872Z"
-          }
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null
         }
       ],
       "astrobinLinks": [],
@@ -270,8 +128,11 @@
       },
       "framerMode": "reducer",
       "framerRotation": 27,
-      "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-sample",
-      "processStatus": "ingested"
+      "projectDir": "",
+      "processStatus": "none",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [],
+      "asiairIgnoredSources": []
     },
     {
       "name": "North America Nebula - First Light",
@@ -363,114 +224,10 @@
         "dec": 43.836472477741324
       },
       "framerMode": "reducer",
-      "framerRotation": 122
-    },
-    {
-      "name": "[TEST] Rosette Nebula — Ingest QA",
-      "target": "Rosette Nebula (NGC 2237 / NGC 2238 / NGC 2244) — synthetic ASIAIR dump for ingest testing",
-      "frameMode": "Reducer, 280mm f/3.9 — TEST project (synthetic FITS, not real data)",
-      "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-test-rosette",
-      "centerCoords": "RA 6h31m55s  Dec +4°56'34\"",
-      "anchorStar": "HD 46150 (mag ~6.8) — open cluster NGC 2244 core",
-      "rotation": "0° (test)",
-      "status": "active",
-      "notes": "TEST PROJECT — real target (Rosette), synthetic FITS under staging/asiair-test-rosette. Autorun+Plan merged. Ha 260728 = happy path (+ orphan OIII lights → no shot log). OIII 260729 = missing flats (blocked). SII 260730 = Stage OK. Ha 260731 @45s = missing darks. See staging/asiair-test-rosette/README.md. Rebuild: node scripts/build-ingest-test-fixture.js",
-      "filterTargets": [
-        {
-          "filter": "Ha",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.18
-        },
-        {
-          "filter": "OIII",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.1
-        },
-        {
-          "filter": "SII",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.1
-        }
-      ],
-      "checklist": [
-        {
-          "id": "test-rosette-happy",
-          "text": "TEST: Ha 260728 → Stage OK; orphan OIII row = no shot log (red)",
-          "done": false
-        },
-        {
-          "id": "test-rosette-noflat",
-          "text": "TEST: OIII 260729 → missing flats (red row), Stage blocked",
-          "done": false
-        },
-        {
-          "id": "test-rosette-cross",
-          "text": "TEST: SII 260730 → Stage succeeds (Bias from Autorun)",
-          "done": false
-        },
-        {
-          "id": "test-rosette-nodark",
-          "text": "TEST: Ha 260731 @45s → missing darks, Stage blocked",
-          "done": false
-        }
-      ],
-      "shoots": [
-        {
-          "date": "260728",
-          "filterIndex": 0,
-          "hours": 0.15,
-          "complete": true,
-          "creditedHours": 0.15,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        },
-        {
-          "date": "260729",
-          "filterIndex": 1,
-          "hours": 0.1,
-          "complete": true,
-          "creditedHours": 0.1,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        },
-        {
-          "date": "260730",
-          "filterIndex": 2,
-          "hours": 0.1,
-          "complete": true,
-          "creditedHours": 0.1,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        },
-        {
-          "date": "260731",
-          "filterIndex": 0,
-          "hours": 0.025,
-          "complete": true,
-          "creditedHours": 0.03,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null
-        }
-      ],
-      "astrobinLinks": [],
-      "savedTarget": {
-        "name": "Rosette Nebula (NGC 2237)",
-        "ra": 97.9791667,
-        "dec": 4.9427778
-      },
-      "framerMode": "reducer",
-      "framerRotation": 0,
-      "processStatus": "planning"
+      "framerRotation": 122,
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [],
+      "asiairIgnoredSources": []
     }
   ],
   "notes": [
@@ -1030,8 +787,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 5,
-    "savedAt": "2026-07-29T21:54:00.614Z"
+    "build": 7,
+    "savedAt": "2026-07-30T02:48:54.303Z"
   },
   "uiTheme": "dark",
   "homeSite": {

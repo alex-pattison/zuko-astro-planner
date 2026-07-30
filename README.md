@@ -35,6 +35,8 @@ localStorage is kept as a cache. Use **File → Open Data Folder** to jump to th
 
 Each project needs a **Project directory** (edit project) that contains ASIAIR `Autorun` and/or `Plan` folders with `Light` / `Flat` / `Bias` / `Dark` children. Lights may live under `Light/<Target>/`. Ingest **merges all sessions** into one source (no Autorun/Plan picker); the filter table shows a **Type** column (Autorun / Plan).
 
+**Target match:** lights are matched to the project’s saved RA/Dec (Target Framer). Folders within **0.75°** auto-include; **0.75°–2.5°** (or ambiguous multi-folder dumps) open a pre-ingest Aladin side-by-side confirm before the staging window; farther folders are excluded unless you accept them. Flats / Bias / Dark stay shared (not target-gated).
+
 From a shoot’s **Ingest** button:
 
 1. Discovers `Autorun` / `Plan` under the project directory and scans them together.
@@ -59,7 +61,19 @@ Local development fixture (gitignored): `staging/asiair-sample/` (NGC 6960 light
 
 Source ASIAIR folders are never moved. Calibration frames are copied into `_calibration/` by night, then symlinked into each channel (falls back to hardlink/copy if symlink fails). The filter subfolder uses the shoot log auto-name, not the bare date.
 
-**Before v1 go-live:** switch ingest from copy → move (see [docs/go-live-v1.md](docs/go-live-v1.md)).
+**Before v1 go-live:** switch ingest from copy → move, and validate against a real ASIAIR dump (see [docs/go-live-v1.md](docs/go-live-v1.md)).
+
+## Testing
+
+See [docs/testing.md](docs/testing.md) for the pyramid (unit → thin Playwright Electron E2E). Quick commands:
+
+```
+npm run test:unit
+npm run test:e2e
+npm test
+```
+
+E2E uses `ZUKO_DATA_DIR` / `ZUKO_PROJECTS_DIR` so it never writes to the H: live dashboard.
 
 ## Build installer (optional)
 
