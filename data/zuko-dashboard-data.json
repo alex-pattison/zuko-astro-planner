@@ -42,7 +42,7 @@
           "location": "Queechy",
           "bortle": "5",
           "targetHrs": 1,
-          "loggedHrs": 0.5
+          "loggedHrs": 1
         },
         {
           "filter": "R",
@@ -112,9 +112,9 @@
         {
           "date": "260725",
           "filterIndex": 3,
-          "hours": 0.5,
+          "hours": 1,
           "complete": true,
-          "creditedHours": 0.5,
+          "creditedHours": 1,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null
@@ -788,7 +788,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 7,
-    "savedAt": "2026-07-30T02:48:54.303Z"
+    "savedAt": "2026-07-30T02:51:01.697Z"
   },
   "uiTheme": "dark",
   "homeSite": {

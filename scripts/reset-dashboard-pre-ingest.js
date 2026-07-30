@@ -58,9 +58,9 @@ for (const p of d.projects) {
       {
         date: '260725',
         filterIndex: 3,
-        hours: 0.5,
+        hours: 1,
         complete: true,
-        creditedHours: 0.5,
+        creditedHours: 1,
         sourcePath: null,
         ingestPath: null,
         ingestMeta: null,
