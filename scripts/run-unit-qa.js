@@ -10,6 +10,7 @@ const scripts = [
   'scripts/qa-asiair-ingest.js',
   'scripts/qa-target-match-flow.js',
   'scripts/qa-target-match-deep.js',
+  'scripts/qa-sky-astro-modules.js',
 ];
 
 let failed = 0;

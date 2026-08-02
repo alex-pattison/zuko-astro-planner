@@ -5703,11 +5703,55 @@ function omDayIndex(daily, when = new Date()) {
   return daily.time.findIndex((t) => String(t).slice(0, 10) === ymd);
 }
 
-function parseOmLocal(iso) {
+function parseOmLocal(iso, timeZone = 'America/New_York') {
   if (!iso) return null;
-  // Open-Meteo returns local ISO without Z when timezone=auto
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  const s = String(iso).trim();
+  // Already absolute
+  if (/Z$/i.test(s) || /[+-]\d{2}:\d{2}$/.test(s)) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!m) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  const want = {
+    y: +m[1],
+    mo: +m[2],
+    d: +m[3],
+    h: m[4] != null ? +m[4] : 0,
+    mi: m[5] != null ? +m[5] : 0,
+    s: m[6] != null ? +m[6] : 0,
+  };
+  // Interpret wall-clock in the observatory timezone (not the machine locale).
+  let utc = Date.UTC(want.y, want.mo - 1, want.d, want.h, want.mi, want.s);
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+  for (let i = 0; i < 4; i++) {
+    const parts = fmt.formatToParts(new Date(utc));
+    const get = (type) => {
+      const hit = parts.find((p) => p.type === type);
+      return hit ? +hit.value : 0;
+    };
+    let hour = get('hour');
+    if (hour === 24) hour = 0; // rare hourCycle quirk
+    const asUtc = Date.UTC(get('year'), get('month') - 1, get('day'), hour, get('minute'), get('second'));
+    const target = Date.UTC(want.y, want.mo - 1, want.d, want.h, want.mi, want.s);
+    const delta = target - asUtc;
+    if (delta === 0) break;
+    utc += delta;
+  }
+  const out = new Date(utc);
+  return Number.isNaN(out.getTime()) ? null : out;
 }
 
 function twilightPctInWindow(d, winStart, winEnd) {
@@ -5937,9 +5981,10 @@ function renderMoonTrackCard(lat, lon, astronomy) {
   const moonTimes = _ASTRO.getMoonTimes(now, lat, lon);
   let rise = moonTimes && moonTimes.rise;
   let set = moonTimes && moonTimes.set;
+  const omTz = (om && om.timezone) || 'America/New_York';
   if (om && om.daily && dayIdx >= 0) {
-    const mr = parseOmLocal(om.daily.moonrise[dayIdx]);
-    const ms = parseOmLocal(om.daily.moonset[dayIdx]);
+    const mr = parseOmLocal(om.daily.moonrise[dayIdx], omTz);
+    const ms = parseOmLocal(om.daily.moonset[dayIdx], omTz);
     if (mr) rise = mr;
     if (ms) set = ms;
   }
@@ -5999,8 +6044,9 @@ function renderSunTrackCard(lat, lon, astronomy) {
   let sunrise = times.sunrise;
   let sunset = times.sunset;
   if (om && om.daily && dayIdx >= 0) {
-    const sr = parseOmLocal(om.daily.sunrise[dayIdx]);
-    const ss = parseOmLocal(om.daily.sunset[dayIdx]);
+    const omTz = om.timezone || 'America/New_York';
+    const sr = parseOmLocal(om.daily.sunrise[dayIdx], omTz);
+    const ss = parseOmLocal(om.daily.sunset[dayIdx], omTz);
     if (sr) sunrise = sr;
     if (ss) sunset = ss;
   }
