@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('zukoApp', {
   geolocate: () => ipcRenderer.invoke('zuko-geolocate'),
   tonightShoot: (opts) => ipcRenderer.invoke('zuko-tonight-shoot', opts || {}),
   skyForecast: (opts) => ipcRenderer.invoke('zuko-sky-forecast', opts || {}),
+  skyAstronomy: (opts) => ipcRenderer.invoke('zuko-sky-astronomy', opts || {}),
   astrosphericCredits: () => ipcRenderer.invoke('zuko-astrospheric-credits'),
   getDevFlags: () => ipcRenderer.invoke('zuko-dev-flags-get'),
   setDevFlags: (flags) => ipcRenderer.invoke('zuko-dev-flags-set', flags || {}),

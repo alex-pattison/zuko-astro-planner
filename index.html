@@ -2542,6 +2542,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 12px;
+    align-items: stretch;
   }
   @media (max-width: 820px) {
     .skyfx-track-grid { grid-template-columns: 1fr; }
@@ -2563,31 +2564,42 @@
     margin: 0 0 12px;
   }
   .skyfx-moon-card-body {
-    display: grid;
-    grid-template-columns: 1.2fr 0.9fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
     gap: 14px;
-    align-items: start;
+    flex: 1;
+    min-height: 0;
+    text-align: center;
   }
-  @media (max-width: 560px) {
-    .skyfx-moon-card-body { grid-template-columns: 1fr; }
+  .skyfx-track-card#skyfx-moon-card {
+    display: flex;
+    flex-direction: column;
   }
-  .skyfx-moon-current .eyebrow {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--gray);
-    margin-bottom: 2px;
-  }
-  .skyfx-moon-current .phase-name {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 12px;
+  .skyfx-track-card#skyfx-moon-card .skyfx-moon-card-body { flex: 1; }
+  .skyfx-moon-head {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
   }
   .skyfx-moon-disc-wrap {
     display: flex;
     justify-content: center;
-    margin: 4px 0 14px;
+    margin: 0 0 2px;
+    position: relative;
+  }
+  .skyfx-moon-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: #05070c;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent);
+  }
+  html[data-theme="red"] .skyfx-moon-photo {
+    filter: grayscale(1) sepia(1) saturate(4) hue-rotate(-40deg) brightness(0.95);
   }
   .skyfx-moon-svg {
     width: 120px;
@@ -2602,44 +2614,84 @@
   .skyfx-moon-svg .moon-lit {
     fill: #f2efe6;
   }
-  .skyfx-moon-stats {
-    display: grid;
-    gap: 6px;
+  .skyfx-moon-phase-name {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.01em;
+    margin: 0;
+    line-height: 1.2;
   }
-  .skyfx-moon-stats .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
+  .skyfx-moon-phase-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.3;
+    letter-spacing: 0.01em;
   }
-  .skyfx-moon-stats .k { color: var(--gray); }
-  .skyfx-moon-stats .v { color: var(--text); font-variant-numeric: tabular-nums; }
-  .skyfx-moon-next .eyebrow {
+  .skyfx-moon-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+  .skyfx-moon-metric {
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    border-radius: 8px;
+    padding: 9px 10px;
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    min-width: 0;
+    text-align: left;
+  }
+  .skyfx-moon-metric .k {
     font-family: var(--mono);
     font-size: 10px;
     color: var(--gray);
-    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .skyfx-moon-next-list {
-    display: grid;
-    gap: 8px;
+  .skyfx-moon-metric .v {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
   }
-  .skyfx-moon-next-list .row {
+  .skyfx-moon-metric.is-next-new {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    font-family: var(--mono);
-    font-size: 12px;
+    gap: 12px;
+    border-color: color-mix(in srgb, var(--text) 28%, var(--border));
+    background: color-mix(in srgb, var(--bg3) 40%, var(--bg));
+    padding: 10px 12px;
   }
-  .skyfx-moon-next-list .phase {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  .skyfx-moon-metric.is-next-new .k {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  .skyfx-moon-metric.is-next-new .v {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    text-align: right;
+  }
+  .skyfx-moon-metric.is-next-new .s {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: 400;
     color: var(--text2);
+    letter-spacing: 0.01em;
   }
-  .skyfx-moon-next-list .date { color: var(--text); white-space: nowrap; }
   .skyfx-mini-moon-svg {
     width: 16px;
     height: 16px;
@@ -2652,13 +2704,207 @@
     stroke-width: 1;
   }
   .skyfx-mini-moon-svg .moon-lit { fill: #f2efe6; }
-  .skyfx-sun-times-card {
+  .skyfx-sun-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .skyfx-track-card#skyfx-sun-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .skyfx-track-card#skyfx-sun-card .skyfx-sun-body { flex: 1; }
+  .skyfx-twilight-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .skyfx-twilight-top {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 18px;
-    margin-top: 4px;
+    gap: 8px;
+  }
+  .skyfx-twilight-bar {
+    position: relative;
+    height: 54px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #0a1020;
+  }
+  .skyfx-twilight-bar .seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  .skyfx-twilight-bar .seg-night { background: #070b14; }
+  .skyfx-twilight-bar .seg-astro { background: #0f1a36; }
+  .skyfx-twilight-bar .seg-naut { background: #2a1a4a; }
+  .skyfx-twilight-bar .seg-blue { background: #3b4f9a; }
+  .skyfx-twilight-bar .seg-golden { background: #e8a03a; }
+  .skyfx-twilight-bar .seg-day { background: #7eb6e8; }
+  .skyfx-twilight-bar .now-mark {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    background: #fff;
+    z-index: 2;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  .skyfx-twilight-hours {
+    position: relative;
+    height: 18px;
+    margin-top: -2px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    color: var(--gray);
+  }
+  .skyfx-twilight-hours span {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .skyfx-twilight-hours span.is-edge-start { transform: translateX(0); }
+  .skyfx-twilight-hours span.is-edge-end { transform: translateX(-100%); }
+  .skyfx-twilight-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--gray);
+    line-height: 1.3;
+  }
+  .skyfx-twilight-legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: -1px;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  }
+  .skyfx-twilight-legend .l-day { background: #7eb6e8; }
+  .skyfx-twilight-legend .l-golden { background: #e8a03a; }
+  .skyfx-twilight-legend .l-blue { background: #3b4f9a; }
+  .skyfx-twilight-legend .l-naut { background: #2a1a4a; }
+  .skyfx-twilight-legend .l-astro { background: #0f1a36; }
+  .skyfx-twilight-legend .l-night { background: #070b14; }
+  .skyfx-dusk-ladder {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-content: stretch;
+  }
+  @media (max-width: 560px) {
+    .skyfx-dusk-ladder { grid-template-columns: 1fr; }
+  }
+  .skyfx-dusk-step {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 12px 12px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 52px;
+  }
+  .skyfx-dusk-step.is-golden {
+    background: color-mix(in srgb, #e8a03a 22%, var(--bg));
+    border-color: color-mix(in srgb, #e8a03a 55%, transparent);
+  }
+  .skyfx-dusk-step.is-blue {
+    background: color-mix(in srgb, #3b4f9a 28%, var(--bg));
+    border-color: color-mix(in srgb, #3b4f9a 60%, transparent);
+  }
+  .skyfx-dusk-step.is-naut {
+    background: color-mix(in srgb, #2a1a4a 34%, var(--bg));
+    border-color: color-mix(in srgb, #6b4d9a 50%, transparent);
+  }
+  .skyfx-dusk-step.is-astro {
+    background: color-mix(in srgb, #0f1a36 45%, var(--bg));
+    border-color: color-mix(in srgb, #3d5a9a 45%, transparent);
+  }
+  .skyfx-dusk-step.is-night {
+    background: color-mix(in srgb, #070b14 55%, var(--bg));
+    border-color: color-mix(in srgb, #8a9cc0 40%, transparent);
+  }
+  .skyfx-dusk-step .k {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .skyfx-dusk-step .v {
     font-family: var(--mono);
     font-size: 12px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+  }
+  .skyfx-dusk-step.is-astro-dusk {
+    border-color: color-mix(in srgb, #7a9ad4 55%, transparent);
+  }
+  .skyfx-dusk-step.is-astro-dusk .v {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+  }
+  html[data-theme="red"] .skyfx-twilight-bar { background: #1a0000; }
+  html[data-theme="red"] .skyfx-twilight-bar .seg-astro { background: #2a0505; }
+  html[data-theme="red"] .skyfx-twilight-bar .seg-naut { background: #3a0a0a; }
+  html[data-theme="red"] .skyfx-twilight-bar .seg-blue { background: #4a1018; }
+  html[data-theme="red"] .skyfx-twilight-bar .seg-golden { background: #ff3b3b; }
+  html[data-theme="red"] .skyfx-twilight-bar .seg-day { background: #994444; }
+  html[data-theme="red"] .skyfx-dusk-step.is-golden {
+    background: color-mix(in srgb, #ff3b3b 18%, var(--bg));
+    border-color: color-mix(in srgb, #ff3b3b 50%, transparent);
+  }
+  html[data-theme="red"] .skyfx-dusk-step.is-blue {
+    background: color-mix(in srgb, #4a1018 30%, var(--bg));
+    border-color: color-mix(in srgb, #ff6b6b 35%, transparent);
+  }
+  html[data-theme="red"] .skyfx-dusk-step.is-naut {
+    background: color-mix(in srgb, #3a0a0a 35%, var(--bg));
+    border-color: color-mix(in srgb, #ff6b6b 30%, transparent);
+  }
+  html[data-theme="red"] .skyfx-dusk-step.is-astro {
+    background: color-mix(in srgb, #2a0505 40%, var(--bg));
+    border-color: color-mix(in srgb, #ff6b6b 28%, transparent);
+  }
+  html[data-theme="red"] .skyfx-dusk-step.is-night {
+    background: color-mix(in srgb, #ff0000 10%, var(--bg));
+    border-color: color-mix(in srgb, #ff3b3b 45%, transparent);
+  }
+  html[data-theme="red"] .skyfx-twilight-legend .l-day { background: #994444; }
+  html[data-theme="red"] .skyfx-twilight-legend .l-golden { background: #ff3b3b; }
+  html[data-theme="red"] .skyfx-twilight-legend .l-blue { background: #4a1018; }
+  html[data-theme="red"] .skyfx-twilight-legend .l-naut { background: #3a0a0a; }
+  html[data-theme="red"] .skyfx-twilight-legend .l-astro { background: #2a0505; }
+  html[data-theme="red"] .skyfx-twilight-legend .l-night { background: #1a0000; }
+  html[data-theme="red"] .skyfx-dusk-step.is-astro-dusk {
+    border-color: color-mix(in srgb, #ff3b3b 55%, transparent);
+  }
+  .skyfx-sun-times-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  @media (max-width: 700px) {
+    .skyfx-sun-times-card { grid-template-columns: 1fr 1fr; }
   }
   .skyfx-sun-times-card .row {
     display: flex;
@@ -2668,7 +2914,7 @@
     border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   }
   .skyfx-sun-times-card .k { color: var(--gray); }
-  .skyfx-sun-times-card .v { color: var(--text); font-weight: 600; }
+  .skyfx-sun-times-card .v { color: var(--text); font-weight: 400; font-variant-numeric: tabular-nums; }
 
   html[data-theme="red"] .skyfx-moon-svg .moon-disk,
   html[data-theme="red"] .skyfx-mini-moon-svg .moon-disk {
@@ -2685,6 +2931,7 @@
   }
   html[data-theme="light"] .skyfx-moon-svg .moon-lit,
   html[data-theme="light"] .skyfx-mini-moon-svg .moon-lit { fill: #f5f0e1; }
+  html[data-theme="light"] .skyfx-twilight-bar { background: #1e293b; }
   .skyfx-metric.dimmed {
     opacity: 0.42;
     filter: grayscale(0.35);
@@ -4410,15 +4657,28 @@ const _ASTRO = (() => {
       }
     }
     const astro = pair(-18);
+    const naut = pair(-12);
     const civil = pair(-6);
+    const elevNeg4 = pair(-4); // PhotoPills blue↔golden boundary
+    const elev6 = pair(6);     // PhotoPills golden↔day boundary
     const sun = pair(-0.833);
     return {
       sunrise: sun.rise,
       sunset: sun.set,
       solarNoon: fromJulian(Jnoon),
+      // PhotoPills magic hours (sun elevation)
+      goldenMorningStart: elevNeg4.rise, // −4° rising
+      goldenMorningEnd: elev6.rise,      // 6° rising
+      goldenEveningStart: elev6.set,     // 6° setting
+      goldenEveningEnd: elevNeg4.set,    // −4° setting
+      blueMorningStart: civil.rise,      // −6° rising
+      blueMorningEnd: elevNeg4.rise,     // −4° rising
+      blueEveningStart: elevNeg4.set,    // −4° setting
+      blueEveningEnd: civil.set,         // −6° setting
       civilDawn: civil.rise,
       civilDusk: civil.set,
-      // astronomical dawn / dusk (true night ends / begins)
+      nauticalDawn: naut.rise,
+      nauticalDusk: naut.set,
       astroDawn: astro.rise,
       astroDusk: astro.set
     };
@@ -5403,70 +5663,372 @@ function nextMajorMoonPhases(now = new Date()) {
   return upcoming;
 }
 
-function renderMoonTrackCard(lat, lon) {
+function nasaMoonImageUrl(date = new Date()) {
+  // moon-cycle synodic mapping → NASA SVS frames on jsDelivr
+  const SYNODIC_MONTH = 29.53058821398858;
+  const MONTH_IMAGES = 708;
+  const MONTH_ANCHOR = Date.parse('2023-11-13T09:27:00Z');
+  const elapsed = (date.getTime() - MONTH_ANCHOR) / 1000;
+  const months = elapsed / (SYNODIC_MONTH * 24 * 60 * 60);
+  const fraction = months - Math.floor(months);
+  const index = Math.floor(fraction * MONTH_IMAGES) + 1;
+  const file = String(index).padStart(3, '0') + '.webp';
+  return 'https://cdn.jsdelivr.net/gh/acamarata/moon-cycle@main/mm-256-75/' + file;
+}
+
+function phaseNameFromFraction(t) {
+  const p = ((Number(t) % 1) + 1) % 1;
+  if (p < 0.03 || p >= 0.97) return 'New moon';
+  if (p < 0.22) return 'Waxing crescent';
+  if (p < 0.28) return 'First quarter';
+  if (p < 0.47) return 'Waxing gibbous';
+  if (p < 0.53) return 'Full moon';
+  if (p < 0.72) return 'Waning gibbous';
+  if (p < 0.78) return 'Last quarter';
+  return 'Waning crescent';
+}
+
+function phaseKindFromName(name) {
+  const n = String(name || '').toLowerCase();
+  if (/new/.test(n)) return 'new';
+  if (/first/.test(n)) return 'first';
+  if (/full/.test(n)) return 'full';
+  if (/last|third/.test(n)) return 'last';
+  return 'new';
+}
+
+function omDayIndex(daily, when = new Date()) {
+  if (!daily || !daily.time || !daily.time.length) return -1;
+  const ymd = when.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  return daily.time.findIndex((t) => String(t).slice(0, 10) === ymd);
+}
+
+function parseOmLocal(iso) {
+  if (!iso) return null;
+  // Open-Meteo returns local ISO without Z when timezone=auto
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function twilightPctInWindow(d, winStart, winEnd) {
+  if (!d || !(d instanceof Date) || Number.isNaN(d.getTime())) return null;
+  const span = winEnd.getTime() - winStart.getTime();
+  if (!(span > 0)) return null;
+  return Math.max(0, Math.min(100, ((d.getTime() - winStart.getTime()) / span) * 100));
+}
+
+function twilightSeg(cls, a, b) {
+  if (a == null || b == null || !(b > a)) return '';
+  return '<div class="seg ' + cls + '" style="left:' + a.toFixed(2) + '%;width:' + (b - a).toFixed(2) + '%"></div>';
+}
+
+function fmtHourMark(d) {
+  if (!d || Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+  }).toLowerCase().replace(' ', '');
+}
+
+function nightWindowFor(lat, lon, now = new Date()) {
+  const t0 = _ASTRO.getTimes(now, lat, lon);
+  const yest = new Date(now); yest.setDate(yest.getDate() - 1);
+  const next = new Date(now); next.setDate(next.getDate() + 1);
+  const ty = _ASTRO.getTimes(yest, lat, lon);
+  const t1 = _ASTRO.getTimes(next, lat, lon);
+
+  // Noon→noon stays season-safe: as nights lengthen, the night band grows.
+  const pick = (eve, morn) => ({
+    winStart: eve.solarNoon,
+    winEnd: morn.solarNoon,
+    // Evening descent
+    goldenEveningStart: eve.goldenEveningStart,
+    goldenEveningEnd: eve.goldenEveningEnd,
+    blueEveningStart: eve.blueEveningStart,
+    blueEveningEnd: eve.blueEveningEnd,
+    nauticalDusk: eve.nauticalDusk,
+    astroDusk: eve.astroDusk,
+    sunset: eve.sunset,
+    // Morning ascent (inverse zones on the bar only)
+    astroDawn: morn.astroDawn,
+    nauticalDawn: morn.nauticalDawn,
+    blueMorningStart: morn.blueMorningStart,
+    blueMorningEnd: morn.blueMorningEnd,
+    goldenMorningStart: morn.goldenMorningStart,
+    goldenMorningEnd: morn.goldenMorningEnd,
+    sunrise: morn.sunrise,
+    solarNoon: morn.solarNoon,
+  });
+
+  if (t0.solarNoon && now < t0.solarNoon) return pick(ty, t0);
+  return pick(t0, t1);
+}
+
+function fmtPhaseRange(a, b) {
+  if (!a || !b || !(a instanceof Date) || !(b instanceof Date) ||
+      Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return null;
+  return fmtSkyTime(a) + ' – ' + fmtSkyTime(b);
+}
+
+function duskStep(cls, label, value) {
+  if (!value || value.indexOf('—') >= 0) return '';
+  return '<div class="skyfx-dusk-step ' + cls + '"><div class="k">' + label + '</div><div class="v">' + value + '</div></div>';
+}
+
+/**
+ * Build noon→noon phase cuts. Segment width is linear in time:
+ * pct = (t - noon) / (nextNoon - noon) * 100, so widths mirror real durations.
+ * Missing elevations (polar / extreme seasons) are skipped — no gaps, no invented colors.
+ */
+function twilightCutsFromPcts(pcts) {
+  const raw = [
+    { at: 0, cls: 'seg-day' },
+    // Evening: day → golden → blue → naut → astro → night
+    { at: pcts.ge0, cls: 'seg-golden' },
+    { at: pcts.ge1, cls: 'seg-blue' },
+    { at: pcts.be1, cls: 'seg-naut' },
+    { at: pcts.nd, cls: 'seg-astro' },
+    { at: pcts.ad, cls: 'seg-night' },
+    // Morning inverse: night → astro → naut → blue → golden → day
+    { at: pcts.an, cls: 'seg-astro' },
+    { at: pcts.nDawn, cls: 'seg-naut' },
+    { at: pcts.bMorn0, cls: 'seg-blue' },
+    { at: pcts.gMorn0, cls: 'seg-golden' },
+    { at: pcts.gMorn1, cls: 'seg-day' },
+    { at: 100, cls: null },
+  ];
+  const cuts = [];
+  for (const c of raw) {
+    if (c.at == null || !Number.isFinite(c.at)) continue;
+    const at = Math.max(0, Math.min(100, c.at));
+    if (cuts.length && at < cuts[cuts.length - 1].at) continue;
+    if (cuts.length && at === cuts[cuts.length - 1].at) {
+      cuts[cuts.length - 1].cls = c.cls;
+      continue;
+    }
+    cuts.push({ at, cls: c.cls });
+  }
+  if (!cuts.length || cuts[0].at > 0) cuts.unshift({ at: 0, cls: 'seg-day' });
+  if (cuts[cuts.length - 1].at < 100) cuts.push({ at: 100, cls: null });
+  return cuts;
+}
+
+function renderTwilightBar(lat, lon, now = new Date(), overrides = {}) {
+  const w = nightWindowFor(lat, lon, now);
+  if (overrides.sunset) w.sunset = overrides.sunset;
+  if (overrides.sunrise) w.sunrise = overrides.sunrise;
+  if (!w.winStart || !w.winEnd) return '';
+
+  const p = (d) => twilightPctInWindow(d, w.winStart, w.winEnd);
+  const cuts = twilightCutsFromPcts({
+    ge0: p(w.goldenEveningStart),
+    ge1: p(w.goldenEveningEnd),
+    be1: p(w.blueEveningEnd),
+    nd: p(w.nauticalDusk),
+    ad: p(w.astroDusk),
+    an: p(w.astroDawn),
+    nDawn: p(w.nauticalDawn),
+    bMorn0: p(w.blueMorningStart),
+    gMorn0: p(w.goldenMorningStart),
+    gMorn1: p(w.goldenMorningEnd),
+  });
+  const nowP = p(now);
+
+  let segs = '';
+  for (let i = 0; i < cuts.length - 1; i++) {
+    if (cuts[i].cls) segs += twilightSeg(cuts[i].cls, cuts[i].at, cuts[i + 1].at);
+  }
+
+  const marks = [];
+  const span = w.winEnd.getTime() - w.winStart.getTime();
+  for (let i = 0; i <= 8; i++) {
+    const t = new Date(w.winStart.getTime() + (span * i) / 8);
+    marks.push({
+      pct: (i / 8) * 100,
+      label: fmtHourMark(t),
+      edge: i === 0 ? 'is-edge-start' : (i === 8 ? 'is-edge-end' : ''),
+    });
+  }
+  const hourMarks = marks.map((m) =>
+    '<span class="' + m.edge + '" style="left:' + m.pct + '%">' + m.label + '</span>'
+  ).join('');
+
+  const nightHrs = (w.astroDusk && w.astroDawn)
+    ? ((w.astroDawn.getTime() - w.astroDusk.getTime()) / 3600000)
+    : null;
+  const nightLabel = (nightHrs != null && Number.isFinite(nightHrs) && nightHrs > 0)
+    ? nightHrs.toFixed(1) + 'h · until ' + fmtSkyTime(w.astroDawn)
+    : (w.astroDawn ? 'until ' + fmtSkyTime(w.astroDawn) : null);
+
+  // Evening times only — morning inverse shows on the bar, not as AM boxes.
+  const ladder =
+    '<div class="skyfx-dusk-ladder">' +
+      duskStep('is-golden', 'Golden hour', fmtPhaseRange(w.goldenEveningStart, w.goldenEveningEnd)) +
+      duskStep('is-blue', 'Blue hour', fmtPhaseRange(w.blueEveningStart, w.blueEveningEnd)) +
+      duskStep('is-naut', 'Nautical twilight', fmtPhaseRange(w.blueEveningEnd, w.nauticalDusk)) +
+      duskStep('is-astro', 'Astronomical twilight', fmtPhaseRange(w.nauticalDusk, w.astroDusk)) +
+      duskStep('is-astro is-astro-dusk', 'Astro dusk', w.astroDusk ? fmtSkyTime(w.astroDusk) : null) +
+      duskStep('is-night', 'Astro night', nightLabel) +
+    '</div>';
+
+  return '<div class="skyfx-twilight-wrap">' +
+    '<div class="skyfx-twilight-top">' +
+      '<div class="skyfx-twilight-bar" title="Day/night cycle · noon → night → noon (widths ∝ duration)">' + segs +
+        (nowP != null ? '<div class="now-mark" style="left:' + nowP.toFixed(2) + '%"></div>' : '') +
+      '</div>' +
+      '<div class="skyfx-twilight-hours">' + hourMarks + '</div>' +
+      '<div class="skyfx-twilight-legend">' +
+        '<span><i class="l-day"></i>Day</span>' +
+        '<span><i class="l-golden"></i>Golden</span>' +
+        '<span><i class="l-blue"></i>Blue</span>' +
+        '<span><i class="l-naut"></i>Nautical</span>' +
+        '<span><i class="l-astro"></i>Astronomical</span>' +
+        '<span><i class="l-night"></i>Night</span>' +
+      '</div>' +
+    '</div>' +
+    ladder +
+  '</div>';
+}
+
+function nextNewMoon(now = new Date(), moonApi = null) {
+  if (moonApi && moonApi.nextPhases && moonApi.nextPhases.length) {
+    const hit = moonApi.nextPhases.find((p) => /new/i.test(String(p.phase || '')));
+    if (hit && hit.timeUtc) {
+      const when = new Date(hit.timeUtc);
+      if (!Number.isNaN(when.getTime()) && when > now) {
+        const days = Math.max(0, Math.ceil((when.getTime() - now.getTime()) / 86400000));
+        return { when, days };
+      }
+    }
+  }
+  const synodic = 29.530588853;
+  const age = moonPhaseInfo(now).ageDays;
+  let delta = synodic - age;
+  if (delta <= 0.05) delta += synodic;
+  const when = new Date(now.getTime() + delta * 86400000);
+  const days = Math.max(0, Math.ceil(delta));
+  return { when, days };
+}
+
+function renderMoonTrackCard(lat, lon, astronomy) {
   const el = document.getElementById('skyfx-moon-card');
   if (!el) return;
   const now = new Date();
-  const moon = moonPhaseInfo(now);
-  const altRad = _ASTRO.moonAltitude(now, lat, lon);
-  const altDeg = altRad != null && Number.isFinite(altRad)
-    ? Math.round((altRad * 180) / Math.PI)
-    : null;
-  const next = nextMajorMoonPhases(now);
+  const local = moonPhaseInfo(now);
+  const moonApi = astronomy && astronomy.moon && astronomy.moon.ok ? astronomy.moon : null;
+  const om = astronomy && astronomy.openMeteo && astronomy.openMeteo.ok ? astronomy.openMeteo : null;
+  const dayIdx = omDayIndex(om && om.daily, now);
+
+  const illum = moonApi && moonApi.illuminationPercent != null
+    ? Math.round(moonApi.illuminationPercent)
+    : local.illum;
+  const altDeg = moonApi && moonApi.altitude != null
+    ? Math.round(moonApi.altitude)
+    : (() => {
+        const altRad = _ASTRO.moonAltitude(now, lat, lon);
+        return altRad != null && Number.isFinite(altRad)
+          ? Math.round((altRad * 180) / Math.PI)
+          : null;
+      })();
+  const above = moonApi && moonApi.isAboveHorizon != null
+    ? moonApi.isAboveHorizon
+    : (altDeg != null ? altDeg > 0 : null);
+  const phaseName = local.name;
+  const moonTimes = _ASTRO.getMoonTimes(now, lat, lon);
+  let rise = moonTimes && moonTimes.rise;
+  let set = moonTimes && moonTimes.set;
+  if (om && om.daily && dayIdx >= 0) {
+    const mr = parseOmLocal(om.daily.moonrise[dayIdx]);
+    const ms = parseOmLocal(om.daily.moonset[dayIdx]);
+    if (mr) rise = mr;
+    if (ms) set = ms;
+  }
+
+  const nextNew = nextNewMoon(now, moonApi);
+  const nextNewDate = nextNew.when.toLocaleDateString('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+  const nextNewDaysLabel = nextNew.days === 0
+    ? 'Today'
+    : (nextNew.days === 1 ? '1 day' : nextNew.days + ' days');
+
+  const photoUrl = nasaMoonImageUrl(now);
+  const fallbackSvg = moonSvgMarkup(local.phase, 120, 'skyfx-moon-svg');
+  const altLabel = altDeg == null
+    ? '—'
+    : (Math.abs(altDeg) + '°' + (above == null ? '' : (above ? ' up' : ' down')));
+
   el.innerHTML =
-    '<div class="skyfx-card-title">Moon Details</div>' +
+    '<div class="skyfx-card-title">Moon</div>' +
     '<div class="skyfx-moon-card-body">' +
-      '<div class="skyfx-moon-current">' +
-        '<div class="eyebrow">Current Moon Phase</div>' +
-        '<div class="phase-name">' + escapeHtml(moon.name) + '</div>' +
+      '<div class="skyfx-moon-head">' +
         '<div class="skyfx-moon-disc-wrap">' +
-          moonSvgMarkup(moon.phase, 120, 'skyfx-moon-svg') +
+          '<img class="skyfx-moon-photo" alt="' + escapeAttr(phaseName) + '" src="' + escapeAttr(photoUrl) + '" ' +
+            'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+          '<div style="display:none">' + fallbackSvg + '</div>' +
         '</div>' +
-        '<div class="skyfx-moon-stats">' +
-          '<div class="row"><span class="k">Altitude</span><span class="v">' +
-            (altDeg != null ? altDeg + '°' : '—') + '</span></div>' +
-          '<div class="row"><span class="k">Illuminated</span><span class="v">' +
-            moon.illum + '%</span></div>' +
-          '<div class="row"><span class="k">Age (days)</span><span class="v">' +
-            Math.round(moon.ageDays) + '</span></div>' +
-        '</div>' +
+        '<div class="skyfx-moon-phase-name">' + escapeHtml(phaseName) + '</div>' +
+        '<div class="skyfx-moon-phase-sub">' + illum + '% illuminated · day ' +
+          Math.round(local.ageDays) + ' of cycle</div>' +
       '</div>' +
-      '<div class="skyfx-moon-next">' +
-        '<div class="eyebrow">Next Moon Phase</div>' +
-        '<div class="skyfx-moon-next-list">' +
-          next.map((p) =>
-            '<div class="row"><span class="phase">' + miniMoonSvg(p.kind) +
-              escapeHtml(p.name) +
-              '</span><span class="date">' + escapeHtml(p.label) + '</span></div>'
-          ).join('') +
+      '<div class="skyfx-moon-metrics">' +
+        '<div class="skyfx-moon-metric"><div class="k">Illuminated</div><div class="v">' + illum + '%</div></div>' +
+        '<div class="skyfx-moon-metric" title="Angle above the horizon right now. 0° = horizon, 90° = overhead. Negative / down = below horizon.">' +
+          '<div class="k">Altitude</div><div class="v">' + escapeHtml(altLabel) + '</div></div>' +
+        '<div class="skyfx-moon-metric"><div class="k">Rise</div><div class="v">' + fmtSkyTime(rise) + '</div></div>' +
+        '<div class="skyfx-moon-metric"><div class="k">Set</div><div class="v">' + fmtSkyTime(set) + '</div></div>' +
+        '<div class="skyfx-moon-metric is-next-new">' +
+          '<div class="k">Next new moon</div>' +
+          '<div class="v">' + escapeHtml(nextNewDaysLabel) +
+            '<span class="s">' + escapeHtml(nextNewDate) + '</span></div>' +
         '</div>' +
       '</div>' +
     '</div>';
 }
 
-function renderSunTrackCard(lat, lon) {
+function renderSunTrackCard(lat, lon, astronomy) {
   const el = document.getElementById('skyfx-sun-card');
   if (!el) return;
   const now = new Date();
   const times = _ASTRO.getTimes(now, lat, lon);
-  // Diagram removed: third-party sun-path embeds need net and fight red-mode;
-  // custom SVG kept looking wrong. Times-only card stays useful for planning.
+  const om = astronomy && astronomy.openMeteo && astronomy.openMeteo.ok ? astronomy.openMeteo : null;
+  const dayIdx = omDayIndex(om && om.daily, now);
+  let sunrise = times.sunrise;
+  let sunset = times.sunset;
+  if (om && om.daily && dayIdx >= 0) {
+    const sr = parseOmLocal(om.daily.sunrise[dayIdx]);
+    const ss = parseOmLocal(om.daily.sunset[dayIdx]);
+    if (sr) sunrise = sr;
+    if (ss) sunset = ss;
+  }
+
   el.innerHTML =
-    '<div class="skyfx-card-title">Sun Times</div>' +
-    '<div class="skyfx-sun-times-card">' +
-      '<div class="row"><span class="k">Sunrise</span><span class="v">' + fmtSkyTime(times.sunrise) + '</span></div>' +
-      '<div class="row"><span class="k">Solar noon</span><span class="v">' + fmtSkyTime(times.solarNoon) + '</span></div>' +
-      '<div class="row"><span class="k">Sunset</span><span class="v">' + fmtSkyTime(times.sunset) + '</span></div>' +
-      '<div class="row"><span class="k">Civil dawn</span><span class="v">' + fmtSkyTime(times.civilDawn) + '</span></div>' +
-      '<div class="row"><span class="k">Civil dusk</span><span class="v">' + fmtSkyTime(times.civilDusk) + '</span></div>' +
-      '<div class="row"><span class="k">Astro dusk</span><span class="v">' + fmtSkyTime(times.astroDusk) + '</span></div>' +
-      '<div class="row"><span class="k">Astro dawn</span><span class="v">' + fmtSkyTime(times.astroDawn) + '</span></div>' +
+    '<div class="skyfx-card-title">Sun &amp; Twilight</div>' +
+    '<div class="skyfx-sun-body">' +
+      renderTwilightBar(lat, lon, now, { sunrise, sunset }) +
     '</div>';
 }
 
 async function refreshSkyFxConditions(lat, lon) {
-  renderMoonTrackCard(lat, lon);
-  renderSunTrackCard(lat, lon);
+  let astronomy = null;
+  if (window.zukoApp && typeof window.zukoApp.skyAstronomy === 'function') {
+    try {
+      astronomy = await window.zukoApp.skyAstronomy({
+        lat,
+        lon,
+        forceRefresh: false,
+        preferFallback: skyFxPreferFallback(),
+        simulateOffline: skyFxSimulateOffline(),
+      });
+    } catch (e) {
+      astronomy = null;
+    }
+  }
+  renderMoonTrackCard(lat, lon, astronomy);
+  renderSunTrackCard(lat, lon, astronomy);
 }
 
 function skyfxMetric(key, value, sub, rag, dimmed) {

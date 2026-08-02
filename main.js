@@ -16,6 +16,10 @@ const {
   setForecastCacheDir,
   getStoredCreditInfo,
 } = require('./src/weather/tonightShoot');
+const {
+  getSkyAstronomy,
+  setAstronomyCacheDir,
+} = require('./src/weather/skyAstronomy');
 
 loadDotEnv(__dirname);
 
@@ -420,6 +424,17 @@ ipcMain.handle('zuko-sky-forecast', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-sky-astronomy', async (_event, payload = {}) => {
+  try {
+    return await getSkyAstronomy(payload || {});
+  } catch (err) {
+    return {
+      ok: false,
+      error: String(err && err.message ? err.message : err),
+    };
+  }
+});
+
 ipcMain.handle('zuko-astrospheric-credits', async () => {
   try {
     return { ok: true, ...getStoredCreditInfo() };
@@ -620,6 +635,7 @@ ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
 
 app.whenReady().then(() => {
   setForecastCacheDir(resolveDataPaths().dir);
+  setAstronomyCacheDir(resolveDataPaths().dir);
   createWindow();
 
   app.on('activate', () => {

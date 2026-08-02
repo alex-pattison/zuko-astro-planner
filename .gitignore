@@ -18,10 +18,12 @@ out/
 .env.*
 !.env.example
 
-# Astrospheric forecast cache (local, per location)
+# Astrospheric / astronomy caches (local, per location)
 **/astrospheric-cache-*.json
 **/astrospheric-v2-cache-*.json
+**/astrospheric-moon-*.json
 **/astrospheric-credits.json
+**/open-meteo-astro-*.json
 data/dev-flags.json
 
 # OS / editor
