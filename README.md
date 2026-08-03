@@ -45,37 +45,40 @@ npm run seed:beta
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 
-## ASIAIR ingest (Shoot Log)
+## ASIAIR Import (Shoot Log)
 
-Each project needs a **Project directory** (edit project) that contains ASIAIR `Autorun` and/or `Plan` folders with `Light` / `Flat` / `Bias` / `Dark` children. Lights may live under `Light/<Target>/`. Ingest **merges all sessions** into one source (no Autorun/Plan picker); the filter table shows a **Type** column (Autorun / Plan).
+Your ASIAIR unit (or a USB dump) looks like this — matching what we see on disk:
 
-**Target match:** lights are matched to the project’s saved RA/Dec (Target Framer). Folders within **0.75°** auto-include; **0.75°–2.5°** (or ambiguous multi-folder dumps) open a pre-ingest Aladin side-by-side confirm before the staging window; farther folders are excluded unless you accept them. Flats / Bias / Dark stay shared (not target-gated).
+```text
+Autorun/   (or Plan/)
+  Light/ or lights/     Light_<Target>_<exp>s_Bin2_<H|O|S>_YYYYMMDD-HHMMSS_<temp>C_####.fit
+  Flat/  or flats/
+  Bias/  or biases/     (ASIAIR “Bias” = dark flats)
+  Dark/  or darks/
+```
 
-From a shoot’s **Ingest** button:
+**Project directory** = Siril destination (`Filter/ShootCode/`, `_calibration/`, `working/`).  
+**ASIAIR source** = where frames are read from (Settings → ASIAIR source, or Browse in the Import window). Typically the unit share / USB folder that contains `Autorun`/`Plan`, or `Autorun` itself.
 
-1. Discovers `Autorun` / `Plan` under the project directory and scans them together.
-2. Scans FITS **headers first** (filename fallback) for the shoot’s astronomical night (`D` and morning of `D+1`). Lights and flats are night-gated; session **Bias** (dark flats) and **Dark** frames are treated as reusable calibration and are not night-gated (shared across sessions).
-3. Shows status chips for Light / Flat / Bias (dark flats) / session Dark, plus per-filter light/flat counts and shooting type.
-4. **Blocks Stage** unless all four are present for the shoot: Light, Flat, Bias, and Dark (session darks, or matching master-library darks when that checkbox is on). Backend returns `MISSING_FRAMES` if staging is attempted anyway.
-5. Stages session **darks** into each channel (exp+gain+temp match; filter ignored). On Ingest open, matches the shoot’s exp/gain/temp against the **master dark library** (`H:\Photography\Astrophotography\Zuko\Dark Library`) and notes hits; optionally stages those library darks when the checkbox is on (symlinked from the master library — not copied into `_calibration`).
-6. **Stage for Siril** builds:
+### Flow
+
+1. Set **ASIAIR source** once (Settings), or Browse when Import opens.
+2. Open **Import** on a Captured shoot (or **Import all**).
+3. Modal shows source path (editable via Browse/Rescan) + project destination.
+4. Discovers `Autorun`/`Plan` under the source; merges them; night-gates lights/flats; target-matches to the project RA/Dec.
+5. Status column: **match** / **already imported** / **no shot log** / missing flats/bias/darks…
+6. **Import** copies matched frames into the project tree (same layout as before). Source on the ASIAIR/USB is not moved.
 
 ```text
 <projectDir>/
-  _calibration/darkflats/<YYYYMMDD>/   # Bias copied from ASIAIR (source kept)
-  _calibration/darks/<YYYYMMDD>/       # Darks copied from session/master (source kept)
-  <Filter>/<ShootName>/   # e.g. SII/260725_SII_B9_NYCRoof (from shoot log Name)
-    lights/    # copied from source
-    flats/     # copied from source
-    biases/    # symlink → _calibration/darkflats/<night>/
-    darks/     # symlink → _calibration/darks/<night>/
+  _calibration/darkflats/<YYYYMMDD>/
+  _calibration/darks/<YYYYMMDD>/
+  <Filter>/<ShootName>/{lights,flats,biases,darks}/
 ```
 
-Local development fixture (gitignored): `staging/asiair-sample/` (NGC 6960 lights only).
+Live Wi‑Fi auto-watch of a connected ASIAIR is still deferred — use Browse to the mounted share for now.
 
-Source ASIAIR folders are never moved. Calibration frames are copied into `_calibration/` by night, then symlinked into each channel (falls back to hardlink/copy if symlink fails). The filter subfolder uses the shoot log auto-name, not the bare date.
-
-**Before v1 go-live / ongoing notes:** **[docs/working-notes.md](docs/working-notes.md)** (bugs, fixes, and the v1 checklist).
+**Before v1 go-live / ongoing notes:** **[docs/working-notes.md](docs/working-notes.md)**.
 
 ## External weather & astronomy data
 

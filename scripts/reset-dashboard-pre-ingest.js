@@ -67,11 +67,11 @@ for (const p of d.projects) {
       },
     ];
     // Prefer Dev imaging pool; fall back to Beta H: dump.
-    const devDir = 'F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725';
-    const betaDir = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725';
+    const devDir = 'F:\\zuko_dev\\Projects\\NGC6960_Q326';
+    const betaDir = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326';
     if (fs.existsSync(devDir)) {
       p.projectDir = devDir;
-    } else if (fs.existsSync(path.join(betaDir, 'Autorun')) || fs.existsSync(betaDir)) {
+    } else if (fs.existsSync(path.join(betaDir, 'Autorun')) || fs.existsSync(path.join(betaDir, 'asiair')) || fs.existsSync(betaDir)) {
       p.projectDir = betaDir;
     }
   } else {

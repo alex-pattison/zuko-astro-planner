@@ -22,6 +22,22 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-03 — build 9 — Dev/Beta isolation (userData + single-instance)
+- Dev and Beta no longer share Electron `userData` (`…\zuko-astro-planner-dev` vs `…-beta`).
+- Per-channel single-instance lock: second Dev focuses the first Dev (same for Beta). Dev + Beta can still run together.
+- Stronger DEV/BETA header badge. If UI still says “Ingest”, you’re on old Beta — use Dev (`npm start`) or rebuild Beta.
+
+### 2026-08-03 — build 9 — Import from ASIAIR source (not projectDir)
+- Renamed Shoot Log **Ingest → Import**; primary button **Import** (was Stage for Siril); status **already imported**.
+- Import modal has **ASIAIR source** path at top (Browse / Rescan). Default from **Settings → ASIAIR source**; falls back to projectDir if unset.
+- Scans/copies off the unit/USB `Autorun|Plan` tree; destination remains project `Filter/ShootCode/`. Real dumps: `Light_NGC 6960_…_S_20260725-….fit` under `lights/` (or singular `Light/`).
+
+### 2026-08-03 — build 9 — Veil project root flatten + asiair/<night>
+- **Layout:** Project directory is `NGC6960_Q326` (no night folder). Filter / `_calibration` / `working` live at that root (same shape as NAN Dev).
+- **Disk:** Flattened `260725\` up into project root on H: Beta and F: Dev (`scripts/flatten-veil-night-folder.js`).
+- **Dumps:** Prefer `asiair/<YYMMDD>/Autorun|Plan` per night; legacy root `Autorun`/`Plan` still discovered. Shoot Log → **Import ASIAIR dump** copies into `asiair/<YYMMDD>/` without staging. Live ASIAIR connect/watch deferred.
+- **UI:** Project directory path ellipsis; light-mode darker SII/Ha filter tones.
+
 ### 2026-08-03 — build 9 — Filter dropdown + cull skip + log heartbeat
 - Add Filter Target: **dropdown** of wheel filters (L/R/G/B/SII/Ha/OIII/Hb). Editable wheel filters → backlog.
 - Calibration log modal: immediate banner + “still running…” heartbeats (Siril buffers stdout; dump arrives in bursts).

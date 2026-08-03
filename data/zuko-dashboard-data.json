@@ -109,8 +109,8 @@
           "hours": 1,
           "complete": true,
           "creditedHours": 1,
-          "sourcePath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725",
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725\\SII\\260725_SII_B5_Queechy",
+          "sourcePath": "F:\\zuko_dev\\Projects\\NGC6960_Q326",
+          "ingestPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\260725_SII_B5_Queechy",
           "ingestMeta": {
             "nightDate": "20260725",
             "shootFolder": "260725_SII_B5_Queechy",
@@ -118,9 +118,9 @@
               "SII"
             ],
             "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725\\SII\\260725_SII_B5_Queechy"
+              "F:\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\260725_SII_B5_Queechy"
             ],
-            "biasLibrary": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725\\_calibration\\darkflats\\20260725",
+            "biasLibrary": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\_calibration\\darkflats\\20260725",
             "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "calibReuse": {
               "nightDate": "20260725",
@@ -156,7 +156,7 @@
       },
       "framerMode": "reducer",
       "framerRotation": 27,
-      "projectDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725",
+      "projectDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326",
       "processStatus": "processing",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
@@ -338,6 +338,125 @@
       "asiairBoundFolders": [],
       "asiairIgnoredSources": [],
       "processStatus": "processing"
+    },
+    {
+      "name": "[TEST] Rosette Nebula — Ingest QA",
+      "target": "Rosette Nebula (NGC 2237 / NGC 2238 / NGC 2244) — synthetic ASIAIR dump for ingest testing",
+      "frameMode": "Reducer, 280mm f/3.9 — TEST project (synthetic FITS, not real data)",
+      "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-test-rosette",
+      "centerCoords": "RA 6h31m55s  Dec +4°56'34\"",
+      "anchorStar": "HD 46150 (mag ~6.8) — open cluster NGC 2244 core",
+      "rotation": "0° (test)",
+      "status": "active",
+      "notes": "TEST PROJECT — real target (Rosette), synthetic FITS under staging/asiair-test-rosette. Autorun+Plan merged. Ha 260728 = happy path (+ orphan OIII lights → no shot log). OIII 260729 = missing flats (blocked). SII 260730 = Stage OK. Ha 260731 @45s = missing darks. See staging/asiair-test-rosette/README.md. Rebuild: node scripts/build-ingest-test-fixture.js",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.18,
+          "stackMeta": null,
+          "cullMeta": null
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.1,
+          "stackMeta": null,
+          "cullMeta": null
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.1,
+          "stackMeta": null,
+          "cullMeta": null
+        }
+      ],
+      "checklist": [
+        {
+          "id": "test-rosette-happy",
+          "text": "TEST: Ha 260728 → Stage OK; orphan OIII row = no shot log (red)",
+          "done": false
+        },
+        {
+          "id": "test-rosette-noflat",
+          "text": "TEST: OIII 260729 → missing flats (red row), Stage blocked",
+          "done": false
+        },
+        {
+          "id": "test-rosette-cross",
+          "text": "TEST: SII 260730 → Stage succeeds (Bias from Autorun)",
+          "done": false
+        },
+        {
+          "id": "test-rosette-nodark",
+          "text": "TEST: Ha 260731 @45s → missing darks, Stage blocked",
+          "done": false
+        }
+      ],
+      "shoots": [
+        {
+          "date": "260728",
+          "filterIndex": 0,
+          "hours": 0.15,
+          "complete": true,
+          "creditedHours": 0.15,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260729",
+          "filterIndex": 1,
+          "hours": 0.1,
+          "complete": true,
+          "creditedHours": 0.1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260730",
+          "filterIndex": 2,
+          "hours": 0.1,
+          "complete": true,
+          "creditedHours": 0.1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260731",
+          "filterIndex": 0,
+          "hours": 0.025,
+          "complete": true,
+          "creditedHours": 0.03,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        }
+      ],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "Rosette Nebula (NGC 2237)",
+        "ra": 97.9791667,
+        "dec": 4.9427778
+      },
+      "framerMode": "reducer",
+      "framerRotation": 0,
+      "processStatus": "planning",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": []
     }
   ],
   "notes": [
@@ -890,7 +1009,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 9,
-    "savedAt": "2026-08-03T21:24:31.358Z"
+    "savedAt": "2026-08-03T23:56:50.484Z"
   },
   "uiTheme": "dark",
   "homeSite": {
@@ -903,7 +1022,7 @@
   "darkLibrary": {
     "path": "F:\\zuko_dev\\Dark Library",
     "index": [],
-    "indexedAt": "2026-08-03T21:24:31.358Z"
+    "indexedAt": "2026-08-03T23:56:50.484Z"
   },
   "uiSections": {
     "sky-forecast": true,
@@ -915,5 +1034,6 @@
     "filter-wheel": false,
     "imaging-configs": false,
     "tracked-projects": true
-  }
+  },
+  "asiairSourcePath": "F:\\zuko_dev\\Projects\\NGC6960_Q326"
 }

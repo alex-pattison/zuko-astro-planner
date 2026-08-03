@@ -82,7 +82,7 @@ for (const pr of data.projects || []) {
     pr.projectDir = path.join(F_PROJECTS, 'NGC7000_260720');
   }
   if (/Veil/i.test(pr.name || '')) {
-    pr.projectDir = path.join(F_PROJECTS, 'NGC6960_Q326', '260725');
+    pr.projectDir = path.join(F_PROJECTS, 'NGC6960_Q326');
   }
 }
 

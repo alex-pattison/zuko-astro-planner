@@ -158,14 +158,19 @@
   }
   .header-version .channel-tag {
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     opacity: 1;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
   }
   .header-version .channel-tag.is-beta {
     color: #2bb7c7;
+    background: color-mix(in srgb, #2bb7c7 16%, transparent);
   }
   .header-version .channel-tag.is-dev {
     color: var(--yellow, #c9a227);
+    background: color-mix(in srgb, var(--yellow, #c9a227) 18%, transparent);
   }
 
   h1 {
@@ -4111,6 +4116,16 @@
     </div>
 
     <div class="settings-section">
+      <h4>ASIAIR source</h4>
+      <p class="settings-hint">Default folder for Import — usually the ASIAIR unit share or USB dump that contains <code>Autorun</code> / <code>Plan</code> (or is an Autorun itself). Import copies matched frames into each project’s directory.</p>
+      <label for="settings-asiair-source">Default source path</label>
+      <div class="settings-row-actions" style="align-items:center;gap:8px;flex-wrap:wrap;">
+        <input id="settings-asiair-source" data-testid="settings-asiair-source" type="text" autocomplete="off" placeholder="e.g. \\ASIAIR_XXXX\ASIAIR or E:\ASIAIR" style="flex:1;min-width:200px;">
+        <button type="button" class="modal-btn" data-testid="settings-asiair-browse" onclick="browseSettingsAsiairSource()">Browse…</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <h4>Astrospheric</h4>
       <p class="settings-hint">Pro API key from Astrospheric → My Profile. Stored in a local <code>.env</code> next to the data folder in Beta, or the repo root in Dev (not in the dashboard JSON). Pulls request cloud, transparency, seeing, and temperature only (~80 credits each; monthly allowance).</p>
       <label for="settings-api-key">API key</label>
@@ -4157,7 +4172,7 @@
       <div class="rej-title">Not this project’s target — what next?</div>
       <div class="rej-hint" id="ingest-target-confirm-reject-hint">Choose how to handle this ASIAIR folder. Nothing is deleted from disk.</div>
       <div class="rej-actions">
-        <button type="button" class="modal-btn" data-testid="confirm-exclude" onclick="confirmTargetRejectAction('exclude')">Exclude from this ingest</button>
+        <button type="button" class="modal-btn" data-testid="confirm-exclude" onclick="confirmTargetRejectAction('exclude')">Exclude from this import</button>
         <button type="button" class="modal-btn" data-testid="confirm-ignore-folder" onclick="confirmTargetRejectAction('ignore')">Ignore folder (don’t ask again)</button>
         <button type="button" class="modal-btn" data-testid="confirm-create-shoot" onclick="confirmTargetRejectAction('create_shoot')">Create shoot log from these lights</button>
         <button type="button" class="modal-btn" data-testid="confirm-new-project" onclick="confirmTargetRejectAction('new_project')">New project from this pointing</button>
@@ -4213,15 +4228,25 @@
 
 <div class="ingest-overlay" id="ingest-overlay" onclick="if(event.target===this)closeIngestModal()">
   <div class="ingest-modal" role="dialog" aria-labelledby="ingest-title">
-    <h3 id="ingest-title">ASIAIR Ingest</h3>
+    <h3 id="ingest-title">ASIAIR Import</h3>
     <div class="ingest-sub" id="ingest-sub">—</div>
     <div class="ingest-night-tabs" id="ingest-night-tabs" role="tablist" aria-label="Shoot nights"></div>
-    <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:6px;">
-      <div><span style="color:var(--gray);">Project dir</span></div>
-      <div id="ingest-project-path" style="color:var(--text);word-break:break-all;margin:2px 0 6px;">—</div>
-      <div><span style="color:var(--gray);">ASIAIR sources</span></div>
-      <div id="ingest-session-path" style="color:var(--text);word-break:break-all;margin:2px 0 8px;">—</div>
-      <div id="ingest-target-match-row" style="margin-top:4px;"></div>
+    <div class="ingest-source-block" style="margin-bottom:10px;">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">ASIAIR source</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="ingest-source-path" data-testid="ingest-source-path" readonly
+          style="flex:1;min-width:180px;font-family:var(--mono);font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text);"
+          placeholder="ASIAIR unit / USB Autorun parent…">
+        <button type="button" class="modal-btn" data-testid="ingest-source-browse" onclick="browseIngestSourcePath()">Browse…</button>
+        <button type="button" class="modal-btn" data-testid="ingest-source-rescan" onclick="rescanIngestSource()">Rescan</button>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:8px;">
+        <div><span style="color:var(--gray);">Import into (project)</span></div>
+        <div id="ingest-project-path" style="color:var(--text);word-break:break-all;margin:2px 0 6px;">—</div>
+        <div><span style="color:var(--gray);">Sessions found</span></div>
+        <div id="ingest-session-path" style="color:var(--text);word-break:break-all;margin:2px 0 8px;">—</div>
+        <div id="ingest-target-match-row" style="margin-top:4px;"></div>
+      </div>
     </div>
     <div class="ingest-chips" id="ingest-chips"></div>
     <div id="ingest-confirm" class="ingest-confirm-block"></div>
@@ -4232,7 +4257,7 @@
       </table>
     </div>
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0 8px;">
-      <input type="checkbox" id="ingest-use-darks" onchange="onIngestUseDarksChange()"> Use matching master darks when staging
+      <input type="checkbox" id="ingest-use-darks" onchange="onIngestUseDarksChange()"> Use matching master darks when importing
     </label>
     <div class="ingest-busy" id="ingest-busy" aria-live="polite">
       <div class="ingest-busy-row">
@@ -4245,8 +4270,8 @@
     <div class="ingest-status-line" id="ingest-progress"></div>
     <div class="ingest-actions">
       <button class="modal-btn" id="ingest-cancel-btn" data-testid="ingest-cancel" onclick="closeIngestModal()">Cancel</button>
-      <button class="modal-btn" id="ingest-stage-day-btn" data-testid="ingest-stage-day" onclick="runIngestStageDay()" disabled style="display:none;">Stage day</button>
-      <button class="modal-btn primary" id="ingest-stage-btn" data-testid="ingest-stage" onclick="runIngestStage()" disabled>Stage for Siril</button>
+      <button class="modal-btn" id="ingest-stage-day-btn" data-testid="ingest-stage-day" onclick="runIngestStageDay()" disabled style="display:none;">Import day</button>
+      <button class="modal-btn primary" id="ingest-stage-btn" data-testid="ingest-stage" onclick="runIngestStage()" disabled>Import</button>
     </div>
   </div>
 </div>
@@ -4281,13 +4306,13 @@
 
 <div class="ingest-files-overlay" id="ingest-restage-overlay" onclick="if(event.target===this)closeIngestRestagePopup()">
   <div class="ingest-files-modal" role="dialog" aria-labelledby="ingest-restage-title" style="width:min(520px,96vw);max-height:none;">
-    <h3 id="ingest-restage-title">Already staged</h3>
-    <div class="ingest-files-sub" id="ingest-restage-sub">Staged data already exists for this shoot.</div>
+    <h3 id="ingest-restage-title">Already imported</h3>
+    <div class="ingest-files-sub" id="ingest-restage-sub">Imported data already exists for this shoot.</div>
     <div id="ingest-restage-path" class="path-cell" style="margin-bottom:12px;padding:8px;border:1px solid var(--border);border-radius:6px;"></div>
     <div class="ingest-files-actions">
       <button class="modal-btn" onclick="closeIngestRestagePopup()">Cancel</button>
       <button class="modal-btn" id="ingest-restage-open-btn" onclick="openIngestRestageFolder()">Open folder</button>
-      <button class="modal-btn primary" onclick="confirmIngestRestage()">Overwrite &amp; stage again</button>
+      <button class="modal-btn primary" onclick="confirmIngestRestage()">Overwrite &amp; import again</button>
     </div>
   </div>
 </div>
@@ -4323,6 +4348,7 @@ const defaultData = {
     index: [],
     indexedAt: null
   },
+  asiairSourcePath: '',
   projects: [
     {
       name: 'Veil Nebula — Full Complex',
@@ -4860,6 +4886,7 @@ function adoptLoadedData(incoming) {
     applyUiTheme(data.uiTheme); // syncs localStorage to JSON theme without calling persistData
   }
   if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
+  if (data.asiairSourcePath == null) data.asiairSourcePath = '';
   initSectionCollapseControls();
   const saved = data.appMeta || {};
   const savedBuild = Number(saved.build) || 0;
@@ -7191,7 +7218,7 @@ function renderProjects() {
               <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'actual') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'actual')">Actual ${shootLogSortIndicator(pi, 'actual')}</th>
               <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'target') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'target')">Target ${shootLogSortIndicator(pi, 'target')}</th>
               <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'status') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'status')">Status ${shootLogSortIndicator(pi, 'status')}</th>
-              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'ingest') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'ingest')">Ingest ${shootLogSortIndicator(pi, 'ingest')}</th>
+              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'ingest') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'ingest')">Import ${shootLogSortIndicator(pi, 'ingest')}</th>
               <th class="col-cal sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'calibrate') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'calibrate')">Calibrate ${shootLogSortIndicator(pi, 'calibrate')}</th>
               <th class="col-x"></th>
             </tr></thead>
@@ -7222,17 +7249,17 @@ function renderProjects() {
                 const statusBtn = `<button class="mini-btn status-btn ${captured ? 'captured' : ''}" style="margin-top:0" onclick="event.stopPropagation(); toggleShootComplete(${pi},${si})" title="${captured ? 'Mark as pending' : 'Mark as captured'}">${captured ? 'Captured' : 'Pending'}</button>`;
                 let ingestBtn;
                 if (!hasProjectDir) {
-                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Set Project directory before ingest">Ingest</button>`;
+                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Set Project directory before import">Import</button>`;
                 } else if (!captured) {
-                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before ingest">Ingest</button>`;
+                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before import">Import</button>`;
                 } else {
-                  ingestBtn = `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open ingest (already staged)' : 'ASIAIR ingest'}">Ingest</button>`;
+                  ingestBtn = `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open import (already imported)' : 'Import from ASIAIR source'}">Import</button>`;
                 }
                 let ppBtn;
                 if (!hasProjectDir) {
                   ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Set Project directory first">Calibrate</button>`;
                 } else if (!ingested) {
-                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Stage for Siril (Ingest) before calibration">Calibrate</button>`;
+                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Import from ASIAIR before calibration">Calibrate</button>`;
                 } else {
                   ppBtn = `<button class="mini-btn preprocess-btn ${calibrated ? 'done' : ''}" id="pp-btn-${pi}-${si}" style="margin-top:0" onclick="event.stopPropagation(); runPreprocessShoot(${pi},${si})" title="${calibrated ? 'Re-run calibration to pp_light' : 'Calibrate to pp_light via siril-cli'}">${calibrated ? 'Calibrated' : 'Calibrate'}</button>`;
                 }
@@ -7270,11 +7297,11 @@ function renderProjects() {
               const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
               const pending = (p.shoots || []).filter(isShootNeedingIngest).length;
               if (!hasProjectDir) {
-                return `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="Set Project directory before ingest">Ingest all</button>`;
+                return `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="Set Project directory before import">Import all</button>`;
               }
               return pending
-                ? `<button class="mini-btn ingest-btn" data-testid="ingest-all" onclick="ingestAllCapturedShoots(${pi})" title="Open ingest for all Captured shoots that are not already staged">Ingest all (${pending})</button>`
-                : `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="No Captured shoots waiting for ingest">Ingest all</button>`;
+                ? `<button class="mini-btn ingest-btn" data-testid="ingest-all" onclick="ingestAllCapturedShoots(${pi})" title="Open import for all Captured shoots that are not already imported">Import all (${pending})</button>`
+                : `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="No Captured shoots waiting for import">Import all</button>`;
             })()}
           </div>`}
         </div>
@@ -7805,6 +7832,90 @@ async function browsePathField(fieldId) {
   if (el) el.value = picked.path;
 }
 
+/** Default ASIAIR unit/USB path used by Import (Settings + remembered on Browse). */
+function getAsiairSourcePath() {
+  const p = data && data.asiairSourcePath != null ? String(data.asiairSourcePath).trim() : '';
+  return p || '';
+}
+
+function setAsiairSourcePath(p, { persist = true } = {}) {
+  if (!data) return;
+  data.asiairSourcePath = p ? normalizeWinPath(String(p).trim()) : '';
+  if (persist) save();
+}
+
+/**
+ * Resolve ASIAIR source for Import / Review: session override → setting → projectDir fallback.
+ */
+function resolveAsiairSourceDir(project) {
+  if (ingestCtx && ingestCtx.sourcePath) return ingestCtx.sourcePath;
+  const saved = getAsiairSourcePath();
+  if (saved) return saved;
+  return project && project.projectDir ? project.projectDir : null;
+}
+
+function syncIngestSourcePathInput(pathVal) {
+  const el = document.getElementById('ingest-source-path');
+  if (el) el.value = pathVal || '';
+}
+
+async function browseIngestSourcePath() {
+  if (!window.zukoIngest) {
+    alert('Folder browse needs the Electron app (npm start).');
+    return;
+  }
+  const current = (document.getElementById('ingest-source-path') || {}).value || getAsiairSourcePath();
+  const picked = await window.zukoIngest.pickFolder({
+    title: 'Select ASIAIR source (Autorun/Plan parent, or Autorun itself)',
+    defaultPath: current || undefined,
+  });
+  if (!picked || !picked.ok || picked.canceled) return;
+  if (ingestCtx) ingestCtx.sourcePath = picked.path;
+  setAsiairSourcePath(picked.path, { persist: true });
+  syncIngestSourcePathInput(picked.path);
+  await rescanIngestSource();
+}
+
+async function browseSettingsAsiairSource() {
+  if (!window.zukoIngest) {
+    alert('Folder browse needs the Electron app (npm start).');
+    return;
+  }
+  const el = document.getElementById('settings-asiair-source');
+  const picked = await window.zukoIngest.pickFolder({
+    title: 'Select default ASIAIR source folder',
+    defaultPath: (el && el.value) || getAsiairSourcePath() || undefined,
+  });
+  if (!picked || !picked.ok || picked.canceled) return;
+  if (el) el.value = picked.path;
+}
+
+async function rescanIngestSource() {
+  if (!ingestCtx || ingestCtx.pi == null) return;
+  const project = data.projects[ingestCtx.pi];
+  const sourceDir = (document.getElementById('ingest-source-path') || {}).value
+    || resolveAsiairSourceDir(project);
+  if (!sourceDir) {
+    document.getElementById('ingest-progress').textContent = 'Set an ASIAIR source path first.';
+    return;
+  }
+  if (ingestCtx) ingestCtx.sourcePath = sourceDir;
+  document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
+  document.getElementById('ingest-stage-btn').disabled = true;
+  const disc = await window.zukoIngest.discover(sourceDir);
+  if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
+    ingestCtx.sessions = [];
+    document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under ASIAIR source';
+    document.getElementById('ingest-progress').textContent = (disc && disc.error) || 'No ASIAIR session folders under source path.';
+    document.getElementById('ingest-filter-body').innerHTML =
+      '<tr><td colspan="10" style="color:var(--yellow);">No sessions found — browse to the unit/USB folder that contains Autorun or Plan.</td></tr>';
+    return;
+  }
+  ingestCtx.sessions = disc.sessions;
+  document.getElementById('ingest-session-path').textContent = formatIngestSourcesLabel(disc.sessions);
+  await runIngestScan();
+}
+
 const BETA_DARK_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
 const DEV_DARK_LIBRARY_PATH = 'F:\\zuko_dev\\Dark Library';
 const LEGACY_DARK_LIBRARY_PATHS = [
@@ -7895,7 +8006,7 @@ function renderDarkLibraryPanel() {
       ? `Indexed ${idx.length} darks in ${folders.length} set${folders.length === 1 ? '' : 's'} · ${data.darkLibrary.indexedAt}`
       : (idx.length
         ? `${idx.length} darks in ${folders.length} set${folders.length === 1 ? '' : 's'} cached`
-        : 'Not indexed yet — click Re-index (or open Ingest to auto-index).');
+        : 'Not indexed yet — click Re-index (or open Import to auto-index).');
   }
   if (!tbody) return;
   if (!idx.length) {
@@ -8038,14 +8149,14 @@ function closeIngestModal() {
   ingestBatch = null;
   const stageBtn = document.getElementById('ingest-stage-btn');
   if (stageBtn) {
-    stageBtn.textContent = 'Stage for Siril';
+    stageBtn.textContent = 'Import';
     stageBtn.disabled = true;
   }
   const dayBtn = document.getElementById('ingest-stage-day-btn');
   if (dayBtn) {
     dayBtn.style.display = 'none';
     dayBtn.disabled = true;
-    dayBtn.textContent = 'Stage day';
+    dayBtn.textContent = 'Import day';
   }
   const tabs = document.getElementById('ingest-night-tabs');
   if (tabs) {
@@ -8078,7 +8189,7 @@ function formatShootIntegration(lightsN, exposureSec, plannedHrs) {
     return {
       actualHtml: '<span class="shoot-integ-val na">—</span>',
       targetHtml: `<span class="shoot-integ-val">${targetStr}</span>`,
-      title: 'Ingest to compute actual (exp × lights)',
+      title: 'Import to compute actual (exp × lights)',
       actualHrs: null,
       plannedHrs: planned || null,
     };
@@ -8183,7 +8294,7 @@ function openIngestFilesPopup(kind) {
     }));
     showReason = frames.some((f) => f.excluded);
     sub = allow
-      ? `Pending ingest filters highlighted; others dimmed.`
+      ? `Pending import filters highlighted; others dimmed.`
       : (shootFilter
         ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
         : 'Folder path copies to clipboard when clicked.');
@@ -8205,7 +8316,7 @@ function openIngestFilesPopup(kind) {
     }));
     showReason = frames.some((f) => f.excluded);
     sub = allow
-      ? `Pending ingest filters highlighted; others dimmed.`
+      ? `Pending import filters highlighted; others dimmed.`
       : (shootFilter
         ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
         : 'Folder path copies to clipboard when clicked.');
@@ -8487,7 +8598,7 @@ async function confirmTargetRejectAction(action) {
   if (action === 'new_project') {
     const lights = st.scanLights || [];
     const neu = ZukoTargetMatch.buildNewProjectFromFolder(project, folderRow, lights, {
-      notes: `Created from ASIAIR folder “${folderRow && folderRow.folder}” while confirming ingest for ${project.name || 'project'}.`,
+      notes: `Created from ASIAIR folder “${folderRow && folderRow.folder}” while confirming import for ${project.name || 'project'}.`,
     });
     data.projects.push(neu);
     ignoreAsiairFolder(project, folderRow, `moved attention to new project “${neu.name}”`);
@@ -8728,8 +8839,12 @@ async function resolveTargetIncludesForNight(project, night, opts = {}) {
       if (f && !filterList.includes(String(f))) filterList.push(String(f));
     }
   }
+  const sourceDir = opts.sourceDir || resolveAsiairSourceDir(project);
+  if (!sourceDir) {
+    return { ok: false, error: 'ASIAIR source path not set (Settings → ASIAIR source)' };
+  }
   const scan = await window.zukoIngest.scanSession({
-    projectDir: project.projectDir,
+    projectDir: sourceDir,
     nightDate: night,
     targetCoords: coords || undefined,
     skipTargetHint: true,
@@ -8869,7 +8984,7 @@ async function resolveTargetIncludesForNight(project, night, opts = {}) {
     return {
       ok: false,
       error: ignoredDropped.length
-        ? 'No ASIAIR folders left to ingest (others ignored or declined).'
+        ? 'No ASIAIR folders left to import (others ignored or declined).'
         : 'No ASIAIR target folders accepted for this project.',
       scan,
       soft: true,
@@ -8908,7 +9023,7 @@ function renderIngestTargetMatchRow() {
   } else if (meta.mode === 'assumed') {
     label = 'Target assumed';
     tone = 'warn';
-    title = 'Single Light folder with no confident RA/Dec match — assumed for this ingest';
+    title = 'Single Light folder with no confident RA/Dec match — assumed for this import';
   }
   row.innerHTML = `<button type="button" class="ingest-chip ${tone}" onclick="reopenIngestTargetMatchSummary()" title="${escapeAttr(title)}">${escapeHtml(label)}</button>`;
 }
@@ -8951,17 +9066,22 @@ async function openSourceReview(pi) {
     alert('Set a Project directory first.');
     return;
   }
+  const sourceDir = resolveAsiairSourceDir(project);
+  if (!sourceDir) {
+    alert('Set an ASIAIR source path (Settings → ASIAIR source).');
+    return;
+  }
   sourceReviewCtx = { pi, rows: [], scan: null };
   document.getElementById('source-review-title').textContent =
     `Source review — ${project.name || 'Project'}`;
-  document.getElementById('source-review-sub').textContent = 'Scanning ASIAIR dump…';
+  document.getElementById('source-review-sub').textContent = `Scanning ${shortPath(sourceDir)}…`;
   document.getElementById('source-review-body').innerHTML =
     '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
   document.getElementById('source-review-overlay').classList.add('open');
 
   const coords = projectTargetCoords(project);
   const scan = await window.zukoIngest.scanSession({
-    projectDir: project.projectDir,
+    projectDir: sourceDir,
     targetCoords: coords || undefined,
     skipTargetHint: true,
   });
@@ -8969,7 +9089,7 @@ async function openSourceReview(pi) {
     document.getElementById('source-review-sub').textContent =
       (scan && scan.error) || 'Scan failed';
     document.getElementById('source-review-body').innerHTML =
-      '<tr><td colspan="10" style="color:var(--yellow);">Could not scan project directory.</td></tr>';
+      '<tr><td colspan="10" style="color:var(--yellow);">Could not scan ASIAIR source. Set Settings → ASIAIR source or Browse in Import.</td></tr>';
     return;
   }
   sourceReviewCtx.scan = scan;
@@ -9161,13 +9281,13 @@ function unignoreSourceReviewRow(rowIdx) {
 
 async function openIngestModal(pi, si) {
   if (!window.zukoIngest) {
-    alert('ASIAIR ingest needs the Electron desktop app (npm start).');
+    alert('ASIAIR import needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   const sh = project.shoots[si];
   if (!sh.complete) {
-    alert('Mark this shoot as Captured before ingesting.');
+    alert('Mark this shoot as Captured before importing.');
     return;
   }
   if (!project.projectDir) {
@@ -9181,11 +9301,17 @@ async function openIngestModal(pi, si) {
     return;
   }
 
-  // Resolve target folders BEFORE staging window (may show Aladin confirm).
+  const sourceDir = resolveAsiairSourceDir(project);
+  if (!getAsiairSourcePath() && !sourceDir) {
+    alert('Set an ASIAIR source path (Settings → ASIAIR source, or Browse in the Import window).');
+  }
+
+  // Resolve target folders BEFORE import window (may show Aladin confirm).
   const ftForResolve = project.filterTargets[sh.filterIndex];
   const resolved = await resolveTargetIncludesForNight(project, night, {
     pi,
     shootFilter: ftForResolve ? ftForResolve.filter : null,
+    sourceDir: sourceDir || undefined,
   });
   if (resolved.canceled) return;
   if (!resolved.ok) {
@@ -9203,6 +9329,7 @@ async function openIngestModal(pi, si) {
     si,
     scan: null,
     sessions: [],
+    sourcePath: sourceDir || getAsiairSourcePath() || project.projectDir,
     darkMatchesByFilter: {},
     darkMatched: [],
     darkRejected: [],
@@ -9218,7 +9345,7 @@ async function openIngestModal(pi, si) {
   const ft = project.filterTargets[sh.filterIndex];
   if (!ingestBatch) {
     const stageBtn = document.getElementById('ingest-stage-btn');
-    if (stageBtn) stageBtn.textContent = 'Stage for Siril';
+    if (stageBtn) stageBtn.textContent = 'Import';
     const dayBtn = document.getElementById('ingest-stage-day-btn');
     if (dayBtn) {
       dayBtn.style.display = 'none';
@@ -9230,10 +9357,11 @@ async function openIngestModal(pi, si) {
       tabs.innerHTML = '';
     }
   }
-  document.getElementById('ingest-title').textContent = 'ASIAIR Ingest — ' + (project.name || 'Project');
+  document.getElementById('ingest-title').textContent = 'ASIAIR Import — ' + (project.name || 'Project');
   document.getElementById('ingest-sub').textContent =
     `Night ${night || '(set shoot date)'} · shoot filter ${ft ? ft.filter : '—'} · folder ${buildShootCode(sh, ft)}`;
   document.getElementById('ingest-project-path').textContent = project.projectDir;
+  syncIngestSourcePathInput(ingestCtx.sourcePath);
   document.getElementById('ingest-session-path').textContent = '…';
   document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
   document.getElementById('ingest-stage-btn').disabled = true;
@@ -9242,23 +9370,12 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-confirm').textContent = '';
   renderIngestTargetMatchRow();
   const useEl = document.getElementById('ingest-use-darks');
-  // Leave checkbox as-is if user toggled before; default on when we find matches later.
   if (useEl && !ingestCtx._darksTouched) useEl.checked = true;
   document.getElementById('ingest-overlay').classList.add('open');
 
-  // Warm the dark library index in parallel with session discovery.
   const darkIndexPromise = ensureDarkLibraryIndexed({ quiet: true });
-
-  const disc = await window.zukoIngest.discover(project.projectDir);
   await darkIndexPromise;
-  if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
-    document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under project directory';
-    document.getElementById('ingest-progress').textContent = (disc && disc.error) || 'No ASIAIR session folders under project directory.';
-    return;
-  }
-  ingestCtx.sessions = disc.sessions;
-  document.getElementById('ingest-session-path').textContent = formatIngestSourcesLabel(disc.sessions);
-  await runIngestScan();
+  await rescanIngestSource();
 }
 
 function formatIngestSourcesLabel(sessions) {
@@ -9274,12 +9391,17 @@ function pathBasename(p) {
   return i >= 0 ? s.slice(i + 1) : s;
 }
 
-/** Project-level source — Autorun/Plan are merged; no session picker. */
-function selectedIngestProjectDir() {
-  const { pi } = ingestCtx;
-  if (pi == null) return null;
+/** ASIAIR source for scan — setting / modal Browse; not the Siril projectDir. */
+function selectedIngestSourceDir() {
+  const { pi } = ingestCtx || {};
+  if (pi == null) return getAsiairSourcePath() || null;
   const project = data.projects[pi];
-  return project && project.projectDir ? project.projectDir : null;
+  return resolveAsiairSourceDir(project);
+}
+
+/** @deprecated use selectedIngestSourceDir — kept for any leftover callers */
+function selectedIngestProjectDir() {
+  return selectedIngestSourceDir();
 }
 
 async function runIngestScan(opts = {}) {
@@ -9294,9 +9416,9 @@ async function runIngestScan(opts = {}) {
     document.getElementById('ingest-progress').textContent = 'Shoot needs a YYMMDD / YYYYMMDD date.';
     return;
   }
-  const projectDir = selectedIngestProjectDir();
-  if (!projectDir) {
-    document.getElementById('ingest-progress').textContent = 'No project directory.';
+  const sourceDir = selectedIngestSourceDir();
+  if (!sourceDir) {
+    document.getElementById('ingest-progress').textContent = 'No ASIAIR source path.';
     return;
   }
   document.getElementById('ingest-session-path').textContent =
@@ -9305,10 +9427,10 @@ async function runIngestScan(opts = {}) {
   const targetHint = projectTargetHint(project);
   const targetOpts = ingestTargetStageOpts(project);
   const doScan = () => window.zukoIngest.scanSession({
-    projectDir,
+    projectDir: sourceDir,
     nightDate: night,
     targetHint,
-    // Ingest-all scans the whole night so every pending filter shows up.
+    // Import-all scans the whole night so every pending filter shows up.
     shootFilter: multi ? null : (ft ? ft.filter : null),
     includeTargets: targetOpts.includeTargets,
     targetCoords: targetOpts.targetCoords,
@@ -9476,7 +9598,7 @@ async function runIngestScan(opts = {}) {
     const names = readyFilters.map((f) => filterLabelHtml(f)).join(' · ');
     const pendingN = (ingestBatch.queue || []).length;
     confirmEl.innerHTML = readyN
-      ? `<div class="line">Ingest all · <strong>${readyN}</strong> ready` +
+      ? `<div class="line">Import all · <strong>${readyN}</strong> ready` +
         (pendingN > readyN ? ` · <span style="color:var(--yellow);">${pendingN - readyN} incomplete skipped</span>` : '') +
         ` · night ${escapeHtml(night)}</div>
          <div class="line">${names}</div>`
@@ -9567,7 +9689,7 @@ function applyIngestStageGate() {
       : {
           ok: false,
           missing: ['(no ready shoots)'],
-          error: 'No shoots ready on this night — incomplete filters stay in the table but are excluded from Stage day/all.',
+          error: 'No shoots ready on this night — incomplete filters stay in the table but are excluded from Import day/all.',
         };
     updateIngestMultiStageButtons(
       canStage,
@@ -9590,7 +9712,7 @@ function applyIngestStageGate() {
       const pendingN = (ingestBatch.queue || []).length;
       const names = readyFilters.map((f) => filterLabelHtml(f)).join(' · ');
       confirmEl.innerHTML = readyN
-        ? `<div class="line">Ingest all · <strong>${readyN}</strong> ready` +
+        ? `<div class="line">Import all · <strong>${readyN}</strong> ready` +
           (pendingN > readyN ? ` · <span style="color:var(--yellow);">${pendingN - readyN} incomplete skipped</span>` : '') +
           ` · night ${escapeHtml(g.night || '')}</div>
            <div class="line">${names}</div>`
@@ -10041,7 +10163,7 @@ function renderFilterPipelineBar(project, pi, group) {
     <div class="pipeline-filter-name">${escapeHtml(group.name)}</div>
     <div class="pipeline-track">
       ${pipelineStepHtml('Capture', captureDone ? 'done' : '', { title: 'Capture' })}
-      ${pipelineStepHtml('Ingest', ingestDone ? 'done' : '', { title: 'Ingest / Stage for Siril' })}
+      ${pipelineStepHtml('Import', ingestDone ? 'done' : '', { title: 'Import from ASIAIR' })}
       ${pipelineStepHtml(calLabel, calState, { title: 'Calibration to pp_light (all nights & locations for this filter)' })}
       ${pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
         clickable: true,
@@ -10255,7 +10377,7 @@ async function runPreprocessShoot(pi, si) {
   const sh = project && project.shoots && project.shoots[si];
   if (!project || !sh) return;
   if (!isShootIngested(sh)) {
-    alert('Stage this shoot for Siril (Ingest) before calibration.');
+    alert('Import this shoot from ASIAIR before calibration.');
     return;
   }
   const shootDir = resolveShootCalibrateDir(project, sh);
@@ -10442,16 +10564,16 @@ function hasShootLogForFilterNight(project, filterName, nightYmd) {
 
 /**
  * Status column for the ingest filter table.
- * Priority: already staged → no shot log → pending incomplete → match → in log.
+ * Priority: already imported → no shot log → pending incomplete → match → in log.
  */
 function ingestFilterStatus(opts) {
   const { project, filter, night, isPendingMatch, missingFrames } = opts || {};
   if (hasIngestedShootForFilterNight(project, filter, night)) {
     return {
       key: 'staged',
-      label: 'already staged',
+      label: 'already imported',
       rowClass: 'ingest-row-staged',
-      title: 'A shoot for this filter on this night is already staged',
+      title: 'A shoot for this filter on this night is already imported',
     };
   }
   if (!hasShootLogForFilterNight(project, filter, night)) {
@@ -10475,7 +10597,7 @@ function ingestFilterStatus(opts) {
         key: 'incomplete',
         label,
         rowClass: 'ingest-row-incomplete',
-        title: 'Shoot is in the log but calibration is incomplete — staging blocked. ' + missing.join(', '),
+        title: 'Shoot is in the log but calibration is incomplete — import blocked. ' + missing.join(', '),
         missing,
       };
     }
@@ -10490,7 +10612,7 @@ function ingestFilterStatus(opts) {
     key: 'inlog',
     label: 'in log',
     rowClass: 'ingest-row-other',
-    title: 'In the shoot log for this night, but not part of this ingest selection',
+    title: 'In the shoot log for this night, but not part of this import selection',
   };
 }
 
@@ -10714,7 +10836,10 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   if (!sh.complete) return { ok: false, error: 'Shoot is not Captured' };
   if (!night) return { ok: false, error: 'Shoot needs a YYMMDD date' };
 
-  const disc = await window.zukoIngest.discover(project.projectDir);
+  const sourceDir = opts.sourceDir || resolveAsiairSourceDir(project);
+  if (!sourceDir) return { ok: false, error: 'ASIAIR source path not set' };
+
+  const disc = await window.zukoIngest.discover(sourceDir);
   if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
     return { ok: false, error: (disc && disc.error) || 'No Autorun/Plan found' };
   }
@@ -10722,7 +10847,7 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   const targetHint = projectTargetHint(project);
   const targetOpts = ingestTargetStageOpts(project);
   const scan = await window.zukoIngest.scanSession({
-    projectDir: project.projectDir,
+    projectDir: sourceDir,
     nightDate: night,
     targetHint,
     shootFilter: ft ? ft.filter : null,
@@ -10743,10 +10868,11 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     ? darkInfo.useMasterDarks
     : !!opts.useMasterDarks;
   const shootFolder = buildShootCode(sh, ft);
-  const session = { path: project.projectDir, paths: scan.sessionPaths || [] };
+  const session = { path: sourceDir, paths: scan.sessionPaths || [] };
 
   const stageWork = () => window.zukoIngest.stage({
     projectDir: project.projectDir,
+    sourceDir,
     nightDate: night,
     shootFolder,
     shootFilter,
@@ -10763,7 +10889,7 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   const result = opts.skipBusy
     ? await stageWork()
     : await withIngestBusy(
-      opts.busyMessage || (`Staging ${shootFolder}…`),
+      opts.busyMessage || (`Importing ${shootFolder}…`),
       stageWork,
       { minMs: minBusyMs }
     );
@@ -10916,7 +11042,7 @@ async function assessAllIngestNightsReadiness() {
     if (!entry || !entry.queue || !entry.queue.length) continue;
     const includes = (ingestCtx.includeTargetsByNight && ingestCtx.includeTargetsByNight[night]) || null;
     const scan = await window.zukoIngest.scanSession({
-      projectDir: project.projectDir,
+      projectDir: resolveAsiairSourceDir(project),
       nightDate: night,
       targetCoords: coords || undefined,
       skipTargetHint: true,
@@ -11047,19 +11173,19 @@ function updateIngestMultiStageButtons(canStageDay, blockReason) {
     dayBtn.style.display = multiNight ? '' : 'none';
     dayBtn.disabled = !canStageDay || dayN === 0;
     dayBtn.title = dayBtn.disabled ? reason : 'Stage ready shoots for this night (skips missing flats / incomplete)';
-    dayBtn.textContent = `Stage day (${dayN})`;
+    dayBtn.textContent = `Import day (${dayN})`;
   }
   if (allBtn) {
-    // For single-night multi, Stage all is the primary (same as day) — must be ready.
-    // For multi-night, Stage all stays available if any nights have ready shoots.
+    // For single-night multi, Import all is the primary (same as day) — must be ready.
+    // For multi-night, Import all stays available if any nights have ready shoots.
     if (multiNight) {
       allBtn.disabled = allN === 0;
-      allBtn.title = allN === 0 ? 'Nothing ready to stage' : 'Stage every ready shoot across nights (skips incomplete)';
-      allBtn.textContent = `Stage all (${allN})`;
+      allBtn.title = allN === 0 ? 'Nothing ready to import' : 'Import every ready shoot across nights (skips incomplete)';
+      allBtn.textContent = `Import all (${allN})`;
     } else {
       allBtn.disabled = !canStageDay || allN === 0;
-      allBtn.title = allBtn.disabled ? reason : 'Stage all ready shoots for this night';
-      allBtn.textContent = `Stage all (${allN})`;
+      allBtn.title = allBtn.disabled ? reason : 'Import all ready shoots for this night';
+      allBtn.textContent = `Import all (${allN})`;
     }
   }
 }
@@ -11088,7 +11214,7 @@ async function selectIngestNightTab(nightYmd) {
 
 async function ingestAllCapturedShoots(pi) {
   if (!window.zukoIngest) {
-    alert('ASIAIR ingest needs the Electron desktop app (npm start).');
+    alert('ASIAIR import needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -11101,7 +11227,7 @@ async function ingestAllCapturedShoots(pi) {
     .map((sh, si) => ({ sh, si }))
     .filter(({ sh }) => isShootNeedingIngest(sh));
   if (!pending.length) {
-    alert('No Captured shoots waiting for ingest.');
+    alert('No Captured shoots waiting for import.');
     return;
   }
 
@@ -11177,6 +11303,7 @@ async function ingestAllCapturedShoots(pi) {
     si: ingestBatch.queue[0],
     scan: null,
     sessions: [],
+    sourcePath: resolveAsiairSourceDir(project),
     darkMatchesByFilter: {},
     darkMatched: [],
     darkRejected: [],
@@ -11191,10 +11318,11 @@ async function ingestAllCapturedShoots(pi) {
   };
 
   document.getElementById('ingest-title').textContent =
-    `Ingest all — ${project.name || 'Project'}`;
+    `Import all — ${project.name || 'Project'}`;
   document.getElementById('ingest-project-path').textContent = project.projectDir;
+  syncIngestSourcePathInput(ingestCtx.sourcePath);
   document.getElementById('ingest-session-path').textContent = '…';
-  document.getElementById('ingest-progress').textContent = 'Checking which shoots are ready to stage…';
+  document.getElementById('ingest-progress').textContent = 'Checking which shoots are ready to import…';
   document.getElementById('ingest-filter-body').innerHTML =
     '<tr><td colspan="10" style="color:var(--gray);">Scanning pending filters…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
@@ -11219,16 +11347,7 @@ async function ingestAllCapturedShoots(pi) {
   document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
 
   await ensureDarkLibraryIndexed({ quiet: true });
-  const disc = await window.zukoIngest.discover(project.projectDir);
-  if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
-    document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under project directory';
-    document.getElementById('ingest-progress').textContent =
-      (disc && disc.error) || 'No ASIAIR session folders under project directory.';
-    return;
-  }
-  ingestCtx.sessions = disc.sessions;
-  document.getElementById('ingest-session-path').textContent = formatIngestSourcesLabel(disc.sessions);
-  await runIngestScan();
+  await rescanIngestSource();
 }
 
 async function stageIngestQueue(queue, force = false) {
@@ -11247,12 +11366,13 @@ async function stageIngestQueue(queue, force = false) {
     const ft = project.filterTargets[sh.filterIndex];
     const code = buildShootCode(sh, ft);
     document.getElementById('ingest-progress').textContent =
-      `Staging ${i + 1}/${queue.length} · ${code}`;
+      `Importing ${i + 1}/${queue.length} · ${code}`;
     const res = await ingestSingleShootProgrammatic(pi, si, {
       useMasterDarks: useDarks,
       force: !!force,
       minBusyMs: i === 0 ? 1000 : 350,
-      busyMessage: `Staging ${i + 1}/${queue.length}: ${code}`,
+      busyMessage: `Importing ${i + 1}/${queue.length}: ${code}`,
+      sourceDir: resolveAsiairSourceDir(project),
     });
     if (res.ok) ok.push({ si, code });
     else if (res.code === 'DEST_EXISTS') fail.push(`${code} (already on disk)`);
@@ -11312,12 +11432,12 @@ async function runIngestStageDay(force = false) {
 
   const okCodes = ok.map((x) => x.code);
   document.getElementById('ingest-progress').textContent =
-    (okCodes.length ? `Staged ${okCodes.length} on ${formatNightTabLabel(night)}: ${okCodes.join(', ')}` : 'Nothing staged') +
+    (okCodes.length ? `Staged ${okCodes.length} on ${formatNightTabLabel(night)}: ${okCodes.join(', ')}` : 'Nothing imported') +
     (fail.length ? ` · issues: ${fail.join(' · ')}` : '');
   document.getElementById('ingest-confirm').innerHTML = okCodes.length
     ? `<div class="line"><span style="color:var(--green);">Day staged</span> — ${escapeHtml(formatNightTabLabel(night))} · ${okCodes.length}</div>` +
       (fail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(fail.join(' · '))}</div>` : '')
-    : `<div class="line" style="color:var(--yellow);">Nothing staged${fail.length ? ' — ' + escapeHtml(fail.join(' · ')) : ''}</div>`;
+    : `<div class="line" style="color:var(--yellow);">Nothing imported${fail.length ? ' — ' + escapeHtml(fail.join(' · ')) : ''}</div>`;
 
   if (!ingestBatch.nightOrder.length) {
     setTimeout(() => closeIngestModal(), fail.length ? 2200 : 900);
@@ -11344,7 +11464,7 @@ async function runIngestStageAll(force = false) {
     }
     if (!queue.length) continue;
     document.getElementById('ingest-progress').textContent =
-      `Staging night ${formatNightTabLabel(night)}…`;
+      `Importing night ${formatNightTabLabel(night)}…`;
     const { ok, fail } = await stageIngestQueue(queue, force);
     allOk.push(...ok.map((x) => x.code));
     allFail.push(...fail);
@@ -11356,7 +11476,7 @@ async function runIngestStageAll(force = false) {
   ingestBatch = null;
   const stageBtn = document.getElementById('ingest-stage-btn');
   if (stageBtn) {
-    stageBtn.textContent = 'Stage for Siril';
+    stageBtn.textContent = 'Import';
     stageBtn.disabled = true;
   }
   const dayBtn = document.getElementById('ingest-stage-day-btn');
@@ -11365,12 +11485,12 @@ async function runIngestStageAll(force = false) {
     dayBtn.disabled = true;
   }
   document.getElementById('ingest-progress').textContent =
-    (allOk.length ? `Staged ${allOk.length}: ${allOk.join(', ')}` : 'Nothing staged') +
+    (allOk.length ? `Staged ${allOk.length}: ${allOk.join(', ')}` : 'Nothing imported') +
     (allFail.length ? ` · issues: ${allFail.join(' · ')}` : '');
   document.getElementById('ingest-confirm').innerHTML = allOk.length
-    ? `<div class="line"><span style="color:var(--green);">Ingest all complete</span> — ${allOk.length} staged</div>` +
+    ? `<div class="line"><span style="color:var(--green);">Import all complete</span> — ${allOk.length} imported</div>` +
       (allFail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(allFail.join(' · '))}</div>` : '')
-    : `<div class="line" style="color:var(--yellow);">Nothing staged${allFail.length ? ' — ' + escapeHtml(allFail.join(' · ')) : ''}</div>`;
+    : `<div class="line" style="color:var(--yellow);">Nothing imported${allFail.length ? ' — ' + escapeHtml(allFail.join(' · ')) : ''}</div>`;
   setTimeout(() => closeIngestModal(), allFail.length ? 2200 : 900);
 }
 
@@ -11388,15 +11508,17 @@ async function runIngestStage(force = false) {
   if (!project.projectDir || !night) return;
 
   const useDarks = !!(document.getElementById('ingest-use-darks') || {}).checked;
-  document.getElementById('ingest-progress').textContent = 'Staging…';
+  document.getElementById('ingest-progress').textContent = 'Importing…';
 
   const targetHint = projectTargetHint(project);
   const ft = project.filterTargets[sh.filterIndex];
   const shootFolder = buildShootCode(sh, ft);
   const targetOpts = ingestTargetStageOpts(project);
-  const result = await withIngestBusy('Staging (copy lights/flats; calib copy + symlink biases/darks)…', () =>
+  const sourceDir = selectedIngestSourceDir();
+  const result = await withIngestBusy('Importing (copy lights/flats; calib copy + symlink biases/darks)…', () =>
     window.zukoIngest.stage({
       projectDir: project.projectDir,
+      sourceDir,
       nightDate: night,
       shootFolder,
       shootFilter: ft ? ft.filter : null,
@@ -11417,10 +11539,10 @@ async function runIngestStage(force = false) {
       };
       const root = (ingestCtx.pendingRestage.roots[0]) || '';
       document.getElementById('ingest-restage-sub').textContent =
-        'This shoot folder already has staged FITS. Open it, or overwrite and stage again.';
+        'This shoot folder already has imported FITS. Open it, or overwrite and import again.';
       document.getElementById('ingest-restage-path').textContent = root;
       document.getElementById('ingest-restage-overlay').classList.add('open');
-      document.getElementById('ingest-progress').textContent = 'Staging blocked — folder already exists.';
+      document.getElementById('ingest-progress').textContent = 'Import blocked — folder already exists.';
       applyIngestStageGate();
       return;
     }
@@ -11429,12 +11551,12 @@ async function runIngestStage(force = false) {
       applyIngestStageGate();
       return;
     }
-    document.getElementById('ingest-progress').textContent = 'Stage failed: ' + ((result && result.error) || 'unknown');
+    document.getElementById('ingest-progress').textContent = 'Import failed: ' + ((result && result.error) || 'unknown');
     applyIngestStageGate();
     return;
   }
 
-  applyIngestStageResult(project, sh, { path: project.projectDir }, scan, result, shootFolder, ft);
+  applyIngestStageResult(project, sh, { path: sourceDir || project.projectDir }, scan, result, shootFolder, ft);
   recomputeProjectFilterHours(project);
   save();
   const meta = result.meta || {};
@@ -11444,7 +11566,7 @@ async function runIngestStage(force = false) {
     ? ` · reused calib (B${reuse.biasesPreexisting}/D${reuse.darksPreexisting})`
     : '';
   document.getElementById('ingest-progress').textContent =
-    `Staged ${meta.filesStaged || 0} files → ${shortPath((meta.destRoots && meta.destRoots[0]) || '')} · L${by.light || 0} F${by.flat || 0} D${by.dark || 0}${reuseNote}`;
+    `Imported ${meta.filesStaged || 0} files → ${shortPath((meta.destRoots && meta.destRoots[0]) || '')} · L${by.light || 0} F${by.flat || 0} D${by.dark || 0}${reuseNote}`;
   setTimeout(() => closeIngestModal(), 700);
 }
 
@@ -11725,7 +11847,7 @@ const modalConfigs = {
       { id: 'f-name', label: 'Project Name', type: 'text', placeholder: 'e.g. Veil Nebula — Full Complex' },
       { id: 'f-target', label: 'Target', type: 'text', placeholder: 'e.g. NGC 6960 / 6992 / 6995' },
       { id: 'f-frameMode', label: 'Frame / Mode', type: 'text', placeholder: 'e.g. Reducer 280mm f/3.9 — single frame' },
-      { id: 'f-projectDir', label: 'Project directory (ASIAIR Autorun/Plan parent)', type: 'path', placeholder: 'e.g. H:\\…\\Projects\\Veil' },
+      { id: 'f-projectDir', label: 'Project directory (Siril import destination)', type: 'path', placeholder: 'e.g. H:\\…\\Zuko\\NGC6960_Q326' },
       { id: 'f-centerCoords', label: 'Center Coordinates', type: 'text', placeholder: 'RA 20h51m27s  Dec +31°07\'28"' },
       { id: 'f-anchorStar', label: 'Anchor Star', type: 'text', placeholder: 'e.g. HD 198626' },
       { id: 'f-rotation', label: 'Rotation Notes', type: 'text', placeholder: 'TBD / degrees' },
@@ -12087,6 +12209,8 @@ async function openSettings() {
   set('settings-home-lon', home.lon);
   set('settings-home-zip', home.zip);
   set('settings-home-bortle', home.bortle);
+  const asiairEl = document.getElementById('settings-asiair-source');
+  if (asiairEl) asiairEl.value = getAsiairSourcePath();
   const keyInput = document.getElementById('settings-api-key');
   if (keyInput) {
     keyInput.value = '';
@@ -12224,6 +12348,10 @@ async function saveSettings() {
   data.rigName = rigName;
   data.homeSite = { name, lat, lon, zip, bortle };
   data.forecastLocation = { name, lat, lon };
+  const asiairSrc = document.getElementById('settings-asiair-source');
+  if (asiairSrc) {
+    data.asiairSourcePath = normalizeWinPath((asiairSrc.value || '').trim()) || '';
+  }
 
   const keyInput = document.getElementById('settings-api-key');
   const newKey = keyInput ? keyInput.value.trim() : '';

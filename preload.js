@@ -37,6 +37,7 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   projectsRoot: () => ipcRenderer.invoke('zuko-ingest-projects-root'),
   pickFolder: (opts) => ipcRenderer.invoke('zuko-ingest-pick-folder', opts || {}),
   discover: (projectDir) => ipcRenderer.invoke('zuko-ingest-discover', { projectDir }),
+  importAsiair: (opts) => ipcRenderer.invoke('zuko-ingest-import-asiair', opts || {}),
   scanSession: (opts) => ipcRenderer.invoke('zuko-ingest-scan-session', opts || {}),
   indexDarks: (libraryPath) => ipcRenderer.invoke('zuko-ingest-index-darks', { libraryPath }),
   matchDarks: (opts) => ipcRenderer.invoke('zuko-ingest-match-darks', opts || {}),

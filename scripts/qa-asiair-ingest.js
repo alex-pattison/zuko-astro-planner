@@ -289,6 +289,40 @@ async function testPipeline() {
   assert('discover finds Autorun', disc.ok && disc.sessions && disc.sessions.length >= 1, JSON.stringify(disc.sessions && disc.sessions.map((s) => s.name)));
   if (!disc.ok) return;
 
+  // asiair/<YYMMDD>/Autorun discover + night prefer (isolated night; cleaned after)
+  {
+    const nightFolder = '269901';
+    const asiairAutorun = path.join(QA_ROOT, 'asiair', nightFolder, 'Autorun');
+    await fsp.mkdir(path.join(asiairAutorun, 'lights'), { recursive: true });
+    const rootAutorun = disc.sessions.find((s) => !s.dumpFolder) || disc.sessions[0];
+    const sampleLightDir = path.join(rootAutorun.path, 'lights');
+    let sampleLight = null;
+    try {
+      const names = await fsp.readdir(sampleLightDir);
+      sampleLight = names.find((n) => /\.fit$/i.test(n));
+    } catch { /* ignore */ }
+    if (sampleLight) {
+      const from = path.join(sampleLightDir, sampleLight);
+      const to = path.join(asiairAutorun, 'lights', sampleLight);
+      try { await fsp.link(from, to); } catch { await fsp.copyFile(from, to); }
+    }
+    const disc2 = await discoverSessions(QA_ROOT);
+    const asiairSessions = (disc2.sessions || []).filter((s) => s.dumpFolder === nightFolder);
+    assert('discover finds asiair dump Autorun', asiairSessions.length >= 1, JSON.stringify(disc2.sessions.map((s) => ({ n: s.name, d: s.dumpFolder }))));
+    const prefer = await scanSession({
+      projectDir: QA_ROOT,
+      nightDate: nightFolder,
+      skipTargetHint: true,
+    });
+    assert(
+      'scan prefers asiair/<date> sessions',
+      prefer.ok && (prefer.sessions || []).every((s) => String(s.path || '').includes(`${path.sep}asiair${path.sep}`)),
+      JSON.stringify(prefer.sessions),
+    );
+    // Remove so later projectDir scans keep using root Autorun
+    await fsp.rm(path.join(QA_ROOT, 'asiair'), { recursive: true, force: true });
+  }
+
   const sessionPath = disc.sessions[0].path;
   const scan = await scanSession({
     sessionPath,

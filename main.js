@@ -134,6 +134,38 @@ function channelProductTitle() {
   return getZukoChannel() === 'beta' ? 'Zuko Astro Planner Beta' : 'Zuko Astro Planner Dev';
 }
 
+/**
+ * Isolate Dev vs Beta Electron profiles (session, locks, caches).
+ * Must run before app.ready / requestSingleInstanceLock.
+ * Dashboard JSON stays on H: (beta) / repo data/ (dev) via resolveDataPaths().
+ */
+function applyChannelUserData() {
+  const channel = getZukoChannel();
+  const dirName = channel === 'beta' ? 'zuko-astro-planner-beta' : 'zuko-astro-planner-dev';
+  try {
+    app.setName(channelProductTitle());
+    app.setPath('userData', path.join(app.getPath('appData'), dirName));
+  } catch (err) {
+    console.warn('applyChannelUserData failed:', err && err.message ? err.message : err);
+  }
+}
+
+applyChannelUserData();
+
+/** One window per channel — Dev and Beta can still run side by side. */
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    const win = getMainWindow();
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.focus();
+    }
+  });
+}
+
 function resolveDataPaths() {
   const override = envDataDir();
   if (override) {
@@ -585,6 +617,15 @@ ipcMain.handle('zuko-ingest-pick-folder', async (_event, payload = {}) => {
   return { ok: true, path: result.filePaths[0] };
 });
 
+ipcMain.handle('zuko-ingest-import-asiair', async (_event, payload = {}) => {
+  try {
+    const { importAsiairDump } = loadAsiairIngest();
+    return await importAsiairDump(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
 ipcMain.handle('zuko-ingest-discover', async (_event, payload = {}) => {
   try {
     const { discoverSessions } = loadAsiairIngest();
@@ -730,6 +771,7 @@ ipcMain.handle('zuko-siril-read-log', async (_event, payload = {}) => {
 });
 
 app.whenReady().then(() => {
+  if (!gotSingleInstanceLock) return;
   // Distinct AppUserModelIDs so Windows taskbar pins Beta vs Dev separately with their icons.
   try {
     app.setAppUserModelId(

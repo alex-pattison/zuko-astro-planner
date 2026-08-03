@@ -577,7 +577,35 @@ async function findFrameDirs(sessionPath) {
 }
 
 /**
- * Discover Autorun/Plan (or a session dir itself) under projectDir.
+ * Push a session entry if it has Light/Flat/Bias frame dirs.
+ */
+async function pushSessionIfValid(sessions, sessionPath, name, extra = {}) {
+  const frameDirs = await findFrameDirs(sessionPath);
+  if (!frameDirs.light && !frameDirs.flat && !frameDirs.bias) return;
+  const already = sessions.some((s) => path.resolve(s.path) === path.resolve(sessionPath));
+  if (already) return;
+  sessions.push({
+    name,
+    path: sessionPath,
+    kind: String(name).toLowerCase(),
+    hasLight: !!frameDirs.light,
+    hasFlat: !!frameDirs.flat,
+    hasBias: !!frameDirs.bias,
+    hasDark: !!frameDirs.dark,
+    ...extra,
+  });
+}
+
+/** YYMMDD + YYYYMMDD folder name candidates for a night label. */
+function asiairNightFolderCandidates(nightYmd) {
+  const n = normalizeNight(nightYmd);
+  if (!n) return [];
+  const out = [n.slice(2), n];
+  return [...new Set(out)];
+}
+
+/**
+ * Discover Autorun/Plan under projectDir (compat) and asiair/<night>/Autorun|Plan.
  */
 async function discoverSessions(projectDir) {
   if (!projectDir || !fs.existsSync(projectDir)) {
@@ -588,18 +616,48 @@ async function discoverSessions(projectDir) {
   for (const ent of dirs) {
     if (!ent.isDirectory()) continue;
     if (!SESSION_DIR_NAMES.has(ent.name.toLowerCase())) continue;
-    const sessionPath = path.join(projectDir, ent.name);
-    const frameDirs = await findFrameDirs(sessionPath);
-    if (!frameDirs.light && !frameDirs.flat && !frameDirs.bias) continue;
-    sessions.push({
-      name: ent.name,
-      path: sessionPath,
-      kind: ent.name.toLowerCase(),
-      hasLight: !!frameDirs.light,
-      hasFlat: !!frameDirs.flat,
-      hasBias: !!frameDirs.bias,
-      hasDark: !!frameDirs.dark,
+    await pushSessionIfValid(sessions, path.join(projectDir, ent.name), ent.name, {
+      dumpNight: null,
+      dumpPath: null,
     });
+  }
+
+  // asiair/<any>/Autorun|Plan — one dump per night
+  const asiairRoot = path.join(projectDir, 'asiair');
+  if (fs.existsSync(asiairRoot)) {
+    let nightFolders = [];
+    try {
+      nightFolders = await fsp.readdir(asiairRoot, { withFileTypes: true });
+    } catch {
+      nightFolders = [];
+    }
+    for (const nightEnt of nightFolders) {
+      if (!nightEnt.isDirectory()) continue;
+      const dumpPath = path.join(asiairRoot, nightEnt.name);
+      const dumpNight = normalizeNight(nightEnt.name);
+      let sessionEnts = [];
+      try {
+        sessionEnts = await fsp.readdir(dumpPath, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      for (const ent of sessionEnts) {
+        if (!ent.isDirectory()) continue;
+        if (!SESSION_DIR_NAMES.has(ent.name.toLowerCase())) continue;
+        await pushSessionIfValid(sessions, path.join(dumpPath, ent.name), ent.name, {
+          dumpNight: dumpNight || nightEnt.name,
+          dumpPath,
+          dumpFolder: nightEnt.name,
+        });
+      }
+      // Dump itself may be a session (Light/Flat/Bias as direct children)
+      await pushSessionIfValid(sessions, dumpPath, nightEnt.name, {
+        kind: 'session',
+        dumpNight: dumpNight || nightEnt.name,
+        dumpPath,
+        dumpFolder: nightEnt.name,
+      });
+    }
   }
 
   // Project dir itself may be a session (has Light/Flat/Bias)
@@ -615,6 +673,8 @@ async function discoverSessions(projectDir) {
         hasFlat: !!selfDirs.flat,
         hasBias: !!selfDirs.bias,
         hasDark: !!selfDirs.dark,
+        dumpNight: null,
+        dumpPath: null,
       });
     }
   }
@@ -770,6 +830,23 @@ async function scanSession(opts = {}) {
     const disc = await discoverSessions(projectDir);
     if (!disc.ok) return disc;
     sessions = disc.sessions || [];
+
+    // Prefer asiair/<shoot.date>/ dump when present (isolate nights + calib).
+    if (nightDate && sessions.length) {
+      const candidates = asiairNightFolderCandidates(nightDate);
+      const preferred = sessions.filter((s) => {
+        if (!s.dumpPath && !s.dumpFolder) return false;
+        const folder = s.dumpFolder || path.basename(s.dumpPath || '');
+        const dumpN = normalizeNight(s.dumpNight || folder);
+        return candidates.includes(folder)
+          || (dumpN && candidates.includes(dumpN))
+          || (dumpN && candidates.includes(dumpN.slice(2)));
+      });
+      if (preferred.length) {
+        sessions = preferred;
+      }
+    }
+
     if (!sessions.length) {
       return { ok: false, error: 'No Autorun/Plan folders found under project directory', sessions: [], projectDir };
     }
@@ -1144,6 +1221,7 @@ function evaluateIngestFrameReadiness(opts = {}) {
  */
 async function stageSirilTree(opts = {}) {
   const projectDir = opts.projectDir;
+  const sourceDir = opts.sourceDir || opts.asiairSourcePath || projectDir;
   const nightDate = normalizeNight(opts.nightDate);
   if (!projectDir) return { ok: false, error: 'projectDir is required' };
   if (!nightDate) return { ok: false, error: 'nightDate is required' };
@@ -1159,9 +1237,9 @@ async function stageSirilTree(opts = {}) {
     ? new Set(opts.filters.map(normalizeFilter))
     : null;
 
-  // Prefer merged project scan (Autorun + Plan). Fall back to a single sessionPath.
+  // Scan from ASIAIR source (unit/USB); stage into projectDir (Siril root).
   const scan = await scanSession({
-    projectDir,
+    projectDir: sourceDir,
     sessionPath: opts.sessionPath || null,
     nightDate,
     targetHint,
@@ -1666,6 +1744,115 @@ async function ingestAsiairDump(opts) {
   };
 }
 
+/**
+ * Guess YYMMDD dump folder from a path name or newest light DATE-OBS.
+ */
+async function inferAsiairDumpNight(sourcePath, nightHint) {
+  if (nightHint) {
+    const n = normalizeNight(nightHint);
+    if (n) return n.slice(2);
+  }
+  const base = path.basename(sourcePath || '');
+  const m = String(base).match(/(?:^|[_\-.])(\d{6}|\d{8})(?:$|[_\-.])/);
+  if (m) {
+    const n = normalizeNight(m[1]);
+    if (n) return n.slice(2);
+  }
+  // Walk for lights and take newest DATE-OBS → astronomical night → YYMMDD
+  let newest = null;
+  try {
+    const files = await walkFitFiles(sourcePath);
+    for (const fp of files.slice(0, 400)) {
+      const parsed = await parseFitFile(fp, null);
+      if (parsed.type && parsed.type !== 'light') continue;
+      const night = astronomicalNightForFrame(parsed.date, parsed.time) || normalizeNight(parsed.date);
+      if (!night) continue;
+      if (!newest || night > newest) newest = night;
+    }
+  } catch { /* ignore */ }
+  if (newest) return newest.slice(2);
+  return null;
+}
+
+/**
+ * Resolve what to copy into asiair/<YYMMDD>/:
+ * - source is Autorun/Plan → copy as that session name
+ * - source has Autorun/Plan children → copy those children
+ * - source is itself a session (Light/Flat/…) → copy contents as Autorun
+ */
+async function resolveAsiairImportPayload(sourcePath) {
+  const base = path.basename(sourcePath);
+  if (SESSION_DIR_NAMES.has(base.toLowerCase())) {
+    return [{ name: base, from: sourcePath }];
+  }
+  let ents = [];
+  try {
+    ents = await fsp.readdir(sourcePath, { withFileTypes: true });
+  } catch {
+    return { error: 'Cannot read source folder' };
+  }
+  const sessions = ents.filter((e) => e.isDirectory() && SESSION_DIR_NAMES.has(e.name.toLowerCase()));
+  if (sessions.length) {
+    return sessions.map((e) => ({ name: e.name, from: path.join(sourcePath, e.name) }));
+  }
+  const frames = await findFrameDirs(sourcePath);
+  if (frames.light || frames.flat || frames.bias) {
+    return [{ name: 'Autorun', from: sourcePath, copyContents: true }];
+  }
+  return { error: 'No Autorun/Plan or Light/Flat/Bias folders found in selection' };
+}
+
+/**
+ * Copy an ASIAIR dump into projectDir/asiair/<YYMMDD>/ (does not stage).
+ */
+async function importAsiairDump(opts = {}) {
+  const projectDir = opts.projectDir;
+  const sourcePath = opts.sourcePath;
+  if (!projectDir) return { ok: false, error: 'projectDir is required' };
+  if (!sourcePath) return { ok: false, error: 'sourcePath is required' };
+  if (!fs.existsSync(projectDir)) return { ok: false, error: 'Project directory not found' };
+  if (!fs.existsSync(sourcePath)) return { ok: false, error: 'Source folder not found' };
+
+  const yyMMdd = await inferAsiairDumpNight(sourcePath, opts.nightHint);
+  if (!yyMMdd) {
+    return { ok: false, error: 'Could not determine dump night (pass nightHint or include dated FITS)' };
+  }
+
+  const payload = await resolveAsiairImportPayload(sourcePath);
+  if (payload.error) return { ok: false, error: payload.error };
+
+  const destDump = path.join(projectDir, 'asiair', yyMMdd);
+  await fsp.mkdir(destDump, { recursive: true });
+
+  const copied = [];
+  for (const item of payload) {
+    const dest = path.join(destDump, item.name);
+    if (fs.existsSync(dest)) {
+      return {
+        ok: false,
+        error: `Destination already exists: ${dest} (remove or choose another night)`,
+        destDump,
+      };
+    }
+    if (item.copyContents) {
+      await fsp.mkdir(dest, { recursive: true });
+      await fsp.cp(item.from, dest, { recursive: true });
+    } else {
+      await fsp.cp(item.from, dest, { recursive: true });
+    }
+    copied.push({ name: item.name, from: item.from, to: dest });
+  }
+
+  return {
+    ok: true,
+    projectDir,
+    sourcePath,
+    nightFolder: yyMMdd,
+    destDump,
+    copied,
+  };
+}
+
 module.exports = {
   FRAME_TYPES,
   TYPE_FOLDERS,
@@ -1693,6 +1880,9 @@ module.exports = {
   ingestAsiairDump,
   discoverSessions,
   scanSession,
+  importAsiairDump,
+  inferAsiairDumpNight,
+  asiairNightFolderCandidates,
   indexDarkLibrary,
   matchMasterDarks,
   evaluateIngestFrameReadiness,
