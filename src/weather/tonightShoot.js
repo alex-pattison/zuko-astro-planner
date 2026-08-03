@@ -245,6 +245,7 @@ function writeDiskCache(cacheKey, forecast, fetchedAt) {
 function setApiKey(rootDir, newKey) {
   const key = String(newKey == null ? '' : newKey).trim();
   const envPath = path.join(rootDir, '.env');
+  fs.mkdirSync(path.dirname(envPath), { recursive: true });
   let lines = [];
   if (fs.existsSync(envPath)) {
     lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);

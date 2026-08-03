@@ -21,9 +21,19 @@ const {
   setAstronomyCacheDir,
 } = require('./src/weather/skyAstronomy');
 
-loadDotEnv(__dirname);
+/** Writable .env home: checkout root in Dev; Beta data dir when packaged (asar is read-only). */
+function resolveEnvRoot() {
+  const override = process.env.ZUKO_ENV_DIR && String(process.env.ZUKO_ENV_DIR).trim();
+  if (override) return path.resolve(override);
+  if (app.isPackaged) return 'H:\\Photography\\Astrophotography\\Dashboard';
+  return __dirname;
+}
 
-const DEV_FLAGS_FILE = path.join(__dirname, 'data', 'dev-flags.json');
+loadDotEnv(resolveEnvRoot());
+
+const DEV_FLAGS_FILE = app.isPackaged
+  ? path.join(resolveEnvRoot(), 'dev-flags.json')
+  : path.join(__dirname, 'data', 'dev-flags.json');
 
 function readDevFlags() {
   try {
@@ -470,7 +480,7 @@ ipcMain.handle('zuko-astrospheric-key-set', async (_event, payload = {}) => {
     const key = payload && Object.prototype.hasOwnProperty.call(payload, 'key')
       ? payload.key
       : '';
-    const status = setApiKey(__dirname, key);
+    const status = setApiKey(resolveEnvRoot(), key);
     return { ok: true, ...status };
   } catch (err) {
     return { ok: false, error: String(err && err.message ? err.message : err) };
