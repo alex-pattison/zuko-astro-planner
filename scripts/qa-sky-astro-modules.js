@@ -44,8 +44,10 @@ function loadRendererAstro() {
     'duskStep',
     'twilightCutsFromPcts',
     'nextNewMoon',
+    'nasaMoonImageUrlFromFraction',
     'nasaMoonImageUrl',
     'phaseNameFromFraction',
+    'phaseFractionFromAstrospheric',
     'parseOmLocal',
   ];
   for (const name of names) {

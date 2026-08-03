@@ -63,6 +63,12 @@ Source ASIAIR folders are never moved. Calibration frames are copied into `_cali
 
 **Before v1 go-live:** switch ingest from copy → move, and validate against a real ASIAIR dump (see [docs/go-live-v1.md](docs/go-live-v1.md)).
 
+## External weather & astronomy data
+
+Sky Forecast, Moon, and Sun cards pull from Astrospheric, Open-Meteo, NASA moon frames (CDN), and a few location/map helpers. Full inventory (endpoints, fields, cache, credits):
+
+→ **[docs/external-data.md](docs/external-data.md)**
+
 ## Testing
 
 See [docs/testing.md](docs/testing.md) for the pyramid (unit → thin Playwright Electron E2E). Quick commands:

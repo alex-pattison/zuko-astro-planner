@@ -3037,13 +3037,13 @@
     text-overflow: ellipsis;
     vertical-align: middle;
   }
-  .skyfx-table col.c-local { width: 17%; }
-  .skyfx-table col.c-rag { width: 12%; }
-  .skyfx-table col.c-cloud { width: 11%; }
+  .skyfx-table col.c-local { width: 16%; }
+  .skyfx-table col.c-rag { width: 10%; }
+  .skyfx-table col.c-cloud { width: 12%; }
   .skyfx-table col.c-trans { width: 20%; }
   .skyfx-table col.c-seeing { width: 18%; }
-  .skyfx-table col.c-temp { width: 11%; }
-  .skyfx-table col.c-precip { width: 11%; }
+  .skyfx-table col.c-temp { width: 12%; }
+  .skyfx-table col.c-precip { width: 12%; }
   .skyfx-table tr.astro-dark td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
   .skyfx-table tr.rag-green td.rag-cell { color: var(--green); }
   .skyfx-table tr.rag-amber td.rag-cell { color: var(--yellow); }
@@ -5663,17 +5663,40 @@ function nextMajorMoonPhases(now = new Date()) {
   return upcoming;
 }
 
-function nasaMoonImageUrl(date = new Date()) {
-  // moon-cycle synodic mapping → NASA SVS frames on jsDelivr
-  const SYNODIC_MONTH = 29.53058821398858;
+function nasaMoonImageUrlFromFraction(phaseFraction) {
+  // moon-cycle: 708 NASA SVS frames spanning one synodic month (001=new … ~354=full … 708)
   const MONTH_IMAGES = 708;
-  const MONTH_ANCHOR = Date.parse('2023-11-13T09:27:00Z');
-  const elapsed = (date.getTime() - MONTH_ANCHOR) / 1000;
-  const months = elapsed / (SYNODIC_MONTH * 24 * 60 * 60);
-  const fraction = months - Math.floor(months);
-  const index = Math.floor(fraction * MONTH_IMAGES) + 1;
+  const p = ((Number(phaseFraction) % 1) + 1) % 1;
+  const index = Math.min(MONTH_IMAGES, Math.floor(p * MONTH_IMAGES) + 1);
   const file = String(index).padStart(3, '0') + '.webp';
   return 'https://cdn.jsdelivr.net/gh/acamarata/moon-cycle@main/mm-256-75/' + file;
+}
+
+function nasaMoonImageUrl(date = new Date()) {
+  // Keep date→fraction mapping aligned with moonPhaseInfo so photo matches % illuminated.
+  return nasaMoonImageUrlFromFraction(moonPhaseInfo(date).phase);
+}
+
+/** Map Astrospheric phase angle (deg) → synodic fraction 0=new … 0.5=full … 1=new. */
+function phaseFractionFromAstrospheric(phaseAngleDeg, illuminationPercent, localPhase) {
+  if (phaseAngleDeg == null || !Number.isFinite(Number(phaseAngleDeg))) return localPhase;
+  // Standard: phase angle 0° = full, 180° = new. Illumination ≈ (1 + cos φ) / 2.
+  const phi = Math.abs(((Number(phaseAngleDeg) % 360) + 360) % 360);
+  const phiFold = phi > 180 ? 360 - phi : phi; // 0..180
+  const fromFull = phiFold / 360; // 0 at full → 0.5 at new
+  // Pick waxing vs waning side using local phase (or illum slope via local).
+  const local = ((Number(localPhase) % 1) + 1) % 1;
+  const waxing = local < 0.5;
+  let t = waxing ? (0.5 - fromFull) : (0.5 + fromFull);
+  t = ((t % 1) + 1) % 1;
+  // Sanity: if API illum is present, prefer the root that matches it.
+  if (illuminationPercent != null && Number.isFinite(Number(illuminationPercent))) {
+    const k = Math.max(0, Math.min(1, Number(illuminationPercent) / 100));
+    const illumOf = (frac) => (1 - Math.cos(2 * Math.PI * frac)) / 2;
+    const tAlt = ((1 - t) % 1 + 1) % 1;
+    if (Math.abs(illumOf(tAlt) - k) < Math.abs(illumOf(t) - k)) t = tAlt;
+  }
+  return t;
 }
 
 function phaseNameFromFraction(t) {
@@ -5963,10 +5986,20 @@ function renderMoonTrackCard(lat, lon, astronomy) {
   const om = astronomy && astronomy.openMeteo && astronomy.openMeteo.ok ? astronomy.openMeteo : null;
   const dayIdx = omDayIndex(om && om.daily, now);
 
-  const illum = moonApi && moonApi.illuminationPercent != null
+  // Photo + illuminated % must share one phase source. Stale Astrospheric
+  // illumination (old cache) was desyncing a near-full % from today's image.
+  const apiFetchedMs = moonApi && moonApi.fetchedAt ? Date.parse(moonApi.fetchedAt) : NaN;
+  const apiFresh = Number.isFinite(apiFetchedMs) && (Date.now() - apiFetchedMs) < 6 * 3600 * 1000;
+  const phaseFrac = (apiFresh && moonApi)
+    ? phaseFractionFromAstrospheric(moonApi.phaseAngle, moonApi.illuminationPercent, local.phase)
+    : local.phase;
+  const illum = (apiFresh && moonApi && moonApi.illuminationPercent != null)
     ? Math.round(moonApi.illuminationPercent)
-    : local.illum;
-  const altDeg = moonApi && moonApi.altitude != null
+    : Math.round(((1 - Math.cos(2 * Math.PI * phaseFrac)) / 2) * 100);
+  const phaseName = phaseNameFromFraction(phaseFrac);
+  const ageDays = phaseFrac * 29.530588853;
+
+  const altDeg = (apiFresh && moonApi && moonApi.altitude != null)
     ? Math.round(moonApi.altitude)
     : (() => {
         const altRad = _ASTRO.moonAltitude(now, lat, lon);
@@ -5974,10 +6007,9 @@ function renderMoonTrackCard(lat, lon, astronomy) {
           ? Math.round((altRad * 180) / Math.PI)
           : null;
       })();
-  const above = moonApi && moonApi.isAboveHorizon != null
+  const above = (apiFresh && moonApi && moonApi.isAboveHorizon != null)
     ? moonApi.isAboveHorizon
     : (altDeg != null ? altDeg > 0 : null);
-  const phaseName = local.name;
   const moonTimes = _ASTRO.getMoonTimes(now, lat, lon);
   let rise = moonTimes && moonTimes.rise;
   let set = moonTimes && moonTimes.set;
@@ -6000,8 +6032,8 @@ function renderMoonTrackCard(lat, lon, astronomy) {
     ? 'Today'
     : (nextNew.days === 1 ? '1 day' : nextNew.days + ' days');
 
-  const photoUrl = nasaMoonImageUrl(now);
-  const fallbackSvg = moonSvgMarkup(local.phase, 120, 'skyfx-moon-svg');
+  const photoUrl = nasaMoonImageUrlFromFraction(phaseFrac);
+  const fallbackSvg = moonSvgMarkup(phaseFrac, 120, 'skyfx-moon-svg');
   const altLabel = altDeg == null
     ? '—'
     : (Math.abs(altDeg) + '°' + (above == null ? '' : (above ? ' up' : ' down')));
@@ -6017,7 +6049,7 @@ function renderMoonTrackCard(lat, lon, astronomy) {
         '</div>' +
         '<div class="skyfx-moon-phase-name">' + escapeHtml(phaseName) + '</div>' +
         '<div class="skyfx-moon-phase-sub">' + illum + '% illuminated · day ' +
-          Math.round(local.ageDays) + ' of cycle</div>' +
+          Math.round(ageDays) + ' of cycle</div>' +
       '</div>' +
       '<div class="skyfx-moon-metrics">' +
         '<div class="skyfx-moon-metric"><div class="k">Illuminated</div><div class="v">' + illum + '%</div></div>' +
@@ -6362,8 +6394,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
           const precipCell = h.precipChance != null ? h.precipChance + '%' : '—';
           const ragCell = isFallback
             ? '—'
-            : (hrRag === 'green' ? 'GO' : hrRag === 'red' ? 'NO' : hrRag === 'amber' ? 'OK' : '—') +
-              (h.score != null ? ' · ' + h.score : '');
+            : (hrRag === 'green' ? 'GO' : hrRag === 'red' ? 'NO' : hrRag === 'amber' ? 'OK' : '—');
           return '<tr class="' + (hrRag ? 'rag-' + hrRag + ' ' : '') + 'astro-dark">' +
             '<td>' + escapeHtml(dayBit || local) + '</td>' +
             '<td class="rag-cell">' + escapeHtml(ragCell) + '</td>' +

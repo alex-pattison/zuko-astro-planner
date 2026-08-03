@@ -1,9 +1,9 @@
 {
   "rigName": "Zuko",
   "forecastLocation": {
-    "name": "Alphabet City, New York",
-    "lat": 40.7209,
-    "lon": -73.9825
+    "name": "NYC",
+    "lat": 40.7157,
+    "lon": -73.986
   },
   "projects": [
     {
@@ -801,12 +801,12 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 7,
-    "savedAt": "2026-07-30T02:59:35.080Z"
+    "savedAt": "2026-08-03T00:02:21.798Z"
   },
   "uiTheme": "dark",
   "homeSite": {
     "zip": "10002",
-    "name": "NYC 10002",
+    "name": "NYC",
     "lat": 40.7157,
     "lon": -73.986,
     "bortle": "9"

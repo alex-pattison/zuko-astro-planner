@@ -4,7 +4,7 @@
  * Sky astronomy for Moon/Sun cards — landscape as of 2026:
  *
  * - Astrospheric POST /api/Moon (10 credits): illumination, alt/az, next phases.
- *   Cached ~30 days — lunar geometry is slow-changing vs hourly weather.
+ *   Cached ~6 hours — illumination and altitude change too fast for multi-day cache.
  * - Open-Meteo daily: sunrise/sunset/moonrise/moonset/moon_phase (free, 16 days).
  * - Local SunCalc-style math lives in the renderer for offline times/timeline.
  * - Visual: NASA SVS frames via moon-cycle CDN mapping (renderer).
@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ASTROSPHERIC_MOON_URL = 'https://v2-api-public.astrospheric.com/api/Moon';
-const MOON_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+const MOON_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // phase/alt change daily–hourly; was 30d and desynced the photo
 const OM_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const MOON_API_COST = 10;
 
