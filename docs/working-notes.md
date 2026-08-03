@@ -70,9 +70,13 @@ Keep dated notes terse. Use the template below when useful.
   - Registration cache under `process/cache/*.lst`.
 - **Fix / next:** Automate this from Zuko (invoke Siril CLI/script per channel using `reference/siril/scripts/Mono_Preprocessing.ssf`); decide cleanup policy for `process/`; optional: per-filter bias/dark selection (SII channel currently still has shared H-named hardlinked biases from earlier staging).
 
+### 2026-08-03 — build 9 — Single Dev checkout (C:) + F:\zuko_dev imaging only
+- **Seen:** Two clones (`C:\Users\…\Projects` + `F:\GitHub`) caused edits to miss the running app.
+- **Layout now:** Code + Dev JSON = `C:\Users\alexp\Projects\zuko-astro-planner`. Dev FITS = `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library`. Beta = H: only. Duplicate `F:\GitHub\zuko-astro-planner` clone marked retired (`RETIRED-DO-NOT-USE.txt` + `npm start` disabled); rename/delete when nothing has the folder locked.
+
 ### 2026-08-03 — build 9 — F:\zuko_dev Dev imaging pool (Siril prep)
 - **Seen:** Need isolated Dev copies of real projects for Siril/Sirilic work without touching Beta on H:.
-- **Layout:** `F:\zuko_dev\Projects\NGC7000_260720`, `F:\zuko_dev\Projects\NGC6960_Q326` (Veil + Sirilic), empty `F:\zuko_dev\Dark Library`, projects root `F:\zuko_dev\Projects`. Dev JSON: `F:\GitHub\zuko-astro-planner\data\zuko-dashboard-data.json`. Beta stays on `H:\...\Dashboard` + `H:\...\Zuko\`.
+- **Layout:** `F:\zuko_dev\Projects\NGC7000_260720`, `F:\zuko_dev\Projects\NGC6960_Q326` (Veil + Sirilic), empty `F:\zuko_dev\Dark Library`, projects root `F:\zuko_dev\Projects`. Dev JSON: `<checkout>/data/zuko-dashboard-data.json`. Beta stays on `H:\...\Dashboard` + `H:\...\Zuko\`.
 - **Fix / next:** `resolveProjectsRoot()` uses `F:\zuko_dev\Projects` when channel=dev. Seed script: `scripts/seed-dev-f-zuko-json.js`.
 
 ### 2026-08-02 — build 9 — Slow cold start, blank blue page

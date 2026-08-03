@@ -5,7 +5,7 @@
  * - NAN (NGC7000): keep only real 260720 shoots + ingest meta; clear cal/cull/stack
  * - Remove synthetic 260721 / Test50 shoot folders + Siril intermediates (_stack, process, …)
  * - Clear cal/cull/stack on other Dev projects (e.g. Veil)
- * - Writes F:\GitHub + local data JSON (does not touch H: Beta live dumps beyond optional skip)
+ * - Writes <checkout>/data JSON only (does not touch H: Beta)
  *
  * Usage: node scripts/reset-dev-manual-try.js
  */
@@ -16,10 +16,7 @@ const fsp = require('fs/promises');
 const path = require('path');
 
 const PROJECT = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
-const JSON_PATHS = [
-  'F:\\GitHub\\zuko-astro-planner\\data\\zuko-dashboard-data.json',
-  path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json'),
-];
+const JSON_PATHS = [path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json')];
 
 const KEEP_SHOOTS = new Set([
   '260720_Ha_B9_Home',
@@ -202,7 +199,7 @@ async function main() {
   console.log('\nReady for manual try:');
   console.log('  • Shoot log: 3× 260720 (Ha/OIII/SII), ingested, not calibrated');
   console.log('  • Pipeline: Capture/Ingest done; Calibration / Cull / Registration clear');
-  console.log('  • Reload Electron (Ctrl+R) from F:\\GitHub\\zuko-astro-planner');
+  console.log('  • Reload Electron (Ctrl+R) from C:\\Users\\alexp\\Projects\\zuko-astro-planner');
   if (failed.length) process.exitCode = 2;
 }
 

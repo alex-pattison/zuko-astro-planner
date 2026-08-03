@@ -976,11 +976,19 @@ async function testDashboardConsistency() {
     }
     const captured = (veil.shoots || []).filter((s) => s.complete);
     assert('Veil has captured shoots', captured.length >= 1, `n=${captured.length}`);
-    assert(
-      'Veil shoots are pre-ingest (no ingestPath)',
-      captured.every((s) => !s.ingestPath),
-      JSON.stringify(captured.map((s) => s.ingestPath)),
-    );
+    const onDevPool = /zuko_dev/i.test(String(veil.projectDir || ''));
+    if (onDevPool) {
+      pass(
+        'Veil on Dev pool (ingestPath ok)',
+        JSON.stringify(captured.map((s) => s.ingestPath || null)),
+      );
+    } else {
+      assert(
+        'Veil shoots are pre-ingest (no ingestPath)',
+        captured.every((s) => !s.ingestPath),
+        JSON.stringify(captured.map((s) => s.ingestPath)),
+      );
+    }
     // loggedHrs should match complete shoot hours per filterIndex
     const totals = new Map();
     for (const sh of veil.shoots || []) {

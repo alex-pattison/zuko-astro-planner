@@ -10,10 +10,7 @@ const fsp = require('fs/promises');
 const path = require('path');
 
 const PROJECT = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
-const JSON_PATHS = [
-  'F:\\GitHub\\zuko-astro-planner\\data\\zuko-dashboard-data.json',
-  path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json'),
-];
+const JSON_PATHS = [path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json')];
 
 const FILTERS = [
   { name: 'Ha', night1: '260720_Ha_B9_Home', night2: '260721_Ha_B9_Home', hours: 0.5, lights: 10 },

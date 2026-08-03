@@ -7249,7 +7249,7 @@ function renderProjects() {
           const groups = listPipelineFilterGroups(p);
           if (!groups.length) return '';
           return `<div class="shoot-box">
-          <div class="pm-label">Processing Pipeline</div>
+          <div class="pm-label">Preprocessing Pipeline</div>
           <div class="pipeline-filter-list" data-testid="pipeline-bars">${groups.map((g) => renderFilterPipelineBar(p, pi, g)).join('')}</div>
         </div>`;
         })()}

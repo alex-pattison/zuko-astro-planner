@@ -11,10 +11,7 @@ const path = require('path');
 const PROJECT = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
 const SRC = path.join(PROJECT, 'Ha', '260720_Ha_B9_Home');
 const DEST = path.join(PROJECT, 'Ha', '260722_Ha_B9_Test50');
-const JSON_PATHS = [
-  'F:\\GitHub\\zuko-astro-planner\\data\\zuko-dashboard-data.json',
-  path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json'),
-];
+const JSON_PATHS = [path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json')];
 
 async function linkOrCopy(src, dest) {
   try {

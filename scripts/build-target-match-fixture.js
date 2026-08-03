@@ -355,23 +355,15 @@ function testProject(projectDir) {
 }
 
 function loadData() {
-  const prefer = fs.existsSync(PREFERRED_DATA) ? PREFERRED_DATA : DATA_PATH;
-  const raw = fs.readFileSync(prefer, 'utf8');
-  return { data: JSON.parse(raw), prefer };
+  const raw = fs.readFileSync(DATA_PATH, 'utf8');
+  return { data: JSON.parse(raw), prefer: DATA_PATH };
 }
 
 function saveData(data) {
   const json = JSON.stringify(data, null, 2);
   fs.writeFileSync(DATA_PATH, json);
   console.log('Wrote', DATA_PATH);
-  try {
-    if (fs.existsSync(path.dirname(PREFERRED_DATA))) {
-      fs.writeFileSync(PREFERRED_DATA, json);
-      console.log('Mirrored', PREFERRED_DATA);
-    }
-  } catch (e) {
-    console.warn('Could not mirror to H: drive:', e.message);
-  }
+  // Do not mirror into H: Beta — Dev QA must never overwrite the live Beta dashboard.
 }
 
 async function upsertProject() {

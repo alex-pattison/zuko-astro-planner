@@ -356,15 +356,7 @@ async function upsertProject() {
   const json = JSON.stringify(data, null, 2) + '\n';
   await fsp.writeFile(DATA_PATH, json);
   console.log('Wrote', DATA_PATH);
-
-  if (fs.existsSync(path.dirname(PREFERRED_DATA))) {
-    try {
-      await fsp.writeFile(PREFERRED_DATA, json);
-      console.log('Mirrored', PREFERRED_DATA);
-    } catch (err) {
-      console.warn('Could not mirror H: dashboard data:', err.message);
-    }
-  }
+  // Do not mirror into H: Beta — Dev QA must never overwrite the live Beta dashboard.
 }
 
 async function main() {

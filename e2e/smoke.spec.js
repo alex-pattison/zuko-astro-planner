@@ -62,7 +62,7 @@ test('Review source opens overlay when projectDir is set', async () => {
   await expect(window.locator('#source-review-overlay.open')).toHaveCount(0);
 });
 
-test('project sections use Capture Plan / Shoot Log / Processing Pipeline labels', async () => {
+test('project sections use Capture Plan / Shoot Log / Preprocessing Pipeline labels', async () => {
   const card = window.locator('[data-testid="project-card"]').first();
   await expect(card).toBeVisible();
   if (!(await card.evaluate((el) => el.classList.contains('open')))) {
@@ -75,7 +75,7 @@ test('project sections use Capture Plan / Shoot Log / Processing Pipeline labels
   await expect(card.locator('.pm-label', { hasText: '🌌' })).toHaveCount(0);
   const pipeline = card.getByTestId('pipeline-bars');
   if (await pipeline.count()) {
-    await expect(card.getByText('Processing Pipeline', { exact: true })).toBeVisible();
+    await expect(card.getByText('Preprocessing Pipeline', { exact: true })).toBeVisible();
     await expect(pipeline.locator('.pipeline-filter-row').first()).toBeVisible();
   }
 });

@@ -890,7 +890,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 9,
-    "savedAt": "2026-08-03T21:14:42.719Z"
+    "savedAt": "2026-08-03T21:24:31.358Z"
   },
   "uiTheme": "dark",
   "homeSite": {
@@ -903,7 +903,7 @@
   "darkLibrary": {
     "path": "F:\\zuko_dev\\Dark Library",
     "index": [],
-    "indexedAt": "2026-08-03T21:09:14.335Z"
+    "indexedAt": "2026-08-03T21:24:31.358Z"
   },
   "uiSections": {
     "sky-forecast": true,

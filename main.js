@@ -157,7 +157,8 @@ function resolveDataPaths() {
       channel,
     };
   }
-  // Dev: checkout-local data/ only (F:\\GitHub\\zuko-astro-planner\\data when developing there).
+  // Dev: checkout-local data/ only (launch from C:\Users\alexp\Projects\zuko-astro-planner).
+  // Imaging files stay on F:\zuko_dev (see resolveProjectsRoot / dark library path).
   return {
     dir: REPO_DATA_DIR,
     file: REPO_DATA_FILE,

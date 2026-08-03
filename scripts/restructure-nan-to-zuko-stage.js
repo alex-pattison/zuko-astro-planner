@@ -172,7 +172,7 @@ async function main() {
   }
 
   // 4) Update Dev JSON
-  const jsonPath = 'F:\\GitHub\\zuko-astro-planner\\data\\zuko-dashboard-data.json';
+  const jsonPath = path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json');
   const data = JSON.parse(await fsp.readFile(jsonPath, 'utf8'));
   const nan = data.projects.find((p) => /North America/i.test(p.name));
   if (!nan) throw new Error('NAN project missing in Dev JSON');

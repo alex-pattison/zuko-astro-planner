@@ -66,10 +66,13 @@ for (const p of d.projects) {
         ingestMeta: null,
       },
     ];
-    // Real Queechy dump (folder that contains Autorun). Keep when present on disk.
-    const realDir = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725';
-    if (fs.existsSync(path.join(realDir, 'Autorun'))) {
-      p.projectDir = realDir;
+    // Prefer Dev imaging pool; fall back to Beta H: dump.
+    const devDir = 'F:\\zuko_dev\\Projects\\NGC6960_Q326\\260725';
+    const betaDir = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\260725';
+    if (fs.existsSync(devDir)) {
+      p.projectDir = devDir;
+    } else if (fs.existsSync(path.join(betaDir, 'Autorun')) || fs.existsSync(betaDir)) {
+      p.projectDir = betaDir;
     }
   } else {
     for (const sh of p.shoots || []) {
@@ -78,6 +81,11 @@ for (const p of d.projects) {
       sh.ingestMeta = null;
       sh.preprocessMeta = null;
       if (sh.complete) sh.creditedHours = Number(sh.hours) || 0;
+    }
+    // Keep NAN on Dev F: pool when present
+    if (/North America|NGC7000/i.test(p.name || '') || /NGC7000/i.test(String(p.projectDir || ''))) {
+      const nanDev = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
+      if (fs.existsSync(nanDev)) p.projectDir = nanDev;
     }
   }
 
@@ -94,6 +102,13 @@ for (const p of d.projects) {
       ft.loggedHrs = Math.round(((ft.loggedHrs || 0) + (Number(sh.hours) || 0)) * 1000) / 1000;
     }
   }
+}
+
+// Dev dark library on F: when present
+const devDark = 'F:\\zuko_dev\\Dark Library';
+if (!d.darkLibrary || typeof d.darkLibrary !== 'object') d.darkLibrary = {};
+if (fs.existsSync(devDark)) {
+  d.darkLibrary.path = devDark;
 }
 
 if (!d.appMeta) d.appMeta = {};
@@ -115,11 +130,16 @@ console.log(
   })),
 );
 
-try {
-  if (fs.existsSync(path.dirname(H))) {
-    fs.writeFileSync(H, json);
-    console.log('Mirrored', H);
+// Never mirror Dev checkout JSON onto H: Beta. Use --mirror-beta only when intentional.
+if (process.argv.includes('--mirror-beta')) {
+  try {
+    if (fs.existsSync(path.dirname(H))) {
+      fs.writeFileSync(H, json);
+      console.log('Mirrored', H);
+    }
+  } catch (e) {
+    console.warn('H mirror failed:', e.message);
   }
-} catch (e) {
-  console.warn('H mirror failed:', e.message);
+} else {
+  console.log('Skipped H: Beta mirror (pass --mirror-beta to overwrite Beta dashboard)');
 }

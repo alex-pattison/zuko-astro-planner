@@ -20,10 +20,12 @@ Desktop shortcut (optional): point at `node_modules\electron\dist\electron.exe` 
 
 Two side-by-side channels with **separate data pools** (they never sync):
 
-| Channel | How you run it | Data root |
-|---|---|---|
-| **Dev** | `npm start` from a checkout | `<checkout>/data/` (Dev home: `F:\GitHub\zuko-astro-planner`) |
-| **Beta** | NSIS installer (`npm run dist:win:beta`) | `H:\Photography\Astrophotography\Dashboard` |
+| Channel | How you run it | App / dashboard JSON | Imaging files |
+|---|---|---|---|
+| **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` |
+| **Beta** | NSIS installer (`npm run dist:win:beta`) | `H:\Photography\Astrophotography\Dashboard` | `H:\Photography\Astrophotography\Zuko\…` |
+
+**One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\zuko_dev` is Dev FITS / synthetic data only.
 
 - Window title shows **Dev** or **Beta** so you know which pool is open.
 - Override either pool with `ZUKO_DATA_DIR` (used by Playwright / QA).
@@ -38,7 +40,7 @@ npm run seed:beta
 
 ## Data storage
 
-- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder).
+- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories and the master dark library live under `F:\zuko_dev\…`.
 - **Beta** loads/saves only `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`.
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
