@@ -103,7 +103,6 @@ Output lands in `dist/`.
 
 ## Reference material
 
-Upstream clones for later inspiration live under `reference/` (gitignored — not committed to this repo):
-
-- [SiriLic](https://gitlab.com/free-astro/sirilic) — Siril Interactive Companion (GPL-3.0). Local path: `reference/sirilic`
-- [Siril](https://github.com/gnthibault/siril) — image processing app Zuko will build/execute plans against. Local path: `reference/siril`
+- **Siril 1.4 scripts** (tracked): `reference/siril/` — stock `.ssf` scripts copied from the installed Siril 1.4.x app. See that folder’s README for version pin and refresh steps.
+- [SiriLic](https://gitlab.com/free-astro/sirilic) — full local clone (gitignored): `reference/sirilic`
+- Upstream Siril: [siril.org](https://siril.org) · [gitlab.com/free-astro/siril](https://gitlab.com/free-astro/siril)

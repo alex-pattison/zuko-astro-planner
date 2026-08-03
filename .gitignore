@@ -37,8 +37,13 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Local reference clones (not part of this project)
-reference/
+# Full upstream clones under reference/ (not part of this project).
+# Lean Siril 1.4 script snapshot (reference/siril/README.md + scripts/) is tracked.
+reference/sirilic/
+reference/siril/**
+!reference/siril/README.md
+!reference/siril/scripts/
+!reference/siril/scripts/**
 
 # Ingested FITS project trees (large binaries — stay on disk only)
 data/projects/

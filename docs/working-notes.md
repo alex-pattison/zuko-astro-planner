@@ -17,6 +17,28 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-03 — build 9 — Siril reference → 1.4.4 scripts only
+- Removed full outdated `reference/siril` git clone (old Mono_Preprocessing v1.0).
+- Replaced with lean snapshot: `reference/siril/scripts/*.ssf` copied from installed Siril **1.4.4** + README pin. `reference/sirilic` full clone still gitignored.
+- `.gitignore` now tracks the lean Siril scripts; still ignores `reference/sirilic/`.
+
+### 2026-08-03 — build 9 — First Mono_Preprocessing run (SII shoot)
+- **CWD:** `F:\zuko_dev\Projects\NGC7000_260720\SII\260720_SII_B9_Home\`
+- **Script:** Installed Siril 1.4.4 `Mono_Preprocessing.ssf` — evidence: created `masters/`, final name `result_S_900s.fit` from `$FILTER` + `$LIVETIME` headers (5×180s = 900s). Canonical copy now at `reference/siril/scripts/` (1.4 snapshot; old full v1.0 clone removed).
+- **Inputs unchanged:** `biases/` `darks/` `flats/` `lights/` (10/10/10/5 fits; biases/darks still hardlinked into `_calibration`).
+- **Outputs added:**
+  - `masters/bias_stacked.fit`, `dark_stacked.fit`, `pp_flat_stacked.fit`
+  - `process/` work area (~67 files): convert sequences + calibrated/registered lights
+  - `result_S_900s.fit` (~45 MB) at shoot root; also `process/result.fit` before the mirrorx/save rename
+- **Convert behavior:** `bias_####.fit` / `dark_####.fit` / `flat_####.fit` / `light_####.fit` in `process/` are **symlinks** (0-byte reparse points) back to the source folders — Siril avoided copying RAWs. `pp_flat_*`, `pp_light_*`, `r_pp_light_*` are real new FITS.
+- **Pipeline observed:** convert+stack biases → calibrate+stack flats (bias-sub) → convert+stack darks → convert+calibrate lights (dark+flat, `-cc=dark`) → register → stack → `mirrorx -bottomup` → save `result_$FILTER_$LIVETIME`.
+- **Notes for Zuko integration:**
+  - Working dir must be the **shoot folder** (`Filter/ShootCode`), not project root.
+  - Expect `masters/` + `process/` + named `result_*.fit`; `process/` is disposable intermediate (large if not using symlinks).
+  - Sequence files (`*.seq`) + `*_conversion.txt` document the convert mapping.
+  - Registration cache under `process/cache/*.lst`.
+- **Fix / next:** Automate this from Zuko (invoke Siril CLI/script per channel using `reference/siril/scripts/Mono_Preprocessing.ssf`); decide cleanup policy for `process/`; optional: per-filter bias/dark selection (SII channel currently still has shared H-named hardlinked biases from earlier staging).
+
 ### 2026-08-03 — build 9 — F:\zuko_dev Dev imaging pool (Siril prep)
 - **Seen:** Need isolated Dev copies of real projects for Siril/Sirilic work without touching Beta on H:.
 - **Layout:** `F:\zuko_dev\Projects\NGC7000_260720`, `F:\zuko_dev\Projects\NGC6960_Q326` (Veil + Sirilic), empty `F:\zuko_dev\Dark Library`, projects root `F:\zuko_dev\Projects`. Dev JSON: `F:\GitHub\zuko-astro-planner\data\zuko-dashboard-data.json`. Beta stays on `H:\...\Dashboard` + `H:\...\Zuko\`.
