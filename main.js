@@ -238,7 +238,25 @@ async function atomicWrite(filePath, data) {
   await fsp.rename(tmp, filePath);
 }
 
+function resolveWindowIcon() {
+  const name = getZukoChannel() === 'beta' ? 'icon-beta.ico' : 'icon-dev.ico';
+  const candidates = [
+    process.resourcesPath ? path.join(process.resourcesPath, 'icons', name) : null,
+    path.join(__dirname, 'build', 'icons', name),
+    path.join(__dirname, '..', 'build', 'icons', name),
+  ].filter(Boolean);
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      /* ignore */
+    }
+  }
+  return undefined;
+}
+
 function createWindow() {
+  const iconPath = resolveWindowIcon();
   const win = new BrowserWindow({
     width: 1280,
     height: 900,
@@ -247,6 +265,7 @@ function createWindow() {
     backgroundColor: '#070b12',
     title: channelProductTitle(),
     autoHideMenuBar: false,
+    ...(iconPath ? { icon: iconPath } : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -254,6 +273,13 @@ function createWindow() {
       spellcheck: false,
     },
   });
+  if (iconPath) {
+    try {
+      win.setIcon(iconPath);
+    } catch (err) {
+      console.warn('setIcon failed:', err && err.message ? err.message : err);
+    }
+  }
 
   const menuTemplate = [
     {
@@ -636,6 +662,16 @@ ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
 });
 
 app.whenReady().then(() => {
+  // Distinct AppUserModelIDs so Windows taskbar pins Beta vs Dev separately with their icons.
+  try {
+    app.setAppUserModelId(
+      getZukoChannel() === 'beta'
+        ? 'com.alex.zukoastroplanner.beta'
+        : 'com.alex.zukoastroplanner.dev'
+    );
+  } catch (err) {
+    console.warn('setAppUserModelId failed:', err && err.message ? err.message : err);
+  }
   setForecastCacheDir(resolveDataPaths().dir);
   setAstronomyCacheDir(resolveDataPaths().dir);
   createWindow();

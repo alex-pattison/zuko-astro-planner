@@ -1,7 +1,7 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.2.0",
-  "zukoBuild": 8,
+  "zukoBuild": 9,
   "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
   "main": "main.js",
   "author": "Alexandra Pattison",
@@ -31,6 +31,7 @@
   "build": {
     "appId": "com.alex.zukoastroplanner.beta",
     "productName": "Zuko Astro Planner Beta",
+    "icon": "build/icon.ico",
     "extraMetadata": {
       "zukoChannel": "beta"
     },
@@ -42,13 +43,28 @@
       "data/**/*",
       "src/**/*",
       "scripts/**/*",
-      "vendor/**/*"
+      "vendor/**/*",
+      "build/icons/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icons",
+        "to": "icons"
+      }
     ],
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": true
+    },
+    "nsis": {
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
     },
     "mac": {
       "target": "dmg",

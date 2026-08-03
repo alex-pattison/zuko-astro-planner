@@ -156,6 +156,17 @@
     opacity: 0.85;
     line-height: 1.2;
   }
+  .header-version .channel-tag {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    opacity: 1;
+  }
+  .header-version .channel-tag.is-beta {
+    color: #2bb7c7;
+  }
+  .header-version .channel-tag.is-dev {
+    color: var(--yellow, #c9a227);
+  }
 
   h1 {
     font-family: var(--mono);
@@ -4011,7 +4022,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 8 };
+const APP_META_FALLBACK = { version: '0.2.0', build: 9, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -4625,14 +4636,26 @@ function formatAppBuild(build) {
   return String(Number(build) || 0).padStart(3, '0');
 }
 
+function formatAppChannel(channel) {
+  const ch = String(channel || 'dev').toLowerCase();
+  if (ch === 'beta') return 'BETA';
+  return 'DEV';
+}
+
 function formatAppMetaLabel(meta) {
   const m = meta || APP_META;
-  return 'v' + m.version + ' · build ' + formatAppBuild(m.build);
+  return 'v' + m.version + ' · build ' + formatAppBuild(m.build) + ' · ' + formatAppChannel(m.channel);
 }
 
 function syncHeaderVersion() {
   const el = document.getElementById('header-version');
-  if (el) el.textContent = formatAppMetaLabel(APP_META);
+  if (!el) return;
+  const ch = String((APP_META && APP_META.channel) || 'dev').toLowerCase();
+  const tagClass = ch === 'beta' ? 'channel-tag is-beta' : 'channel-tag is-dev';
+  el.innerHTML =
+    'v' + (APP_META.version || '—') +
+    ' · build ' + formatAppBuild(APP_META.build) +
+    ' · <span class="' + tagClass + '">' + formatAppChannel(ch) + '</span>';
 }
 
 async function initAppMeta() {
@@ -4642,7 +4665,8 @@ async function initAppMeta() {
       if (m && m.version) {
         APP_META = {
           version: String(m.version),
-          build: Number(m.build) || APP_META_FALLBACK.build
+          build: Number(m.build) || APP_META_FALLBACK.build,
+          channel: m.channel === 'beta' ? 'beta' : 'dev',
         };
       }
     }
@@ -4650,6 +4674,7 @@ async function initAppMeta() {
   // Always fall back to the bundled constants if IPC returned junk
   if (!APP_META.version) APP_META.version = APP_META_FALLBACK.version;
   if (!APP_META.build) APP_META.build = APP_META_FALLBACK.build;
+  if (!APP_META.channel) APP_META.channel = APP_META_FALLBACK.channel;
   syncHeaderVersion();
 }
 
