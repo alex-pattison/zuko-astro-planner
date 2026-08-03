@@ -150,12 +150,12 @@ async function main() {
   // --- Moon phase naming & illumination sanity ---
   console.log('Moon phases across 2026');
   const phaseHits = {
-    'New moon': 0,
-    'Waxing crescent': 0,
-    'First quarter': 0,
-    'Full moon': 0,
-    'Last quarter': 0,
-    'Waning crescent': 0,
+    'New Moon': 0,
+    'Waxing Crescent': 0,
+    'First Quarter': 0,
+    'Full Moon': 0,
+    'Last Quarter': 0,
+    'Waning Crescent': 0,
   };
   const start = Date.UTC(2026, 0, 1);
   for (let day = 0; day < 366; day++) {
@@ -165,10 +165,10 @@ async function main() {
     if (info.illum < 0 || info.illum > 100) {
       ok('illum range day ' + day, false, String(info.illum));
     }
-    if (info.name === 'New moon' && info.illum > 8) {
+    if (info.name === 'New Moon' && info.illum > 8) {
       ok('new moon low illum', false, info.illum + '% on ' + d.toISOString().slice(0, 10));
     }
-    if (info.name === 'Full moon' && info.illum < 92) {
+    if (info.name === 'Full Moon' && info.illum < 92) {
       ok('full moon high illum', false, info.illum + '% on ' + d.toISOString().slice(0, 10));
     }
   }

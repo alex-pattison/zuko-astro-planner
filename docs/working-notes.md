@@ -15,7 +15,38 @@ Keep dated notes terse. Use the template below when useful.
 
 ---
 
+## Backlog
+
+- **Filter Wheel: add/edit filters** — Filter Target dropdown is fed from the hard-coded EFW slots; make the wheel section editable and the source of truth for available filters.
+- **In-app culling** — Replace the Cull-dot stub with a UI over `process/pp_light_*` (preview, reject, write `culled.txt` / delete). Until then: cull in Siril by removing frames or listing names in `process/culled.txt`; Registration already skips missing + culled-listed files.
+
 ## Log
+
+### 2026-08-03 — build 9 — Filter dropdown + cull skip + log heartbeat
+- Add Filter Target: **dropdown** of wheel filters (L/R/G/B/SII/Ha/OIII/Hb). Editable wheel filters → backlog.
+- Calibration log modal: immediate banner + “still running…” heartbeats (Siril buffers stdout; dump arrives in bursts).
+- Registration skips `process/pp_light_*` listed in `culled.txt` / `culled.lst` / `rejected.txt`, and any file already deleted. Cull-dot alert explains the workflow. In-app culling → backlog.
+
+### 2026-08-03 — build 9 — Calibration/Registration rename + working/ + live logs
+- Renamed pipeline steps: **Calibration** (was PP1), **Registration** (was PP2). Shoot button: Calibrate.
+- Final stacks copy to `<projectDir>/working/result_<Filter>.fit` (create `working/` if missing). Intermediates stay in `<Filter>/_stack/`.
+- Pipeline bars grouped by **filter name** (locations combine). Color-coded by filter tone (Ha/OIII/SII…); done dots green again.
+- Live log via IPC `zuko-siril-log` + file poll; banner written immediately so the modal isn’t empty while Siril buffers.
+- Seeded `Ha/260722_Ha_B9_Test50` (50 lights) for longer Calibration/log testing (`scripts/seed-ha-50-test.js`).
+
+### 2026-08-03 — build 9 — Pipeline UX + 2-night seed
+- Pipeline bars moved **below Shoot Log**; muted green/teal (less neon).
+- **Register & stack** lives at the end of each filter’s pipeline row; enabled only when **all ingested shoots for that filter have PP1** and **Cull** is marked (click Cull dot).
+- Pre-process opens a progress modal (min 3s) with live `calibrate.log` / `stack.log` tail + progress estimate.
+- Synthetic night **260721** seeded per filter (hardlink/copy from 260720); shoot log has 6 rows; preprocess/stack/cull meta reset. Script: `scripts/seed-nan-second-night.js`.
+
+### 2026-08-03 — build 9 — Siril preprocess automation (PP1 + PP2 + pipeline stub)
+- **CLI:** `C:\Program Files\Siril\bin\siril-cli.exe` (`-d` workdir, `-s` script). Module: `src/siril/preprocess.js`; IPC `zukoSiril.calibrate` / `zukoSiril.stackFilter`.
+- **PP1 (Pre-process button):** Mono 1.4 calibrate-only → `masters/` + `process/pp_light_*.fit` + `scripts/calibrate.ssf|.log` under each shoot. Stops before register.
+- **PP2 (Register & stack):** Gathers `pp_light_*` from calibrated shoots → `<Filter>/_stack/calibrated/` (unique names) → convert/register/stack/mirrorx → `result_<Filter>.fit`.
+- **UI:** Shoot Log Ingest/PP pair; Register & stack next to Ingest all; per-filter pipeline dots (Capture→Ingest→PP1→Cull stub→PP2) above Filter Targets.
+- **Smoke (F:\zuko_dev\Projects\NGC7000_260720):** Ha calibrate → 10 `pp_light_*`; stack → `Ha\_stack\result_Ha.fit` (~45 MB). BU at `NGC7000_260720 - BU`.
+- **Cull:** not implemented (pipeline dot stays stub / dashed).
 
 ### 2026-08-03 — build 9 — Siril reference → 1.4.4 scripts only
 - Removed full outdated `reference/siril` git clone (old Mono_Preprocessing v1.0).

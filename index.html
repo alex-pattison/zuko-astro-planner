@@ -950,6 +950,229 @@
     cursor: not-allowed;
     filter: none;
   }
+  .mini-btn.preprocess-btn {
+    margin-top: 0;
+    border: none;
+    color: #fff;
+    background: #3d7ea6;
+  }
+  .mini-btn.preprocess-btn:hover { filter: brightness(1.08); }
+  .mini-btn.preprocess-btn.done {
+    background: var(--green);
+  }
+  .mini-btn.preprocess-btn:disabled,
+  .mini-btn.preprocess-btn.locked {
+    background: var(--gray);
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: none;
+  }
+  .shoot-log-btn-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+  }
+  .shoot-log-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 8px;
+  }
+  .shoot-log-toggle .pm-label { margin-bottom: 0; }
+  .shoot-log-chevron {
+    font-size: 10px;
+    color: var(--gray);
+    transition: transform 0.15s ease;
+  }
+  .shoot-log-chevron.open { transform: rotate(90deg); }
+  .shoot-log-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .shoot-log-table th.sortable:hover { color: var(--accent2); }
+  .shoot-log-table th.sortable .sort-ind {
+    font-size: 9px;
+    opacity: 0.55;
+    margin-left: 2px;
+  }
+  .shoot-log-table th.sortable.sorted .sort-ind { opacity: 1; color: var(--accent2); }
+  .ft-filter-name { font-weight: 600; }
+  .pipeline-filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+  .pipeline-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: 6px;
+  }
+  .pipeline-filter-row.flt-ha { border-left-color: #f87171; }
+  .pipeline-filter-row.flt-oiii { border-left-color: #67e8f9; }
+  .pipeline-filter-row.flt-sii { border-left-color: #fde68a; }
+  .pipeline-filter-row.flt-hb { border-left-color: #818cf8; }
+  .pipeline-filter-row.flt-l { border-left-color: #e2e8f0; }
+  .pipeline-filter-row.flt-r { border-left-color: #fca5a5; }
+  .pipeline-filter-row.flt-g { border-left-color: #86efac; }
+  .pipeline-filter-row.flt-b { border-left-color: #93c5fd; }
+  .pipeline-filter-row.flt-other { border-left-color: #94a3b8; }
+  .pipeline-filter-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    min-width: 3.5rem;
+    font-weight: 600;
+  }
+  .pipeline-filter-row.flt-ha .pipeline-filter-name { color: #f87171; }
+  .pipeline-filter-row.flt-oiii .pipeline-filter-name { color: #67e8f9; }
+  .pipeline-filter-row.flt-sii .pipeline-filter-name { color: #fde68a; }
+  .pipeline-filter-row.flt-hb .pipeline-filter-name { color: #818cf8; }
+  .pipeline-filter-row.flt-l .pipeline-filter-name { color: #e2e8f0; }
+  .pipeline-filter-row.flt-r .pipeline-filter-name { color: #fca5a5; }
+  .pipeline-filter-row.flt-g .pipeline-filter-name { color: #86efac; }
+  .pipeline-filter-row.flt-b .pipeline-filter-name { color: #93c5fd; }
+  .pipeline-filter-row.flt-other .pipeline-filter-name { color: var(--text2); }
+  .pipeline-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    min-width: 240px;
+  }
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    flex: 1;
+  }
+  .pipeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: calc(50% + 7px);
+    right: calc(-50% + 7px);
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .pipeline-step.done:not(:last-child)::after {
+    background: var(--green);
+  }
+  .pipeline-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg2);
+    position: relative;
+    z-index: 1;
+  }
+  .pipeline-step.done .pipeline-dot {
+    border-color: var(--green);
+    background: var(--green);
+  }
+  .pipeline-step.partial .pipeline-dot {
+    border-color: var(--yellow);
+    background: var(--yellow);
+  }
+  .pipeline-step.stub .pipeline-dot {
+    border-style: dashed;
+    background: transparent;
+  }
+  .pipeline-step.clickable {
+    cursor: pointer;
+  }
+  .pipeline-step.clickable:hover .pipeline-dot {
+    border-color: var(--accent2);
+  }
+  .pipeline-step-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .pipeline-step.done .pipeline-step-label,
+  .pipeline-step.partial .pipeline-step-label { color: var(--text2); }
+  .pipeline-stack-btn {
+    flex-shrink: 0;
+    margin-top: 0 !important;
+  }
+  .siril-progress-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 12000;
+    background: rgba(0,0,0,0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .siril-progress-overlay.open { display: flex; }
+  .siril-progress-modal {
+    width: min(640px, 100%);
+    max-height: min(80vh, 720px);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .siril-progress-modal h3 {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .siril-progress-sub {
+    font-size: 12px;
+    color: var(--gray);
+    font-family: var(--mono);
+  }
+  .siril-progress-bar-wrap {
+    height: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .siril-progress-bar {
+    height: 100%;
+    width: 4%;
+    background: var(--green);
+    border-radius: 99px;
+    transition: width 0.35s ease;
+  }
+  .siril-progress-log {
+    flex: 1;
+    min-height: 180px;
+    max-height: 360px;
+    overflow: auto;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
   .mini-btn.status-btn {
     margin-top: 0;
     border: none;
@@ -2219,7 +2442,7 @@
   .filter-target-table.shoot-log-table {
     table-layout: fixed;
     width: 100%;
-    min-width: 58rem;
+    min-width: 0;
     border-collapse: collapse;
   }
   .filter-target-table.shoot-log-table th,
@@ -2229,15 +2452,16 @@
     white-space: nowrap;
     vertical-align: middle;
     box-sizing: border-box;
-    padding: 6px 6px;
+    padding: 5px 4px;
   }
-  .filter-target-table.shoot-log-table col.col-name { width: 11.5rem; }
-  .filter-target-table.shoot-log-table col.col-date { width: 4rem; }
-  .filter-target-table.shoot-log-table col.col-filter { width: 11rem; }
-  .filter-target-table.shoot-log-table col.col-num { width: 3.25rem; }
-  .filter-target-table.shoot-log-table col.col-integ { width: 3.75rem; }
-  .filter-target-table.shoot-log-table col.col-btn { width: 5.25rem; }
-  .filter-target-table.shoot-log-table col.col-x { width: 1.75rem; }
+  .filter-target-table.shoot-log-table col.col-name { width: 13%; }
+  .filter-target-table.shoot-log-table col.col-date { width: 5.5%; }
+  .filter-target-table.shoot-log-table col.col-filter { width: 14%; }
+  .filter-target-table.shoot-log-table col.col-num { width: 4.5%; }
+  .filter-target-table.shoot-log-table col.col-integ { width: 5.5%; }
+  .filter-target-table.shoot-log-table col.col-btn { width: 7.5%; }
+  .filter-target-table.shoot-log-table col.col-cal { width: 8%; }
+  .filter-target-table.shoot-log-table col.col-x { width: 2.5%; }
   .filter-target-table.shoot-log-table th.col-name,
   .filter-target-table.shoot-log-table td.col-name,
   .filter-target-table.shoot-log-table th.col-date,
@@ -2255,16 +2479,21 @@
   }
   .filter-target-table.shoot-log-table th.col-btn,
   .filter-target-table.shoot-log-table td.col-btn,
+  .filter-target-table.shoot-log-table th.col-cal,
+  .filter-target-table.shoot-log-table td.col-cal,
   .filter-target-table.shoot-log-table th.col-x,
   .filter-target-table.shoot-log-table td.col-x {
     text-align: center;
-    overflow: visible;
+    overflow: hidden;
   }
-  .filter-target-table.shoot-log-table .col-btn .mini-btn {
+  .filter-target-table.shoot-log-table .col-btn .mini-btn,
+  .filter-target-table.shoot-log-table .col-cal .mini-btn {
     margin: 0;
     width: 100%;
     min-width: 0;
     max-width: 100%;
+    padding: 4px 2px;
+    font-size: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3138,11 +3367,14 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+  .table-scroll:has(.shoot-log-table) {
+    overflow-x: hidden;
+  }
 
   @media (max-width: 900px) {
     /* Tablet: slightly tighter grids, tables scroll as a single unit so columns stay aligned */
     .project-meta-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .table-scroll .filter-target-table { min-width: 560px; }
+    .table-scroll .filter-target-table:not(.shoot-log-table) { min-width: 560px; }
   }
 
   @media (max-width: 640px) {
@@ -3406,6 +3638,28 @@
     <div class="notes-box" id="notes-box"></div>
   </details>
 
+  <!-- Calibration / Dark library -->
+  <details class="collapsible" open data-section="dark-library">
+    <summary class="section-header">
+      <span class="sec-chevron">▶</span>
+      <h2>Calibration — Dark Library</h2>
+      <div class="section-line"></div>
+    </summary>
+    <div class="darklib-path-row">
+      <input id="darklib-path" type="text" placeholder="F:\zuko_dev\Dark Library (Dev) or H:\...\Zuko\Dark Library (Beta)"
+        style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;">
+      <button class="mini-btn" style="margin-top:0" onclick="browseDarkLibraryPath()">Browse…</button>
+      <button class="add-btn" onclick="reindexDarkLibrary()">Re-index</button>
+    </div>
+    <div id="darklib-status" class="ingest-status-line" style="margin-bottom:8px;">Not indexed yet.</div>
+    <div class="table-scroll">
+      <table class="ingest-table" id="darklib-table">
+        <thead><tr><th>Folder</th><th>Files</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Age</th></tr></thead>
+        <tbody id="darklib-tbody"><tr><td colspan="7" style="color:var(--gray);">Index the library to list dark sets.</td></tr></tbody>
+      </table>
+    </div>
+  </details>
+
   <!-- OPTICAL TRAIN -->
   <details class="collapsible" open data-section="optical-train">
     <summary class="section-header">
@@ -3640,28 +3894,6 @@
 
   </details>
 
-  <!-- Calibration / Dark library -->
-  <details class="collapsible" open data-section="dark-library">
-    <summary class="section-header">
-      <span class="sec-chevron">▶</span>
-      <h2>Calibration — Dark Library</h2>
-      <div class="section-line"></div>
-    </summary>
-    <div class="darklib-path-row">
-      <input id="darklib-path" type="text" placeholder="F:\zuko_dev\Dark Library (Dev) or H:\...\Zuko\Dark Library (Beta)"
-        style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;">
-      <button class="mini-btn" style="margin-top:0" onclick="browseDarkLibraryPath()">Browse…</button>
-      <button class="add-btn" onclick="reindexDarkLibrary()">Re-index</button>
-    </div>
-    <div id="darklib-status" class="ingest-status-line" style="margin-bottom:8px;">Not indexed yet.</div>
-    <div class="table-scroll">
-      <table class="ingest-table" id="darklib-table">
-        <thead><tr><th>Folder</th><th>Files</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Age</th></tr></thead>
-        <tbody id="darklib-tbody"><tr><td colspan="7" style="color:var(--gray);">Index the library to list dark sets.</td></tr></tbody>
-      </table>
-    </div>
-  </details>
-
   <!-- Rig Assets (gear + deep dive + budget) -->
   <details class="collapsible" open data-section="rig-assets">
     <summary class="section-header">
@@ -3782,6 +4014,18 @@
 
 
 <!-- Modal -->
+<div class="siril-progress-overlay" id="siril-progress-overlay" onclick="if(event.target===this && window._sirilProgressAllowClose) closeSirilProgressModal()">
+  <div class="siril-progress-modal" role="dialog" aria-labelledby="siril-progress-title">
+    <h3 id="siril-progress-title">Siril pre-process</h3>
+    <div class="siril-progress-sub" id="siril-progress-sub">Starting…</div>
+    <div class="siril-progress-bar-wrap"><div class="siril-progress-bar" id="siril-progress-bar"></div></div>
+    <div class="siril-progress-log" id="siril-progress-log"></div>
+    <div class="modal-actions" style="justify-content:flex-end;">
+      <button type="button" class="modal-btn" id="siril-progress-close" disabled onclick="closeSirilProgressModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <h3 id="modal-title">Add Item</h3>
@@ -4814,16 +5058,16 @@ function moonPhaseInfo(date = new Date()) {
   const age = ((days % synodic) + synodic) % synodic;
   const t = age / synodic;
   const illum = Math.round(((1 - Math.cos(2 * Math.PI * t)) / 2) * 100);
-  let name = 'New moon';
+  let name = 'New Moon';
   let icon = '🌑';
-  if (t < 0.03 || t >= 0.97) { name = 'New moon'; icon = '🌑'; }
-  else if (t < 0.22) { name = 'Waxing crescent'; icon = '🌒'; }
-  else if (t < 0.28) { name = 'First quarter'; icon = '🌓'; }
-  else if (t < 0.47) { name = 'Waxing gibbous'; icon = '🌔'; }
-  else if (t < 0.53) { name = 'Full moon'; icon = '🌕'; }
-  else if (t < 0.72) { name = 'Waning gibbous'; icon = '🌖'; }
-  else if (t < 0.78) { name = 'Last quarter'; icon = '🌗'; }
-  else { name = 'Waning crescent'; icon = '🌘'; }
+  if (t < 0.03 || t >= 0.97) { name = 'New Moon'; icon = '🌑'; }
+  else if (t < 0.22) { name = 'Waxing Crescent'; icon = '🌒'; }
+  else if (t < 0.28) { name = 'First Quarter'; icon = '🌓'; }
+  else if (t < 0.47) { name = 'Waxing Gibbous'; icon = '🌔'; }
+  else if (t < 0.53) { name = 'Full Moon'; icon = '🌕'; }
+  else if (t < 0.72) { name = 'Waning Gibbous'; icon = '🌖'; }
+  else if (t < 0.78) { name = 'Last Quarter'; icon = '🌗'; }
+  else { name = 'Waning Crescent'; icon = '🌘'; }
   return { name, icon, illum, ageDays: age, phase: t };
 }
 
@@ -5771,14 +6015,14 @@ function phaseFractionFromAstrospheric(phaseAngleDeg, illuminationPercent, local
 
 function phaseNameFromFraction(t) {
   const p = ((Number(t) % 1) + 1) % 1;
-  if (p < 0.03 || p >= 0.97) return 'New moon';
-  if (p < 0.22) return 'Waxing crescent';
-  if (p < 0.28) return 'First quarter';
-  if (p < 0.47) return 'Waxing gibbous';
-  if (p < 0.53) return 'Full moon';
-  if (p < 0.72) return 'Waning gibbous';
-  if (p < 0.78) return 'Last quarter';
-  return 'Waning crescent';
+  if (p < 0.03 || p >= 0.97) return 'New Moon';
+  if (p < 0.22) return 'Waxing Crescent';
+  if (p < 0.28) return 'First Quarter';
+  if (p < 0.47) return 'Waxing Gibbous';
+  if (p < 0.53) return 'Full Moon';
+  if (p < 0.72) return 'Waning Gibbous';
+  if (p < 0.78) return 'Last Quarter';
+  return 'Waning Crescent';
 }
 
 function phaseKindFromName(name) {
@@ -6592,6 +6836,101 @@ function renderUnsafe() {
 
 // ============ PROJECTS ============
 let openProjects = new Set();
+/** Shoot log collapsed state per project index (default: expanded). */
+const shootLogCollapsed = new Set();
+/** Shoot log sort state: { [pi]: { key, dir } } dir = 1 asc / -1 desc */
+const shootLogSort = {};
+
+function toggleShootLog(pi) {
+  if (shootLogCollapsed.has(pi)) shootLogCollapsed.delete(pi);
+  else shootLogCollapsed.add(pi);
+  renderProjects();
+}
+
+function sortShootLog(pi, key) {
+  const cur = shootLogSort[pi] || { key: 'date', dir: 1 };
+  if (cur.key === key) shootLogSort[pi] = { key, dir: -cur.dir };
+  else shootLogSort[pi] = { key, dir: key === 'date' || key === 'name' ? 1 : -1 };
+  renderProjects();
+}
+
+function shootLogSortIndicator(pi, key) {
+  const cur = shootLogSort[pi];
+  if (!cur || cur.key !== key) return '<span class="sort-ind">↕</span>';
+  return `<span class="sort-ind">${cur.dir > 0 ? '↑' : '↓'}</span>`;
+}
+
+function compareShootLogRows(project, a, b, key, dir) {
+  const shA = project.shoots[a];
+  const shB = project.shoots[b];
+  const ftA = project.filterTargets[shA.filterIndex];
+  const ftB = project.filterTargets[shB.filterIndex];
+  const metaA = shA.ingestMeta || {};
+  const metaB = shB.ingestMeta || {};
+  const lights = (m) => (m.lightCount != null ? m.lightCount : (m.frameCount != null ? m.frameCount : (m.byType && m.byType.light))) || 0;
+  let va;
+  let vb;
+  switch (key) {
+    case 'name':
+      va = buildShootCode(shA, ftA);
+      vb = buildShootCode(shB, ftB);
+      break;
+    case 'date':
+      va = String(shA.date || '');
+      vb = String(shB.date || '');
+      break;
+    case 'filter':
+      va = `${(ftA && ftA.filter) || ''}|${(ftA && ftA.location) || ''}`;
+      vb = `${(ftB && ftB.filter) || ''}|${(ftB && ftB.location) || ''}`;
+      break;
+    case 'lights':
+      va = lights(metaA);
+      vb = lights(metaB);
+      break;
+    case 'exp':
+      va = metaA.exposureSec != null ? metaA.exposureSec : -1;
+      vb = metaB.exposureSec != null ? metaB.exposureSec : -1;
+      break;
+    case 'temp':
+      va = metaA.tempC != null ? metaA.tempC : -999;
+      vb = metaB.tempC != null ? metaB.tempC : -999;
+      break;
+    case 'gain':
+      va = metaA.gain != null ? metaA.gain : -1;
+      vb = metaB.gain != null ? metaB.gain : -1;
+      break;
+    case 'actual':
+      va = lights(metaA) * (metaA.exposureSec || 0);
+      vb = lights(metaB) * (metaB.exposureSec || 0);
+      break;
+    case 'target':
+      va = Number(shA.hours) || 0;
+      vb = Number(shB.hours) || 0;
+      break;
+    case 'status':
+      va = shA.complete ? 1 : 0;
+      vb = shB.complete ? 1 : 0;
+      break;
+    case 'ingest':
+      va = isShootIngested(shA) ? 1 : 0;
+      vb = isShootIngested(shB) ? 1 : 0;
+      break;
+    case 'calibrate':
+      va = isShootCalibrated(shA) ? 1 : 0;
+      vb = isShootCalibrated(shB) ? 1 : 0;
+      break;
+    default:
+      va = a;
+      vb = b;
+  }
+  if (typeof va === 'string' || typeof vb === 'string') {
+    const c = String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: 'base' });
+    return c * dir;
+  }
+  if (va < vb) return -1 * dir;
+  if (va > vb) return 1 * dir;
+  return (a - b);
+}
 let modalProjectIndex = null;
 
 function detachLiveFramers() {
@@ -6653,7 +6992,11 @@ function renderProjects() {
     if (!Array.isArray(p.ignoredAsiairFolders)) p.ignoredAsiairFolders = [];
     if (!Array.isArray(p.asiairBoundFolders)) p.asiairBoundFolders = [];
     if (p.projectDir === undefined) p.projectDir = '';
-    p.filterTargets.forEach(f => { if (f.bortle === undefined) f.bortle = ''; });
+    p.filterTargets.forEach(f => {
+      if (f.bortle === undefined) f.bortle = '';
+      if (f.stackMeta === undefined) f.stackMeta = null;
+      if (f.cullMeta === undefined) f.cullMeta = null;
+    });
     p.shoots.forEach(sh => {
       if (sh.filterIndex === undefined) sh.filterIndex = null;
       if (sh.complete === undefined) sh.complete = false;
@@ -6661,6 +7004,7 @@ function renderProjects() {
       if (sh.sourcePath === undefined) sh.sourcePath = null;
       if (sh.ingestPath === undefined) sh.ingestPath = null;
       if (sh.ingestMeta === undefined) sh.ingestMeta = null;
+      if (sh.preprocessMeta === undefined) sh.preprocessMeta = null;
     });
   });
   // Keep live Aladin canvases across the projects rebuild — full re-init is expensive and jarring.
@@ -6700,7 +7044,7 @@ function renderProjects() {
 
         ${!p.savedTarget ? `
         <div class="shoot-box">
-          <div class="pm-label">🔭 Target Lookup</div>
+          <div class="pm-label">Target Lookup</div>
           <div class="gaia-inputs">
             <input id="target-search-${pi}" placeholder="Target name e.g. NGC 6960, M31, HD 198626" style="width:260px;">
             <button class="mini-btn" style="margin-top:0" onclick="lookupTarget(${pi})">Search</button>
@@ -6714,7 +7058,7 @@ function renderProjects() {
             ? `<div id="framer-slot-${pi}"></div>`
             : `<div id="framer-slot-${pi}">
         <details class="sub-details" id="framer-details-${pi}" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
-          <summary><span class="sec-chevron">▶</span> 🎯 Target Framer — ${p.savedTarget.name}</summary>
+          <summary><span class="sec-chevron">▶</span> Target Framer — ${p.savedTarget.name}</summary>
           <div style="padding: 4px 16px 16px;">
             <div class="gaia-inputs" style="align-items:center;">
               <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'framerMode', this.value)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;">
@@ -6741,7 +7085,7 @@ function renderProjects() {
         ) : ''}
 
         <div class="shoot-box">
-          <div class="pm-label">✅ Steps</div>
+          <div class="pm-label">Steps</div>
           <div class="proj-checklist">
             ${p.checklist.map((s, si) => `
               <div class="proj-step ${s.done ? 'done' : ''}" onclick="toggleProjectStep(${pi},${si})">
@@ -6754,7 +7098,7 @@ function renderProjects() {
         </div>
 
         <div class="shoot-box">
-          <div class="pm-label">🎛 Filter Targets</div>
+          <div class="pm-label">Capture Plan</div>
           <div class="table-scroll">
           <table class="filter-target-table">
             <thead><tr><th>Filter</th><th>Location</th><th>Bortle</th><th>Progress</th><th>Hours</th><th></th></tr></thead>
@@ -6763,8 +7107,9 @@ function renderProjects() {
                 const pendingHrs = p.shoots.filter(sh => sh.filterIndex === fi && !sh.complete).reduce((s, sh) => s + (sh.hours || 0), 0);
                 const pct = f.targetHrs > 0 ? Math.min(100, Math.round(f.loggedHrs / f.targetHrs * 100)) : 0;
                 const pendingPct = f.targetHrs > 0 ? Math.min(100 - pct, Math.round(pendingHrs / f.targetHrs * 100)) : 0;
+                const fltColor = filterToneColor(f.filter);
                 return `<tr>
-                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.filter}</td>
+                  <td class="editable ft-filter-name" onclick="editFilterTarget(${pi},${fi})" title="Click to edit" style="color:${fltColor}">${escapeHtml(f.filter)}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.location}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.bortle || '—'}</td>
                   <td><div class="ft-bar-wrap"><div class="ft-bar ${pct >= 100 ? 'full' : ''}" style="width:${pct}%"></div><div class="ft-bar-pending" style="width:${pendingPct}%"></div></div></td>
@@ -6775,12 +7120,15 @@ function renderProjects() {
             </tbody>
           </table>
           </div>
-          <button class="mini-btn" onclick="addFilterTarget(${pi})">+ Add Filter Target</button>
+          <button class="mini-btn" onclick="addFilterTarget(${pi})">+ Add to Capture Plan</button>
         </div>
 
         <div class="shoot-box">
-          <div class="pm-label">🌌 Shoot Log</div>
-          ${p.shoots.length ? `
+          <div class="shoot-log-toggle" onclick="event.stopPropagation(); toggleShootLog(${pi})" title="Expand / collapse Shoot Log">
+            <span class="shoot-log-chevron ${shootLogCollapsed.has(pi) ? '' : 'open'}">▶</span>
+            <div class="pm-label">Shoot Log${p.shoots.length ? ` (${p.shoots.length})` : ''}</div>
+          </div>
+          ${shootLogCollapsed.has(pi) ? '' : (p.shoots.length ? `
           <div class="table-scroll">
           <table class="filter-target-table shoot-log-table">
             <colgroup>
@@ -6795,26 +7143,36 @@ function renderProjects() {
               <col class="col-integ">
               <col class="col-btn">
               <col class="col-btn">
+              <col class="col-cal">
               <col class="col-x">
             </colgroup>
             <thead><tr>
-              <th class="col-name">Name</th>
-              <th class="col-date">Date</th>
-              <th class="col-filter">Filter Target</th>
-              <th class="col-num">Lights</th>
-              <th class="col-num">Exp</th>
-              <th class="col-num">Temp</th>
-              <th class="col-num">Gain</th>
-              <th class="col-integ">Actual</th>
-              <th class="col-integ">Target</th>
-              <th class="col-btn">Status</th>
-              <th class="col-btn">Ingest</th>
+              <th class="col-name sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'name') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'name')">Name ${shootLogSortIndicator(pi, 'name')}</th>
+              <th class="col-date sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'date') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'date')">Date ${shootLogSortIndicator(pi, 'date')}</th>
+              <th class="col-filter sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'filter') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'filter')">Capture Plan ${shootLogSortIndicator(pi, 'filter')}</th>
+              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'lights') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'lights')">Lights ${shootLogSortIndicator(pi, 'lights')}</th>
+              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'exp') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'exp')">Exp ${shootLogSortIndicator(pi, 'exp')}</th>
+              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'temp') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'temp')">Temp ${shootLogSortIndicator(pi, 'temp')}</th>
+              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'gain') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'gain')">Gain ${shootLogSortIndicator(pi, 'gain')}</th>
+              <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'actual') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'actual')">Actual ${shootLogSortIndicator(pi, 'actual')}</th>
+              <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'target') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'target')">Target ${shootLogSortIndicator(pi, 'target')}</th>
+              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'status') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'status')">Status ${shootLogSortIndicator(pi, 'status')}</th>
+              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'ingest') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'ingest')">Ingest ${shootLogSortIndicator(pi, 'ingest')}</th>
+              <th class="col-cal sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'calibrate') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'calibrate')">Calibrate ${shootLogSortIndicator(pi, 'calibrate')}</th>
               <th class="col-x"></th>
             </tr></thead>
             <tbody>
-              ${p.shoots.map((sh, si) => {
+              ${(() => {
+                const sort = shootLogSort[pi] || { key: 'date', dir: 1 };
+                const order = p.shoots.map((_, si) => si)
+                  .sort((a, b) => compareShootLogRows(p, a, b, sort.key, sort.dir));
+                return order.map((si) => {
+                const sh = p.shoots[si];
                 const ft = p.filterTargets[sh.filterIndex];
-                const ftLabel = ft ? `${ft.filter} — ${ft.location} (B${ft.bortle || '?'})` : '—';
+                const fltColor = ft ? filterToneColor(ft.filter) : 'inherit';
+                const ftLabel = ft
+                  ? `<span class="ft-filter-name" style="color:${fltColor}">${escapeHtml(ft.filter)}</span> — ${escapeHtml(ft.location)} (B${escapeHtml(String(ft.bortle || '?'))})`
+                  : '—';
                 const code = buildShootCode(sh, ft);
                 const meta = sh.ingestMeta || {};
                 const lightsN = meta.lightCount != null ? meta.lightCount : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
@@ -6824,6 +7182,7 @@ function renderProjects() {
                 const plannedHrs = Number(sh.hours) || 0;
                 const integ = formatShootIntegration(lightsN, meta.exposureSec, plannedHrs);
                 const ingested = !!(sh.ingestPath && meta.stagedAt);
+                const calibrated = isShootCalibrated(sh);
                 const captured = !!sh.complete;
                 const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
                 const statusBtn = `<button class="mini-btn status-btn ${captured ? 'captured' : ''}" style="margin-top:0" onclick="event.stopPropagation(); toggleShootComplete(${pi},${si})" title="${captured ? 'Mark as pending' : 'Mark as captured'}">${captured ? 'Captured' : 'Pending'}</button>`;
@@ -6834,6 +7193,14 @@ function renderProjects() {
                   ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before ingest">Ingest</button>`;
                 } else {
                   ingestBtn = `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open ingest (already staged)' : 'ASIAIR ingest'}">Ingest</button>`;
+                }
+                let ppBtn;
+                if (!hasProjectDir) {
+                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Set Project directory first">Calibrate</button>`;
+                } else if (!ingested) {
+                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Stage for Siril (Ingest) before calibration">Calibrate</button>`;
+                } else {
+                  ppBtn = `<button class="mini-btn preprocess-btn ${calibrated ? 'done' : ''}" id="pp-btn-${pi}-${si}" style="margin-top:0" onclick="event.stopPropagation(); runPreprocessShoot(${pi},${si})" title="${calibrated ? 'Re-run calibration to pp_light' : 'Calibrate to pp_light via siril-cli'}">${calibrated ? 'Calibrated' : 'Calibrate'}</button>`;
                 }
                 return `
                 <tr>
@@ -6848,13 +7215,15 @@ function renderProjects() {
                   <td class="col-integ mono editable" onclick="editShoot(${pi},${si})" title="Target integration (planned) — click to edit">${integ.targetHtml}</td>
                   <td class="col-btn">${statusBtn}</td>
                   <td class="col-btn">${ingestBtn}</td>
+                  <td class="col-cal">${ppBtn}</td>
                   <td class="col-x"><button class="remove-btn" onclick="removeShoot(${pi},${si})">✕</button></td>
                 </tr>`;
-              }).join('')}
+                }).join('');
+              })()}
             </tbody>
           </table>
-          </div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No shoots planned yet.</div>'}
-          <div class="shoot-log-actions">
+          </div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No shoots planned yet.</div>')}
+          ${shootLogCollapsed.has(pi) ? '' : `<div class="shoot-log-actions">
             <button class="mini-btn" data-testid="plan-shoot" onclick="addShoot(${pi})">+ Plan Shoot</button>
             ${(() => {
               const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
@@ -6873,11 +7242,20 @@ function renderProjects() {
                 ? `<button class="mini-btn ingest-btn" data-testid="ingest-all" onclick="ingestAllCapturedShoots(${pi})" title="Open ingest for all Captured shoots that are not already staged">Ingest all (${pending})</button>`
                 : `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="No Captured shoots waiting for ingest">Ingest all</button>`;
             })()}
-          </div>
+          </div>`}
         </div>
 
+        ${(() => {
+          const groups = listPipelineFilterGroups(p);
+          if (!groups.length) return '';
+          return `<div class="shoot-box">
+          <div class="pm-label">Processing Pipeline</div>
+          <div class="pipeline-filter-list" data-testid="pipeline-bars">${groups.map((g) => renderFilterPipelineBar(p, pi, g)).join('')}</div>
+        </div>`;
+        })()}
+
         <div class="shoot-box">
-          <div class="pm-label">📤 AstroBin</div>
+          <div class="pm-label">AstroBin</div>
           ${p.astrobinLinks.length ? `<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;">` + p.astrobinLinks.map((a, ai) => {
             const candidates = astrobinThumbCandidates(a);
             const first = candidates[0];
@@ -7258,6 +7636,9 @@ function removeFilterTarget(pi, fi) {
 function addFilterTarget(pi) {
   modalProjectIndex = pi;
   editIndex = null;
+  const opts = getWheelFilterOptions();
+  modalConfigs.filterrow.fields[0].options = opts.map((o) => o.value);
+  modalConfigs.filterrow.fields[0].optionLabels = opts.map((o) => o.label);
   openModal('filterrow');
 }
 
@@ -7265,7 +7646,31 @@ function editFilterTarget(pi, fi) {
   modalProjectIndex = pi;
   editIndex = fi;
   const f = data.projects[pi].filterTargets[fi];
+  const opts = getWheelFilterOptions();
+  // Keep current value selectable even if not on the wheel yet
+  const values = opts.map((o) => o.value);
+  const labels = opts.map((o) => o.label);
+  if (f.filter && !values.some((v) => filterToneKey(v) === filterToneKey(f.filter))) {
+    values.unshift(f.filter);
+    labels.unshift(`${f.filter} (current)`);
+  }
+  modalConfigs.filterrow.fields[0].options = values;
+  modalConfigs.filterrow.fields[0].optionLabels = labels;
   openModal('filterrow', { 'f-filter': f.filter, 'f-location': f.location, 'f-bortle': f.bortle || '', 'f-targetHrs': f.targetHrs });
+}
+
+/** Filters available from the Filter Wheel section (canonical short names). */
+function getWheelFilterOptions() {
+  return [
+    { value: 'L', label: 'L' },
+    { value: 'R', label: 'R' },
+    { value: 'G', label: 'G' },
+    { value: 'B', label: 'B' },
+    { value: 'SII', label: 'SII' },
+    { value: 'Ha', label: 'Ha' },
+    { value: 'OIII', label: 'OIII' },
+    { value: 'Hb', label: 'Hb' },
+  ];
 }
 
 function addProjectStep(pi) {
@@ -9434,6 +9839,546 @@ function isShootNeedingIngest(sh) {
   return !!(sh && sh.complete && !isShootIngested(sh));
 }
 
+function isShootCalibrated(sh) {
+  return !!(sh && sh.preprocessMeta && sh.preprocessMeta.calibratedAt);
+}
+
+/** Resolve staged shoot folder for Siril calibrate (Filter/ShootCode). */
+function resolveShootCalibrateDir(project, sh) {
+  if (!project || !sh) return null;
+  if (sh.preprocessMeta && sh.preprocessMeta.shootDir) return sh.preprocessMeta.shootDir;
+  const ft = project.filterTargets && project.filterTargets[sh.filterIndex];
+  const filterName = ft && ft.filter ? String(ft.filter) : '';
+  const roots = (sh.ingestMeta && sh.ingestMeta.destRoots) || [];
+  if (filterName && roots.length) {
+    const needle = filterName.replace(/\\/g, '/').toLowerCase();
+    const match = roots.find((r) => {
+      const norm = String(r).replace(/\\/g, '/');
+      const parts = norm.split('/').filter(Boolean);
+      return parts.length >= 2 && parts[parts.length - 2].toLowerCase() === needle;
+    });
+    if (match) return match;
+  }
+  if (roots[0]) return roots[0];
+  if (sh.ingestPath) return sh.ingestPath;
+  return null;
+}
+
+function pipelineStepHtml(label, state, opts = {}) {
+  // state: 'done' | 'partial' | 'stub' | ''
+  const parts = ['pipeline-step'];
+  if (state === 'done') parts.push('done');
+  else if (state === 'partial') parts.push('partial');
+  else if (state === 'stub') parts.push('stub');
+  if (opts.clickable) parts.push('clickable');
+  const onclick = opts.onclick ? ` onclick="${opts.onclick}"` : '';
+  const title = opts.title || label;
+  return `<div class="${parts.join(' ')}" title="${escapeAttr(title)}"${onclick}><div class="pipeline-dot"></div><div class="pipeline-step-label">${escapeHtml(label)}</div></div>`;
+}
+
+function listPipelineFilterGroups(project) {
+  const seen = new Map();
+  (project.filterTargets || []).forEach((f, fi) => {
+    if (!f || !f.filter) return;
+    const tone = filterToneKey(f.filter);
+    if (seen.has(tone)) {
+      seen.get(tone).fis.push(fi);
+      return;
+    }
+    seen.set(tone, {
+      tone,
+      name: f.filter,
+      fis: [fi],
+      primaryFi: fi,
+    });
+  });
+  return Array.from(seen.values());
+}
+
+function getShootsForFilterTone(project, tone) {
+  return (project.shoots || []).filter((sh) => {
+    const ft = project.filterTargets[sh.filterIndex];
+    return ft && filterToneKey(ft.filter) === tone;
+  });
+}
+
+function getFilterIngestedShootsByTone(project, tone) {
+  return getShootsForFilterTone(project, tone).filter(isShootIngested);
+}
+
+function getFilterCalibrationProgress(project, tone) {
+  const ingested = getFilterIngestedShootsByTone(project, tone);
+  const calibrated = ingested.filter(isShootCalibrated);
+  return {
+    ingestedCount: ingested.length,
+    calibratedCount: calibrated.length,
+    complete: ingested.length > 0 && calibrated.length === ingested.length,
+    partial: calibrated.length > 0 && calibrated.length < ingested.length,
+  };
+}
+
+function getPrimaryFilterTarget(project, group) {
+  return project.filterTargets[group.primaryFi];
+}
+
+/** Cull/stack meta live on the primary filterTarget for that filter name (all locations share it). */
+function isFilterCullComplete(f) {
+  return !!(f && f.cullMeta && f.cullMeta.completedAt);
+}
+
+function isFilterReadyToRegister(project, group) {
+  const f = getPrimaryFilterTarget(project, group);
+  if (!f) return false;
+  const cal = getFilterCalibrationProgress(project, group.tone);
+  return cal.complete && isFilterCullComplete(f);
+}
+
+function toggleFilterCull(pi, tone) {
+  const project = data.projects[pi];
+  if (!project) return;
+  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  if (!group) return;
+  const f = getPrimaryFilterTarget(project, group);
+  const cal = getFilterCalibrationProgress(project, tone);
+  if (!cal.complete) {
+    alert('Finish Calibration for every ingested shoot of this filter (all locations) before marking Cull done.');
+    return;
+  }
+  if (isFilterCullComplete(f)) {
+    f.cullMeta = null;
+  } else {
+    f.cullMeta = {
+      completedAt: new Date().toISOString(),
+      note: 'Marked complete (manual / Siril cull stub). Registration uses remaining process/pp_light_*.fit only — delete or list culled names in process/culled.txt.',
+    };
+  }
+  // Mirror onto sibling filterTargets with same filter tone (location variants)
+  group.fis.forEach((fi) => {
+    if (project.filterTargets[fi]) project.filterTargets[fi].cullMeta = f.cullMeta;
+  });
+  save();
+  renderProjects();
+}
+
+/** One bar per filter name (locations merged). Capture → Ingest → Calibration → Cull → Registration. */
+function renderFilterPipelineBar(project, pi, group) {
+  const f = getPrimaryFilterTarget(project, group);
+  if (!f || !group) return '';
+  const tone = group.tone;
+  const shoots = getShootsForFilterTone(project, tone);
+  const capturedShoots = shoots.filter((sh) => !!sh.complete);
+  const captureDone = capturedShoots.length > 0;
+  const ingestDone = capturedShoots.length
+    ? capturedShoots.every(isShootIngested)
+    : getFilterIngestedShootsByTone(project, tone).length > 0;
+  const cal = getFilterCalibrationProgress(project, tone);
+  let calState = '';
+  let calLabel = 'Calibration';
+  if (cal.complete) {
+    calState = 'done';
+    calLabel = `Calibration ${cal.calibratedCount}/${cal.ingestedCount}`;
+  } else if (cal.partial || (cal.calibratedCount > 0 && cal.ingestedCount > 0)) {
+    calState = 'partial';
+    calLabel = `Calibration ${cal.calibratedCount}/${cal.ingestedCount}`;
+  } else if (cal.ingestedCount > 0) {
+    calLabel = `Calibration 0/${cal.ingestedCount}`;
+  }
+  const cullDone = isFilterCullComplete(f);
+  const regDone = !!(f.stackMeta && f.stackMeta.resultPath);
+  const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
+  const locNote = group.fis.length > 1
+    ? ` · ${group.fis.length} location targets combined`
+    : '';
+
+  let stackBtn;
+  if (!hasProjectDir) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Set Project directory first">Registration</button>`;
+  } else if (!cal.complete) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Complete Calibration for all ingested ${escapeAttr(group.name)} shoots (all locations) first">Registration</button>`;
+  } else if (!cullDone) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Mark Cull complete (click Cull dot) before registration">Registration</button>`;
+  } else if (regDone) {
+    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registered</button>`;
+  } else {
+    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Register &amp; stack calibrated lights for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registration</button>`;
+  }
+
+  return `<div class="pipeline-filter-row flt-${tone}" data-filter="${escapeAttr(group.name)}">
+    <div class="pipeline-filter-name">${escapeHtml(group.name)}</div>
+    <div class="pipeline-track">
+      ${pipelineStepHtml('Capture', captureDone ? 'done' : '', { title: 'Capture' })}
+      ${pipelineStepHtml('Ingest', ingestDone ? 'done' : '', { title: 'Ingest / Stage for Siril' })}
+      ${pipelineStepHtml(calLabel, calState, { title: 'Calibration to pp_light (all nights & locations for this filter)' })}
+      ${pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
+        clickable: true,
+        onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
+        title: cullDone ? 'Cull marked done — click to clear' : 'Click when culling in Siril is finished',
+      })}
+      ${pipelineStepHtml('Registration', regDone ? 'done' : '', { title: 'Register & stack → working/result_<Filter>.fit' })}
+    </div>
+    ${stackBtn}
+  </div>`;
+}
+
+let _sirilProgressTimer = null;
+let _sirilProgressPoll = null;
+let _sirilLogUnsub = null;
+let _sirilLiveLog = '';
+window._sirilProgressAllowClose = false;
+
+function estimateSirilProgressFromLog(text, kind) {
+  const t = String(text || '').toLowerCase();
+  if (!t.trim()) return 4;
+  let pct = 8;
+  if (kind === 'calibrate') {
+    if (/stack bias|bias_stacked/.test(t)) pct = 20;
+    if (/calibrate flat|pp_flat/.test(t)) pct = 40;
+    if (/stack dark|dark_stacked/.test(t)) pct = 55;
+    if (/convert light|lights/.test(t)) pct = 70;
+    if (/calibrate light/.test(t)) pct = 88;
+    if (/execution finished|script finished|exited with code/.test(t)) pct = 96;
+  } else {
+    if (/convert/.test(t)) pct = 25;
+    if (/register/.test(t)) pct = 55;
+    if (/stack/.test(t)) pct = 80;
+    if (/mirrorx|save |working/.test(t)) pct = 92;
+    if (/execution finished|script finished|exited with code/.test(t)) pct = 96;
+  }
+  return pct;
+}
+
+function openSirilProgressModal({ title, sub, logPath }) {
+  window._sirilProgressAllowClose = false;
+  _sirilLiveLog = '';
+  const overlay = document.getElementById('siril-progress-overlay');
+  const closeBtn = document.getElementById('siril-progress-close');
+  document.getElementById('siril-progress-title').textContent = title || 'Siril';
+  document.getElementById('siril-progress-sub').textContent = sub || (logPath ? `Log: ${logPath}` : 'Starting…');
+  document.getElementById('siril-progress-bar').style.width = '4%';
+  // Seed the log immediately so it isn't blank while Siril buffers stdout
+  const seed =
+    `[zuko] ${new Date().toLocaleTimeString()} — launching Siril…\n` +
+    (logPath ? `[zuko] log file: ${logPath}\n` : '') +
+    `[zuko] Siril often buffers console output until a step finishes — this panel will fill as lines arrive.\n\n`;
+  _sirilLiveLog = seed;
+  document.getElementById('siril-progress-log').textContent = seed;
+  if (closeBtn) closeBtn.disabled = true;
+  if (overlay) overlay.classList.add('open');
+}
+
+function appendSirilProgressLog(chunk) {
+  if (!chunk) return;
+  _sirilLiveLog += chunk;
+  const logEl = document.getElementById('siril-progress-log');
+  if (logEl) {
+    // Keep last ~12k chars in the view for responsiveness
+    logEl.textContent = _sirilLiveLog.length > 12000 ? _sirilLiveLog.slice(-12000) : _sirilLiveLog;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+}
+
+function updateSirilProgressModal({ pct, logText, sub, done, append }) {
+  if (pct != null) {
+    const bar = document.getElementById('siril-progress-bar');
+    if (bar) bar.style.width = `${Math.max(4, Math.min(100, pct))}%`;
+  }
+  if (append) appendSirilProgressLog(append);
+  if (logText != null) {
+    _sirilLiveLog = logText;
+    const logEl = document.getElementById('siril-progress-log');
+    if (logEl) {
+      logEl.textContent = logText;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+  }
+  if (sub != null) {
+    const subEl = document.getElementById('siril-progress-sub');
+    if (subEl) subEl.textContent = sub;
+  }
+  if (done) {
+    window._sirilProgressAllowClose = true;
+    const closeBtn = document.getElementById('siril-progress-close');
+    if (closeBtn) closeBtn.disabled = false;
+    const bar = document.getElementById('siril-progress-bar');
+    if (bar) bar.style.width = '100%';
+  }
+}
+
+function closeSirilProgressModal() {
+  if (!window._sirilProgressAllowClose) return;
+  if (_sirilProgressPoll) {
+    clearInterval(_sirilProgressPoll);
+    _sirilProgressPoll = null;
+  }
+  if (_sirilProgressTimer) {
+    clearTimeout(_sirilProgressTimer);
+    _sirilProgressTimer = null;
+  }
+  if (typeof _sirilLogUnsub === 'function') {
+    _sirilLogUnsub();
+    _sirilLogUnsub = null;
+  }
+  const overlay = document.getElementById('siril-progress-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+async function runSirilJobWithProgress({ title, logPath, kind, startJob }) {
+  const startedAt = Date.now();
+  const minMs = 3000;
+  openSirilProgressModal({ title, sub: logPath ? `Log: ${logPath}` : 'Starting…', logPath });
+
+  if (typeof _sirilLogUnsub === 'function') _sirilLogUnsub();
+  if (window.zukoSiril && typeof window.zukoSiril.onLog === 'function') {
+    _sirilLogUnsub = window.zukoSiril.onLog((payload) => {
+      const chunk = payload && payload.chunk;
+      if (!chunk) return;
+      appendSirilProgressLog(chunk);
+      updateSirilProgressModal({ pct: estimateSirilProgressFromLog(_sirilLiveLog, kind) });
+    });
+  }
+
+  if (_sirilProgressPoll) clearInterval(_sirilProgressPoll);
+  let lastHeartbeatLen = _sirilLiveLog.length;
+  _sirilProgressPoll = setInterval(async () => {
+    const elapsedSec = Math.round((Date.now() - startedAt) / 1000);
+    // Heartbeat lines while Siril is silent (buffering)
+    if (_sirilLiveLog.length === lastHeartbeatLen && elapsedSec > 0 && elapsedSec % 5 === 0) {
+      appendSirilProgressLog(`[zuko] still running… ${elapsedSec}s (waiting on Siril output)\n`);
+      lastHeartbeatLen = _sirilLiveLog.length;
+    }
+    updateSirilProgressModal({
+      pct: Math.max(estimateSirilProgressFromLog(_sirilLiveLog, kind), Math.min(90, 4 + elapsedSec)),
+      sub: `${logPath ? `Log: ${logPath} · ` : ''}${elapsedSec}s`,
+    });
+    if (!window.zukoSiril || typeof window.zukoSiril.readLog !== 'function' || !logPath) return;
+    try {
+      const snap = await window.zukoSiril.readLog({ logPath });
+      if (snap && snap.ok && snap.text && snap.text.length > _sirilLiveLog.length) {
+        updateSirilProgressModal({
+          logText: snap.text,
+          pct: estimateSirilProgressFromLog(snap.text, kind),
+        });
+        lastHeartbeatLen = _sirilLiveLog.length;
+      }
+    } catch {
+      /* ignore */
+    }
+  }, 1000);
+
+  let result;
+  try {
+    result = await startJob();
+  } catch (e) {
+    result = { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+
+  const elapsed = Date.now() - startedAt;
+  if (elapsed < minMs) {
+    await new Promise((r) => {
+      _sirilProgressTimer = setTimeout(r, minMs - elapsed);
+    });
+  }
+
+  if (_sirilProgressPoll) {
+    clearInterval(_sirilProgressPoll);
+    _sirilProgressPoll = null;
+  }
+  if (typeof _sirilLogUnsub === 'function') {
+    _sirilLogUnsub();
+    _sirilLogUnsub = null;
+  }
+
+  if (result && result.logText) {
+    updateSirilProgressModal({ logText: result.logText });
+  } else if (result && result.logTail && (!_sirilLiveLog || _sirilLiveLog.length < result.logTail.length)) {
+    updateSirilProgressModal({ logText: result.logTail });
+  } else if (window.zukoSiril && typeof window.zukoSiril.readLog === 'function' && logPath) {
+    try {
+      const snap = await window.zukoSiril.readLog({ logPath });
+      if (snap && snap.ok && snap.text) updateSirilProgressModal({ logText: snap.text });
+    } catch {
+      /* ignore */
+    }
+  }
+
+  updateSirilProgressModal({
+    done: true,
+    pct: 100,
+    sub: result && result.ok
+      ? `Done${result.ppLightCount != null ? ` · ${result.ppLightCount} pp_light` : ''}${result.resultPath ? ` · ${result.resultPath}` : ''}`
+      : `Failed: ${(result && (result.error || result.code)) || 'unknown'}`,
+  });
+
+  return result;
+}
+
+async function runPreprocessShoot(pi, si) {
+  if (!window.zukoSiril || typeof window.zukoSiril.calibrate !== 'function') {
+    alert('Calibration needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  const sh = project && project.shoots && project.shoots[si];
+  if (!project || !sh) return;
+  if (!isShootIngested(sh)) {
+    alert('Stage this shoot for Siril (Ingest) before calibration.');
+    return;
+  }
+  const shootDir = resolveShootCalibrateDir(project, sh);
+  if (!shootDir) {
+    alert('Could not resolve staged shoot folder.');
+    return;
+  }
+  const logPath = pathJoinWin(shootDir, 'scripts', 'calibrate.log');
+  const btn = document.getElementById(`pp-btn-${pi}-${si}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+  }
+
+  const result = await runSirilJobWithProgress({
+    title: `Calibration · ${buildShootCode(sh, project.filterTargets[sh.filterIndex])}`,
+    logPath,
+    kind: 'calibrate',
+    startJob: () => window.zukoSiril.calibrate({ shootDir }),
+  });
+
+  if (!result || !result.ok) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = isShootCalibrated(sh) ? 'Calibrated' : 'Calibrate';
+    }
+    return;
+  }
+  sh.preprocessMeta = {
+    calibratedAt: result.calibratedAt,
+    shootDir: result.shootDir,
+    ppLightCount: result.ppLightCount,
+    logPath: result.logPath || logPath,
+    scriptPath: result.scriptPath,
+  };
+  // New calibration invalidates cull + registration for that filter tone
+  const ft = project.filterTargets[sh.filterIndex];
+  const tone = ft ? filterToneKey(ft.filter) : null;
+  if (tone) {
+    listPipelineFilterGroups(project)
+      .filter((g) => g.tone === tone)
+      .forEach((g) => {
+        g.fis.forEach((fi) => {
+          if (project.filterTargets[fi]) {
+            project.filterTargets[fi].cullMeta = null;
+            project.filterTargets[fi].stackMeta = null;
+          }
+        });
+      });
+  }
+  if (project.processStatus === 'ingested' || !project.processStatus || project.processStatus === 'none') {
+    project.processStatus = 'processing';
+  }
+  save();
+  renderProjects();
+}
+
+function pathJoinWin(...parts) {
+  return parts
+    .map((p, i) => {
+      let s = String(p || '');
+      if (i === 0) s = s.replace(/[\\/]+$/, '');
+      else s = s.replace(/^[\\/]+/, '').replace(/[\\/]+$/, '');
+      return s;
+    })
+    .filter(Boolean)
+    .join('\\');
+}
+
+async function registerAndStackFilterTone(pi, tone) {
+  if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
+    alert('Registration needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  if (!project || !project.projectDir) {
+    alert('Set Project directory first.');
+    return;
+  }
+  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  if (!group || !isFilterReadyToRegister(project, group)) {
+    alert('Complete Calibration for all ingested shoots of this filter (all locations), then mark Cull done.');
+    return;
+  }
+  const shootDirs = getFilterIngestedShootsByTone(project, tone)
+    .filter(isShootCalibrated)
+    .map((sh) => resolveShootCalibrateDir(project, sh))
+    .filter(Boolean);
+  if (!shootDirs.length) {
+    alert('No calibrated shoot folders found for this filter.');
+    return;
+  }
+
+  const filter = String(group.name || '');
+  const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
+  const btn = document.getElementById(`stack-btn-${pi}-${tone}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Registering…';
+  }
+
+  const result = await runSirilJobWithProgress({
+    title: `Registration · ${filter}`,
+    logPath,
+    kind: 'stack',
+    startJob: () => window.zukoSiril.stackFilter({
+      projectDir: project.projectDir,
+      filter,
+      shootDirs,
+    }),
+  });
+
+  if (!result || !result.ok) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Registration';
+    }
+    return;
+  }
+  const stackMeta = {
+    stackedAt: result.stackedAt,
+    resultPath: result.resultPath,
+    shootCount: result.shootCount,
+    ppLightCount: result.ppLightCount != null ? result.ppLightCount : result.frameCount,
+    logPath: result.logPath || logPath,
+    stackDir: result.stackDir || result.stackRoot,
+    workingDir: result.workingDir || pathJoinWin(project.projectDir, 'working'),
+  };
+  group.fis.forEach((fi) => {
+    if (project.filterTargets[fi]) project.filterTargets[fi].stackMeta = { ...stackMeta };
+  });
+  if (!project.processStatus || project.processStatus === 'ingested' || project.processStatus === 'processing') {
+    project.processStatus = 'processing';
+  }
+  save();
+  renderProjects();
+}
+
+/** @deprecated */
+async function registerAndStackFilter(pi, fi) {
+  const project = data.projects[pi];
+  const ft = project && project.filterTargets[fi];
+  if (!ft) return;
+  await registerAndStackFilterTone(pi, filterToneKey(ft.filter));
+}
+
+/** @deprecated */
+async function registerAndStackProject(pi) {
+  const project = data.projects[pi];
+  if (!project) return;
+  for (const g of listPipelineFilterGroups(project)) {
+    if (isFilterReadyToRegister(project, g)) {
+      await registerAndStackFilterTone(pi, g.tone);
+    }
+  }
+}
+
 /** True if this project already has a staged shoot for filter+night. */
 function hasIngestedShootForFilterNight(project, filterName, nightYmd) {
   if (!project || !filterName || !nightYmd) return false;
@@ -10128,7 +11073,7 @@ async function ingestAllCapturedShoots(pi) {
   }
   const nights = Object.keys(built).sort();
   if (!nights.length) {
-    alert('Pending shoots need a filter target.');
+    alert('Pending shoots need a capture plan entry.');
     return;
   }
 
@@ -10732,9 +11677,9 @@ const modalConfigs = {
     ]
   },
   filterrow: {
-    title: 'Add Filter Target',
+    title: 'Add Capture Plan Entry',
     fields: [
-      { id: 'f-filter', label: 'Filter', type: 'text', placeholder: 'e.g. Ha' },
+      { id: 'f-filter', label: 'Filter', type: 'select', options: [], optionLabels: [] },
       { id: 'f-location', label: 'Location', type: 'text', placeholder: 'e.g. NYCRoof' },
       { id: 'f-bortle', label: 'Bortle', type: 'text', placeholder: 'e.g. 9' },
       { id: 'f-targetHrs', label: 'Target Hours', type: 'number', placeholder: '4' }
@@ -10750,7 +11695,7 @@ const modalConfigs = {
     title: 'Plan Shoot',
     fields: [
       { id: 'f-shootDate', label: 'Date (YYMMDD)', type: 'text', placeholder: 'e.g. 260724' },
-      { id: 'f-shootFilterIdx', label: 'Filter Target (carries filter, location, Bortle)', type: 'select', options: [], optionLabels: [] },
+      { id: 'f-shootFilterIdx', label: 'Capture Plan (filter, location, Bortle)', type: 'select', options: [], optionLabels: [] },
       { id: 'f-shootHours', label: 'Planned Hours', type: 'number', placeholder: '2' }
     ]
   },
@@ -10886,9 +11831,14 @@ function saveModal() {
     const row = { filter: v('f-filter'), location: v('f-location') || '—', bortle: v('f-bortle') || '', targetHrs: parseFloat(v('f-targetHrs')) || 0 };
     const targets = data.projects[modalProjectIndex].filterTargets;
     if (editing) {
-      targets[editIndex] = { ...row, loggedHrs: targets[editIndex].loggedHrs };
+      targets[editIndex] = {
+        ...row,
+        loggedHrs: targets[editIndex].loggedHrs,
+        stackMeta: targets[editIndex].stackMeta || null,
+        cullMeta: targets[editIndex].cullMeta || null,
+      };
     } else {
-      targets.push({ ...row, loggedHrs: 0 });
+      targets.push({ ...row, loggedHrs: 0, stackMeta: null, cullMeta: null });
     }
   } else if (modalType === 'checkstep') {
     if (!v('f-stepText') || modalProjectIndex === null) return;
@@ -10908,6 +11858,7 @@ function saveModal() {
         sourcePath: old.sourcePath || null,
         ingestPath: old.ingestPath || null,
         ingestMeta: old.ingestMeta || null,
+        preprocessMeta: old.preprocessMeta || null,
       };
     } else {
       project.shoots.push({
@@ -10917,6 +11868,7 @@ function saveModal() {
         sourcePath: null,
         ingestPath: null,
         ingestMeta: null,
+        preprocessMeta: null,
       });
     }
     recomputeProjectFilterHours(project);

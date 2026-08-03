@@ -45,3 +45,15 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
   open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),
 });
+
+contextBridge.exposeInMainWorld('zukoSiril', {
+  calibrate: (opts) => ipcRenderer.invoke('zuko-siril-calibrate', opts || {}),
+  stackFilter: (opts) => ipcRenderer.invoke('zuko-siril-stack-filter', opts || {}),
+  readLog: (opts) => ipcRenderer.invoke('zuko-siril-read-log', opts || {}),
+  onLog: (handler) => {
+    if (typeof handler !== 'function') return () => {};
+    const listener = (_event, payload) => handler(payload || {});
+    ipcRenderer.on('zuko-siril-log', listener);
+    return () => ipcRenderer.removeListener('zuko-siril-log', listener);
+  },
+});

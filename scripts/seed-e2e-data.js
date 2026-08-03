@@ -32,7 +32,20 @@ const project = {
     { filter: 'SII', location: 'Home', bortle: '9', targetHrs: 2, loggedHrs: 0 },
   ],
   checklist: [],
-  shoots: [],
+  shoots: [
+    {
+      date: '260728',
+      filterIndex: 0,
+      hours: 1.5,
+      complete: true,
+    },
+    {
+      date: '260729',
+      filterIndex: 1,
+      hours: 1,
+      complete: false,
+    },
+  ],
   astrobinLinks: [],
   projectDir: hasAsiair ? FIXTURE_ASIAIR : '',
   savedTarget: { name: 'Rosette Nebula', ra: 97.9792, dec: 4.9428 },

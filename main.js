@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const execFileAsync = promisify(execFile);
 
 const ASIAIR_INGEST_PATH = path.join(__dirname, 'src', 'ingest', 'asiairIngest.js');
+const SIRIL_PREPROCESS_PATH = path.join(__dirname, 'src', 'siril', 'preprocess.js');
 const {
   loadDotEnv,
   recommendTonightShoot,
@@ -74,6 +75,16 @@ function loadAsiairIngest() {
     /* ignore */
   }
   return require(ASIAIR_INGEST_PATH);
+}
+
+/** Always reload Siril preprocess module without restarting Electron. */
+function loadSirilPreprocess() {
+  try {
+    delete require.cache[require.resolve(SIRIL_PREPROCESS_PATH)];
+  } catch {
+    /* ignore */
+  }
+  return require(SIRIL_PREPROCESS_PATH);
 }
 /** Beta (packaged installer) owns real dashboard data on H:. */
 const BETA_DATA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
@@ -669,6 +680,51 @@ ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
     return { ok: true, path: folderPath };
   } catch (e) {
     return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-calibrate', async (event, payload = {}) => {
+  try {
+    const { calibrateShoot } = loadSirilPreprocess();
+    return await calibrateShoot({
+      ...(payload || {}),
+      onLog: (chunk) => {
+        try {
+          event.sender.send('zuko-siril-log', { chunk: String(chunk || '') });
+        } catch {
+          /* ignore */
+        }
+      },
+    });
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-stack-filter', async (event, payload = {}) => {
+  try {
+    const { stackFilter } = loadSirilPreprocess();
+    return await stackFilter({
+      ...(payload || {}),
+      onLog: (chunk) => {
+        try {
+          event.sender.send('zuko-siril-log', { chunk: String(chunk || '') });
+        } catch {
+          /* ignore */
+        }
+      },
+    });
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-read-log', async (_event, payload = {}) => {
+  try {
+    const { readSirilLog } = loadSirilPreprocess();
+    return await readSirilLog(payload || {});
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
   }
 });
 

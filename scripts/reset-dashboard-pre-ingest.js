@@ -76,12 +76,18 @@ for (const p of d.projects) {
       sh.sourcePath = null;
       sh.ingestPath = null;
       sh.ingestMeta = null;
+      sh.preprocessMeta = null;
       if (sh.complete) sh.creditedHours = Number(sh.hours) || 0;
     }
   }
 
-  for (const ft of p.filterTargets || []) ft.loggedHrs = 0;
+  for (const ft of p.filterTargets || []) {
+    ft.loggedHrs = 0;
+    ft.cullMeta = null;
+    ft.stackMeta = null;
+  }
   for (const sh of p.shoots || []) {
+    sh.preprocessMeta = null;
     if (!sh.complete) continue;
     const ft = p.filterTargets[sh.filterIndex];
     if (ft) {
