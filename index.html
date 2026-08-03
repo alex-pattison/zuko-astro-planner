@@ -207,7 +207,14 @@
     background: var(--bg3);
   }
 
-  .theme-toggle {
+  .header-brand-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .theme-toggle,
+  .section-expand-toggle {
     display: inline-flex;
     align-items: stretch;
     border: 1px solid var(--border);
@@ -215,7 +222,8 @@
     overflow: hidden;
     background: var(--bg3);
   }
-  .theme-toggle button {
+  .theme-toggle button,
+  .section-expand-toggle button {
     appearance: none;
     border: none;
     background: transparent;
@@ -229,8 +237,13 @@
     line-height: 1.2;
     border-right: 1px solid var(--border);
   }
-  .theme-toggle button:last-child { border-right: none; }
-  .theme-toggle button:hover { color: var(--text2); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .theme-toggle button:last-child,
+  .section-expand-toggle button:last-child { border-right: none; }
+  .theme-toggle button:hover,
+  .section-expand-toggle button:hover {
+    color: var(--text2);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
   .theme-toggle button.active {
     color: var(--accent2);
     background: var(--accent-soft);
@@ -2755,6 +2768,11 @@
     z-index: 2;
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 60%, transparent);
   }
+  html[data-theme="red"] .skyfx-twilight-bar .now-mark {
+    background: #c44;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 70%, transparent);
+    opacity: 0.75;
+  }
   .skyfx-twilight-hours {
     position: relative;
     height: 18px;
@@ -3057,11 +3075,33 @@
     vertical-align: middle;
     border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
   }
+  .skyfx-emoji {
+    display: inline;
+  }
   .skyfx-legend {
     display: none;
   }
   html[data-theme="red"] .skyfx-table tr.astro-dark td {
     background: color-mix(in srgb, #ff0000 8%, transparent);
+  }
+  /* Inline Astrospheric colors + moon glyphs are too bright for red night vision */
+  html[data-theme="red"] .skyfx-swatch {
+    filter: grayscale(1) sepia(1) saturate(2.4) hue-rotate(-42deg) brightness(0.42) contrast(0.95);
+    opacity: 0.72;
+    border-color: rgba(255, 60, 60, 0.22);
+  }
+  html[data-theme="red"] .skyfx-emoji,
+  html[data-theme="red"] .note-icon {
+    filter: grayscale(1) sepia(1) saturate(2.2) hue-rotate(-40deg) brightness(0.5);
+    opacity: 0.7;
+  }
+  html[data-theme="red"] .skyfx-table tr.rag-green td.rag-cell,
+  html[data-theme="red"] .skyfx-night > summary .rag-tag.rag-green {
+    color: #c44;
+  }
+  html[data-theme="red"] .skyfx-table tr.rag-amber td.rag-cell,
+  html[data-theme="red"] .skyfx-night > summary .rag-tag.rag-amber {
+    color: #a66;
   }
 
   .framer-lock-overlay {
@@ -3221,10 +3261,16 @@
       <div class="header-brand">
         <h1 id="rig-name-el">Zuko Astrophotography Dashboard</h1>
         <div class="header-version" id="header-version">v—</div>
-        <div class="theme-toggle" role="group" aria-label="Display mode">
-          <button type="button" data-testid="theme-dark" data-theme-set="dark" onclick="setUiTheme('dark')" title="Dark mode">Dark</button>
-          <button type="button" data-testid="theme-light" data-theme-set="light" onclick="setUiTheme('light')" title="Light mode">Light</button>
-          <button type="button" data-testid="theme-red" data-theme-set="red" onclick="setUiTheme('red')" title="Red night-vision mode for the field">Red</button>
+        <div class="header-brand-controls">
+          <div class="theme-toggle" role="group" aria-label="Display mode">
+            <button type="button" data-testid="theme-dark" data-theme-set="dark" onclick="setUiTheme('dark')" title="Dark mode">Dark</button>
+            <button type="button" data-testid="theme-light" data-theme-set="light" onclick="setUiTheme('light')" title="Light mode">Light</button>
+            <button type="button" data-testid="theme-red" data-theme-set="red" onclick="setUiTheme('red')" title="Red night-vision mode for the field">Red</button>
+          </div>
+          <div class="section-expand-toggle" role="group" aria-label="Main sections">
+            <button type="button" data-testid="sections-expand" onclick="expandAllSections()" title="Expand main sections (not project cards or submenus)">Expand</button>
+            <button type="button" data-testid="sections-collapse" onclick="collapseAllSections()" title="Collapse main sections (not project cards or submenus)">Collapse</button>
+          </div>
         </div>
       </div>
       <div class="header-meta" id="header-meta">
@@ -3273,7 +3319,7 @@
   </div>
 
   <!-- Projects -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="tracked-projects">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Tracked Projects</h2>
@@ -3286,7 +3332,7 @@
   </details>
 
   <!-- Sky Forecast -->
-  <details class="collapsible" open id="sky-forecast-section">
+  <details class="collapsible" open id="sky-forecast-section" data-section="sky-forecast">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Sky Forecast</h2>
@@ -3341,7 +3387,7 @@
   </details>
 
   <!-- Action Items -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="action-items">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Action Items</h2>
@@ -3354,7 +3400,7 @@
   </details>
 
   <!-- OPTICAL TRAIN -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="optical-train">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Optical Train — Reducer Mode (280mm f/3.9)</h2>
@@ -3468,7 +3514,7 @@
   </details>
 
   <!-- CABLE / POWER DIAGRAM -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="power-data">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Power &amp; Data Connections</h2>
@@ -3588,7 +3634,7 @@
   </details>
 
   <!-- Calibration / Dark library -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="dark-library">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Calibration — Dark Library</h2>
@@ -3610,7 +3656,7 @@
   </details>
 
   <!-- Rig Assets (gear + deep dive + budget) -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="rig-assets">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Rig Assets</h2>
@@ -3650,7 +3696,7 @@
   </details>
 
   <!-- Filter Wheel -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="filter-wheel">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Filter Wheel — EFW 8×31mm</h2>
@@ -3670,7 +3716,7 @@
   </details>
 
   <!-- Imaging Configs -->
-  <details class="collapsible" open>
+  <details class="collapsible" open data-section="imaging-configs">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
       <h2>Imaging Configurations — ASI294MM Pro</h2>
@@ -3969,7 +4015,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 6 };
+const APP_META_FALLBACK = { version: '0.2.0', build: 8 };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -3986,6 +4032,7 @@ const defaultData = {
   forecastLocation: { name: HOME_SITE.name, lat: HOME_SITE.lat, lon: HOME_SITE.lon },
   appMeta: { version: APP_META_FALLBACK.version, build: APP_META_FALLBACK.build },
   uiTheme: 'dark',
+  uiSections: {},
   darkLibrary: {
     path: 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library',
     index: [],
@@ -4527,6 +4574,8 @@ function adoptLoadedData(incoming) {
   if (data.uiTheme === 'light' || data.uiTheme === 'red' || data.uiTheme === 'dark') {
     applyUiTheme(data.uiTheme); // syncs localStorage to JSON theme without calling persistData
   }
+  if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
+  initSectionCollapseControls();
   const saved = data.appMeta || {};
   const savedBuild = Number(saved.build) || 0;
   if (savedBuild > APP_META.build) {
@@ -6353,7 +6402,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
         const openAttr = idx === 0 ? ' open' : '';
         const rag = n.rag;
         const moonBit = n.moon
-          ? (n.moon.icon + ' ' + n.moon.illum + '%')
+          ? '<span class="skyfx-emoji" aria-hidden="true">' + n.moon.icon + '</span> ' + n.moon.illum + '%'
           : null;
         const summaryBits = [
           escapeHtml(n.label || ('Night ' + (idx + 1))),
@@ -10903,6 +10952,59 @@ function setUiTheme(theme) {
   persistData();
 }
 
+// ============ MAIN SECTION EXPAND / COLLAPSE (not projects / submenus) ============
+function topLevelSections() {
+  return Array.from(document.querySelectorAll('details.collapsible[data-section]'));
+}
+
+function applySectionCollapseState() {
+  if (!data) return;
+  const map = data.uiSections && typeof data.uiSections === 'object' ? data.uiSections : {};
+  topLevelSections().forEach((el) => {
+    const id = el.getAttribute('data-section');
+    if (!id || !Object.prototype.hasOwnProperty.call(map, id)) return;
+    el.open = !!map[id];
+  });
+}
+
+function rememberSectionState(el) {
+  if (!data || !el) return;
+  const id = el.getAttribute('data-section');
+  if (!id) return;
+  if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
+  data.uiSections[id] = !!el.open;
+  persistData();
+}
+
+function persistAllSectionStates() {
+  if (!data) return;
+  if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
+  topLevelSections().forEach((el) => {
+    const id = el.getAttribute('data-section');
+    if (id) data.uiSections[id] = !!el.open;
+  });
+  persistData();
+}
+
+function expandAllSections() {
+  topLevelSections().forEach((el) => { el.open = true; });
+  persistAllSectionStates();
+}
+
+function collapseAllSections() {
+  topLevelSections().forEach((el) => { el.open = false; });
+  persistAllSectionStates();
+}
+
+function initSectionCollapseControls() {
+  topLevelSections().forEach((el) => {
+    if (el.dataset.sectionBound) return;
+    el.dataset.sectionBound = '1';
+    el.addEventListener('toggle', () => rememberSectionState(el));
+  });
+  applySectionCollapseState();
+}
+
 // ============ SETTINGS ============
 let settingsApiKeyConfigured = false;
 
@@ -11139,6 +11241,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     ensureHomeSite();
     setBootStatus('Rendering…');
     render();
+    initSectionCollapseControls();
     // Persist recomputed filter hours (and any other adopt fixes) back to disk
     persistData();
     syncHeaderVersion();

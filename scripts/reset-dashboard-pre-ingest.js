@@ -9,7 +9,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
 const H = path.join('H:', 'Photography', 'Astrophotography', 'Dashboard', 'zuko-dashboard-data.json');
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-const BUILD = Number(pkg.zukoBuild) || 7;
+const BUILD = Number(pkg.zukoBuild) || 8;
 
 const d = JSON.parse(fs.readFileSync(DATA, 'utf8'));
 const before = (d.projects || []).map((p) => p.name);

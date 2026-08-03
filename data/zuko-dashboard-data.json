@@ -800,8 +800,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 7,
-    "savedAt": "2026-08-03T00:02:21.798Z"
+    "build": 8,
+    "savedAt": "2026-08-03T00:12:02.963Z"
   },
   "uiTheme": "dark",
   "homeSite": {
@@ -1716,5 +1716,16 @@
       }
     ],
     "indexedAt": "2026-07-29T01:35:03.655Z"
+  },
+  "uiSections": {
+    "sky-forecast": true,
+    "action-items": true,
+    "optical-train": false,
+    "power-data": false,
+    "dark-library": false,
+    "rig-assets": false,
+    "filter-wheel": false,
+    "imaging-configs": false,
+    "tracked-projects": true
   }
 }
