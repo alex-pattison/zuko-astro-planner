@@ -1043,6 +1043,29 @@
   .pipeline-filter-row.flt-g .pipeline-filter-name { color: #86efac; }
   .pipeline-filter-row.flt-b .pipeline-filter-name { color: #93c5fd; }
   .pipeline-filter-row.flt-other .pipeline-filter-name { color: var(--text2); }
+
+  /* Light mode: darker filter tones for contrast on white */
+  html[data-theme="light"] .pipeline-filter-row.flt-ha { border-left-color: #b91c1c; }
+  html[data-theme="light"] .pipeline-filter-row.flt-oiii { border-left-color: #0e7490; }
+  html[data-theme="light"] .pipeline-filter-row.flt-sii { border-left-color: #a16207; }
+  html[data-theme="light"] .pipeline-filter-row.flt-hb { border-left-color: #4f46e5; }
+  html[data-theme="light"] .pipeline-filter-row.flt-l { border-left-color: #334155; }
+  html[data-theme="light"] .pipeline-filter-row.flt-r { border-left-color: #dc2626; }
+  html[data-theme="light"] .pipeline-filter-row.flt-g { border-left-color: #15803d; }
+  html[data-theme="light"] .pipeline-filter-row.flt-b { border-left-color: #1d4ed8; }
+  html[data-theme="light"] .pipeline-filter-row.flt-ha .pipeline-filter-name { color: #b91c1c; }
+  html[data-theme="light"] .pipeline-filter-row.flt-oiii .pipeline-filter-name { color: #0e7490; }
+  html[data-theme="light"] .pipeline-filter-row.flt-sii .pipeline-filter-name { color: #a16207; }
+  html[data-theme="light"] .pipeline-filter-row.flt-hb .pipeline-filter-name { color: #4f46e5; }
+  html[data-theme="light"] .pipeline-filter-row.flt-l .pipeline-filter-name { color: #334155; }
+  html[data-theme="light"] .pipeline-filter-row.flt-r .pipeline-filter-name { color: #dc2626; }
+  html[data-theme="light"] .pipeline-filter-row.flt-g .pipeline-filter-name { color: #15803d; }
+  html[data-theme="light"] .pipeline-filter-row.flt-b .pipeline-filter-name { color: #1d4ed8; }
+  html[data-theme="light"] tr.ingest-files-flt.flt-sii td.filter-cell,
+  html[data-theme="light"] tr.ingest-row-match.flt-sii td:first-child,
+  html[data-theme="light"] .ingest-chip .flt-sii { color: #a16207; }
+  html[data-theme="light"] .filter-sii { color: #a16207; border-color: #a16207; }
+
   .pipeline-track {
     display: flex;
     align-items: center;
@@ -2424,8 +2447,19 @@
     gap: 10px 16px;
     margin-bottom: 14px;
   }
+  .project-meta-grid > div { min-width: 0; }
   .pm-label { font-family: var(--mono); font-size: 9px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
-  .pm-val { font-size: 12px; color: var(--text2); }
+  .pm-val {
+    font-size: 12px;
+    color: var(--text2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pm-val.pm-path {
+    font-family: var(--mono);
+    font-size: 11px;
+  }
   .project-notes-text {
     font-size: 12px; color: var(--text2); line-height: 1.7;
     background: var(--bg3); border: 1px solid var(--border);
@@ -7037,7 +7071,7 @@ function renderProjects() {
           <div><div class="pm-label">Center Coords</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.centerCoords}</div></div>
           <div><div class="pm-label">Anchor Star</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.anchorStar}</div></div>
           <div><div class="pm-label">Rotation</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.rotation}</div></div>
-          <div><div class="pm-label">Project directory</div><div class="pm-val editable" onclick="editProjectMeta(${pi})" title="ASIAIR Autorun/Plan parent folder">${p.projectDir ? escapeHtml(shortPath(p.projectDir)) : '<span style="color:var(--yellow);">Not set — edit project</span>'}</div></div>
+          <div><div class="pm-label">Project directory</div><div class="pm-val pm-path editable" onclick="editProjectMeta(${pi})" title="${p.projectDir ? escapeAttr(p.projectDir) : 'ASIAIR Autorun/Plan parent folder'}">${p.projectDir ? escapeHtml(shortPath(p.projectDir)) : '<span style="color:var(--yellow);">Not set — edit project</span>'}</div></div>
           <div><div class="pm-label">Total Integration</div><div class="pm-val"><span class="mono">${totalLogged.toFixed(1)}h</span> completed${totalPending > 0 ? ` · <span class="mono" style="color:var(--yellow);">${totalPending.toFixed(1)}h</span> scheduled` : ''} · <span class="mono">${totalTarget.toFixed(1)}h</span> target</div></div>
         </div>
         ${p.notes ? `<div class="project-notes-text editable" onclick="editProjectMeta(${pi})" title="Click to edit">${p.notes}</div>` : ''}
@@ -10487,11 +10521,34 @@ function filterToneKey(name) {
 }
 
 function filterToneColor(name) {
-  const map = {
-    ha: '#f87171', oiii: '#67e8f9', sii: '#fde68a', hb: '#818cf8',
-    l: '#e2e8f0', r: '#fca5a5', g: '#86efac', b: '#93c5fd', rgb: '#fca5a5', other: '#94a3b8',
-  };
-  return map[filterToneKey(name)] || map.other;
+  const key = filterToneKey(name);
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  const map = light
+    ? {
+        ha: '#b91c1c',
+        oiii: '#0e7490',
+        sii: '#a16207',
+        hb: '#4f46e5',
+        l: '#334155',
+        r: '#dc2626',
+        g: '#15803d',
+        b: '#1d4ed8',
+        rgb: '#dc2626',
+        other: '#64748b',
+      }
+    : {
+        ha: '#f87171',
+        oiii: '#67e8f9',
+        sii: '#fde68a',
+        hb: '#818cf8',
+        l: '#e2e8f0',
+        r: '#fca5a5',
+        g: '#86efac',
+        b: '#93c5fd',
+        rgb: '#fca5a5',
+        other: '#94a3b8',
+      };
+  return map[key] || map.other;
 }
 
 function filterSwatchHtml(name) {
@@ -11938,6 +11995,8 @@ function setUiTheme(theme) {
   applyUiTheme(theme);
   if (data) data.uiTheme = normalizeUiTheme(theme);
   persistData();
+  // Re-render so inline filterToneColor() picks light/dark tones
+  if (data && typeof renderProjects === 'function') renderProjects();
 }
 
 // ============ MAIN SECTION EXPAND / COLLAPSE (not projects / submenus) ============
