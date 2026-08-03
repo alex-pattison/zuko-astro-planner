@@ -1,10 +1,48 @@
-# Go-live considerations (v1)
+# Working notes
+
+Ongoing Dev scratchpad: bugs, fixes, go-live gates, and things to revisit. **Newest log entries at the top.**
+
+Keep dated notes terse. Use the template below when useful.
+
+## Template
+
+```
+### YYYY-MM-DD — build N — short title
+- **Seen:** …
+- **Cause:** … (if known)
+- **Fix / next:** …
+```
+
+---
+
+## Log
+
+### 2026-08-02 — build 9 — Slow cold start, blank blue page
+- **Seen:** On launch, UI sits on an empty/blue page for a long time (up to ~10s) before dashboard data appears. No loading indicator, so it looks hung.
+- **Cause:** Unknown yet (likely data load / render path before first paint).
+- **Fix / next:** Add a visible loading state (spinner/skeleton/status text) as soon as the shell opens; then profile what’s blocking (disk reconcile, large JSON parse, heavy first render).
+
+### 2026-08-02 — build 9 — Dev/Beta channel split
+- **Seen:** Packaged Beta could not save Astrospheric key (`ENOENT` on `app.asar/.env`). Header/channel label and Z taskbar icons landed after channel work.
+- **Cause:** Packaged app tried to read/write `.env` inside read-only asar; icon `.ico` needed proper embedding + Windows cache clear.
+- **Fix / next:** Beta `.env` lives on `H:\Photography\Astrophotography\Dashboard\.env`. Dev = F:\ checkout `data/`. Promote to Beta via `beta-release` + `npm run dist:win:beta` when ready.
+
+### 2026-07-29 — builds 6–7 — Go-live / ingest notes
+- Logged copy→move as a hard go-live gate for ingest.
+- Stage for Siril stays disabled (and greys out) without Light/Flat/Bias/Dark; darks must be session and/or matching masters.
+- RA/Dec Light-folder matching + Aladin pre-ingest confirm (build 6).
+- Ready-only Ingest-all counts; red-theme Captured/Ingest buttons; synthetic dashboard projects cleared (build 7).
+- **Must** validate ingest + target-match on real ASIAIR data before v1 launch.
+
+---
+
+## Go-live considerations (v1)
 
 Checklist of deliberate **pre-production** choices to revisit before shipping / trusting real ASIAIR dumps.
 
-## Must change before v1
+### Must change before v1
 
-### [ ] Ingest: copy → move for staged FITS
+#### [ ] Ingest: copy → move for staged FITS
 
 **Today (safe for testing):** staging **copies** lights/flats into the Siril tree and **copies** biases/session darks into `_calibration/…` (then symlinks). ASIAIR source folders are never modified — important while iterating on ingest.
 
@@ -17,7 +55,7 @@ Likely touch points:
 - Restage / `DEST_EXISTS` / force overwrite behavior with moves
 - QA harness + Rosette test fixture expectations (fixtures assume copy-safe re-runs)
 
-### [ ] Real-world ASIAIR dump validation (hard gate)
+#### [ ] Real-world ASIAIR dump validation (hard gate)
 
 **Before v1 launches:** run the full planner → Review source → target confirm → Ingest / Ingest all → Stage for Siril loop against a **real** ASIAIR Autorun/Plan dump (not `staging/asiair-*` synthetic fixtures). Confirm:
 
@@ -30,7 +68,7 @@ Likely touch points:
 
 Synthetic fixtures (`build-*-fixture.js`, Playwright E2E) stay for regression; they are not a substitute for this pass.
 
-## Also consider
+### Also consider
 
 - [ ] Symlink permissions on a clean Windows profile (Developer Mode / admin) — verify bias/dark links don’t silently fall back to full copies
 - [ ] Multi-ingest restage UX when dest already exists (overwrite vs open folder)
@@ -38,13 +76,4 @@ Synthetic fixtures (`build-*-fixture.js`, Playwright E2E) stay for regression; t
 - [ ] Whether Bias/Dark should remain non–night-gated once real dumps mix multiple nights in one Autorun
 - [ ] Keep `[TEST]` / fixture projects out of day-to-day dashboard data (rebuild scripts may re-add them locally — don’t commit)
 - [ ] Build / installer bump and release notes for v1
-
-## Notes
-
-Add new items here as we defer production behavior for easier testing. Date entries when useful.
-
-- 2026-07-29 — Logged copy→move as a hard go-live gate for ingest.
-- 2026-07-29 — Stage for Siril stays disabled (and greys out) without Light/Flat/Bias/Dark; darks must be session and/or matching masters.
-- 2026-07-29 — RA/Dec Light-folder matching + Aladin pre-ingest confirm (build 6).
-- 2026-07-29 — Ready-only Ingest-all counts; red-theme Captured/Ingest buttons; synthetic dashboard projects cleared (build 7).
-- 2026-07-29 — **Must** validate ingest + target-match on real ASIAIR data before v1 launch.
+- [ ] Cold-start loading indicator (see log: blank blue page up to ~10s)
