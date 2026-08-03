@@ -65,7 +65,8 @@ function loadAsiairIngest() {
   }
   return require(ASIAIR_INGEST_PATH);
 }
-const PREFERRED_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
+/** Beta (packaged installer) owns real dashboard data on H:. */
+const BETA_DATA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
 const PREFERRED_PROJECTS_DIR = 'H:\\Photography\\Astrophotography\\Projects';
 const REPO_DATA_DIR = path.join(__dirname, 'data');
 const REPO_DATA_FILE = path.join(REPO_DATA_DIR, 'zuko-dashboard-data.json');
@@ -83,6 +84,33 @@ function envProjectsDir() {
   return raw && String(raw).trim() ? path.resolve(String(raw).trim()) : null;
 }
 
+function readZukoChannelFromPackage() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+    const ch = parsed && parsed.zukoChannel;
+    if (ch === 'beta' || ch === 'dev') return ch;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/**
+ * Channel: ZUKO_CHANNEL env → package.json zukoChannel → packaged=beta / unpackaged=dev.
+ * Dev and beta never share a data pool.
+ */
+function getZukoChannel() {
+  const env = process.env.ZUKO_CHANNEL && String(process.env.ZUKO_CHANNEL).trim().toLowerCase();
+  if (env === 'beta' || env === 'dev') return env;
+  const fromPkg = readZukoChannelFromPackage();
+  if (fromPkg) return fromPkg;
+  return app.isPackaged ? 'beta' : 'dev';
+}
+
+function channelProductTitle() {
+  return getZukoChannel() === 'beta' ? 'Zuko Astro Planner Beta' : 'Zuko Astro Planner Dev';
+}
+
 function resolveDataPaths() {
   const override = envDataDir();
   if (override) {
@@ -92,22 +120,27 @@ function resolveDataPaths() {
       file,
       mirrorFile: null,
       label: file,
+      channel: getZukoChannel(),
     };
   }
-  const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
-  if (fs.existsSync(PREFERRED_DIR)) {
+  const channel = getZukoChannel();
+  if (channel === 'beta') {
+    const file = path.join(BETA_DATA_DIR, DATA_FILENAME);
     return {
-      dir: PREFERRED_DIR,
-      file: preferredFile,
-      mirrorFile: REPO_DATA_FILE,
-      label: preferredFile,
+      dir: BETA_DATA_DIR,
+      file,
+      mirrorFile: null,
+      label: file,
+      channel,
     };
   }
+  // Dev: checkout-local data/ only (F:\\GitHub\\zuko-astro-planner\\data when developing there).
   return {
     dir: REPO_DATA_DIR,
     file: REPO_DATA_FILE,
     mirrorFile: null,
     label: REPO_DATA_FILE,
+    channel: 'dev',
   };
 }
 
@@ -139,71 +172,28 @@ async function backupDataFile(filePath) {
   return dest;
 }
 
-/** Pick the newest copy between H: and repo data/, backup+replace the older one. */
+/** Load the active channel's single data file (no H: ↔ repo mirror). */
 async function reconcileDataFiles() {
-  const override = envDataDir();
-  if (override) {
-    await fsp.mkdir(override, { recursive: true });
-    const file = path.join(override, DATA_FILENAME);
-    const candidate = await readDataCandidate(file);
-    if (!candidate) {
-      return { ok: true, data: { projects: [], assets: [], notes: [] }, path: file, missing: true };
-    }
+  const { dir, file } = resolveDataPaths();
+  await fsp.mkdir(dir, { recursive: true });
+  const candidate = await readDataCandidate(file);
+  if (!candidate) {
     return {
       ok: true,
-      data: candidate.data,
-      path: candidate.path,
-      missing: false,
+      data: { projects: [], assets: [], notes: [] },
+      path: file,
+      missing: true,
       syncedTo: [],
       backups: [],
     };
   }
-  const preferredFile = path.join(PREFERRED_DIR, DATA_FILENAME);
-  const paths = [];
-  if (fs.existsSync(PREFERRED_DIR)) {
-    await fsp.mkdir(PREFERRED_DIR, { recursive: true });
-    paths.push(preferredFile);
-  }
-  await fsp.mkdir(REPO_DATA_DIR, { recursive: true });
-  paths.push(REPO_DATA_FILE);
-
-  const uniquePaths = [...new Set(paths.map((p) => path.normalize(p)))];
-  const candidates = [];
-  for (const p of uniquePaths) {
-    const c = await readDataCandidate(p);
-    if (c) candidates.push(c);
-  }
-
-  const label = fs.existsSync(PREFERRED_DIR) ? preferredFile : REPO_DATA_FILE;
-  if (!candidates.length) {
-    return { ok: true, data: null, path: label, missing: true, backups: [] };
-  }
-
-  candidates.sort((a, b) => b.mtimeMs - a.mtimeMs);
-  const winner = candidates[0];
-  const backups = [];
-
-  for (const target of uniquePaths) {
-    if (path.normalize(target) === path.normalize(winner.path)) continue;
-    const existing = await readDataCandidate(target);
-    if (existing && existing.text === winner.text) continue;
-    if (existing) {
-      try {
-        backups.push(await backupDataFile(target));
-      } catch (err) {
-        console.warn('Backup failed for', target, err);
-      }
-    }
-    await atomicWrite(target, winner.data);
-  }
-
   return {
     ok: true,
-    data: winner.data,
-    path: winner.path,
+    data: candidate.data,
+    path: candidate.path,
     missing: false,
-    syncedTo: uniquePaths.filter((p) => path.normalize(p) !== path.normalize(winner.path)),
-    backups,
+    syncedTo: [],
+    backups: [],
   };
 }
 
@@ -245,7 +235,7 @@ function createWindow() {
     minWidth: 860,
     minHeight: 600,
     backgroundColor: '#070b12',
-    title: 'Zuko Astro Planner',
+    title: channelProductTitle(),
     autoHideMenuBar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -353,9 +343,10 @@ function readPackageMeta() {
     return {
       version: String((parsed && parsed.version) || '0.0.0'),
       build: Number(parsed && parsed.zukoBuild) || 1,
+      channel: getZukoChannel(),
     };
   } catch (err) {
-    return { version: '0.0.0', build: 1 };
+    return { version: '0.0.0', build: 1, channel: getZukoChannel() };
   }
 }
 
@@ -458,10 +449,11 @@ ipcMain.handle('zuko-dev-flags-set', async (_event, payload = {}) => {
 
 ipcMain.handle('zuko-settings-get', async () => {
   const meta = readPackageMeta();
-  const { label, dir } = resolveDataPaths();
+  const { label, dir, channel } = resolveDataPaths();
   return {
     ok: true,
     app: meta,
+    channel,
     dataPath: label,
     dataDir: dir,
     projectsRoot: resolveProjectsRoot(),

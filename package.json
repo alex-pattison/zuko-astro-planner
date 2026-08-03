@@ -17,7 +17,9 @@
     "test:unit": "node scripts/run-unit-qa.js",
     "test:e2e": "node scripts/seed-e2e-data.js && playwright test",
     "test:inventory": "node scripts/inventory-ui-controls.js",
+    "seed:beta": "node scripts/seed-beta-dashboard.js",
     "dist:win": "electron-builder --win",
+    "dist:win:beta": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux"
   },
@@ -27,8 +29,11 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.alex.zukoastroplanner",
-    "productName": "Zuko Astro Planner",
+    "appId": "com.alex.zukoastroplanner.beta",
+    "productName": "Zuko Astro Planner Beta",
+    "extraMetadata": {
+      "zukoChannel": "beta"
+    },
     "files": [
       "index.html",
       "main.js",

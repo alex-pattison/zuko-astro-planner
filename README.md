@@ -16,18 +16,30 @@ Baseline UI comes from the existing standalone HTML/Electron dashboard (`rig-das
 
 Desktop shortcut (optional): point at `node_modules\electron\dist\electron.exe` with arguments `.` and this folder as the working directory.
 
+## Dev vs Beta
+
+Two side-by-side channels with **separate data pools** (they never sync):
+
+| Channel | How you run it | Data root |
+|---|---|---|
+| **Dev** | `npm start` from a checkout | `<checkout>/data/` (Dev home: `F:\GitHub\zuko-astro-planner`) |
+| **Beta** | NSIS installer (`npm run dist:win:beta`) | `H:\Photography\Astrophotography\Dashboard` |
+
+- Window title shows **Dev** or **Beta** so you know which pool is open.
+- Override either pool with `ZUKO_DATA_DIR` (used by Playwright / QA).
+- Force channel with `ZUKO_CHANNEL=dev` or `ZUKO_CHANNEL=beta`.
+- Promote builds: merge `main` → `beta-release`, then `npm run dist:win:beta`.
+
+**One-time Beta seed** (copies the freshest H: or repo JSON into the Beta folder, then writes `.beta-seeded`; re-runs are no-ops):
+
+```
+npm run seed:beta
+```
+
 ## Data storage
 
-Auto-load / auto-save uses two locations when available:
-
-1. `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` (this desktop)
-2. `data/zuko-dashboard-data.json` in this repo (laptop / git sync)
-
-**On launch:** the app compares both files by modification time, loads the newer one, backs up the older copy into a `backups/` folder next to it, then overwrites the older file so both match.
-
-When saving on the H: machine, the app also mirrors into `data/` so you can commit and pull on another computer.
-
-**Laptop workflow:** edit as usual → commit `data/zuko-dashboard-data.json` when you want it synced → push → pull on the other machine → reopen the app (it will pick the newer pulled copy).
+- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder).
+- **Beta** loads/saves only `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`.
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 
