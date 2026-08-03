@@ -253,16 +253,8 @@
       "text": "Print Bhatinoff Mask for Guide Scope (and regular scope for validation)"
     },
     {
-      "icon": "🔬",
-      "text": "Sirilic Research"
-    },
-    {
       "icon": "📋",
       "text": "Add a total data and intermediate cleanup option for each progress referencing local files"
-    },
-    {
-      "icon": "💻",
-      "text": "Fix issue where checking an item in planner refreshes the aladin integration"
     }
   ],
   "assets": [
@@ -801,7 +793,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 8,
-    "savedAt": "2026-08-03T00:12:02.963Z"
+    "savedAt": "2026-08-03T00:27:36.722Z"
   },
   "uiTheme": "dark",
   "homeSite": {

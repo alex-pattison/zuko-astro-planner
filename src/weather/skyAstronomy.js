@@ -4,7 +4,7 @@
  * Sky astronomy for Moon/Sun cards — landscape as of 2026:
  *
  * - Astrospheric POST /api/Moon (10 credits): illumination, alt/az, next phases.
- *   Cached ~6 hours — illumination and altitude change too fast for multi-day cache.
+ *   Cached ~24 hours — phase/illumination don't need sub-daily refreshes.
  * - Open-Meteo daily: sunrise/sunset/moonrise/moonset/moon_phase (free, 16 days).
  * - Local SunCalc-style math lives in the renderer for offline times/timeline.
  * - Visual: NASA SVS frames via moon-cycle CDN mapping (renderer).
@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ASTROSPHERIC_MOON_URL = 'https://v2-api-public.astrospheric.com/api/Moon';
-const MOON_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000; // phase/alt change daily–hourly; was 30d and desynced the photo
+const MOON_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // phase/% lit change ~daily; 24h is enough
 const OM_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const MOON_API_COST = 10;
 
@@ -98,21 +98,33 @@ function touchCreditSnapshot(body) {
         prev = {};
       }
     }
-    const cost =
+    const moonCost =
       body.APICreditCostOfCall != null ? Number(body.APICreditCostOfCall) : MOON_API_COST;
+    // Same monthly pool as GetForecastData — update remaining only.
+    // Do NOT overwrite costPerPull: the UI "requests remaining" divider is forecast
+    // pull size (~65). Moon is a separate 10-credit call on that pool.
+    const forecastPullCost =
+      prev.costPerPull != null && Number(prev.costPerPull) > 0
+        ? Number(prev.costPerPull)
+        : prev.costOfCall != null && Number(prev.costOfCall) >= 50
+          ? Number(prev.costOfCall)
+          : null;
+    const remNum = Number(rem);
     fs.writeFileSync(
       file,
       JSON.stringify(
         {
           ...prev,
-          creditsRemaining: Number(rem),
-          costOfCall: cost,
+          creditsRemaining: remNum,
+          ...(forecastPullCost != null ? { costPerPull: forecastPullCost } : {}),
+          lastMoonCost: moonCost,
+          lastMoonAt: new Date().toISOString(),
           pullsRemaining:
-            Number.isFinite(Number(rem)) && cost > 0
-              ? Math.floor(Number(rem) / cost)
+            Number.isFinite(remNum) && forecastPullCost > 0
+              ? Math.floor(remNum / forecastPullCost)
               : prev.pullsRemaining,
           savedAt: new Date().toISOString(),
-          source: 'moon',
+          lastSource: 'moon',
         },
         null,
         2

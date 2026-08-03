@@ -2646,16 +2646,24 @@
   .skyfx-moon-metrics {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
     gap: 8px;
     width: 100%;
+    align-items: stretch;
   }
   .skyfx-moon-metric {
     border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
     border-radius: 8px;
-    padding: 9px 10px;
+    padding: 10px 12px;
     background: color-mix(in srgb, var(--bg) 55%, transparent);
     min-width: 0;
+    min-height: 68px;
+    height: 100%;
+    box-sizing: border-box;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .skyfx-moon-metric .k {
     font-family: var(--mono);
@@ -2675,31 +2683,19 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.25;
     letter-spacing: 0.01em;
+    min-height: 2.5em;
   }
   .skyfx-moon-metric.is-next-new {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
     border-color: color-mix(in srgb, var(--text) 28%, var(--border));
     background: color-mix(in srgb, var(--bg3) 40%, var(--bg));
-    padding: 10px 12px;
-  }
-  .skyfx-moon-metric.is-next-new .k {
-    margin-bottom: 0;
-    flex-shrink: 0;
   }
   .skyfx-moon-metric.is-next-new .v {
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
-    text-align: right;
   }
   .skyfx-moon-metric.is-next-new .s {
     display: block;
-    margin-top: 3px;
+    margin-top: 2px;
     font-size: 11px;
     font-weight: 400;
     color: var(--text2);
@@ -6026,6 +6022,17 @@ function nextNewMoon(now = new Date(), moonApi = null) {
   return { when, days };
 }
 
+/** Pick waxing/waning synodic fraction so lit% matches displayed illumination. */
+function phaseFractionMatchingIllum(illumPercent, preferPhase) {
+  const k = Math.max(0, Math.min(1, Number(illumPercent) / 100));
+  const cos = Math.max(-1, Math.min(1, 1 - 2 * k));
+  const tWax = Math.acos(cos) / (2 * Math.PI); // 0=new … 0.5=full
+  const tWane = (1 - tWax + 1) % 1;
+  const prefer = ((Number(preferPhase) % 1) + 1) % 1;
+  if (!Number.isFinite(prefer)) return tWax;
+  return prefer < 0.5 ? tWax : tWane;
+}
+
 function renderMoonTrackCard(lat, lon, astronomy) {
   const el = document.getElementById('skyfx-moon-card');
   if (!el) return;
@@ -6035,30 +6042,27 @@ function renderMoonTrackCard(lat, lon, astronomy) {
   const om = astronomy && astronomy.openMeteo && astronomy.openMeteo.ok ? astronomy.openMeteo : null;
   const dayIdx = omDayIndex(om && om.daily, now);
 
-  // Photo + illuminated % must share one phase source. Stale Astrospheric
-  // illumination (old cache) was desyncing a near-full % from today's image.
+  // Photo / SVG / % illuminated must share one phase. Prefer Astrospheric when fresh (24h),
+  // then lock visuals to the displayed illumination so they never disagree.
+  const MOON_FRESH_MS = 24 * 3600 * 1000;
   const apiFetchedMs = moonApi && moonApi.fetchedAt ? Date.parse(moonApi.fetchedAt) : NaN;
-  const apiFresh = Number.isFinite(apiFetchedMs) && (Date.now() - apiFetchedMs) < 6 * 3600 * 1000;
-  const phaseFrac = (apiFresh && moonApi)
-    ? phaseFractionFromAstrospheric(moonApi.phaseAngle, moonApi.illuminationPercent, local.phase)
-    : local.phase;
-  const illum = (apiFresh && moonApi && moonApi.illuminationPercent != null)
-    ? Math.round(moonApi.illuminationPercent)
-    : Math.round(((1 - Math.cos(2 * Math.PI * phaseFrac)) / 2) * 100);
+  const apiFresh = Number.isFinite(apiFetchedMs) && (Date.now() - apiFetchedMs) < MOON_FRESH_MS;
+  let phaseFrac = local.phase;
+  if (apiFresh && moonApi) {
+    if (moonApi.phaseAngle != null && Number.isFinite(Number(moonApi.phaseAngle))) {
+      phaseFrac = phaseFractionFromAstrospheric(
+        moonApi.phaseAngle,
+        moonApi.illuminationPercent,
+        local.phase
+      );
+    } else if (moonApi.illuminationPercent != null) {
+      phaseFrac = phaseFractionMatchingIllum(moonApi.illuminationPercent, local.phase);
+    }
+  }
+  const illum = Math.round(((1 - Math.cos(2 * Math.PI * phaseFrac)) / 2) * 100);
   const phaseName = phaseNameFromFraction(phaseFrac);
   const ageDays = phaseFrac * 29.530588853;
 
-  const altDeg = (apiFresh && moonApi && moonApi.altitude != null)
-    ? Math.round(moonApi.altitude)
-    : (() => {
-        const altRad = _ASTRO.moonAltitude(now, lat, lon);
-        return altRad != null && Number.isFinite(altRad)
-          ? Math.round((altRad * 180) / Math.PI)
-          : null;
-      })();
-  const above = (apiFresh && moonApi && moonApi.isAboveHorizon != null)
-    ? moonApi.isAboveHorizon
-    : (altDeg != null ? altDeg > 0 : null);
   const moonTimes = _ASTRO.getMoonTimes(now, lat, lon);
   let rise = moonTimes && moonTimes.rise;
   let set = moonTimes && moonTimes.set;
@@ -6083,9 +6087,6 @@ function renderMoonTrackCard(lat, lon, astronomy) {
 
   const photoUrl = nasaMoonImageUrlFromFraction(phaseFrac);
   const fallbackSvg = moonSvgMarkup(phaseFrac, 120, 'skyfx-moon-svg');
-  const altLabel = altDeg == null
-    ? '—'
-    : (Math.abs(altDeg) + '°' + (above == null ? '' : (above ? ' up' : ' down')));
 
   el.innerHTML =
     '<div class="skyfx-card-title">Moon</div>' +
@@ -6102,15 +6103,13 @@ function renderMoonTrackCard(lat, lon, astronomy) {
       '</div>' +
       '<div class="skyfx-moon-metrics">' +
         '<div class="skyfx-moon-metric"><div class="k">Illuminated</div><div class="v">' + illum + '%</div></div>' +
-        '<div class="skyfx-moon-metric" title="Angle above the horizon right now. 0° = horizon, 90° = overhead. Negative / down = below horizon.">' +
-          '<div class="k">Altitude</div><div class="v">' + escapeHtml(altLabel) + '</div></div>' +
-        '<div class="skyfx-moon-metric"><div class="k">Rise</div><div class="v">' + fmtSkyTime(rise) + '</div></div>' +
-        '<div class="skyfx-moon-metric"><div class="k">Set</div><div class="v">' + fmtSkyTime(set) + '</div></div>' +
         '<div class="skyfx-moon-metric is-next-new">' +
           '<div class="k">Next new moon</div>' +
           '<div class="v">' + escapeHtml(nextNewDaysLabel) +
             '<span class="s">' + escapeHtml(nextNewDate) + '</span></div>' +
         '</div>' +
+        '<div class="skyfx-moon-metric"><div class="k">Rise</div><div class="v">' + fmtSkyTime(rise) + '</div></div>' +
+        '<div class="skyfx-moon-metric"><div class="k">Set</div><div class="v">' + fmtSkyTime(set) + '</div></div>' +
       '</div>' +
     '</div>';
 }
@@ -6156,6 +6155,11 @@ async function refreshSkyFxConditions(lat, lon) {
   }
   renderMoonTrackCard(lat, lon, astronomy);
   renderSunTrackCard(lat, lon, astronomy);
+  // Moon uses the same Astrospheric monthly pool (10 credits when not cached) —
+  // refresh the requests ticker so remaining credits stay in sync.
+  if (astronomy && astronomy.moon && astronomy.moon.ok && !astronomy.moon.cached) {
+    refreshSkyFxCreditTickerOnly();
+  }
 }
 
 function skyfxMetric(key, value, sub, rag, dimmed) {

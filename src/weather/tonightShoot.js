@@ -176,9 +176,15 @@ function getStoredCreditInfo() {
   if (!snap) {
     return creditInfo({});
   }
+  // Prefer forecast pull cost. Ignore moon's 10-credit costOfCall if it leaked into the snapshot.
+  let cost = snap.costPerPull;
+  if (cost == null || !(Number(cost) > 0)) {
+    const raw = Number(snap.costOfCall);
+    cost = Number.isFinite(raw) && raw >= 50 ? raw : EXPECTED_COST;
+  }
   return creditInfo({
     remaining: snap.creditsRemaining,
-    costOfCall: snap.costPerPull || snap.costOfCall,
+    costOfCall: cost,
     fromCache: true,
   });
 }
