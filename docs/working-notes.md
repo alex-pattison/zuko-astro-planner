@@ -17,6 +17,11 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-03 — build 9 — F:\zuko_dev Dev imaging pool (Siril prep)
+- **Seen:** Need isolated Dev copies of real projects for Siril/Sirilic work without touching Beta on H:.
+- **Layout:** `F:\zuko_dev\Projects\NGC7000_260720`, `F:\zuko_dev\Projects\NGC6960_Q326` (Veil + Sirilic), empty `F:\zuko_dev\Dark Library`, projects root `F:\zuko_dev\Projects`. Dev JSON: `F:\GitHub\zuko-astro-planner\data\zuko-dashboard-data.json`. Beta stays on `H:\...\Dashboard` + `H:\...\Zuko\`.
+- **Fix / next:** `resolveProjectsRoot()` uses `F:\zuko_dev\Projects` when channel=dev. Seed script: `scripts/seed-dev-f-zuko-json.js`.
+
 ### 2026-08-02 — build 9 — Slow cold start, blank blue page
 - **Seen:** On launch, UI sits on an empty/blue page for a long time (up to ~10s) before dashboard data appears. No loading indicator, so it looks hung.
 - **Cause:** Unknown yet (likely data load / render path before first paint).

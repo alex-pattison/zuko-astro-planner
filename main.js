@@ -78,6 +78,8 @@ function loadAsiairIngest() {
 /** Beta (packaged installer) owns real dashboard data on H:. */
 const BETA_DATA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
 const PREFERRED_PROJECTS_DIR = 'H:\\Photography\\Astrophotography\\Projects';
+/** Dev channel imaging pool on F: (never share with Beta/H). */
+const DEV_PROJECTS_DIR = 'F:\\zuko_dev\\Projects';
 const REPO_DATA_DIR = path.join(__dirname, 'data');
 const REPO_DATA_FILE = path.join(REPO_DATA_DIR, 'zuko-dashboard-data.json');
 const REPO_PROJECTS_DIR = path.join(REPO_DATA_DIR, 'projects');
@@ -212,6 +214,15 @@ function resolveProjectsRoot() {
   if (override) {
     fs.mkdirSync(override, { recursive: true });
     return override;
+  }
+  // Dev stays on F: even when H: exists (Beta uses H:\...\Projects).
+  if (getZukoChannel() === 'dev') {
+    try {
+      fs.mkdirSync(DEV_PROJECTS_DIR, { recursive: true });
+      return DEV_PROJECTS_DIR;
+    } catch (err) {
+      console.warn('Dev projects root unavailable:', err);
+    }
   }
   const parent = path.dirname(PREFERRED_PROJECTS_DIR);
   if (fs.existsSync(parent)) {

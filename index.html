@@ -3648,7 +3648,7 @@
       <div class="section-line"></div>
     </summary>
     <div class="darklib-path-row">
-      <input id="darklib-path" type="text" placeholder="H:\Photography\Astrophotography\Zuko\Dark Library"
+      <input id="darklib-path" type="text" placeholder="F:\zuko_dev\Dark Library (Dev) or H:\...\Zuko\Dark Library (Beta)"
         style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;">
       <button class="mini-btn" style="margin-top:0" onclick="browseDarkLibraryPath()">Browse…</button>
       <button class="add-btn" onclick="reindexDarkLibrary()">Re-index</button>
@@ -4041,7 +4041,7 @@ const defaultData = {
   uiTheme: 'dark',
   uiSections: {},
   darkLibrary: {
-    path: 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library',
+    path: 'F:\\zuko_dev\\Dark Library',
     index: [],
     indexedAt: null
   },
@@ -7366,10 +7366,17 @@ async function browsePathField(fieldId) {
   if (el) el.value = picked.path;
 }
 
-const DEFAULT_DARK_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const BETA_DARK_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const DEV_DARK_LIBRARY_PATH = 'F:\\zuko_dev\\Dark Library';
 const LEGACY_DARK_LIBRARY_PATHS = [
   'H:\\Photography\\Astrophotography\\Calibration\\Darks',
 ];
+
+function defaultDarkLibraryPath() {
+  return (APP_META && APP_META.channel === 'beta')
+    ? BETA_DARK_LIBRARY_PATH
+    : DEV_DARK_LIBRARY_PATH;
+}
 
 /** Collapse accidental double-backslashes (JSON double-escape) without breaking UNC. */
 function normalizeWinPath(p) {
@@ -7384,7 +7391,7 @@ function normalizeWinPath(p) {
 function ensureDarkLibrary() {
   if (!data.darkLibrary || typeof data.darkLibrary !== 'object') {
     data.darkLibrary = {
-      path: DEFAULT_DARK_LIBRARY_PATH,
+      path: defaultDarkLibraryPath(),
       index: [],
       indexedAt: null,
     };
@@ -7392,7 +7399,7 @@ function ensureDarkLibrary() {
   if (!Array.isArray(data.darkLibrary.index)) data.darkLibrary.index = [];
   const cur = normalizeWinPath((data.darkLibrary.path || '').trim());
   if (!cur || LEGACY_DARK_LIBRARY_PATHS.includes(cur)) {
-    data.darkLibrary.path = DEFAULT_DARK_LIBRARY_PATH;
+    data.darkLibrary.path = defaultDarkLibraryPath();
   } else if (cur !== data.darkLibrary.path) {
     data.darkLibrary.path = cur;
   }
