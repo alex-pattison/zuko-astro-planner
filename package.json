@@ -1,7 +1,7 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.2.0",
-  "zukoBuild": 10,
+  "zukoBuild": 11,
   "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
   "main": "main.js",
   "author": "Alexandra Pattison",
@@ -11,5 +11,68 @@
     "type": "git",
     "url": "https://github.com/alex-pattison/zuko-astro-planner.git"
   },
-  "zukoChannel": "beta"
+  "scripts": {
+    "start": "electron .",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node scripts/run-unit-qa.js",
+    "test:e2e": "node scripts/seed-e2e-data.js && playwright test",
+    "test:inventory": "node scripts/inventory-ui-controls.js",
+    "seed:beta": "node scripts/seed-beta-dashboard.js",
+    "dist:win": "electron-builder --win",
+    "dist:win:beta": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.alex.zukoastroplanner.beta",
+    "productName": "Zuko Astro Planner Beta",
+    "icon": "build/icon.ico",
+    "extraMetadata": {
+      "zukoChannel": "beta"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "data/**/*",
+      "src/**/*",
+      "scripts/**/*",
+      "vendor/**/*",
+      "build/icons/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icons",
+        "to": "icons"
+      }
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": true
+    },
+    "nsis": {
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.photography"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Graphics"
+    }
+  }
 }
