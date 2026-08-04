@@ -68,7 +68,32 @@ function sanitizeFilterName(filter) {
     .trim() || 'filter';
 }
 
-function buildCalibrateScript() {
+function buildCalibrateScript(opts = {}) {
+  const skipBiasStack = !!opts.skipBiasStack;
+  const skipDarkStack = !!opts.skipDarkStack;
+
+  const biasBlock = skipBiasStack
+    ? `# Bias master already present at masters/bias_stacked.fit — skip stack
+`
+    : `cd biases
+convert bias -out=../process
+cd ../process
+stack bias rej 3 3 -nonorm -out=../masters/bias_stacked
+cd ..
+
+`;
+
+  const darkBlock = skipDarkStack
+    ? `# Dark master already present at masters/dark_stacked.fit — skip stack
+`
+    : `cd darks
+convert dark -out=../process
+cd ../process
+stack dark rej 3 3 -nonorm -out=../masters/dark_stacked
+cd ..
+
+`;
+
   return `############################################
 # Zuko calibrate (Mono 1.4 settings)
 # Stops after calibrate → process/pp_light_*.fit
@@ -77,29 +102,35 @@ function buildCalibrateScript() {
 
 requires 1.3.4
 
-cd biases
-convert bias -out=../process
-cd ../process
-stack bias rej 3 3 -nonorm -out=../masters/bias_stacked
-cd ..
-
-cd flats
+${biasBlock}cd flats
 convert flat -out=../process
 cd ../process
 calibrate flat -bias=../masters/bias_stacked
 stack pp_flat rej 3 3 -norm=mul -out=../masters/pp_flat_stacked
 cd ..
 
-cd darks
-convert dark -out=../process
-cd ../process
-stack dark rej 3 3 -nonorm -out=../masters/dark_stacked
-cd ..
-
-cd lights
+${darkBlock}cd lights
 convert light -out=../process
 cd ../process
 calibrate light -dark=../masters/dark_stacked -flat=../masters/pp_flat_stacked -cc=dark
+
+close
+`;
+}
+
+function buildLibraryMasterScript(kind = 'bias') {
+  const seq = kind === 'dark' ? 'dark' : 'bias';
+  return `############################################
+# Zuko library master stack (${seq})
+# Generated — do not hand-edit mid-run
+############################################
+
+requires 1.3.4
+
+cd subs
+convert ${seq} -out=../process
+cd ../process
+stack ${seq} rej 3 3 -nonorm -out=../master
 
 close
 `;
@@ -288,7 +319,16 @@ async function calibrateShoot(opts = {}) {
     };
   }
 
-  const missing = INPUT_DIRS.filter((d) => !hasFits(path.join(shootDir, d)));
+  const mastersDir = path.join(shootDir, 'masters');
+  const biasMasterPath = path.join(mastersDir, 'bias_stacked.fit');
+  const darkMasterPath = path.join(mastersDir, 'dark_stacked.fit');
+  const skipBiasStack = fs.existsSync(biasMasterPath) && !hasFits(path.join(shootDir, 'biases'));
+  const skipDarkStack = fs.existsSync(darkMasterPath) && !hasFits(path.join(shootDir, 'darks'));
+
+  const required = ['flats', 'lights'];
+  if (!skipBiasStack) required.push('biases');
+  if (!skipDarkStack) required.push('darks');
+  const missing = required.filter((d) => !hasFits(path.join(shootDir, d)));
   if (missing.length) {
     return {
       ok: false,
@@ -297,9 +337,14 @@ async function calibrateShoot(opts = {}) {
       missing,
     };
   }
+  if (skipBiasStack && !fs.existsSync(biasMasterPath)) {
+    return { ok: false, code: 'MISSING_BIAS_MASTER', error: 'masters/bias_stacked.fit required when biases/ is empty' };
+  }
+  if (skipDarkStack && !fs.existsSync(darkMasterPath)) {
+    return { ok: false, code: 'MISSING_DARK_MASTER', error: 'masters/dark_stacked.fit required when darks/ is empty' };
+  }
 
   const processDir = path.join(shootDir, 'process');
-  const mastersDir = path.join(shootDir, 'masters');
   const scriptsDir = path.join(shootDir, 'scripts');
   await fsp.mkdir(processDir, { recursive: true });
   await fsp.mkdir(mastersDir, { recursive: true });
@@ -307,7 +352,7 @@ async function calibrateShoot(opts = {}) {
 
   const scriptPath = path.join(scriptsDir, 'calibrate.ssf');
   const logPath = path.join(scriptsDir, 'calibrate.log');
-  await fsp.writeFile(scriptPath, buildCalibrateScript(), 'utf8');
+  await fsp.writeFile(scriptPath, buildCalibrateScript({ skipBiasStack, skipDarkStack }), 'utf8');
 
   const run = await runSirilCli({
     cliPath,
@@ -352,12 +397,183 @@ async function calibrateShoot(opts = {}) {
     logText: run.logText,
     ppLightCount: ppLights.length,
     ppLights,
+    skipBiasStack,
+    skipDarkStack,
     masters: {
       bias: path.join(mastersDir, 'bias_stacked.fit'),
       dark: path.join(mastersDir, 'dark_stacked.fit'),
       flat: path.join(mastersDir, 'pp_flat_stacked.fit'),
     },
     calibratedAt: new Date().toISOString(),
+  };
+}
+
+function isSubFitName(name) {
+  if (!/\.fit[s]?$/i.test(name)) return false;
+  if (/^master(\.fit|\.fits|\.fts)?$/i.test(name)) return false;
+  if (/^(bias|dark)_stacked/i.test(name)) return false;
+  return true;
+}
+
+/**
+ * Stack library set subs into master.fit via Siril.
+ * @param {{ setDir: string, kind?: 'bias'|'dark', removeSubs?: boolean, sirilCli?: string }} opts
+ */
+async function buildLibraryMaster(opts = {}) {
+  const setDir = opts.setDir && path.resolve(String(opts.setDir));
+  const kind = opts.kind === 'dark' ? 'dark' : 'bias';
+  const removeSubs = opts.removeSubs === true;
+  if (!setDir) return { ok: false, code: 'MISSING_SET_DIR', error: 'setDir is required' };
+  if (!fs.existsSync(setDir)) {
+    return { ok: false, code: 'SET_NOT_FOUND', error: `Set folder not found: ${setDir}` };
+  }
+
+  const cliPath = resolveSirilCli(opts.sirilCli);
+  if (!cliPath) {
+    return {
+      ok: false,
+      code: 'SIRIL_CLI_NOT_FOUND',
+      error: `siril-cli not found (expected ${DEFAULT_SIRIL_CLI})`,
+    };
+  }
+
+  // Collect sub FITS (including filter letter subfolders), exclude existing masters.
+  const subFiles = [];
+  async function collect(dir) {
+    let entries;
+    try {
+      entries = await fsp.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const fp = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        if (/^_build$/i.test(ent.name)) continue;
+        await collect(fp);
+      } else if (ent.isFile() && isSubFitName(ent.name)) {
+        subFiles.push(fp);
+      }
+    }
+  }
+  await collect(setDir);
+
+  if (subFiles.length < 2) {
+    return {
+      ok: false,
+      code: 'TOO_FEW_SUBS',
+      error: `Need at least 2 sub frames to stack (found ${subFiles.length})`,
+      subCount: subFiles.length,
+      setDir,
+    };
+  }
+
+  const buildRoot = path.join(setDir, '_build');
+  const subsDir = path.join(buildRoot, 'subs');
+  const processDir = path.join(buildRoot, 'process');
+  const scriptsDir = path.join(buildRoot, 'scripts');
+  await fsp.rm(buildRoot, { recursive: true, force: true }).catch(() => {});
+  await fsp.mkdir(subsDir, { recursive: true });
+  await fsp.mkdir(processDir, { recursive: true });
+  await fsp.mkdir(scriptsDir, { recursive: true });
+
+  let i = 1;
+  for (const src of subFiles) {
+    const dest = path.join(subsDir, `sub_${String(i).padStart(5, '0')}.fit`);
+    await ensureLinkOrCopy(src, dest);
+    i += 1;
+  }
+
+  const scriptPath = path.join(scriptsDir, 'build-master.ssf');
+  const logPath = path.join(scriptsDir, 'build-master.log');
+  await fsp.writeFile(scriptPath, buildLibraryMasterScript(kind), 'utf8');
+
+  const run = await runSirilCli({
+    cliPath,
+    workDir: buildRoot,
+    scriptPath,
+    logPath,
+    onLog: opts.onLog,
+  });
+  if (!run.ok) {
+    return {
+      ok: false,
+      code: run.code,
+      error: run.error,
+      exitCode: run.exitCode,
+      logPath,
+      logTail: run.logTail,
+      setDir,
+      subCount: subFiles.length,
+    };
+  }
+
+  const builtFit = path.join(buildRoot, 'master.fit');
+  const builtFits = path.join(buildRoot, 'master.fits');
+  const built = fs.existsSync(builtFit) ? builtFit : (fs.existsSync(builtFits) ? builtFits : null);
+  if (!built) {
+    return {
+      ok: false,
+      code: 'NO_MASTER',
+      error: 'siril-cli finished but master.fit not found in _build',
+      logPath,
+      logTail: run.logTail,
+      setDir,
+      subCount: subFiles.length,
+    };
+  }
+
+  const masterPath = path.join(setDir, 'master.fit');
+  try {
+    await fsp.copyFile(built, masterPath);
+  } catch (e) {
+    return {
+      ok: false,
+      code: 'MASTER_COPY_FAILED',
+      error: String(e && e.message ? e.message : e),
+      setDir,
+    };
+  }
+
+  let removedCount = 0;
+  if (removeSubs) {
+    for (const src of subFiles) {
+      try {
+        await fsp.unlink(src);
+        removedCount += 1;
+      } catch { /* ignore */ }
+    }
+    // Remove empty filter subdirs
+    for (const src of subFiles) {
+      const dir = path.dirname(src);
+      if (path.resolve(dir) === path.resolve(setDir)) continue;
+      try {
+        const left = await fsp.readdir(dir);
+        if (!left.length) await fsp.rmdir(dir);
+      } catch { /* ignore */ }
+    }
+  }
+
+  await fsp.rm(buildRoot, { recursive: true, force: true }).catch(() => {});
+
+  let sizeBytes = 0;
+  try {
+    const st = await fsp.stat(masterPath);
+    sizeBytes = st.size || 0;
+  } catch { /* ignore */ }
+
+  return {
+    ok: true,
+    code: 'OK',
+    kind,
+    setDir,
+    masterPath,
+    subCount: subFiles.length,
+    removedCount,
+    removeSubs,
+    sizeBytes,
+    logPath,
+    builtAt: new Date().toISOString(),
   };
 }
 
@@ -518,8 +734,10 @@ module.exports = {
   resolveSirilCli,
   calibrateShoot,
   stackFilter,
+  buildLibraryMaster,
   readSirilLog,
   buildCalibrateScript,
+  buildLibraryMasterScript,
   buildStackScript,
   listPpLights,
   DEFAULT_SIRIL_CLI,

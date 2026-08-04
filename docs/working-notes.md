@@ -22,6 +22,17 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-04 — feat/dark-bias-library — Import chips + library Import tool
+- Shoot Import chips: Light / Flat / Dark / Bias, then Master dark / Master bias.
+- Single checkbox “Use matching master darks & biases” — requires both library matches (sub counts need not match); otherwise disabled → session calib.
+- Calibration Library Import modal (Dark + Bias panels): scan ASIAIR Bias/Dark sets, select, copy into libraries.
+
+### 2026-08-04 — feat/dark-bias-library — separate Bias Library + Build master
+- Separate `Bias Library` path (Dev `F:\zuko_dev\Bias Library`, Beta `H:\…\Zuko\Bias Library`); Dark Library unchanged root.
+- Bias Library: Import from ASIAIR (copy subs into set folders), Re-index, Build master via Siril (KEEP/REMOVE subs), folder size in UI.
+- Shoot Import: “Use matching master biases”; staging can link `master.fit` → `masters/bias_stacked.fit` and Calibrate skips bias stack.
+- Dev Dark Library seeded from H: (75 frames); empty Bias Library folders created on F: and H:.
+
 ### 2026-08-04 — build 10 — ASIAIR Import + Veil flatten (beta release)
 - Import from mounted ASIAIR root (`Autorun`/`Plan`/`Light`…); Settings source path; copy-only into projectDir.
 - Veil project root flattened; DEV/BETA Electron profile isolation.

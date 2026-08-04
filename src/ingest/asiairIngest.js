@@ -8,10 +8,10 @@
  *
  * Source ASIAIR folders are never modified.
  * - Lights/flats: copied directly into the Siril tree.
- * - Biases: copied into _calibration/darkflats/<night>/, then per-file
- *   symlinked into each channel's biases/.
- * - Darks: copied into _calibration/darks/<night>/, then per-file
- *   symlinked into each channel's darks/ (filter ignored; match exp/gain/temp).
+ * - Biases: when useMasterBiases, symlink from Bias Library (master.fit →
+ *   masters/bias_stacked.fit, or subs → biases/); else copy into
+ *   _calibration/darkflats/<night>/ then symlink into biases/.
+ * - Darks: master library symlink into darks/, or session → _calibration/darks.
  * ShootName comes from the shoot log code (e.g. 260725_SII_B9_NYCRoof).
  */
 
@@ -1008,18 +1008,116 @@ async function scanSession(opts = {}) {
   };
 }
 
-/**
- * Index a master dark library folder (header-first metadata).
- */
-async function indexDarkLibrary(libraryPath) {
-  if (!libraryPath || !fs.existsSync(libraryPath)) {
-    return { ok: false, error: 'Dark library path not found', frames: [], index: [] };
+function nearlyEqual(a, b, eps = 1e-3) {
+  if (a == null || b == null) return false;
+  return Math.abs(Number(a) - Number(b)) <= eps;
+}
+
+/** Prefer the set folder (e.g. Darks_180s_… / Bias_2.0s_…), not filter letter children. */
+function masterDarkSourceSetDir(filePath) {
+  if (!filePath) return null;
+  let dir = path.dirname(path.resolve(filePath));
+  const leaf = path.basename(dir);
+  if (/^(H|Ha|O|OIII|S|SII|Hb|Hbeta|L|R|G|B)$/i.test(leaf)) {
+    dir = path.dirname(dir);
   }
+  // Skip internal build dirs
+  if (/^_build$/i.test(path.basename(dir))) {
+    dir = path.dirname(dir);
+  }
+  return dir;
+}
+
+function isLibraryMasterFitName(fileName) {
+  const base = path.basename(String(fileName || ''));
+  return /^master(\.fit|\.fits|\.fts)?$/i.test(base)
+    || /^master_(bias|dark|darkflat|offset)/i.test(base)
+    || /^(bias|dark)_stacked(\.fit|\.fits|\.fts)?$/i.test(base);
+}
+
+function formatLibraryExpLabel(exposureSec) {
+  if (exposureSec == null || !Number.isFinite(Number(exposureSec))) return 'unk';
+  const n = Number(exposureSec);
+  const s = Number.isInteger(n) ? String(n) : String(Math.round(n * 1000) / 1000);
+  return `${s}s`;
+}
+
+function formatLibraryTempLabel(tempC) {
+  if (tempC == null || !Number.isFinite(Number(tempC))) return 'unkc';
+  // Round to nearest 1°C (±0.5 grouping bucket; pairs match within ±1°C).
+  const t = Math.round(Number(tempC));
+  return `${t}c`;
+}
+
+function biasLibrarySetFolderName({ exposureSec, bin, tempC }) {
+  const exp = formatLibraryExpLabel(exposureSec);
+  const b = bin != null && Number.isFinite(Number(bin)) ? String(Math.round(Number(bin))) : '1';
+  const t = formatLibraryTempLabel(tempC);
+  return `Bias_${exp}_Bin${b}_${t}`;
+}
+
+function darkLibrarySetFolderName({ exposureSec, bin, tempC }) {
+  const exp = formatLibraryExpLabel(exposureSec);
+  const b = bin != null && Number.isFinite(Number(bin)) ? String(Math.round(Number(bin))) : '1';
+  const t = formatLibraryTempLabel(tempC);
+  return `Darks_${exp}_Bin${b}_${t}`;
+}
+
+async function folderSizeBytes(dir) {
+  if (!dir || !fs.existsSync(dir)) return 0;
+  let total = 0;
+  async function walk(d) {
+    let entries;
+    try {
+      entries = await fsp.readdir(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const fp = path.join(d, ent.name);
+      if (ent.isDirectory()) {
+        if (/^_build$/i.test(ent.name)) continue;
+        await walk(fp);
+      } else if (ent.isFile()) {
+        try {
+          const st = await fsp.stat(fp);
+          total += st.size || 0;
+        } catch { /* ignore */ }
+      }
+    }
+  }
+  await walk(dir);
+  return total;
+}
+
+/**
+ * Index a calibration library (darks or biases/darkflats). Detects master.fit.
+ */
+async function indexCalibrationLibrary(libraryPath, frameType = 'dark') {
+  const label = frameType === 'dark' ? 'Dark' : 'Bias';
+  if (!libraryPath || !fs.existsSync(libraryPath)) {
+    return { ok: false, error: `${label} library path not found`, frames: [], index: [], sets: [], sizeBytes: 0 };
+  }
+  const hintType = frameType === 'dark' ? 'dark' : 'bias';
   const files = await walkFitFiles(libraryPath);
   const index = [];
   for (const fp of files) {
-    const parsed = await parseFitFile(fp, 'dark');
-    parsed.type = 'dark';
+    // Skip Siril build scratch
+    if (fp.split(/[/\\]/).some((p) => /^_build$/i.test(p))) continue;
+    const fileName = path.basename(fp);
+    const kind = isLibraryMasterFitName(fileName) ? 'master' : 'sub';
+    let parsed;
+    if (kind === 'master') {
+      // Masters may lack ASIAIR naming — still try header parse.
+      parsed = await parseFitFile(fp, hintType);
+      if (frameType !== 'dark') parsed.type = 'darkflat';
+      else parsed.type = 'dark';
+    } else {
+      parsed = await parseFitFile(fp, hintType);
+      if (frameType !== 'dark') parsed.type = 'darkflat';
+      else parsed.type = 'dark';
+    }
+    const setFolder = masterDarkSourceSetDir(fp);
     const acquiredAt = parsed.date
       ? `${parsed.date.slice(0, 4)}-${parsed.date.slice(4, 6)}-${parsed.date.slice(6, 8)}`
       : null;
@@ -1027,35 +1125,115 @@ async function indexDarkLibrary(libraryPath) {
     const ageMs = acquiredMs != null ? Date.now() - acquiredMs : null;
     index.push({
       filePath: fp,
-      fileName: parsed.fileName,
+      fileName: parsed.fileName || fileName,
       exposureSec: parsed.exposureSec,
       gain: parsed.gain,
       tempC: parsed.tempC,
       bin: parsed.bin,
+      filter: parsed.filter || null,
       date: parsed.date,
       acquiredAt,
       ageDays: ageMs != null ? Math.round(ageMs / 86400000) : null,
       expired: ageMs != null ? ageMs > SIX_MONTHS_MS : false,
+      kind,
+      setFolder,
+      type: parsed.type,
     });
   }
-  return { ok: true, libraryPath, count: index.length, index };
+
+  const setMap = new Map();
+  for (const row of index) {
+    const folder = row.setFolder || path.dirname(row.filePath);
+    let set = setMap.get(folder);
+    if (!set) {
+      set = {
+        folder,
+        name: path.basename(folder),
+        subCount: 0,
+        hasMaster: false,
+        masterPath: null,
+        files: [],
+        sizeBytes: 0,
+      };
+      setMap.set(folder, set);
+    }
+    set.files.push(row);
+    if (row.kind === 'master') {
+      set.hasMaster = true;
+      set.masterPath = row.filePath;
+    } else {
+      set.subCount += 1;
+    }
+  }
+  const sets = [];
+  for (const set of setMap.values()) {
+    set.sizeBytes = await folderSizeBytes(set.folder);
+    const files = set.files;
+    const modeOf = (key) => {
+      const counts = new Map();
+      for (const f of files) {
+        if (f.kind === 'master' && (f[key] == null)) continue;
+        const v = f[key];
+        if (v == null || v === '') continue;
+        const k = String(v);
+        counts.set(k, (counts.get(k) || 0) + 1);
+      }
+      let best = null;
+      let bestN = -1;
+      for (const [k, n] of counts) {
+        if (n > bestN) {
+          best = k;
+          bestN = n;
+        }
+      }
+      if (best == null) return null;
+      if (/^-?\d+(\.\d+)?$/.test(best)) return Number(best);
+      return best;
+    };
+    set.exposureSec = modeOf('exposureSec');
+    set.gain = modeOf('gain');
+    set.tempC = modeOf('tempC');
+    set.bin = modeOf('bin');
+    set.ageDays = modeOf('ageDays');
+    set.expired = files.some((f) => f.expired);
+    sets.push(set);
+  }
+  sets.sort((a, b) => a.name.localeCompare(b.name));
+
+  const sizeBytes = await folderSizeBytes(libraryPath);
+  return {
+    ok: true,
+    libraryPath,
+    count: index.length,
+    index,
+    sets,
+    sizeBytes,
+  };
 }
 
-function nearlyEqual(a, b, eps = 1e-3) {
-  if (a == null || b == null) return false;
-  return Math.abs(Number(a) - Number(b)) <= eps;
+/** Index a master dark library folder (header-first metadata). */
+async function indexDarkLibrary(libraryPath) {
+  return indexCalibrationLibrary(libraryPath, 'dark');
+}
+
+/** Index Bias (darkflat) library folder. */
+async function indexBiasLibrary(libraryPath) {
+  return indexCalibrationLibrary(libraryPath, 'darkflat');
 }
 
 /**
- * Match master darks by exposure + gain + temp only.
- * Filter is intentionally ignored — darks apply to every filter channel.
+ * Match library frames by exposure + gain + temp (± bin).
+ * Filter is ignored for darks; optional for biases.
  */
-function matchMasterDarks(opts = {}) {
+function matchCalibrationLibrary(opts = {}) {
   const index = opts.index || [];
   const exposureSec = opts.exposureSec;
   const gain = opts.gain;
   const tempC = opts.tempC;
+  const bin = opts.bin;
+  const filter = opts.filter != null ? normalizeFilter(opts.filter) : null;
   const asOf = opts.asOf ? Date.parse(opts.asOf) : Date.now();
+  const preferMaster = opts.preferMaster !== false;
 
   const matches = [];
   const rejected = [];
@@ -1067,11 +1245,11 @@ function matchMasterDarks(opts = {}) {
         : null);
     const ageMs = acquiredMs != null ? asOf - acquiredMs : null;
     const expired = ageMs != null ? ageMs > SIX_MONTHS_MS : !!d.expired;
-    if (exposureSec != null && !nearlyEqual(d.exposureSec, exposureSec, 0.05)) {
+    if (exposureSec != null && d.exposureSec != null && !nearlyEqual(d.exposureSec, exposureSec, 0.05)) {
       rejected.push({ ...d, reason: 'exposure mismatch' });
       continue;
     }
-    if (gain != null && !nearlyEqual(d.gain, gain, 0.5)) {
+    if (gain != null && d.gain != null && !nearlyEqual(d.gain, gain, 0.5)) {
       rejected.push({ ...d, reason: 'gain mismatch' });
       continue;
     }
@@ -1079,25 +1257,501 @@ function matchMasterDarks(opts = {}) {
       rejected.push({ ...d, reason: 'temp out of ±3°C' });
       continue;
     }
-    // Age is flagged for UI (yellow/red) but never excludes a match.
+    if (bin != null && d.bin != null && !nearlyEqual(d.bin, bin, 0.5)) {
+      rejected.push({ ...d, reason: 'bin mismatch' });
+      continue;
+    }
+    if (filter && d.filter) {
+      const df = normalizeFilter(d.filter);
+      if (df && df !== filter) {
+        rejected.push({ ...d, reason: 'filter mismatch' });
+        continue;
+      }
+    }
     matches.push({
       ...d,
       expired,
       ageDays: ageMs != null ? Math.round(ageMs / 86400000) : (d.ageDays != null ? d.ageDays : null),
     });
   }
-  return { ok: true, matches, rejected, rejectedCount: rejected.length };
+
+  let finalMatches = matches;
+  if (preferMaster) {
+    const masters = matches.filter((m) => m.kind === 'master' || isLibraryMasterFitName(m.fileName));
+    if (masters.length) {
+      // One master per set folder
+      const bySet = new Map();
+      for (const m of masters) {
+        const key = m.setFolder || masterDarkSourceSetDir(m.filePath) || m.filePath;
+        if (!bySet.has(key)) bySet.set(key, m);
+      }
+      finalMatches = [...bySet.values()];
+    }
+  }
+
+  return { ok: true, matches: finalMatches, rejected, rejectedCount: rejected.length };
 }
 
-/** Prefer the dark *set* folder (e.g. Darks_180s_…), not filter letter children (H/O/S). */
-function masterDarkSourceSetDir(filePath) {
-  if (!filePath) return null;
-  let dir = path.dirname(path.resolve(filePath));
-  const leaf = path.basename(dir);
-  if (/^(H|Ha|O|OIII|S|SII|Hb|Hbeta|L|R|G|B)$/i.test(leaf)) {
-    dir = path.dirname(dir);
+/**
+ * Match master darks by exposure + gain + temp only.
+ * Filter is intentionally ignored — darks apply to every filter channel.
+ * Prefers library master.fit when present (same as biases).
+ */
+function matchMasterDarks(opts = {}) {
+  return matchCalibrationLibrary({ ...opts, filter: null, preferMaster: opts.preferMaster !== false });
+}
+
+/**
+ * Match Bias Library frames (darkflats). Prefers master.fit when present.
+ */
+function matchMasterBiases(opts = {}) {
+  return matchCalibrationLibrary({ ...opts, preferMaster: opts.preferMaster !== false });
+}
+
+/**
+ * Find ASIAIR Bias or Dark folders under a unit/USB/source root.
+ * @param {string} sourceDir
+ * @param {'bias'|'dark'} frameKind
+ */
+async function findAsiairFrameDirs(sourceDir, frameKind = 'bias') {
+  if (!sourceDir || !fs.existsSync(sourceDir)) return [];
+  const names = frameKind === 'dark'
+    ? ['Dark', 'Darks']
+    : ['Bias', 'Biases'];
+  const leafRe = frameKind === 'dark'
+    ? /^dark(s)?$/i
+    : /^bias(es)?$/i;
+
+  const found = [];
+  const seen = new Set();
+  const add = (p) => {
+    const abs = path.resolve(p);
+    if (seen.has(abs) || !fs.existsSync(abs)) return;
+    seen.add(abs);
+    found.push(abs);
+  };
+
+  if (leafRe.test(path.basename(sourceDir))) {
+    add(sourceDir);
+    return found;
   }
-  return dir;
+  for (const n of names) add(path.join(sourceDir, n));
+  for (const kind of ['Autorun', 'Plan']) {
+    for (const n of names) add(path.join(sourceDir, kind, n));
+  }
+
+  const asiairRoot = path.join(sourceDir, 'asiair');
+  if (fs.existsSync(asiairRoot)) {
+    try {
+      const nights = await fsp.readdir(asiairRoot, { withFileTypes: true });
+      for (const n of nights) {
+        if (!n.isDirectory()) continue;
+        const dump = path.join(asiairRoot, n.name);
+        for (const name of names) add(path.join(dump, name));
+        for (const kind of ['Autorun', 'Plan']) {
+          for (const name of names) add(path.join(dump, kind, name));
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  try {
+    const ents = await fsp.readdir(sourceDir, { withFileTypes: true });
+    for (const ent of ents) {
+      if (!ent.isDirectory()) continue;
+      if (SKIP_DIR_NAMES.has(ent.name.toLowerCase())) continue;
+      if (SESSION_DIR_NAMES.has(ent.name.toLowerCase())) continue;
+      if (/^asiair$/i.test(ent.name)) continue;
+      for (const name of names) add(path.join(sourceDir, ent.name, name));
+      for (const kind of ['Autorun', 'Plan']) {
+        for (const name of names) add(path.join(sourceDir, ent.name, kind, name));
+      }
+    }
+  } catch { /* ignore */ }
+
+  return found;
+}
+
+async function findAsiairBiasDirs(sourceDir) {
+  return findAsiairFrameDirs(sourceDir, 'bias');
+}
+
+async function findAsiairDarkDirs(sourceDir) {
+  return findAsiairFrameDirs(sourceDir, 'dark');
+}
+
+function shortFilterSubdir(filter) {
+  if (!filter) return null;
+  const filterLetter = (normalizeFilter(filter) || String(filter)).replace(/[^A-Za-z0-9]/g, '');
+  if (!filterLetter) return null;
+  return filterLetter.match(/^(Ha|OIII|SII|Hb|Hbeta|[LRGBHOS])$/i)
+    ? filterLetter
+    : filterLetter.charAt(0);
+}
+
+/**
+ * Scan ASIAIR source for Bias/Dark sets without copying (library import preview).
+ */
+async function countFitsInDir(dir) {
+  if (!dir || !fs.existsSync(dir)) return 0;
+  try {
+    const names = await fsp.readdir(dir);
+    return names.filter((n) => FIT_EXT.test(n) && !isLibraryMasterFitName(n)).length;
+  } catch {
+    return 0;
+  }
+}
+
+async function scanCalibrationLibraryImport(opts = {}) {
+  const sourceDir = opts.sourceDir || opts.asiairSourcePath;
+  const includeBias = opts.includeBias !== false;
+  const includeDark = opts.includeDark !== false;
+  const darkLibraryPath = opts.darkLibraryPath || null;
+  const biasLibraryPath = opts.biasLibraryPath || null;
+  const removedDark = new Set((opts.removedDarkSets || opts.removedSetNames && opts.removedSetNames.dark || []).map(String));
+  const removedBias = new Set((opts.removedBiasSets || opts.removedSetNames && opts.removedSetNames.bias || []).map(String));
+  if (!sourceDir) return { ok: false, error: 'sourceDir is required', sets: [] };
+  if (!fs.existsSync(sourceDir)) return { ok: false, error: 'ASIAIR source path not found', sets: [] };
+
+  const sets = [];
+  async function collect(frameKind) {
+    const dirs = await findAsiairFrameDirs(sourceDir, frameKind);
+    const bySet = new Map();
+    for (const dir of dirs) {
+      const files = await walkFitFiles(dir);
+      for (const fp of files) {
+        if (isLibraryMasterFitName(path.basename(fp))) continue;
+        try {
+          const hint = frameKind === 'dark' ? 'dark' : 'bias';
+          const parsed = await parseFitFile(fp, hint);
+          if (frameKind !== 'dark') parsed.type = 'darkflat';
+          else parsed.type = 'dark';
+          const setName = frameKind === 'dark'
+            ? darkLibrarySetFolderName({
+              exposureSec: parsed.exposureSec,
+              bin: parsed.bin,
+              tempC: parsed.tempC,
+            })
+            : biasLibrarySetFolderName({
+              exposureSec: parsed.exposureSec,
+              bin: parsed.bin,
+              tempC: parsed.tempC,
+            });
+          const filterSub = shortFilterSubdir(parsed.filter);
+          const key = `${frameKind}|${setName}|${filterSub || ''}`;
+          let row = bySet.get(key);
+          if (!row) {
+            row = {
+              kind: frameKind === 'dark' ? 'dark' : 'bias',
+              setName,
+              filter: filterSub,
+              count: 0,
+              exposureSec: parsed.exposureSec,
+              gain: parsed.gain,
+              tempC: parsed.tempC,
+              bin: parsed.bin,
+              sourceDirs: new Set(),
+              sampleName: path.basename(fp),
+            };
+            bySet.set(key, row);
+          }
+          row.count += 1;
+          row.sourceDirs.add(dir);
+          if (row.gain == null && parsed.gain != null) row.gain = parsed.gain;
+        } catch { /* skip bad file */ }
+      }
+    }
+    for (const row of bySet.values()) {
+      const libRoot = frameKind === 'dark' ? darkLibraryPath : biasLibraryPath;
+      let existingCount = 0;
+      if (libRoot) {
+        const destDir = row.filter
+          ? path.join(libRoot, row.setName, row.filter)
+          : path.join(libRoot, row.setName);
+        existingCount = await countFitsInDir(destDir);
+        // Also count files directly under set folder (no filter subdir)
+        if (!row.filter) {
+          /* already counted */
+        } else {
+          const setRoot = path.join(libRoot, row.setName);
+          existingCount = Math.max(existingCount, await countFitsInDir(setRoot));
+        }
+      }
+      const removedList = frameKind === 'dark' ? removedDark : removedBias;
+      const libraryRemoved = removedList.has(row.setName);
+      // Removed-from-library sets keep files on disk but can be re-selected for import.
+      const alreadyImported = existingCount > 0 && !libraryRemoved;
+      sets.push({
+        ...row,
+        sourceDirs: [...row.sourceDirs],
+        id: `${row.kind}:${row.setName}:${row.filter || ''}`,
+        existingCount,
+        libraryRemoved,
+        alreadyImported,
+        fullyImported: alreadyImported && existingCount >= row.count,
+      });
+    }
+  }
+
+  if (includeBias) await collect('bias');
+  if (includeDark) await collect('dark');
+  sets.sort((a, b) => a.kind.localeCompare(b.kind) || a.setName.localeCompare(b.setName) || String(a.filter || '').localeCompare(String(b.filter || '')));
+
+  return {
+    ok: true,
+    sourceDir,
+    sets,
+    summary: {
+      biasSets: sets.filter((s) => s.kind === 'bias').length,
+      darkSets: sets.filter((s) => s.kind === 'dark').length,
+      biasFiles: sets.filter((s) => s.kind === 'bias').reduce((n, s) => n + s.count, 0),
+      darkFiles: sets.filter((s) => s.kind === 'dark').reduce((n, s) => n + s.count, 0),
+      alreadyImported: sets.filter((s) => s.alreadyImported).length,
+      libraryRemoved: sets.filter((s) => s.libraryRemoved).length,
+    },
+  };
+}
+
+/**
+ * Delete one calibration library set folder from disk (subs + master).
+ * Refuses library roots and paths that don't look like a set folder.
+ */
+async function deleteCalibrationLibrarySet(opts = {}) {
+  const setDir = opts.setDir && path.resolve(String(opts.setDir));
+  const libraryPath = opts.libraryPath ? path.resolve(String(opts.libraryPath)) : null;
+  if (!setDir) return { ok: false, error: 'setDir is required' };
+  if (!fs.existsSync(setDir)) return { ok: false, error: 'Set folder not found', setDir };
+  const base = path.basename(setDir);
+  if (!/^(Darks?|Bias(es)?)_/i.test(base) && !/^(dark|bias)/i.test(base)) {
+    return { ok: false, error: `Refusing to delete unrecognized set folder: ${base}`, setDir };
+  }
+  if (libraryPath) {
+    const rel = path.relative(libraryPath, setDir);
+    if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+      return { ok: false, error: 'Set folder is outside the library path', setDir, libraryPath };
+    }
+    if (path.resolve(setDir) === path.resolve(libraryPath)) {
+      return { ok: false, error: 'Refusing to delete the library root', setDir };
+    }
+  }
+  await fsp.rm(setDir, { recursive: true, force: true });
+  return { ok: true, setDir, deleted: true, name: base };
+}
+
+/**
+ * Delete sub frames in a set folder but keep master.fit (and the set row).
+ */
+async function removeCalibrationLibrarySubs(opts = {}) {
+  const setDir = opts.setDir && path.resolve(String(opts.setDir));
+  const libraryPath = opts.libraryPath ? path.resolve(String(opts.libraryPath)) : null;
+  if (!setDir) return { ok: false, error: 'setDir is required' };
+  if (!fs.existsSync(setDir)) return { ok: false, error: 'Set folder not found', setDir };
+  const base = path.basename(setDir);
+  if (!/^(Darks?|Bias(es)?)_/i.test(base) && !/^(dark|bias)/i.test(base)) {
+    return { ok: false, error: `Refusing to edit unrecognized set folder: ${base}`, setDir };
+  }
+  if (libraryPath) {
+    const rel = path.relative(libraryPath, setDir);
+    if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+      return { ok: false, error: 'Set folder is outside the library path', setDir, libraryPath };
+    }
+  }
+
+  const subFiles = [];
+  let hasMaster = false;
+  async function walk(dir) {
+    let entries;
+    try {
+      entries = await fsp.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const fp = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        if (/^_build$/i.test(ent.name)) continue;
+        await walk(fp);
+      } else if (ent.isFile() && FIT_EXT.test(ent.name)) {
+        if (isLibraryMasterFitName(ent.name)) hasMaster = true;
+        else subFiles.push(fp);
+      }
+    }
+  }
+  await walk(setDir);
+
+  if (!hasMaster) {
+    return {
+      ok: false,
+      error: 'No master.fit in this set — build a master first, or use Delete',
+      setDir,
+      subCount: subFiles.length,
+    };
+  }
+  if (!subFiles.length) {
+    return { ok: true, setDir, removedCount: 0, name: base, alreadyClean: true };
+  }
+
+  let removedCount = 0;
+  for (const fp of subFiles) {
+    try {
+      await fsp.unlink(fp);
+      removedCount += 1;
+    } catch { /* ignore */ }
+  }
+  // Drop empty filter subdirs
+  for (const fp of subFiles) {
+    const dir = path.dirname(fp);
+    if (path.resolve(dir) === path.resolve(setDir)) continue;
+    try {
+      const left = await fsp.readdir(dir);
+      if (!left.length) await fsp.rmdir(dir);
+    } catch { /* ignore */ }
+  }
+
+  return { ok: true, setDir, removedCount, name: base, hasMaster: true };
+}
+
+/**
+ * Copy ASIAIR calibration subs into library set folders. Never moves source.
+ * @param {{ sourceDir, libraryPath, kind: 'bias'|'dark', setIds?: string[] }} opts
+ */
+async function importCalibrationSubsToLibrary(opts = {}) {
+  const sourceDir = opts.sourceDir || opts.asiairSourcePath;
+  const libraryPath = opts.libraryPath;
+  const kind = opts.kind === 'dark' ? 'dark' : 'bias';
+  const setIds = opts.setIds && opts.setIds.length ? new Set(opts.setIds) : null;
+  if (!sourceDir) return { ok: false, error: 'sourceDir is required' };
+  if (!libraryPath) return { ok: false, error: `${kind} libraryPath is required` };
+  if (!fs.existsSync(sourceDir)) return { ok: false, error: 'ASIAIR source path not found' };
+
+  await fsp.mkdir(libraryPath, { recursive: true });
+  const dirs = await findAsiairFrameDirs(sourceDir, kind);
+  if (!dirs.length) {
+    return {
+      ok: false,
+      error: `No ${kind === 'dark' ? 'Dark' : 'Bias'} folders found under source`,
+      sourceDir,
+      libraryPath,
+      kind,
+      copied: 0,
+    };
+  }
+
+  const copied = [];
+  const skipped = [];
+  const errors = [];
+  const setCounts = new Map();
+
+  for (const frameDir of dirs) {
+    const files = await walkFitFiles(frameDir);
+    for (const fp of files) {
+      if (isLibraryMasterFitName(path.basename(fp))) continue;
+      try {
+        const parsed = await parseFitFile(fp, kind === 'dark' ? 'dark' : 'bias');
+        if (kind !== 'dark') parsed.type = 'darkflat';
+        else parsed.type = 'dark';
+        const setName = kind === 'dark'
+          ? darkLibrarySetFolderName({
+            exposureSec: parsed.exposureSec,
+            bin: parsed.bin,
+            tempC: parsed.tempC,
+          })
+          : biasLibrarySetFolderName({
+            exposureSec: parsed.exposureSec,
+            bin: parsed.bin,
+            tempC: parsed.tempC,
+          });
+        const filterSub = shortFilterSubdir(parsed.filter);
+        const id = `${kind}:${setName}:${filterSub || ''}`;
+        if (setIds && !setIds.has(id)) continue;
+
+        const destDir = filterSub
+          ? path.join(libraryPath, setName, filterSub)
+          : path.join(libraryPath, setName);
+        const dest = path.join(destDir, path.basename(fp));
+        await fsp.mkdir(destDir, { recursive: true });
+        if (fs.existsSync(dest)) {
+          skipped.push({ from: fp, to: dest });
+          continue;
+        }
+        await fsp.copyFile(fp, dest);
+        copied.push({ from: fp, to: dest, set: setName, kind });
+        setCounts.set(setName, (setCounts.get(setName) || 0) + 1);
+      } catch (err) {
+        errors.push({ file: fp, error: String(err && err.message ? err.message : err) });
+      }
+    }
+  }
+
+  const sizeBytes = await folderSizeBytes(libraryPath);
+  return {
+    ok: errors.length === 0 || copied.length > 0,
+    sourceDir,
+    libraryPath,
+    kind,
+    copied: copied.length,
+    skipped: skipped.length,
+    errors,
+    sets: [...setCounts.entries()].map(([name, count]) => ({ name, count })),
+    sizeBytes,
+    files: copied,
+  };
+}
+
+/** Copy ASIAIR Bias (darkflat) subs into Bias Library set folders. Never moves source. */
+async function importBiasSubsToLibrary(opts = {}) {
+  return importCalibrationSubsToLibrary({ ...opts, kind: 'bias' });
+}
+
+/** Copy ASIAIR Dark subs into Dark Library set folders. Never moves source. */
+async function importDarkSubsToLibrary(opts = {}) {
+  return importCalibrationSubsToLibrary({ ...opts, kind: 'dark' });
+}
+
+/**
+ * Import selected dark + bias sets into their libraries in one call.
+ */
+async function importCalibrationLibraryBundle(opts = {}) {
+  const sourceDir = opts.sourceDir || opts.asiairSourcePath;
+  const darkLibraryPath = opts.darkLibraryPath;
+  const biasLibraryPath = opts.biasLibraryPath;
+  const setIds = Array.isArray(opts.setIds) ? opts.setIds : null;
+  const biasIds = setIds ? setIds.filter((id) => String(id).startsWith('bias:')) : null;
+  const darkIds = setIds ? setIds.filter((id) => String(id).startsWith('dark:')) : null;
+
+  const results = { ok: true, bias: null, dark: null };
+  if (biasLibraryPath && (!setIds || (biasIds && biasIds.length))) {
+    results.bias = await importCalibrationSubsToLibrary({
+      sourceDir,
+      libraryPath: biasLibraryPath,
+      kind: 'bias',
+      setIds: biasIds,
+    });
+  }
+  if (darkLibraryPath && (!setIds || (darkIds && darkIds.length))) {
+    results.dark = await importCalibrationSubsToLibrary({
+      sourceDir,
+      libraryPath: darkLibraryPath,
+      kind: 'dark',
+      setIds: darkIds,
+    });
+  }
+  if (!results.bias && !results.dark) {
+    return { ok: false, error: 'Nothing selected to import', sourceDir };
+  }
+  const biasOk = !results.bias || results.bias.ok;
+  const darkOk = !results.dark || results.dark.ok;
+  results.ok = biasOk && darkOk;
+  results.sourceDir = sourceDir;
+  results.copied = (results.bias && results.bias.copied || 0) + (results.dark && results.dark.copied || 0);
+  results.skipped = (results.bias && results.bias.skipped || 0) + (results.dark && results.dark.skipped || 0);
+  if (!results.ok) {
+    results.error = [
+      results.bias && !results.bias.ok ? results.bias.error : null,
+      results.dark && !results.dark.ok ? results.dark.error : null,
+    ].filter(Boolean).join('; ') || 'Import failed';
+  }
+  return results;
 }
 
 async function ensureCopied(src, dest) {
@@ -1143,6 +1797,7 @@ async function ensureLink(src, dest) {
 /**
  * Require Light, Flat, Bias, and Dark before staging.
  * Dark = matching master-library darks when useMasterDarks, else session Dark folder.
+ * Bias = Bias Library match when useMasterBiases, else session Bias folder.
  */
 function evaluateIngestFrameReadiness(opts = {}) {
   const lights = opts.lights || [];
@@ -1150,7 +1805,9 @@ function evaluateIngestFrameReadiness(opts = {}) {
   const biases = opts.biases || [];
   const sessionDarks = opts.sessionDarks || opts.darks || [];
   const useMasterDarks = !!opts.useMasterDarks;
+  const useMasterBiases = !!opts.useMasterBiases;
   const darkMatchesByFilter = opts.darkMatchesByFilter || {};
+  const biasMatchesByFilter = opts.biasMatchesByFilter || {};
 
   const filterList = [];
   if (opts.filters && opts.filters.length) {
@@ -1177,7 +1834,27 @@ function evaluateIngestFrameReadiness(opts = {}) {
     missing.push('Flat');
   }
 
-  if (!biases.length) missing.push('Bias');
+  let masterBiasCount = opts.masterBiasCount;
+  if (masterBiasCount == null || !Number.isFinite(Number(masterBiasCount))) {
+    masterBiasCount = 0;
+    const keys = filterList.length ? filterList : Object.keys(biasMatchesByFilter);
+    for (const f of keys) {
+      const m = biasMatchesByFilter[f] || [];
+      if (m.length > masterBiasCount) masterBiasCount = m.length;
+    }
+    const star = biasMatchesByFilter['*'] || [];
+    if (star.length > masterBiasCount) masterBiasCount = star.length;
+  }
+  masterBiasCount = Number(masterBiasCount) || 0;
+  const hasSessionBiases = biases.length > 0;
+  const hasMasterBiases = masterBiasCount > 0;
+  if (!hasSessionBiases && !hasMasterBiases) {
+    missing.push('Bias (session or Bias Library)');
+  } else if (useMasterBiases) {
+    if (!hasMasterBiases) missing.push('Bias (Bias Library)');
+  } else if (!hasSessionBiases) {
+    missing.push('Bias (session)');
+  }
 
   let masterCount = opts.masterDarkCount;
   if (masterCount == null || !Number.isFinite(Number(masterCount))) {
@@ -1231,7 +1908,9 @@ async function stageSirilTree(opts = {}) {
   const force = opts.force === true;
 
   const useMasterDarks = opts.useMasterDarks === true;
+  const useMasterBiases = opts.useMasterBiases === true;
   const darkMatchesByFilter = opts.darkMatchesByFilter || {};
+  const biasMatchesByFilter = opts.biasMatchesByFilter || {};
   const targetHint = opts.targetHint || null;
   const filtersFilter = opts.filters && opts.filters.length
     ? new Set(opts.filters.map(normalizeFilter))
@@ -1336,7 +2015,9 @@ async function stageSirilTree(opts = {}) {
     biases,
     sessionDarks: usableSessionDarks,
     useMasterDarks,
+    useMasterBiases,
     darkMatchesByFilter,
+    biasMatchesByFilter,
     filters: readinessFilters,
   });
   if (!readiness.ok) {
@@ -1354,7 +2035,7 @@ async function stageSirilTree(opts = {}) {
   if (!force) {
     const existing = [];
     for (const root of destRootsPreview) {
-      for (const sub of ['lights', 'flats', 'biases', 'darks']) {
+      for (const sub of ['lights', 'flats', 'biases', 'darks', 'masters']) {
         const dir = path.join(root, sub);
         try {
           const names = await fsp.readdir(dir);
@@ -1379,15 +2060,17 @@ async function stageSirilTree(opts = {}) {
   }
   const biasLibDir = path.join(projectDir, '_calibration', 'darkflats', nightDate);
   const darkLibDir = path.join(projectDir, '_calibration', 'darks', nightDate);
-  await fsp.mkdir(biasLibDir, { recursive: true });
+  if (!useMasterBiases) await fsp.mkdir(biasLibDir, { recursive: true });
   if (!useMasterDarks) await fsp.mkdir(darkLibDir, { recursive: true });
 
   // Reuse any calibration already on disk for this night (other filters / prior stages).
   let preexistingBiasCount = 0;
   let preexistingDarkCount = 0;
-  try {
-    preexistingBiasCount = (await fsp.readdir(biasLibDir)).filter((n) => FIT_EXT.test(n)).length;
-  } catch { /* ignore */ }
+  if (!useMasterBiases) {
+    try {
+      preexistingBiasCount = (await fsp.readdir(biasLibDir)).filter((n) => FIT_EXT.test(n)).length;
+    } catch { /* ignore */ }
+  }
   if (!useMasterDarks) {
     try {
       preexistingDarkCount = (await fsp.readdir(darkLibDir)).filter((n) => FIT_EXT.test(n)).length;
@@ -1397,15 +2080,49 @@ async function stageSirilTree(opts = {}) {
   const staged = [];
   const errors = [];
 
-  // Biases: source -> copy into calibration (never move source).
+  // Collect Bias Library matches (masters preferred by matchMasterBiases).
+  const biasByName = new Map();
+  let masterBiasSourceDir = null;
+  let masterBiasIsStacked = false;
+  if (useMasterBiases) {
+    for (const filter of filters) {
+      const matches = biasMatchesByFilter[filter] || biasMatchesByFilter['*'] || [];
+      for (const b of matches) {
+        const name = path.basename(b.filePath || b.fileName || '');
+        if (name && b.filePath && !biasByName.has(name)) biasByName.set(name, b);
+      }
+    }
+    for (const b of biasByName.values()) {
+      if (!masterBiasSourceDir && b.filePath) {
+        masterBiasSourceDir = b.setFolder || masterDarkSourceSetDir(b.filePath);
+      }
+      if (b.kind === 'master' || isLibraryMasterFitName(b.fileName || b.filePath)) {
+        masterBiasIsStacked = true;
+      }
+    }
+  }
+
+  // Biases: session → copy into _calibration (never move source). Master → link later.
   const copiedBiases = [];
-  for (const b of biases) {
-    const dest = path.join(biasLibDir, b.fileName);
-    try {
-      const result = await ensureCopied(b.filePath, dest);
-      copiedBiases.push({ from: b.filePath, to: dest, action: result.action });
-    } catch (err) {
-      errors.push({ file: b.filePath, error: String(err.message || err) });
+  if (!useMasterBiases) {
+    for (const b of biases) {
+      const dest = path.join(biasLibDir, b.fileName);
+      try {
+        const result = await ensureCopied(b.filePath, dest);
+        copiedBiases.push({ from: b.filePath, to: dest, action: result.action });
+      } catch (err) {
+        errors.push({ file: b.filePath, error: String(err.message || err) });
+      }
+    }
+  } else {
+    for (const b of biasByName.values()) {
+      copiedBiases.push({
+        from: b.filePath,
+        to: b.filePath,
+        action: 'link-source',
+        source: 'master',
+        kind: b.kind || 'sub',
+      });
     }
   }
 
@@ -1440,20 +2157,33 @@ async function stageSirilTree(opts = {}) {
 
   const copiedDarks = [];
   let masterDarkSourceDir = null;
+  let masterDarkIsStacked = false;
   let calibDarkFiles = [];
+  let preStackedDarkMaster = null;
 
   if (useMasterDarks) {
     for (const d of darkByName.values()) {
       if (!masterDarkSourceDir && d.filePath) {
         masterDarkSourceDir = masterDarkSourceSetDir(d.filePath);
       }
-      calibDarkFiles.push(d.filePath);
+      if (d.kind === 'master' || isLibraryMasterFitName(d.fileName || d.filePath)) {
+        masterDarkIsStacked = true;
+      }
       copiedDarks.push({
         from: d.filePath,
         to: d.filePath,
         action: 'link-source',
         source: 'master',
+        kind: d.kind || 'sub',
       });
+    }
+    if (masterDarkIsStacked) {
+      const master = [...darkByName.values()].find(
+        (d) => d.kind === 'master' || isLibraryMasterFitName(d.fileName || d.filePath)
+      );
+      if (master && master.filePath) preStackedDarkMaster = master.filePath;
+    } else {
+      calibDarkFiles = [...darkByName.values()].map((d) => d.filePath).filter(Boolean);
     }
   } else {
     await fsp.mkdir(darkLibDir, { recursive: true });
@@ -1481,12 +2211,25 @@ async function stageSirilTree(opts = {}) {
   }
 
   let calibBiasFiles = [];
-  try {
-    calibBiasFiles = (await fsp.readdir(biasLibDir))
-      .filter((n) => FIT_EXT.test(n))
-      .map((n) => path.join(biasLibDir, n));
-  } catch {
-    calibBiasFiles = [];
+  let preStackedBiasMaster = null;
+  if (useMasterBiases) {
+    if (masterBiasIsStacked) {
+      // Use first master.fit — calibrate will skip bias stack.
+      const master = [...biasByName.values()].find(
+        (b) => b.kind === 'master' || isLibraryMasterFitName(b.fileName || b.filePath)
+      );
+      if (master && master.filePath) preStackedBiasMaster = master.filePath;
+    } else {
+      calibBiasFiles = [...biasByName.values()].map((b) => b.filePath).filter(Boolean);
+    }
+  } else {
+    try {
+      calibBiasFiles = (await fsp.readdir(biasLibDir))
+        .filter((n) => FIT_EXT.test(n))
+        .map((n) => path.join(biasLibDir, n));
+    } catch {
+      calibBiasFiles = [];
+    }
   }
 
   for (const filter of filters) {
@@ -1495,6 +2238,7 @@ async function stageSirilTree(opts = {}) {
     const flatsDir = path.join(base, 'flats');
     const biasesDir = path.join(base, 'biases');
     const darksDir = path.join(base, 'darks');
+    const mastersDir = path.join(base, 'masters');
     await fsp.mkdir(lightsDir, { recursive: true });
     await fsp.mkdir(flatsDir, { recursive: true });
     await fsp.mkdir(biasesDir, { recursive: true });
@@ -1520,30 +2264,73 @@ async function stageSirilTree(opts = {}) {
       }
     }
 
-    for (const src of calibBiasFiles) {
-      const dest = path.join(biasesDir, path.basename(src));
+    if (preStackedBiasMaster) {
+      await fsp.mkdir(mastersDir, { recursive: true });
+      const dest = path.join(mastersDir, 'bias_stacked.fit');
       try {
-        const result = await ensureLink(src, dest);
-        staged.push({ type: 'bias', filter, from: src, to: dest, action: result.action });
+        const result = await ensureLink(preStackedBiasMaster, dest);
+        staged.push({
+          type: 'bias-master',
+          filter,
+          from: preStackedBiasMaster,
+          to: dest,
+          action: result.action,
+          source: 'master',
+        });
       } catch (err) {
-        errors.push({ file: src, error: String(err.message || err) });
+        errors.push({ file: preStackedBiasMaster, error: String(err.message || err) });
+      }
+    } else {
+      for (const src of calibBiasFiles) {
+        const dest = path.join(biasesDir, path.basename(src));
+        try {
+          const result = await ensureLink(src, dest);
+          staged.push({
+            type: 'bias',
+            filter,
+            from: src,
+            to: dest,
+            action: result.action,
+            source: useMasterBiases ? 'master' : 'session',
+          });
+        } catch (err) {
+          errors.push({ file: src, error: String(err.message || err) });
+        }
       }
     }
 
-    for (const src of calibDarkFiles) {
-      const dest = path.join(darksDir, path.basename(src));
+    if (preStackedDarkMaster) {
+      await fsp.mkdir(mastersDir, { recursive: true });
+      const dest = path.join(mastersDir, 'dark_stacked.fit');
       try {
-        const result = await ensureLink(src, dest);
+        const result = await ensureLink(preStackedDarkMaster, dest);
         staged.push({
-          type: 'dark',
+          type: 'dark-master',
           filter,
-          from: src,
+          from: preStackedDarkMaster,
           to: dest,
           action: result.action,
-          source: useMasterDarks ? 'master' : 'session',
+          source: 'master',
         });
       } catch (err) {
-        errors.push({ file: src, error: String(err.message || err) });
+        errors.push({ file: preStackedDarkMaster, error: String(err.message || err) });
+      }
+    } else {
+      for (const src of calibDarkFiles) {
+        const dest = path.join(darksDir, path.basename(src));
+        try {
+          const result = await ensureLink(src, dest);
+          staged.push({
+            type: 'dark',
+            filter,
+            from: src,
+            to: dest,
+            action: result.action,
+            source: useMasterDarks ? 'master' : 'session',
+          });
+        } catch (err) {
+          errors.push({ file: src, error: String(err.message || err) });
+        }
       }
     }
   }
@@ -1559,15 +2346,22 @@ async function stageSirilTree(opts = {}) {
       shootFolder,
       filters,
       destRoots: filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder)),
-      biasLibrary: biasLibDir,
+      biasLibrary: useMasterBiases ? (masterBiasSourceDir || null) : biasLibDir,
+      biasSource: useMasterBiases
+        ? (masterBiasIsStacked ? 'master-prestacked' : 'master-symlink')
+        : 'session-calibration',
+      biasMaster: !!preStackedBiasMaster,
       darkLibrary: useMasterDarks ? (masterDarkSourceDir || darkLibDir) : darkLibDir,
-      darkSource: useMasterDarks ? 'master-symlink' : 'session-calibration',
+      darkSource: useMasterDarks
+        ? (masterDarkIsStacked ? 'master-prestacked' : 'master-symlink')
+        : 'session-calibration',
+      darkMaster: !!preStackedDarkMaster,
       calibReuse: {
         nightDate,
         biasesPreexisting: preexistingBiasCount,
         darksPreexisting: preexistingDarkCount,
-        biasesAfter: calibBiasFiles.length,
-        darksAfter: calibDarkFiles.length,
+        biasesAfter: preStackedBiasMaster ? 1 : calibBiasFiles.length,
+        darksAfter: preStackedDarkMaster ? 1 : calibDarkFiles.length,
       },
       filesStaged: staged.filter((s) => s.action !== 'skipped').length,
       filesSkipped: staged.filter((s) => s.action === 'skipped').length,
@@ -1577,8 +2371,8 @@ async function stageSirilTree(opts = {}) {
       byType: {
         light: staged.filter((s) => s.type === 'light').length,
         flat: staged.filter((s) => s.type === 'flat').length,
-        bias: staged.filter((s) => s.type === 'bias').length,
-        dark: staged.filter((s) => s.type === 'dark').length,
+        bias: staged.filter((s) => s.type === 'bias' || s.type === 'bias-master').length,
+        dark: staged.filter((s) => s.type === 'dark' || s.type === 'dark-master').length,
       },
       status: scan.status,
       filterRows: scan.filters,
@@ -1884,7 +2678,26 @@ module.exports = {
   inferAsiairDumpNight,
   asiairNightFolderCandidates,
   indexDarkLibrary,
+  indexBiasLibrary,
+  indexCalibrationLibrary,
   matchMasterDarks,
+  matchMasterBiases,
+  matchCalibrationLibrary,
+  importBiasSubsToLibrary,
+  importDarkSubsToLibrary,
+  importCalibrationSubsToLibrary,
+  importCalibrationLibraryBundle,
+  scanCalibrationLibraryImport,
+  deleteCalibrationLibrarySet,
+  removeCalibrationLibrarySubs,
+  findAsiairBiasDirs,
+  findAsiairDarkDirs,
+  findAsiairFrameDirs,
+  folderSizeBytes,
+  biasLibrarySetFolderName,
+  darkLibrarySetFolderName,
+  formatLibraryTempLabel,
+  isLibraryMasterFitName,
   evaluateIngestFrameReadiness,
   stageSirilTree,
   masterDarkSourceSetDir,

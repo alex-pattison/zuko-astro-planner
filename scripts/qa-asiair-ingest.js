@@ -389,7 +389,7 @@ async function testPipeline() {
     useMasterDarks: false,
     filters: ['Ha'],
   });
-  assert('readiness fails without Bias', !missingBias.ok && missingBias.missing.includes('Bias'), missingBias.missing.join(','));
+  assert('readiness fails without Bias', !missingBias.ok && missingBias.missing.some((m) => /Bias/i.test(m)), missingBias.missing.join(','));
 
   // Stage without master dark matches → MISSING_FRAMES
   const noDark = await stageSirilTree({

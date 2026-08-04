@@ -18,6 +18,7 @@ const H_ZUKO = 'H:\\Photography\\Astrophotography\\Zuko';
 const F_ROOT = 'F:\\zuko_dev';
 const F_PROJECTS = path.join(F_ROOT, 'Projects');
 const F_DARK = path.join(F_ROOT, 'Dark Library');
+const F_BIAS = path.join(F_ROOT, 'Bias Library');
 
 function normalizeWin(s) {
   let t = String(s).trim().replace(/\//g, '\\');
@@ -31,8 +32,12 @@ function remapPath(s) {
   if (typeof s !== 'string') return s;
   const t = normalizeWin(s);
   const hDark = H_ZUKO + '\\Dark Library';
+  const hBias = H_ZUKO + '\\Bias Library';
   if (t === hDark || t.startsWith(hDark + '\\')) {
     return F_DARK + t.slice(hDark.length);
+  }
+  if (t === hBias || t.startsWith(hBias + '\\')) {
+    return F_BIAS + t.slice(hBias.length);
   }
   if (t === H_ZUKO || t.startsWith(H_ZUKO + '\\')) {
     // Project / other trees under Zuko → Dev Projects pool
@@ -44,6 +49,9 @@ function remapPath(s) {
     const rest = t.slice(oldRoot.length); // e.g. \NGC7000... or \Dark Library or \Projects\...
     if (rest === '\\Dark Library' || rest.startsWith('\\Dark Library\\')) {
       return F_DARK + rest.slice('\\Dark Library'.length);
+    }
+    if (rest === '\\Bias Library' || rest.startsWith('\\Bias Library\\')) {
+      return F_BIAS + rest.slice('\\Bias Library'.length);
     }
     if (rest === '\\Projects' || rest.startsWith('\\Projects\\')) {
       return F_PROJECTS + rest.slice('\\Projects'.length);
@@ -91,6 +99,11 @@ data.darkLibrary = {
   index: [],
   indexedAt: null,
 };
+data.biasLibrary = {
+  path: F_BIAS,
+  index: [],
+  indexedAt: null,
+};
 
 if (!data.appMeta) data.appMeta = {};
 data.appMeta.savedAt = new Date().toISOString();
@@ -103,3 +116,4 @@ for (const pr of data.projects || []) {
   console.log(' -', pr.name, '=>', pr.projectDir);
 }
 console.log('darkLibrary', data.darkLibrary);
+console.log('biasLibrary', data.biasLibrary);

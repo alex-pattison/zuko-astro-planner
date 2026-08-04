@@ -22,7 +22,7 @@ Two side-by-side channels with **separate data pools** (they never sync):
 
 | Channel | How you run it | App / dashboard JSON | Imaging files |
 |---|---|---|---|
-| **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` |
+| **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` + `F:\zuko_dev\Bias Library` |
 | **Beta** | NSIS installer (`npm run dist:win:beta`) | `H:\Photography\Astrophotography\Dashboard` | `H:\Photography\Astrophotography\Zuko\…` |
 
 **One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\zuko_dev` is Dev FITS / synthetic data only.
@@ -40,10 +40,23 @@ npm run seed:beta
 
 ## Data storage
 
-- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories and the master dark library live under `F:\zuko_dev\…`.
-- **Beta** loads/saves only `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`.
+- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories, Dark Library, and Bias Library live under `F:\zuko_dev\…`.
+- **Beta** loads/saves only `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`. Dark Library and Bias Library live under `H:\Photography\Astrophotography\Zuko\…`.
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
+
+## Calibration libraries
+
+Separate housekeeping roots:
+
+| Library | Dev | Beta |
+|---|---|---|
+| **Dark** | `F:\zuko_dev\Dark Library` | `H:\…\Zuko\Dark Library` |
+| **Bias** (ASIAIR Bias = dark flats) | `F:\zuko_dev\Bias Library` | `H:\…\Zuko\Bias Library` |
+
+- **Import from ASIAIR…** (Bias Library panel) copies Bias subs into set folders (`Bias_<exp>_BinN_<temp>c[/filter]/`).
+- **Build master…** runs Siril stack → `master.fit`; choose KEEP or REMOVE subs. Tables show Subs / Master / Size.
+- Shoot **Import** can use matching master darks and master biases (checkboxes). With a library `master.fit`, Import links it to `masters/bias_stacked.fit` and Calibrate skips the bias stack.
 
 ## ASIAIR Import (Shoot Log)
 
@@ -71,10 +84,12 @@ Autorun/   (or Plan/)
 
 ```text
 <projectDir>/
-  _calibration/darkflats/<YYYYMMDD>/
-  _calibration/darks/<YYYYMMDD>/
-  <Filter>/<ShootName>/{lights,flats,biases,darks}/
+  _calibration/darkflats/<YYYYMMDD>/   (session biases when not using Bias Library)
+  _calibration/darks/<YYYYMMDD>/       (session darks when not using Dark Library)
+  <Filter>/<ShootName>/{lights,flats,biases,darks,masters}/
 ```
+
+When **Use matching master biases** is on, Bias Library frames are linked (or `masters/bias_stacked.fit` if a set already has `master.fit`) instead of copying into `_calibration/darkflats`.
 
 Live Wi‑Fi auto-watch of a connected ASIAIR is still deferred — use Browse to the mounted share for now.
 

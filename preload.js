@@ -40,7 +40,15 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   importAsiair: (opts) => ipcRenderer.invoke('zuko-ingest-import-asiair', opts || {}),
   scanSession: (opts) => ipcRenderer.invoke('zuko-ingest-scan-session', opts || {}),
   indexDarks: (libraryPath) => ipcRenderer.invoke('zuko-ingest-index-darks', { libraryPath }),
+  indexBiases: (libraryPath) => ipcRenderer.invoke('zuko-ingest-index-biases', { libraryPath }),
   matchDarks: (opts) => ipcRenderer.invoke('zuko-ingest-match-darks', opts || {}),
+  matchBiases: (opts) => ipcRenderer.invoke('zuko-ingest-match-biases', opts || {}),
+  importBiases: (opts) => ipcRenderer.invoke('zuko-ingest-import-biases', opts || {}),
+  scanCalibLibrary: (opts) => ipcRenderer.invoke('zuko-ingest-scan-calib-library', opts || {}),
+  importCalibLibrary: (opts) => ipcRenderer.invoke('zuko-ingest-import-calib-library', opts || {}),
+  deleteLibrarySet: (opts) => ipcRenderer.invoke('zuko-ingest-delete-library-set', opts || {}),
+  removeLibrarySubs: (opts) => ipcRenderer.invoke('zuko-ingest-remove-library-subs', opts || {}),
+  librarySize: (dirPath) => ipcRenderer.invoke('zuko-ingest-library-size', { path: dirPath }),
   stage: (opts) => ipcRenderer.invoke('zuko-ingest-stage', opts || {}),
   scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
@@ -50,6 +58,7 @@ contextBridge.exposeInMainWorld('zukoIngest', {
 contextBridge.exposeInMainWorld('zukoSiril', {
   calibrate: (opts) => ipcRenderer.invoke('zuko-siril-calibrate', opts || {}),
   stackFilter: (opts) => ipcRenderer.invoke('zuko-siril-stack-filter', opts || {}),
+  buildMaster: (opts) => ipcRenderer.invoke('zuko-siril-build-master', opts || {}),
   readLog: (opts) => ipcRenderer.invoke('zuko-siril-read-log', opts || {}),
   onLog: (handler) => {
     if (typeof handler !== 'function') return () => {};

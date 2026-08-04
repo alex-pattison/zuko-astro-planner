@@ -653,12 +653,87 @@ ipcMain.handle('zuko-ingest-index-darks', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-ingest-index-biases', async (_event, payload = {}) => {
+  try {
+    const { indexBiasLibrary } = loadAsiairIngest();
+    return await indexBiasLibrary(payload.libraryPath);
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), index: [] };
+  }
+});
+
 ipcMain.handle('zuko-ingest-match-darks', async (_event, payload = {}) => {
   try {
     const { matchMasterDarks } = loadAsiairIngest();
     return matchMasterDarks(payload || {});
   } catch (err) {
     return { ok: false, error: String(err && err.message ? err.message : err), matches: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-match-biases', async (_event, payload = {}) => {
+  try {
+    const { matchMasterBiases } = loadAsiairIngest();
+    return matchMasterBiases(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), matches: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-import-biases', async (_event, payload = {}) => {
+  try {
+    const { importBiasSubsToLibrary } = loadAsiairIngest();
+    return await importBiasSubsToLibrary(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-scan-calib-library', async (_event, payload = {}) => {
+  try {
+    const { scanCalibrationLibraryImport } = loadAsiairIngest();
+    return await scanCalibrationLibraryImport(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), sets: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-import-calib-library', async (_event, payload = {}) => {
+  try {
+    const { importCalibrationLibraryBundle } = loadAsiairIngest();
+    return await importCalibrationLibraryBundle(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-delete-library-set', async (_event, payload = {}) => {
+  try {
+    const { deleteCalibrationLibrarySet } = loadAsiairIngest();
+    return await deleteCalibrationLibrarySet(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-remove-library-subs', async (_event, payload = {}) => {
+  try {
+    const { removeCalibrationLibrarySubs } = loadAsiairIngest();
+    return await removeCalibrationLibrarySubs(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-library-size', async (_event, payload = {}) => {
+  try {
+    const { folderSizeBytes } = loadAsiairIngest();
+    const dir = payload && payload.path;
+    if (!dir) return { ok: false, error: 'path is required', sizeBytes: 0 };
+    const sizeBytes = await folderSizeBytes(dir);
+    return { ok: true, path: dir, sizeBytes };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), sizeBytes: 0 };
   }
 });
 
@@ -729,6 +804,24 @@ ipcMain.handle('zuko-siril-calibrate', async (event, payload = {}) => {
   try {
     const { calibrateShoot } = loadSirilPreprocess();
     return await calibrateShoot({
+      ...(payload || {}),
+      onLog: (chunk) => {
+        try {
+          event.sender.send('zuko-siril-log', { chunk: String(chunk || '') });
+        } catch {
+          /* ignore */
+        }
+      },
+    });
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-build-master', async (event, payload = {}) => {
+  try {
+    const { buildLibraryMaster } = loadSirilPreprocess();
+    return await buildLibraryMaster({
       ...(payload || {}),
       onLog: (chunk) => {
         try {
