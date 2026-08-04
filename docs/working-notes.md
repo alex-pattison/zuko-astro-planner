@@ -22,6 +22,11 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-04 — build 10 — ASIAIR Import + Veil flatten (beta release)
+- Import from mounted ASIAIR root (`Autorun`/`Plan`/`Light`…); Settings source path; copy-only into projectDir.
+- Veil project root flattened; DEV/BETA Electron profile isolation.
+- Sample dump `F:\ASIAIR-SampleData` matches live mount (G: = those top-level folders). New Plan Ha 260803 needs night flats before Import can complete.
+
 ### 2026-08-03 — build 9 — Dev/Beta isolation (userData + single-instance)
 - Dev and Beta no longer share Electron `userData` (`…\zuko-astro-planner-dev` vs `…-beta`).
 - Per-channel single-instance lock: second Dev focuses the first Dev (same for Beta). Dev + Beta can still run together.
