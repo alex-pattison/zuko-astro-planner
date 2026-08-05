@@ -1,0 +1,13 @@
+---
+description: Do not auto-relaunch Dev Electron; tell the user to restart when needed
+alwaysApply: true
+---
+
+# Dev app reload after changes
+
+**Do not** kill or relaunch Electron (`npm start`) unless the user explicitly asks.
+
+After changes that affect the running app (`main.js`, `preload.js`, IPC, ingest/Siril backend, or UI), briefly tell the user to restart Dev themselves (or reload the window if that is enough).
+
+- Prefer leaving their running session alone.
+- Never chain kill/relaunch while they are testing.

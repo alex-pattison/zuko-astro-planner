@@ -27,7 +27,7 @@ const GAIN = 120;
 const TEMP = -10;
 const EXP_LIGHT = 180;
 const EXP_FLAT = 0.5;
-const EXP_BIAS = 2;
+const EXP_BIAS = 0.5; // darkflats must match flat exposure
 
 function pad80(s) {
   const t = String(s).slice(0, 80);
@@ -99,7 +99,8 @@ function flatName(expSec, filterLetter, ymd, hms, seq) {
 }
 
 function biasName(ymd, hms, seq) {
-  return `Bias_${EXP_BIAS}.0s_Bin2_H_${stamp(ymd, hms)}_${TEMP.toFixed(1)}C_${String(seq).padStart(4, '0')}.fit`;
+  const exp = EXP_BIAS < 1 ? `${(EXP_BIAS * 1000).toFixed(1)}ms` : `${EXP_BIAS}.0s`;
+  return `Bias_${exp}_Bin2_H_${stamp(ymd, hms)}_${TEMP.toFixed(1)}C_${String(seq).padStart(4, '0')}.fit`;
 }
 
 function darkName(expSec, ymd, hms, seq) {

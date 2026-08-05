@@ -653,39 +653,12 @@ ipcMain.handle('zuko-ingest-index-darks', async (_event, payload = {}) => {
   }
 });
 
-ipcMain.handle('zuko-ingest-index-biases', async (_event, payload = {}) => {
-  try {
-    const { indexBiasLibrary } = loadAsiairIngest();
-    return await indexBiasLibrary(payload.libraryPath);
-  } catch (err) {
-    return { ok: false, error: String(err && err.message ? err.message : err), index: [] };
-  }
-});
-
 ipcMain.handle('zuko-ingest-match-darks', async (_event, payload = {}) => {
   try {
     const { matchMasterDarks } = loadAsiairIngest();
     return matchMasterDarks(payload || {});
   } catch (err) {
     return { ok: false, error: String(err && err.message ? err.message : err), matches: [] };
-  }
-});
-
-ipcMain.handle('zuko-ingest-match-biases', async (_event, payload = {}) => {
-  try {
-    const { matchMasterBiases } = loadAsiairIngest();
-    return matchMasterBiases(payload || {});
-  } catch (err) {
-    return { ok: false, error: String(err && err.message ? err.message : err), matches: [] };
-  }
-});
-
-ipcMain.handle('zuko-ingest-import-biases', async (_event, payload = {}) => {
-  try {
-    const { importBiasSubsToLibrary } = loadAsiairIngest();
-    return await importBiasSubsToLibrary(payload || {});
-  } catch (err) {
-    return { ok: false, error: String(err && err.message ? err.message : err) };
   }
 });
 

@@ -893,8 +893,25 @@
   .ingest-files-sub {
     font-size: 12px;
     color: var(--text2);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
+  .ingest-files-override {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg3);
+    font-size: 12px;
+  }
+  .ingest-files-override[hidden] { display: none !important; }
+  .ingest-files-override .ovr-meta { color: var(--text2); flex: 1; min-width: 140px; }
+  .ingest-files-override .ovr-meta strong { color: var(--text); font-weight: 600; }
+  .ingest-files-table td.include-cell { text-align: center; width: 72px; }
+  .ingest-files-table td.include-cell input { cursor: pointer; }
   .ingest-files-scroll {
     overflow: auto;
     flex: 1;
@@ -1311,6 +1328,10 @@
     background: color-mix(in srgb, var(--yellow) 14%, transparent);
   }
   tr.ingest-dark-reject td.reason-cell { color: var(--yellow); }
+  tr.ingest-dark-include {
+    background: color-mix(in srgb, var(--accent, #6af) 12%, transparent);
+  }
+  tr.ingest-dark-include td.reason-cell { color: var(--accent2, #6af); }
   .ingest-table {
     width: 100%;
     border-collapse: collapse;
@@ -2310,6 +2331,12 @@
   }
 
   .modal-overlay.open { display: flex; }
+
+  html.modal-open,
+  body.modal-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+  }
 
   .modal {
     background: var(--bg2);
@@ -3742,39 +3769,35 @@
     <div class="notes-box" id="notes-box"></div>
   </details>
 
-  <!-- Calibration libraries (Dark + Bias / darkflats) -->
+  <!-- Calibration library (Dark) -->
   <details class="collapsible" open data-section="calibration-libraries">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
-      <h2>Calibration — Dark &amp; Bias Libraries</h2>
+      <h2>Calibration — Dark Library</h2>
       <div class="section-line"></div>
     </summary>
     <div class="darklib-path-row" style="flex-wrap:wrap;gap:8px;">
       <button class="add-btn" onclick="reindexCalibrationLibraries()">Re-index</button>
-      <button class="add-btn" onclick="openCalibLibraryImportModal('both')">Import from ASIAIR…</button>
-      <span style="color:var(--gray);font-size:12px;align-self:center;">Library paths are in Settings</span>
+      <button class="add-btn" onclick="openCalibLibraryImportModal()">Import from ASIAIR…</button>
+      <span id="caliblib-size" class="mono" style="color:var(--gray);font-size:12px;align-self:center;margin-left:4px;"></span>
     </div>
     <div id="caliblib-status" class="ingest-status-line" style="margin-bottom:8px;">Not indexed yet.</div>
     <div class="table-scroll sticky-head">
       <table class="ingest-table" id="caliblib-table">
         <thead>
           <tr>
-            <th data-sort="status" onclick="sortCalibLibraryTable('status')">Status</th>
             <th data-sort="bin" onclick="sortCalibLibraryTable('bin')">Bin</th>
             <th data-sort="tempC" onclick="sortCalibLibraryTable('tempC')">Temp</th>
-            <th data-sort="darkExp" onclick="sortCalibLibraryTable('darkExp')">Dark exp</th>
-            <th data-sort="biasExp" onclick="sortCalibLibraryTable('biasExp')">Bias exp</th>
-            <th data-sort="darkSubs" onclick="sortCalibLibraryTable('darkSubs')">Dark subs</th>
-            <th data-sort="hasDarkMaster" onclick="sortCalibLibraryTable('hasDarkMaster')">Dark master</th>
-            <th data-sort="biasSubs" onclick="sortCalibLibraryTable('biasSubs')">Bias subs</th>
-            <th data-sort="hasBiasMaster" onclick="sortCalibLibraryTable('hasBiasMaster')">Bias master</th>
+            <th data-sort="exp" onclick="sortCalibLibraryTable('exp')">Exp</th>
+            <th data-sort="darkSubs" onclick="sortCalibLibraryTable('darkSubs')">Subs</th>
+            <th data-sort="hasDarkMaster" onclick="sortCalibLibraryTable('hasDarkMaster')">Master</th>
             <th data-sort="sizeBytes" onclick="sortCalibLibraryTable('sizeBytes')">Size</th>
             <th data-sort="ageDays" onclick="sortCalibLibraryTable('ageDays')">Age</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="caliblib-tbody">
-          <tr><td colspan="12" style="color:var(--gray);">Index the libraries to list matched dark / bias pairs.</td></tr>
+          <tr><td colspan="8" style="color:var(--gray);">Index the library to list dark sets.</td></tr>
         </tbody>
       </table>
     </div>
@@ -4207,17 +4230,12 @@
     </div>
 
     <div class="settings-section">
-      <h4>Calibration libraries</h4>
-      <p class="settings-hint">Master dark and bias (darkflat) libraries used for Import matching and Siril staging. Paths are per channel (Dev vs Beta).</p>
+      <h4>Dark Library</h4>
+      <p class="settings-hint">Master dark library used for Import matching and Siril staging. Path is per channel (Dev vs Beta).</p>
       <label for="settings-darklib-path">Dark Library</label>
       <div class="settings-row-actions" style="align-items:center;gap:8px;flex-wrap:wrap;">
         <input id="settings-darklib-path" data-testid="settings-darklib-path" type="text" autocomplete="off" placeholder="Dark Library folder" style="flex:1;min-width:200px;">
         <button type="button" class="modal-btn" data-testid="settings-darklib-browse" onclick="browseSettingsDarkLibraryPath()">Browse…</button>
-      </div>
-      <label for="settings-biaslib-path" style="margin-top:10px;">Bias Library</label>
-      <div class="settings-row-actions" style="align-items:center;gap:8px;flex-wrap:wrap;">
-        <input id="settings-biaslib-path" data-testid="settings-biaslib-path" type="text" autocomplete="off" placeholder="Bias Library folder" style="flex:1;min-width:200px;">
-        <button type="button" class="modal-btn" data-testid="settings-biaslib-browse" onclick="browseSettingsBiasLibraryPath()">Browse…</button>
       </div>
     </div>
 
@@ -4353,7 +4371,7 @@
       </table>
     </div>
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0 8px;">
-      <input type="checkbox" id="ingest-use-masters" onchange="onIngestUseMastersChange()"> Use matching master darks &amp; biases when importing
+      <input type="checkbox" id="ingest-use-masters" onchange="onIngestUseMastersChange()"> Use matching master darks when importing
     </label>
     <div class="ingest-busy" id="ingest-busy" aria-live="polite">
       <div class="ingest-busy-row">
@@ -4372,11 +4390,11 @@
   </div>
 </div>
 
-<!-- Calibration Library Import (Dark + Bias / darkflats) -->
+<!-- Calibration Library Import (Dark) -->
 <div class="modal-overlay" id="calib-import-overlay" data-testid="calib-import-overlay" onclick="if(event.target===this)closeCalibLibraryImportModal()">
   <div class="ingest-modal" role="dialog" aria-modal="true" aria-labelledby="calib-import-title" style="width:min(920px,96vw);max-height:90vh;overflow:auto;">
-    <h3 id="calib-import-title">Import → Calibration Library</h3>
-    <div class="ingest-status-line" id="calib-import-sub" style="margin-bottom:10px;">Scan ASIAIR Bias (dark flats) and Dark folders, then copy into your libraries.</div>
+    <h3 id="calib-import-title">Import → Dark Library</h3>
+    <div class="ingest-status-line" id="calib-import-sub" style="margin-bottom:10px;">Scan ASIAIR Dark folders, then copy into your Dark Library.</div>
     <div style="margin-bottom:10px;">
       <div style="font-size:11px;color:var(--gray);margin-bottom:4px;">ASIAIR source</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -4386,8 +4404,7 @@
         <button type="button" class="modal-btn" onclick="rescanCalibImportSource()">Rescan</button>
       </div>
       <div style="font-size:11px;color:var(--gray);margin-top:8px;">
-        Dark Library: <span class="mono" id="calib-import-dark-path">—</span><br>
-        Bias Library: <span class="mono" id="calib-import-bias-path">—</span>
+        Dark Library: <span class="mono" id="calib-import-dark-path">—</span>
       </div>
     </div>
     <div class="ingest-chips" id="calib-import-chips" style="margin-top:0;"></div>
@@ -4396,7 +4413,6 @@
         <thead>
           <tr>
             <th><input type="checkbox" id="calib-import-check-all" checked onclick="event.stopPropagation(); toggleCalibImportSelectAll(this.checked)" title="Select all"></th>
-            <th data-sort="kind" onclick="sortCalibImportTable('kind')">Type</th>
             <th data-sort="setName" onclick="sortCalibImportTable('setName')">Set</th>
             <th data-sort="filter" onclick="sortCalibImportTable('filter')">Filter</th>
             <th data-sort="count" onclick="sortCalibImportTable('count')">Files</th>
@@ -4408,7 +4424,7 @@
           </tr>
         </thead>
         <tbody id="calib-import-tbody">
-          <tr><td colspan="10" style="color:var(--gray);">Browse or Rescan an ASIAIR source.</td></tr>
+          <tr><td colspan="9" style="color:var(--gray);">Browse or Rescan an ASIAIR source.</td></tr>
         </tbody>
       </table>
     </div>
@@ -4462,6 +4478,10 @@
   <div class="ingest-files-modal" role="dialog" aria-labelledby="ingest-files-title">
     <h3 id="ingest-files-title">Files</h3>
     <div class="ingest-files-sub" id="ingest-files-sub">—</div>
+    <div class="ingest-files-override" id="ingest-files-override" hidden>
+      <span class="ovr-meta" id="ingest-files-override-meta"></span>
+      <button type="button" class="modal-btn" id="ingest-files-override-all" onclick="toggleIngestFilesIncludeAll()">Include all out of range</button>
+    </div>
     <div class="ingest-files-scroll">
       <table class="ingest-files-table">
         <thead>
@@ -4527,11 +4547,6 @@ const defaultData = {
   uiSections: {},
   darkLibrary: {
     path: 'F:\\zuko_dev\\Dark Library',
-    index: [],
-    indexedAt: null
-  },
-  biasLibrary: {
-    path: 'F:\\zuko_dev\\Bias Library',
     index: [],
     indexedAt: null
   },
@@ -5068,12 +5083,16 @@ function adoptLoadedData(incoming) {
   ensureHomeSite();
   ensureAssets();
   ensureDarkLibrary();
+  (data.projects || []).forEach((p) => {
+    if (p && p.projectDir) p.projectDir = normalizeWinPath(p.projectDir) || '';
+  });
   (data.projects || []).forEach(recomputeProjectFilterHours);
   if (data.uiTheme === 'light' || data.uiTheme === 'red' || data.uiTheme === 'dark') {
     applyUiTheme(data.uiTheme); // syncs localStorage to JSON theme without calling persistData
   }
   if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
   if (data.asiairSourcePath == null) data.asiairSourcePath = '';
+  else data.asiairSourcePath = normalizeWinPath(data.asiairSourcePath) || '';
   initSectionCollapseControls();
   const saved = data.appMeta || {};
   const savedBuild = Number(saved.build) || 0;
@@ -7080,7 +7099,6 @@ function renderUnsafe() {
 
   renderAssets();
   renderDarkLibraryPanel();
-  renderBiasLibraryPanel();
 }
 
 // ============ PROJECTS ============
@@ -7274,7 +7292,7 @@ function renderProjects() {
           <option value="processing" ${p.status === 'processing' ? 'selected' : ''}>Processing</option>
           <option value="complete" ${p.status === 'complete' ? 'selected' : ''}>complete</option>
         </select>
-        <span class="project-name editable" onclick="event.stopPropagation(); editProjectMeta(${pi})" title="Click to edit project">${p.name}</span>
+        <span class="project-name" title="Click to expand / collapse">${p.name}</span>
         <span class="project-progress">${totalLogged.toFixed(1)}h / ${totalTarget.toFixed(1)}h · ${doneSteps}/${p.checklist.length} steps</span>
         <span class="project-chevron" data-testid="project-expand">▶</span>
         <button class="project-remove" onclick="event.stopPropagation(); removeProject(${pi})" title="Remove project">✕</button>
@@ -8033,13 +8051,63 @@ function setAsiairSourcePath(p, { persist = true } = {}) {
 }
 
 /**
- * Resolve ASIAIR source for Import / Review: session override → setting → projectDir fallback.
+ * Resolve ASIAIR source for Import / Review: session override → Settings path.
+ * Never falls back to projectDir (that is the Siril destination, not the unit dump).
  */
 function resolveAsiairSourceDir(project) {
   if (ingestCtx && ingestCtx.sourcePath) return ingestCtx.sourcePath;
   const saved = getAsiairSourcePath();
   if (saved) return saved;
-  return project && project.projectDir ? project.projectDir : null;
+  return null;
+}
+
+/** True when the Settings/source folder exists on disk (mounted). */
+async function asiairSourcePathExists(dir) {
+  if (!dir || !window.zukoIngest || !window.zukoIngest.discover) return false;
+  try {
+    const disc = await window.zukoIngest.discover(dir);
+    // discover ok ⇒ folder exists (sessions may still be empty)
+    return !!(disc && disc.ok);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Use Settings ASIAIR source when that path is mounted.
+ * Only open the folder picker if Settings is empty or the path is missing (e.g. G: unmounted).
+ * Does not clear the Settings default when the drive is offline.
+ */
+async function ensureAsiairSourceSelected(project) {
+  const settingsPath = getAsiairSourcePath();
+  const sessionPath = ingestCtx && ingestCtx.sourcePath ? String(ingestCtx.sourcePath).trim() : '';
+  const candidate = sessionPath || settingsPath;
+
+  if (candidate && await asiairSourcePathExists(candidate)) {
+    if (ingestCtx) ingestCtx.sourcePath = candidate;
+    syncIngestSourcePathInput(candidate);
+    return candidate;
+  }
+
+  if (!window.zukoIngest || !window.zukoIngest.pickFolder) {
+    alert('Set an ASIAIR source path (Settings → ASIAIR source).');
+    return null;
+  }
+
+  const unmounted = !!(settingsPath && !(await asiairSourcePathExists(settingsPath)));
+  const picked = await window.zukoIngest.pickFolder({
+    title: unmounted
+      ? `ASIAIR source offline (${settingsPath}) — pick a mounted folder`
+      : 'Select ASIAIR source (Autorun/Plan parent, or Autorun itself)',
+    defaultPath: settingsPath || undefined,
+  });
+  if (!picked || !picked.ok || picked.canceled || !picked.path) return null;
+
+  // Remember as the new Settings default when they pick while browsing.
+  setAsiairSourcePath(picked.path, { persist: true });
+  if (ingestCtx) ingestCtx.sourcePath = picked.path;
+  syncIngestSourcePathInput(picked.path);
+  return picked.path;
 }
 
 function syncIngestSourcePathInput(pathVal) {
@@ -8094,9 +8162,10 @@ async function rescanIngestSource() {
   if (!disc || !disc.ok || !disc.sessions || !disc.sessions.length) {
     ingestCtx.sessions = [];
     document.getElementById('ingest-session-path').textContent = 'No Autorun/Plan found under ASIAIR source';
-    document.getElementById('ingest-progress').textContent = (disc && disc.error) || 'No ASIAIR session folders under source path.';
+    const err = (disc && disc.error) || 'No ASIAIR session folders under source path.';
+    document.getElementById('ingest-progress').textContent = err + ' — use Browse if this is the wrong folder.';
     document.getElementById('ingest-filter-body').innerHTML =
-      '<tr><td colspan="10" style="color:var(--yellow);">No sessions found — browse to the unit/USB folder that contains Autorun or Plan.</td></tr>';
+      '<tr><td colspan="10" style="color:var(--yellow);">No sessions found — Browse to the folder that contains Autorun or Plan (not the Siril project directory).</td></tr>';
     return;
   }
   ingestCtx.sessions = disc.sessions;
@@ -8106,8 +8175,6 @@ async function rescanIngestSource() {
 
 const BETA_DARK_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
 const DEV_DARK_LIBRARY_PATH = 'F:\\zuko_dev\\Dark Library';
-const BETA_BIAS_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Bias Library';
-const DEV_BIAS_LIBRARY_PATH = 'F:\\zuko_dev\\Bias Library';
 const LEGACY_DARK_LIBRARY_PATHS = [
   'H:\\Photography\\Astrophotography\\Calibration\\Darks',
 ];
@@ -8116,12 +8183,6 @@ function defaultDarkLibraryPath() {
   return (APP_META && APP_META.channel === 'beta')
     ? BETA_DARK_LIBRARY_PATH
     : DEV_DARK_LIBRARY_PATH;
-}
-
-function defaultBiasLibraryPath() {
-  return (APP_META && APP_META.channel === 'beta')
-    ? BETA_BIAS_LIBRARY_PATH
-    : DEV_BIAS_LIBRARY_PATH;
 }
 
 /** Collapse accidental double-backslashes (JSON double-escape) without breaking UNC. */
@@ -8151,25 +8212,9 @@ function ensureDarkLibrary() {
   } else if (cur !== data.darkLibrary.path) {
     data.darkLibrary.path = cur;
   }
-}
-
-function ensureBiasLibrary() {
-  if (!data.biasLibrary || typeof data.biasLibrary !== 'object') {
-    data.biasLibrary = {
-      path: defaultBiasLibraryPath(),
-      index: [],
-      indexedAt: null,
-      removedSets: [],
-    };
-  }
-  if (!Array.isArray(data.biasLibrary.index)) data.biasLibrary.index = [];
-  if (!Array.isArray(data.biasLibrary.removedSets)) data.biasLibrary.removedSets = [];
-  const cur = normalizeWinPath((data.biasLibrary.path || '').trim());
-  if (!cur) {
-    data.biasLibrary.path = defaultBiasLibraryPath();
-  } else if (cur !== data.biasLibrary.path) {
-    data.biasLibrary.path = cur;
-  }
+  // One-time cleanup — the Bias Library product was removed; session ASIAIR
+  // biases (darkflats) still come with flats and need no library of their own.
+  if (data.biasLibrary) delete data.biasLibrary;
 }
 
 function libraryRemovedSetNames(lib) {
@@ -8189,14 +8234,14 @@ function activeLibraryIndex(lib) {
 }
 
 function markLibrarySetRemoved(kind, setName) {
-  const lib = kind === 'dark' ? data.darkLibrary : data.biasLibrary;
+  const lib = data.darkLibrary;
   if (!lib) return;
   if (!Array.isArray(lib.removedSets)) lib.removedSets = [];
   if (!lib.removedSets.includes(setName)) lib.removedSets.push(setName);
 }
 
 function clearLibrarySetRemoved(kind, setName) {
-  const lib = kind === 'dark' ? data.darkLibrary : data.biasLibrary;
+  const lib = data.darkLibrary;
   if (!lib || !Array.isArray(lib.removedSets)) return;
   lib.removedSets = lib.removedSets.filter((n) => n !== setName);
 }
@@ -8206,7 +8251,7 @@ function clearRemovedSetsFromImportIds(setIds) {
     const parts = String(id).split(':');
     const kind = parts[0];
     const setName = parts[1];
-    if ((kind === 'dark' || kind === 'bias') && setName) clearLibrarySetRemoved(kind, setName);
+    if (kind === 'dark' && setName) clearLibrarySetRemoved(kind, setName);
   }
 }
 
@@ -8284,16 +8329,25 @@ function enrichLibrarySetFolders(folders, index, libraryRoot) {
   return folders;
 }
 
+function librarySetExpKey(exposureSec) {
+  if (exposureSec == null || !Number.isFinite(Number(exposureSec))) return '?';
+  const n = Number(exposureSec);
+  // Exact set identity (same rounding as library folder names).
+  return String(Number.isInteger(n) ? n : Math.round(n * 1000) / 1000);
+}
+
 function librarySetProfileKey(f) {
   const bin = f.bin != null && Number.isFinite(Number(f.bin)) ? Math.round(Number(f.bin)) : '?';
   const temp = f.tempC != null && Number.isFinite(Number(f.tempC)) ? Math.round(Number(f.tempC)) : '?';
-  return bin + '|' + temp;
+  const exp = librarySetExpKey(f.exposureSec);
+  return bin + '|' + temp + '|' + exp;
 }
 
 function librarySetProfileLabel(f) {
   const bin = f.bin != null ? 'Bin' + f.bin : 'Bin?';
   const temp = f.tempC != null ? (Math.round(Number(f.tempC)) + '°C') : '?°C';
-  return bin + ' · ' + temp;
+  const exp = f.exposureSec != null ? formatLibraryExpCell(f.exposureSec) : '?s';
+  return bin + ' · ' + temp + ' · ' + exp;
 }
 
 function collectLibraryFolders(lib) {
@@ -8310,6 +8364,19 @@ function collectLibraryFolders(lib) {
         f.hasMaster = !!s.hasMaster;
         f.subCount = s.subCount != null ? s.subCount : f.subCount;
         f.masterPath = s.masterPath || f.masterPath;
+        if (f.exposureSec == null && s.exposureSec != null) f.exposureSec = s.exposureSec;
+        if (f.bin == null && s.bin != null) f.bin = s.bin;
+        if (f.tempC == null && s.tempC != null) f.tempC = s.tempC;
+        if (f.gain == null && s.gain != null) f.gain = s.gain;
+      }
+      // Folder-name fallback (Darks_180s_Bin2_-10c) if still missing.
+      if (f.exposureSec == null || f.bin == null || f.tempC == null) {
+        const m = /^(Darks?)_([0-9]+(?:\.[0-9]+)?)s_Bin(\d+)_(-?\d+)c$/i.exec(f.name || '');
+        if (m) {
+          if (f.exposureSec == null) f.exposureSec = Number(m[2]);
+          if (f.bin == null) f.bin = Number(m[3]);
+          if (f.tempC == null) f.tempC = Number(m[4]);
+        }
       }
     }
   }
@@ -8320,75 +8387,28 @@ function collectLibraryFolders(lib) {
   return folders;
 }
 
-function pairCalibrationLibrarySets(darkFolders, biasFolders) {
-  const map = new Map();
-  function ensure(key, sample) {
-    let row = map.get(key);
-    if (!row) {
-      row = {
-        key,
-        profile: librarySetProfileLabel(sample || {}),
-        bin: sample && sample.bin != null && Number.isFinite(Number(sample.bin))
-          ? Math.round(Number(sample.bin))
-          : null,
-        tempC: sample && sample.tempC != null ? Math.round(Number(sample.tempC)) : null,
-        darks: [],
-        biases: [],
-      };
-      map.set(key, row);
-    }
-    return row;
-  }
-  for (const f of darkFolders || []) {
-    ensure(librarySetProfileKey(f), f).darks.push(f);
-  }
-  for (const f of biasFolders || []) {
-    ensure(librarySetProfileKey(f), f).biases.push(f);
-  }
-  const rows = [...map.values()].map((row) => {
-    const hasDark = row.darks.length > 0;
-    const hasBias = row.biases.length > 0;
-    row.status = hasDark && hasBias ? 'full' : (hasDark ? 'missing-bias' : 'missing-dark');
-    row.statusLabel = hasDark && hasBias ? 'Full set' : (hasDark ? 'Missing bias' : 'Missing dark');
-    row.darkPrimary = row.darks.slice().sort((a, b) => (b.subCount || b.count || 0) - (a.subCount || a.count || 0))[0] || null;
-    row.biasPrimary = row.biases.slice().sort((a, b) => (b.subCount || b.count || 0) - (a.subCount || a.count || 0))[0] || null;
-    row.darkSubs = row.darks.reduce((n, f) => n + (Number(f.subCount != null ? f.subCount : f.count) || 0), 0);
-    row.biasSubs = row.biases.reduce((n, f) => n + (Number(f.subCount != null ? f.subCount : f.count) || 0), 0);
-    row.hasDarkMaster = row.darks.some((f) => f.hasMaster);
-    row.hasBiasMaster = row.biases.some((f) => f.hasMaster);
-    row.darkExp = row.darkPrimary && row.darkPrimary.exposureSec != null ? Number(row.darkPrimary.exposureSec) : null;
-    row.biasExp = row.biasPrimary && row.biasPrimary.exposureSec != null ? Number(row.biasPrimary.exposureSec) : null;
-    row.sizeBytes = row.darks.concat(row.biases).reduce((n, f) => n + (Number(f.sizeBytes) || 0), 0);
-    const ages = row.darks.concat(row.biases).map((f) => f.ageDays).filter((x) => x != null);
-    row.ageDays = ages.length ? Math.max(...ages.map(Number)) : null;
-    row.expired = row.darks.concat(row.biases).some((f) => f.expired);
-    return row;
-  });
-  rows.sort((a, b) => {
-    const rank = { full: 0, 'missing-bias': 1, 'missing-dark': 2 };
-    return (rank[a.status] - rank[b.status]) || String(a.profile).localeCompare(String(b.profile));
-  });
-  return rows;
-}
+let calibLibSort = { key: 'bin', dir: 1 };
+let _calibLibFoldersCache = [];
 
-let calibLibSort = { key: 'status', dir: 1 };
-let _calibLibPairsCache = [];
-
-function sortCalibLibraryPairs(pairs, sort) {
-  const key = (sort && sort.key) || 'status';
+function sortDarkLibraryFolders(folders, sort) {
+  const key = (sort && sort.key) || 'bin';
   const dir = (sort && sort.dir) || 1;
-  const rank = { full: 0, 'missing-bias': 1, 'missing-dark': 2 };
-  return pairs.slice().sort((a, b) => {
-    let cmp = 0;
-    if (key === 'status') cmp = (rank[a.status] || 9) - (rank[b.status] || 9);
-    else if (key === 'hasDarkMaster' || key === 'hasBiasMaster') {
-      cmp = (a[key] ? 1 : 0) - (b[key] ? 1 : 0);
-    } else if (typeof a[key] === 'number' || typeof b[key] === 'number') {
-      cmp = (Number(a[key]) || 0) - (Number(b[key]) || 0);
+  const getVal = (f) => {
+    if (key === 'exp') return f.exposureSec;
+    if (key === 'darkSubs') return f.subCount;
+    if (key === 'hasDarkMaster') return f.hasMaster ? 1 : 0;
+    return f[key];
+  };
+  return folders.slice().sort((a, b) => {
+    const va = getVal(a);
+    const vb = getVal(b);
+    let cmp;
+    if (typeof va === 'number' || typeof vb === 'number') {
+      cmp = (Number(va) || 0) - (Number(vb) || 0);
     } else {
-      cmp = String(a[key] == null ? '' : a[key]).localeCompare(String(b[key] == null ? '' : b[key]), undefined, { numeric: true });
+      cmp = String(va == null ? '' : va).localeCompare(String(vb == null ? '' : vb), undefined, { numeric: true });
     }
-    if (cmp === 0) cmp = String(a.profile).localeCompare(String(b.profile));
+    if (cmp === 0) cmp = String(a.name || '').localeCompare(String(b.name || ''));
     return cmp * dir;
   });
 }
@@ -8410,39 +8430,31 @@ function masterCellHtml(kind, primary, hasMaster) {
   return '<span style="color:var(--gray);" title="Need at least 2 sub frames">—</span>';
 }
 
-function renderCalibrationPairRows(pairs) {
-  return pairs.map((p) => {
-    const statusCls = p.status === 'full' ? 'calib-status-full' : 'calib-status-partial';
-    const keyJson = JSON.stringify(p.key);
+function renderDarkLibraryRows(folders) {
+  return folders.map((f) => {
+    const nameJson = JSON.stringify(f.name);
     return `
-    <tr data-calib-key="${escapeAttr(p.key)}">
-      <td class="${statusCls}">${escapeHtml(p.statusLabel)}</td>
-      <td class="mono">${p.bin != null ? p.bin : '—'}</td>
-      <td class="mono">${p.tempC != null ? p.tempC + '°C' : '—'}</td>
-      <td class="mono">${formatLibraryExpCell(p.darkExp)}</td>
-      <td class="mono">${formatLibraryExpCell(p.biasExp)}</td>
-      <td class="mono">${p.darkPrimary ? p.darkSubs : '—'}</td>
-      <td>${masterCellHtml('dark', p.darkPrimary, p.hasDarkMaster)}</td>
-      <td class="mono">${p.biasPrimary ? p.biasSubs : '—'}</td>
-      <td>${masterCellHtml('bias', p.biasPrimary, p.hasBiasMaster)}</td>
-      <td class="mono" style="font-size:11px;">${p.sizeBytes ? formatBytesShort(p.sizeBytes) : '—'}</td>
-      <td>${formatDarkLibraryAge(p)}</td>
-      <td><button type="button" class="calib-row-x" title="Remove or delete sets" onclick='openCalibSetActionModal(${keyJson})'>×</button></td>
+    <tr data-calib-name="${escapeAttr(f.name)}">
+      <td class="mono">${f.bin != null ? f.bin : '—'}</td>
+      <td class="mono">${f.tempC != null ? f.tempC + '°C' : '—'}</td>
+      <td class="mono">${formatLibraryExpCell(f.exposureSec)}</td>
+      <td class="mono">${f.subCount != null ? f.subCount : '—'}</td>
+      <td>${masterCellHtml('dark', f, !!f.hasMaster)}</td>
+      <td class="mono" style="font-size:11px;">${f.sizeBytes ? formatBytesShort(f.sizeBytes) : '—'}</td>
+      <td>${formatDarkLibraryAge(f)}</td>
+      <td><button type="button" class="calib-row-x" title="Remove or delete this set" onclick='openCalibSetActionModal(${nameJson})'>×</button></td>
     </tr>`;
   }).join('');
 }
 
 function renderCalibrationLibrariesPanel(opts = {}) {
   ensureDarkLibrary();
-  ensureBiasLibrary();
   const statusEl = document.getElementById('caliblib-status') || document.getElementById('darklib-status');
   const tbody = document.getElementById('caliblib-tbody') || document.getElementById('darklib-tbody');
 
-  const darkFolders = collectLibraryFolders(data.darkLibrary);
-  const biasFolders = collectLibraryFolders(data.biasLibrary);
-  let pairs = pairCalibrationLibrarySets(darkFolders, biasFolders);
-  pairs = sortCalibLibraryPairs(pairs, calibLibSort);
-  _calibLibPairsCache = pairs;
+  let folders = collectLibraryFolders(data.darkLibrary);
+  folders = sortDarkLibraryFolders(folders, calibLibSort);
+  _calibLibFoldersCache = folders;
 
   document.querySelectorAll('#caliblib-table thead th[data-sort]').forEach((th) => {
     th.classList.remove('sorted-asc', 'sorted-desc');
@@ -8451,23 +8463,27 @@ function renderCalibrationLibrariesPanel(opts = {}) {
     }
   });
 
-  const fullN = pairs.filter((p) => p.status === 'full').length;
-  const partialN = pairs.length - fullN;
-  const totalBytes = (Number(data.darkLibrary.sizeBytes) || 0) + (Number(data.biasLibrary.sizeBytes) || 0)
-    || pairs.reduce((a, p) => a + (Number(p.sizeBytes) || 0), 0);
-  const sizeBit = totalBytes ? ' · ' + formatBytesShort(totalBytes) : '';
+  const darkBytes = Number(data.darkLibrary.sizeBytes) || 0;
+  const totalBytes = darkBytes || folders.reduce((a, f) => a + (Number(f.sizeBytes) || 0), 0);
+
+  const sizeEl = document.getElementById('caliblib-size');
+  if (sizeEl) {
+    sizeEl.textContent = totalBytes ? `Dark ${formatBytesShort(totalBytes)}` : '';
+  }
+
+  const masterN = folders.filter((f) => f.hasMaster).length;
 
   if (statusEl) {
-    const indexed = data.darkLibrary.indexedAt || data.biasLibrary.indexedAt;
-    statusEl.textContent = pairs.length
-      ? `${pairs.length} profile${pairs.length === 1 ? '' : 's'} · ${fullN} full · ${partialN} incomplete${sizeBit}` + (indexed ? ' · ' + indexed : '')
+    const indexed = data.darkLibrary.indexedAt;
+    statusEl.textContent = folders.length
+      ? `${folders.length} set${folders.length === 1 ? '' : 's'} · ${masterN} with master` + (indexed ? ' · ' + indexed : '')
       : 'Not indexed yet — Re-index or Import from ASIAIR.';
   }
   if (!tbody) return;
 
-  const needIndex = !(data.darkLibrary.index || []).length && !(data.biasLibrary.index || []).length;
+  const needIndex = !(data.darkLibrary.index || []).length;
   if (needIndex) {
-    tbody.innerHTML = '<tr><td colspan="12" style="color:var(--gray);">Index the libraries to list matched dark / bias pairs.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="color:var(--gray);">Index the library to list dark sets.</td></tr>';
     if (!opts.skipAutoIndex && window.zukoIngest && !renderCalibrationLibrariesPanel._indexing) {
       renderCalibrationLibrariesPanel._indexing = true;
       reindexCalibrationLibraries({ quiet: true }).finally(() => {
@@ -8476,19 +8492,17 @@ function renderCalibrationLibrariesPanel(opts = {}) {
     }
     return;
   }
-  if (!pairs.length) {
-    tbody.innerHTML = '<tr><td colspan="12" style="color:var(--gray);">No dark or bias sets found — Import from ASIAIR.</td></tr>';
+  if (!folders.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="color:var(--gray);">No dark sets found — Import from ASIAIR.</td></tr>';
     return;
   }
-  tbody.innerHTML = renderCalibrationPairRows(pairs);
+  tbody.innerHTML = renderDarkLibraryRows(folders);
 }
 
 function renderDarkLibraryPanel() { renderCalibrationLibrariesPanel(); }
-function renderBiasLibraryPanel() { renderCalibrationLibrariesPanel(); }
 
 async function reindexCalibrationLibraries(opts = {}) {
   await reindexDarkLibrary({ quiet: true });
-  await reindexBiasLibrary({ quiet: true });
   renderCalibrationLibrariesPanel({ skipAutoIndex: true });
   if (!opts.quiet) {
     const el = document.getElementById('caliblib-status');
@@ -8511,27 +8525,8 @@ async function browseDarkLibraryPath() {
   renderDarkLibraryPanel();
 }
 
-async function browseBiasLibraryPath() {
-  if (!window.zukoIngest) return alert('Needs Electron desktop app.');
-  ensureBiasLibrary();
-  const picked = await window.zukoIngest.pickFolder({
-    title: 'Select Bias (darkflat) library',
-    defaultPath: data.biasLibrary.path || undefined,
-  });
-  if (!picked || !picked.ok || picked.canceled) return;
-  data.biasLibrary.path = normalizeWinPath(picked.path);
-  const pathEl = document.getElementById('settings-biaslib-path') || document.getElementById('biaslib-path');
-  if (pathEl) pathEl.value = data.biasLibrary.path;
-  persistData();
-  renderBiasLibraryPanel();
-}
-
 async function browseSettingsDarkLibraryPath() {
   return browseDarkLibraryPath();
-}
-
-async function browseSettingsBiasLibraryPath() {
-  return browseBiasLibraryPath();
 }
 
 async function reindexDarkLibrary(opts = {}) {
@@ -8560,32 +8555,6 @@ async function reindexDarkLibrary(opts = {}) {
   return res;
 }
 
-async function reindexBiasLibrary(opts = {}) {
-  if (!window.zukoIngest) {
-    if (!opts.quiet) alert('Needs Electron desktop app.');
-    return { ok: false, error: 'no electron' };
-  }
-  ensureBiasLibrary();
-  const pathEl = document.getElementById('settings-biaslib-path') || document.getElementById('biaslib-path');
-  if (pathEl && pathEl.value.trim()) data.biasLibrary.path = normalizeWinPath(pathEl.value.trim());
-  else ensureBiasLibrary();
-  data.biasLibrary.path = normalizeWinPath(data.biasLibrary.path);
-  const statusEl = document.getElementById('caliblib-status') || document.getElementById('biaslib-status');
-  if (statusEl && !opts.quiet) statusEl.textContent = 'Indexing…';
-  const res = await window.zukoIngest.indexBiases(data.biasLibrary.path);
-  if (!res || !res.ok) {
-    if (statusEl) statusEl.textContent = 'Index failed: ' + ((res && res.error) || 'unknown');
-    return res || { ok: false, error: 'unknown' };
-  }
-  data.biasLibrary.index = res.index || [];
-  data.biasLibrary.sets = res.sets || [];
-  data.biasLibrary.sizeBytes = res.sizeBytes != null ? res.sizeBytes : null;
-  data.biasLibrary.indexedAt = new Date().toISOString();
-  persistData();
-  if (!opts.quiet) renderBiasLibraryPanel();
-  return res;
-}
-
 /** Index the dark library once if we have a path but no cached frames. */
 async function ensureDarkLibraryIndexed(opts = {}) {
   ensureDarkLibrary();
@@ -8594,27 +8563,17 @@ async function ensureDarkLibraryIndexed(opts = {}) {
   return reindexDarkLibrary({ quiet: !!opts.quiet });
 }
 
-async function ensureBiasLibraryIndexed(opts = {}) {
-  ensureBiasLibrary();
-  if ((data.biasLibrary.index || []).length) return { ok: true, cached: true, count: data.biasLibrary.index.length };
-  if (!window.zukoIngest || !data.biasLibrary.path) return { ok: false, error: 'not ready' };
-  return reindexBiasLibrary({ quiet: !!opts.quiet });
-}
-
-async function openCalibLibraryImportModal(focusKind) {
+async function openCalibLibraryImportModal() {
   if (!window.zukoIngest) return alert('Needs Electron desktop app.');
   ensureDarkLibrary();
-  ensureBiasLibrary();
   calibImportCtx = {
-    focusKind: focusKind === 'dark' ? 'dark' : (focusKind === 'bias' ? 'bias' : 'both'),
     sourcePath: (data.asiairSourcePath || '').trim() || '',
     sets: [],
   };
   document.getElementById('calib-import-dark-path').textContent = data.darkLibrary.path || '—';
-  document.getElementById('calib-import-bias-path').textContent = data.biasLibrary.path || '—';
   document.getElementById('calib-import-source').value = calibImportCtx.sourcePath;
   document.getElementById('calib-import-sub').textContent =
-    'Scan ASIAIR Bias (dark flats) and Dark folders, then copy into your libraries. Sub counts do not need to match.';
+    'Scan ASIAIR Dark folders, then copy into your Dark Library. Sub counts do not need to match.';
   document.getElementById('calib-import-progress').textContent = '';
   document.getElementById('calib-import-tbody').innerHTML =
     '<tr><td colspan="9" style="color:var(--gray);">Browse or Rescan an ASIAIR source.</td></tr>';
@@ -8651,16 +8610,14 @@ async function rescanCalibImportSource() {
   }
   calibImportCtx = calibImportCtx || {};
   calibImportCtx.sourcePath = source;
-  document.getElementById('calib-import-progress').textContent = 'Scanning Bias / Dark folders…';
+  document.getElementById('calib-import-progress').textContent = 'Scanning Dark folders…';
   document.getElementById('calib-import-run-btn').disabled = true;
   const res = await window.zukoIngest.scanCalibLibrary({
     sourceDir: source,
-    includeBias: true,
+    includeBias: false,
     includeDark: true,
     darkLibraryPath: data.darkLibrary.path,
-    biasLibraryPath: data.biasLibrary.path,
     removedDarkSets: data.darkLibrary.removedSets || [],
-    removedBiasSets: data.biasLibrary.removedSets || [],
   });
   if (!res || !res.ok) {
     document.getElementById('calib-import-progress').textContent =
@@ -8673,7 +8630,6 @@ async function rescanCalibImportSource() {
   const sum = res.summary || {};
   document.getElementById('calib-import-chips').innerHTML =
     `<div class="ingest-chips-row">` +
-    `<span class="ingest-chip ok">Bias sets: ${sum.biasSets || 0} · ${sum.biasFiles || 0} files</span>` +
     `<span class="ingest-chip ok">Dark sets: ${sum.darkSets || 0} · ${sum.darkFiles || 0} files</span>` +
     `<span class="ingest-chip warn">Already in library: ${sum.alreadyImported || 0}</span>` +
     (sum.libraryRemoved ? `<span class="ingest-chip warn">Removed (reimport ok): ${sum.libraryRemoved}</span>` : '') +
@@ -8687,11 +8643,10 @@ async function rescanCalibImportSource() {
 function renderCalibImportTable() {
   const tbody = document.getElementById('calib-import-tbody');
   let sets = ((calibImportCtx && calibImportCtx.sets) || []).slice();
-  const focus = calibImportCtx && calibImportCtx.focusKind;
-  const sort = (calibImportCtx && calibImportCtx.sort) || { key: 'kind', dir: 1 };
+  const sort = (calibImportCtx && calibImportCtx.sort) || { key: 'setName', dir: 1 };
 
   if (!sets.length) {
-    tbody.innerHTML = '<tr><td colspan="10" style="color:var(--gray);">No Bias/Dark sets found under source.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="color:var(--gray);">No Dark sets found under source.</td></tr>';
     return;
   }
 
@@ -8719,16 +8674,13 @@ function renderCalibImportTable() {
   });
 
   tbody.innerHTML = sets.map((s) => {
-    const prefer = focus === 'both' || focus === s.kind;
-    const typeLabel = s.kind === 'dark' ? 'Dark' : 'Bias (darkflat)';
     let libLabel = '<span style="color:var(--gray);">new</span>';
     if (s.libraryRemoved) libLabel = '<span class="calib-imported removed">removed — reimport</span>';
     else if (s.fullyImported) libLabel = '<span class="calib-imported full">imported</span>';
     else if (s.alreadyImported) libLabel = `<span class="calib-imported">partial (${s.existingCount}/${s.count})</span>`;
-    const checked = prefer && !s.fullyImported ? 'checked' : '';
+    const checked = !s.fullyImported ? 'checked' : '';
     return `<tr data-calib-id="${escapeAttr(s.id)}" class="${s.alreadyImported ? 'calib-row-imported' : ''}">
       <td><input type="checkbox" class="calib-import-check" data-id="${escapeAttr(s.id)}" ${checked}></td>
-      <td>${escapeHtml(typeLabel)}</td>
       <td class="mono" style="font-size:11px;">${escapeHtml(s.setName)}</td>
       <td>${s.filter ? escapeHtml(s.filter) : '—'}</td>
       <td class="mono">${s.count}</td>
@@ -8743,7 +8695,7 @@ function renderCalibImportTable() {
 
 function sortCalibImportTable(key) {
   if (!calibImportCtx) calibImportCtx = { sets: [] };
-  const cur = calibImportCtx.sort || { key: 'kind', dir: 1 };
+  const cur = calibImportCtx.sort || { key: 'setName', dir: 1 };
   if (cur.key === key) calibImportCtx.sort = { key, dir: -cur.dir };
   else calibImportCtx.sort = { key, dir: 1 };
   renderCalibImportTable();
@@ -8760,7 +8712,6 @@ async function runCalibLibraryImport() {
     return alert('Needs Electron desktop app (restart Dev after update).');
   }
   ensureDarkLibrary();
-  ensureBiasLibrary();
   const source = (document.getElementById('calib-import-source').value || '').trim();
   if (!source) return alert('ASIAIR source required.');
   const setIds = [...document.querySelectorAll('.calib-import-check:checked')].map((el) => el.getAttribute('data-id')).filter(Boolean);
@@ -8773,7 +8724,6 @@ async function runCalibLibraryImport() {
   const res = await window.zukoIngest.importCalibLibrary({
     sourceDir: source,
     darkLibraryPath: data.darkLibrary.path,
-    biasLibraryPath: data.biasLibrary.path,
     setIds,
   });
   if (!res || !res.ok) {
@@ -8784,12 +8734,10 @@ async function runCalibLibraryImport() {
   }
   const msg = `Copied ${res.copied || 0} frame(s)` +
     (res.skipped ? `, skipped ${res.skipped} existing` : '') +
-    (res.bias && res.bias.sets ? ` · bias ${res.bias.sets.length} set(s)` : '') +
     (res.dark && res.dark.sets ? ` · dark ${res.dark.sets.length} set(s)` : '');
   document.getElementById('calib-import-progress').textContent = msg;
   clearRemovedSetsFromImportIds(setIds);
   await reindexDarkLibrary({ quiet: true });
-  await reindexBiasLibrary({ quiet: true });
   persistData();
   if (btn) btn.disabled = false;
   alert(msg);
@@ -8800,24 +8748,17 @@ let calibImportCtx = null;
 let calibSetActionCtx = null;
 let calibBuildMasterCtx = null;
 
-function openCalibSetActionModal(pairKey) {
-  const pair = (_calibLibPairsCache || []).find((p) => p.key === pairKey);
-  if (!pair) return alert('Row not found — try Re-index.');
-  const items = [];
-  for (const f of pair.darks || []) {
-    items.push({ kind: 'dark', name: f.name, folder: f.folder, subs: f.subCount || 0, hasMaster: !!f.hasMaster });
-  }
-  for (const f of pair.biases || []) {
-    items.push({ kind: 'bias', name: f.name, folder: f.folder, subs: f.subCount || 0, hasMaster: !!f.hasMaster });
-  }
-  if (!items.length) return;
-  calibSetActionCtx = { pairKey, items };
+function openCalibSetActionModal(setName) {
+  const f = (_calibLibFoldersCache || []).find((x) => x.name === setName);
+  if (!f) return alert('Row not found — try Re-index.');
+  const items = [{ kind: 'dark', name: f.name, folder: f.folder, subs: f.subCount || 0, hasMaster: !!f.hasMaster }];
+  calibSetActionCtx = { setName, items };
   const list = document.getElementById('calib-set-action-list');
   list.innerHTML = items.map((it, i) => `
     <label class="calib-set-action-item">
       <input type="checkbox" class="calib-set-action-check" data-idx="${i}" checked>
       <span>
-        <strong>${it.kind === 'dark' ? 'Dark' : 'Bias'}</strong>
+        <strong>Dark</strong>
         · ${it.subs} sub${it.subs === 1 ? '' : 's'}${it.hasMaster ? ' · master' : ''}<br>
         <span class="mono" title="${escapeAttr(it.folder)}">${escapeHtml(it.name)}</span>
       </span>
@@ -8865,23 +8806,17 @@ async function confirmCalibSetAction(mode) {
     }
     if (statusEl) statusEl.textContent = 'Removing subs…';
     const errors = [];
-    let removedTotal = 0;
     for (const it of withMaster) {
-      const libPath = it.kind === 'dark' ? data.darkLibrary.path : data.biasLibrary.path;
-      const res = await window.zukoIngest.removeLibrarySubs({ setDir: it.folder, libraryPath: libPath });
+      const res = await window.zukoIngest.removeLibrarySubs({ setDir: it.folder, libraryPath: data.darkLibrary.path });
       if (!res || !res.ok) {
         errors.push((res && res.error) || it.name);
         continue;
       }
-      removedTotal += Number(res.removedCount) || 0;
     }
     await reindexDarkLibrary({ quiet: true });
-    await reindexBiasLibrary({ quiet: true });
     persistData();
     closeCalibSetActionModal();
     renderCalibrationLibrariesPanel({ skipAutoIndex: true });
-    const el = document.getElementById('caliblib-status');
-    if (el) el.textContent = `Removed ${removedTotal} sub frame(s); masters kept.`;
     if (errors.length) alert('Some remove-subs failed:\n' + errors.join('\n'));
     return;
   }
@@ -8895,8 +8830,7 @@ async function confirmCalibSetAction(mode) {
   if (statusEl) statusEl.textContent = 'Deleting…';
   const errors = [];
   for (const it of selected) {
-    const libPath = it.kind === 'dark' ? data.darkLibrary.path : data.biasLibrary.path;
-    const res = await window.zukoIngest.deleteLibrarySet({ setDir: it.folder, libraryPath: libPath });
+    const res = await window.zukoIngest.deleteLibrarySet({ setDir: it.folder, libraryPath: data.darkLibrary.path });
     if (!res || !res.ok) {
       errors.push((res && res.error) || it.name);
       continue;
@@ -8904,7 +8838,6 @@ async function confirmCalibSetAction(mode) {
     clearLibrarySetRemoved(it.kind, it.name);
   }
   await reindexDarkLibrary({ quiet: true });
-  await reindexBiasLibrary({ quiet: true });
   persistData();
   closeCalibSetActionModal();
   renderCalibrationLibrariesPanel({ skipAutoIndex: true });
@@ -8915,9 +8848,9 @@ function openCalibBuildMasterModal(setFolder, kind) {
   if (!window.zukoSiril || !window.zukoSiril.buildMaster) {
     return alert('Needs Electron desktop app with Siril.');
   }
+  kind = 'dark';
   calibBuildMasterCtx = { setFolder, kind };
-  const label = kind === 'dark' ? 'dark' : 'bias';
-  document.getElementById('calib-build-master-title').textContent = `Build ${label} master`;
+  document.getElementById('calib-build-master-title').textContent = 'Build dark master';
   document.getElementById('calib-build-master-sub').textContent =
     `Stack sub frames in this set into master.fit via Siril.\n${setFolder}`;
   const keep = document.querySelector('input[name="calib-build-subs"][value="keep"]');
@@ -8946,16 +8879,17 @@ async function buildLibraryMasterForSet(setFolder, kind) {
 }
 
 async function runBuildLibraryMaster(setFolder, kind, removeSubs) {
+  kind = 'dark';
   const statusEl = document.getElementById('caliblib-status');
-  if (statusEl) statusEl.textContent = `Building ${kind} master via Siril…`;
+  if (statusEl) statusEl.textContent = 'Building dark master via Siril…';
   const logPath = pathJoinWin(setFolder, '_build', 'scripts', 'build-master.log');
   const res = await runSirilJobWithProgress({
-    title: `Build ${kind} master`,
+    title: 'Build dark master',
     logPath,
     kind: 'stack',
     startJob: () => window.zukoSiril.buildMaster({
       setDir: setFolder,
-      kind: kind === 'dark' ? 'dark' : 'bias',
+      kind: 'dark',
       removeSubs: !!removeSubs,
     }),
   });
@@ -8966,13 +8900,12 @@ async function runBuildLibraryMaster(setFolder, kind, removeSubs) {
   const msg = `Master created (${res.subCount} subs stacked)` +
     (res.removedCount ? `, removed ${res.removedCount} subs` : ', kept subs') +
     (res.sizeBytes != null ? ` · master ${formatBytesShort(res.sizeBytes)}` : '');
-  if (kind === 'dark') await reindexDarkLibrary({ quiet: true });
-  else await reindexBiasLibrary({ quiet: true });
+  await reindexDarkLibrary({ quiet: true });
   renderCalibrationLibrariesPanel({ skipAutoIndex: true });
   if (statusEl) statusEl.textContent = msg;
 }
 
-let ingestCtx = { pi: null, si: null, scan: null, sessions: [], darkMatchesByFilter: {}, biasMatchesByFilter: {} };
+let ingestCtx = { pi: null, si: null, scan: null, sessions: [], darkMatchesByFilter: {} };
 let ingestBusyState = { on: false, startedAt: 0, tick: null, gen: 0 };
 
 function formatIngestElapsed(ms) {
@@ -9066,6 +8999,7 @@ function closeIngestModal() {
 function closeIngestFilesPopup() {
   const el = document.getElementById('ingest-files-overlay');
   if (el) el.classList.remove('open');
+  ingestCtx._filesPopupKind = null;
 }
 
 function ingestFrameFolder(filePath) {
@@ -9073,6 +9007,101 @@ function ingestFrameFolder(filePath) {
   const norm = String(filePath).replace(/\\/g, '/');
   const i = norm.lastIndexOf('/');
   return i >= 0 ? norm.slice(0, i).replace(/\//g, '\\') : '—';
+}
+
+function ingestFrameKey(f) {
+  return (f && (f.filePath || f.fileName)) || '';
+}
+
+const INGEST_TEMP_TOLERANCE_C = 3;
+
+function ensureIngestCalibOverrides() {
+  if (!ingestCtx) return null;
+  if (!ingestCtx.calibOverrides) {
+    ingestCtx.calibOverrides = {
+      flats: { includeAll: false, paths: [] },
+      darks: { includeAll: false, paths: [] },
+      biases: { includeAll: false, paths: [] },
+    };
+  }
+  return ingestCtx.calibOverrides;
+}
+
+function ingestOverrideState(kind) {
+  const o = ensureIngestCalibOverrides();
+  return o && o[kind] ? o[kind] : { includeAll: false, paths: [] };
+}
+
+/** Payload fields for stageSirilTree include overrides. */
+function ingestCalibOverridePayload() {
+  const o = ensureIngestCalibOverrides() || {};
+  return {
+    includeAllOutOfRange: {
+      flats: !!(o.flats && o.flats.includeAll),
+      darks: !!(o.darks && o.darks.includeAll),
+      biases: !!(o.biases && o.biases.includeAll),
+    },
+    includeFlatPaths: (o.flats && o.flats.paths) || [],
+    includeDarkPaths: (o.darks && o.darks.paths) || [],
+    includeBiasPaths: (o.biases && o.biases.paths) || [],
+  };
+}
+
+function ingestIsPathIncluded(kind, key) {
+  const st = ingestOverrideState(kind);
+  if (st.includeAll) return true;
+  return !!(key && (st.paths || []).includes(key));
+}
+
+function setIngestPathIncluded(kind, key, on) {
+  const o = ensureIngestCalibOverrides();
+  if (!o || !o[kind] || !key) return;
+  const set = new Set(o[kind].paths || []);
+  if (on) set.add(key);
+  else set.delete(key);
+  o[kind].paths = [...set];
+  if (!on) o[kind].includeAll = false;
+}
+
+function modeLightTempC(lights) {
+  const counts = new Map();
+  for (const f of lights || []) {
+    if (f == null || f.tempC == null || !Number.isFinite(Number(f.tempC))) continue;
+    const t = Number(f.tempC);
+    counts.set(t, (counts.get(t) || 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [t, n] of counts) {
+    if (n > bestN) { best = t; bestN = n; }
+  }
+  return best;
+}
+
+function tempMatchesLightUi(frameTempC, lightTempC) {
+  if (lightTempC == null || !Number.isFinite(Number(lightTempC))) return true;
+  if (frameTempC == null || !Number.isFinite(Number(frameTempC))) return false;
+  return Math.abs(Number(frameTempC) - Number(lightTempC)) <= INGEST_TEMP_TOLERANCE_C;
+}
+
+/** Apply light-temp + override state to a frame list. */
+function partitionCalibVsLightTemp(frames, lightTempC, kind) {
+  const inRange = [];
+  const outOfRange = [];
+  for (const f of frames || []) {
+    if (tempMatchesLightUi(f.tempC, lightTempC)) inRange.push(f);
+    else outOfRange.push({ ...f, reason: 'temp out of ±3°C vs lights' });
+  }
+  const included = [];
+  for (const f of outOfRange) {
+    if (ingestIsPathIncluded(kind, ingestFrameKey(f))) included.push(f);
+  }
+  return {
+    inRange,
+    outOfRange,
+    usable: inRange.concat(included),
+    excluded: outOfRange.filter((f) => !ingestIsPathIncluded(kind, ingestFrameKey(f))),
+  };
 }
 
 function formatShootIntegration(lightsN, exposureSec, plannedHrs) {
@@ -9109,30 +9138,42 @@ function formatShootIntegration(lightsN, exposureSec, plannedHrs) {
 
 function openIngestFilesPopup(kind) {
   const scan = ingestCtx.scan;
-  if (!scan && kind !== 'master-darks' && kind !== 'master-biases') return;
+  if (!scan && kind !== 'master-darks') return;
   const { pi, si } = ingestCtx;
   const project = pi != null ? data.projects[pi] : null;
   const sh = project && si != null ? project.shoots[si] : null;
   const ft = project && sh ? project.filterTargets[sh.filterIndex] : null;
   const shootFilter = ft ? ft.filter : null;
+  ingestCtx._filesPopupKind = kind;
 
   let title = '';
   let frames = [];
   let sub = 'Folder path copies to clipboard when clicked.';
   let showReason = false;
+  let showInclude = false;
+  const lightTempC = ingestCtx.lightTempC;
 
   if (kind === 'darks') {
     const rejected = ingestCtx.darkRejected || [];
     const rejectByPath = new Map(rejected.map((d) => [d.filePath || d.fileName, d.reason || 'excluded']));
     title = 'Dark (session)';
     frames = (scan.darks || []).map((d) => {
-      const key = d.filePath || d.fileName;
+      const key = ingestFrameKey(d);
       const reason = rejectByPath.get(key);
-      return reason ? { ...d, reason, excluded: true } : { ...d, excluded: false };
+      const excluded = !!reason && !ingestIsPathIncluded('darks', key);
+      const includedOverride = !!reason && ingestIsPathIncluded('darks', key);
+      return {
+        ...d,
+        reason: reason || '',
+        excluded,
+        includedOverride,
+        canInclude: !!reason,
+      };
     });
     showReason = rejected.length > 0;
+    showInclude = rejected.length > 0;
     sub = rejected.length
-      ? `${rejected.length} highlighted frame(s) are out of exp/gain/temp range and will be skipped when staging.`
+      ? `${rejected.length} out of light exp/gain/temp range — include individually or use Include all.`
       : 'All session darks match light exp/gain/temp (±3°C).';
   } else if (kind === 'master-darks') {
     title = 'Master dark library (matched sets)';
@@ -9147,41 +9188,8 @@ function openIngestFilesPopup(kind) {
       title + ' — ' + folders.length + ' folder' + (folders.length === 1 ? '' : 's');
     document.getElementById('ingest-files-sub').textContent =
       folders.length ? sub : 'No matching master dark sets.';
-    const body = document.getElementById('ingest-files-body');
-    const head = document.querySelector('#ingest-files-overlay thead tr');
-    if (head) {
-      head.innerHTML = '<th>#</th><th>Folder</th><th>Files</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Bin</th><th>Age</th>';
-    }
-    if (!folders.length) {
-      body.innerHTML = '<tr><td colspan="8" style="color:var(--gray);padding:14px;">None found.</td></tr>';
-    } else {
-      body.innerHTML = folders.map((f, i) => `
-        <tr>
-          <td class="mono">${i + 1}</td>
-          <td class="path-cell mono" style="cursor:pointer;" title="Copy folder path" data-path="${escapeAttr(f.folder)}" onclick="copyIngestFilePath(this)">${escapeHtml(f.name)}</td>
-          <td class="mono">${f.count}</td>
-          <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
-          <td>${f.gain != null ? f.gain : '—'}</td>
-          <td>${f.tempC != null ? f.tempC + '°C' : '—'}</td>
-          <td>${f.bin != null ? f.bin : '—'}</td>
-          <td>${formatDarkLibraryAge(f)}</td>
-        </tr>`).join('');
-    }
-    document.getElementById('ingest-files-overlay').classList.add('open');
-    return;
-  } else if (kind === 'master-biases') {
-    title = 'Bias Library (matched sets)';
-    const libPath = (data.biasLibrary && data.biasLibrary.path) || '';
-    const folders = ingestCtx.masterBiasFolders
-      || groupMasterDarkFolders(ingestCtx.masterBiasMatches || [], libPath);
-    const profile = ingestCtx.masterBiasProfile;
-    sub = profile
-      ? `Matched ${folders.length} set folder(s) for ${profile}.`
-      : 'Matched set folders from the Bias Library.';
-    document.getElementById('ingest-files-title').textContent =
-      title + ' — ' + folders.length + ' folder' + (folders.length === 1 ? '' : 's');
-    document.getElementById('ingest-files-sub').textContent =
-      folders.length ? sub : 'No matching Bias Library sets.';
+    const ovr = document.getElementById('ingest-files-override');
+    if (ovr) ovr.hidden = true;
     const body = document.getElementById('ingest-files-body');
     const head = document.querySelector('#ingest-files-overlay thead tr');
     if (head) {
@@ -9219,13 +9227,14 @@ function openIngestFilesPopup(kind) {
       reason: allow
         ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
         : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : ''),
+      canInclude: false,
     }));
     showReason = frames.some((f) => f.excluded);
     sub = allow
-      ? `Pending import filters highlighted; others dimmed.`
+      ? `Pending import filters highlighted; others dimmed. Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} is source of truth.`
       : (shootFilter
-        ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
-        : 'Folder path copies to clipboard when clicked.');
+        ? `Shoot filter ${shootFilter} highlighted. Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} (±${INGEST_TEMP_TOLERANCE_C}°C).`
+        : `Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} is source of truth for flats/darks/biases.`);
   } else if (kind === 'flats') {
     title = 'Flats' + (ingestCtx.multiFilters
       ? ' · ' + ingestCtx.multiFilters.join(', ')
@@ -9233,46 +9242,99 @@ function openIngestFilesPopup(kind) {
     const allow = ingestCtx.multiFilters
       ? new Set(ingestCtx.multiFilters)
       : null;
-    frames = (scan.flats || []).map((f) => ({
-      ...f,
-      excluded: allow
+    const rejectByPath = new Map((ingestCtx.flatRejected || []).map((d) => [ingestFrameKey(d), d.reason || 'temp out of ±3°C vs lights']));
+    frames = (scan.flats || []).map((f) => {
+      const otherFilter = allow
         ? !allow.has(f.filter)
-        : !!(shootFilter && f.filter && f.filter !== shootFilter),
-      reason: allow
-        ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
-        : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : ''),
-    }));
-    showReason = frames.some((f) => f.excluded);
-    sub = allow
-      ? `Pending import filters highlighted; others dimmed.`
-      : (shootFilter
-        ? `Shoot filter ${shootFilter} highlighted; other filters dimmed.`
-        : 'Folder path copies to clipboard when clicked.');
+        : !!(shootFilter && f.filter && f.filter !== shootFilter);
+      const key = ingestFrameKey(f);
+      const tempReason = rejectByPath.get(key);
+      let reason = '';
+      let canInclude = false;
+      if (otherFilter) {
+        reason = allow
+          ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
+          : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : '');
+      } else if (tempReason) {
+        reason = tempReason;
+        canInclude = true;
+      }
+      const includedOverride = canInclude && ingestIsPathIncluded('flats', key);
+      return {
+        ...f,
+        reason,
+        excluded: !!(reason && !includedOverride),
+        includedOverride,
+        canInclude,
+      };
+    });
+    showReason = frames.some((f) => f.reason);
+    showInclude = frames.some((f) => f.canInclude);
+    const nOor = (ingestCtx.flatRejected || []).length;
+    sub = nOor
+      ? `${nOor} flat(s) out of light temp range (±${INGEST_TEMP_TOLERANCE_C}°C) — include individually or Include all.`
+      : `All flats match light temp ${lightTempC != null ? lightTempC + '°C' : '—'} (±${INGEST_TEMP_TOLERANCE_C}°C).`;
   } else if (kind === 'biases') {
+    const rejected = ingestCtx.biasRejected || [];
+    const rejectByPath = new Map(rejected.map((d) => [d.filePath || d.fileName, d.reason || 'excluded']));
     title = 'Bias (dark flats)';
-    frames = (scan.biases || []).slice();
+    frames = (scan.biases || []).map((d) => {
+      const key = ingestFrameKey(d);
+      const reason = rejectByPath.get(key);
+      const includedOverride = !!reason && ingestIsPathIncluded('biases', key);
+      return {
+        ...d,
+        reason: reason || '',
+        excluded: !!reason && !includedOverride,
+        includedOverride,
+        canInclude: !!reason,
+      };
+    });
+    showReason = rejected.length > 0;
+    showInclude = rejected.length > 0;
+    sub = rejected.length
+      ? `${rejected.length} darkflat(s) do not match flat exp/gain/bin + light temp — include individually or Include all.`
+      : 'All session darkflats match flat exp/gain/bin and light temp (±3°C).';
   } else {
     return;
   }
 
   frames = frames.slice().sort((a, b) => {
-    // Shoot-matching / usable frames first
     if (!!a.excluded !== !!b.excluded) return a.excluded ? 1 : -1;
+    if (!!a.includedOverride !== !!b.includedOverride) return a.includedOverride ? -1 : 1;
     return String(a.filePath || a.fileName || '').localeCompare(String(b.filePath || b.fileName || ''));
   });
+
+  const ovrBar = document.getElementById('ingest-files-override');
+  const ovrMeta = document.getElementById('ingest-files-override-meta');
+  const ovrBtn = document.getElementById('ingest-files-override-all');
+  if (ovrBar && ovrMeta && ovrBtn) {
+    if (showInclude && (kind === 'flats' || kind === 'darks' || kind === 'biases')) {
+      ovrBar.hidden = false;
+      const st = ingestOverrideState(kind);
+      const nOor = frames.filter((f) => f.canInclude).length;
+      ovrMeta.innerHTML = `Light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ${nOor} out of range`;
+      ovrBtn.textContent = st.includeAll ? 'Clear include-all' : 'Include all out of range';
+      ovrBtn.classList.toggle('primary', !!st.includeAll);
+    } else {
+      ovrBar.hidden = true;
+    }
+  }
+
   document.getElementById('ingest-files-title').textContent =
     title + ' — ' + frames.length + ' file' + (frames.length === 1 ? '' : 's');
   document.getElementById('ingest-files-sub').textContent =
     frames.length ? sub : 'No files in this list.';
   const body = document.getElementById('ingest-files-body');
   const head = document.querySelector('#ingest-files-overlay thead tr');
+  const colCount = (showReason ? 10 : 9) + (showInclude ? 1 : 0);
   if (head) {
-    head.innerHTML = showReason
-      ? '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Note</th>'
-      : '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Gain</th><th>Temp</th>';
+    head.innerHTML = '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Gain</th><th>Temp</th>'
+      + (showReason ? '<th>Note</th>' : '')
+      + (showInclude ? '<th>Include</th>' : '');
   }
   if (!frames.length) {
-    body.innerHTML = `<tr><td colspan="${showReason ? 10 : 9}" style="color:var(--gray);padding:14px;">None found.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="${colCount}" style="color:var(--gray);padding:14px;">None found.</td></tr>`;
   } else {
     const colorFilters = (kind === 'lights' || kind === 'flats');
     body.innerHTML = frames.map((f, i) => {
@@ -9282,11 +9344,21 @@ function openIngestFilesPopup(kind) {
       const tone = colorFilters ? filterToneKey(f.filter) : '';
       const rowCls = [
         f.excluded ? 'ingest-dark-reject' : '',
+        f.includedOverride ? 'ingest-dark-include' : '',
         colorFilters && !f.excluded ? `ingest-files-flt flt-${tone}` : '',
       ].filter(Boolean).join(' ');
       const filterCell = colorFilters
         ? `<td class="filter-cell">${filterLabelHtml(f.filter)}</td>`
         : `<td>${escapeHtml(f.filter || '—')}</td>`;
+      const key = ingestFrameKey(f);
+      const includeCell = showInclude
+        ? (f.canInclude
+          ? `<td class="include-cell"><input type="checkbox" title="Include this sub despite mismatch" ${f.includedOverride || ingestOverrideState(kind).includeAll ? 'checked' : ''} onchange="toggleIngestFileInclude('${kind}', '${encodeURIComponent(key)}', this.checked)"></td>`
+          : '<td class="include-cell"></td>')
+        : '';
+      const note = f.includedOverride
+        ? (f.reason ? f.reason + ' · included' : 'included')
+        : (f.reason || (f.excluded ? 'excluded' : 'OK'));
       return `<tr class="${rowCls}">
         <td class="mono">${i + 1}</td>
         <td title="${escapeAttr(f.filePath || '')}">${escapeHtml(name)}</td>
@@ -9297,11 +9369,44 @@ function openIngestFilesPopup(kind) {
         <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
         <td>${f.gain != null ? f.gain : '—'}</td>
         <td>${f.tempC != null ? f.tempC + '°C' : '—'}</td>
-        ${showReason ? `<td class="reason-cell">${escapeHtml(f.reason || (f.excluded ? 'excluded' : 'OK'))}</td>` : ''}
+        ${showReason ? `<td class="reason-cell">${escapeHtml(note)}</td>` : ''}
+        ${includeCell}
       </tr>`;
     }).join('');
   }
   document.getElementById('ingest-files-overlay').classList.add('open');
+}
+
+function toggleIngestFilesIncludeAll() {
+  const kind = ingestCtx && ingestCtx._filesPopupKind;
+  if (kind !== 'flats' && kind !== 'darks' && kind !== 'biases') return;
+  const o = ensureIngestCalibOverrides();
+  if (!o || !o[kind]) return;
+  o[kind].includeAll = !o[kind].includeAll;
+  if (o[kind].includeAll) {
+    // Snapshot all currently rejected keys into paths for staging payload simplicity.
+    const rejected = kind === 'flats'
+      ? (ingestCtx.flatRejected || [])
+      : (kind === 'darks' ? (ingestCtx.darkRejected || []) : (ingestCtx.biasRejected || []));
+    o[kind].paths = rejected.map(ingestFrameKey).filter(Boolean);
+  }
+  refreshIngestCalibFromOverrides();
+  openIngestFilesPopup(kind);
+}
+
+function toggleIngestFileInclude(kind, keyEnc, on) {
+  let key = keyEnc;
+  try { key = decodeURIComponent(keyEnc); } catch { /* keep */ }
+  setIngestPathIncluded(kind, key, !!on);
+  refreshIngestCalibFromOverrides();
+  openIngestFilesPopup(kind);
+}
+
+/** Recompute usable calib lists from overrides and refresh chips/gate (keeps current scan). */
+async function refreshIngestCalibFromOverrides() {
+  if (!ingestCtx || !ingestCtx.scan) return;
+  // Re-run the post-scan chip/gate path without a full ASIAIR rescan.
+  await runIngestScan({ reuseScan: ingestCtx.scan });
 }
 
 function copyIngestFilePath(el) {
@@ -10229,17 +10334,15 @@ async function openIngestModal(pi, si) {
     return;
   }
 
-  const sourceDir = resolveAsiairSourceDir(project);
-  if (!getAsiairSourcePath() && !sourceDir) {
-    alert('Set an ASIAIR source path (Settings → ASIAIR source, or Browse in the Import window).');
-  }
+  const sourceDir = await ensureAsiairSourceSelected(project);
+  if (!sourceDir) return;
 
   // Resolve target folders BEFORE import window (may show Aladin confirm).
   const ftForResolve = project.filterTargets[sh.filterIndex];
   const resolved = await resolveTargetIncludesForNight(project, night, {
     pi,
     shootFilter: ftForResolve ? ftForResolve.filter : null,
-    sourceDir: sourceDir || undefined,
+    sourceDir,
   });
   if (resolved.canceled) return;
   if (!resolved.ok) {
@@ -10257,7 +10360,7 @@ async function openIngestModal(pi, si) {
     si,
     scan: null,
     sessions: [],
-    sourcePath: sourceDir || getAsiairSourcePath() || project.projectDir,
+    sourcePath: sourceDir,
     darkMatchesByFilter: {},
     darkMatched: [],
     darkRejected: [],
@@ -10351,37 +10454,48 @@ async function runIngestScan(opts = {}) {
   }
   document.getElementById('ingest-session-path').textContent =
     formatIngestSourcesLabel(ingestCtx.sessions);
-  document.getElementById('ingest-progress').textContent = 'Scanning…';
+  document.getElementById('ingest-progress').textContent = opts.reuseScan ? 'Updating matches…' : 'Scanning…';
   const targetHint = projectTargetHint(project);
   const targetOpts = ingestTargetStageOpts(project);
-  const doScan = () => window.zukoIngest.scanSession({
-    projectDir: sourceDir,
-    nightDate: night,
-    targetHint,
-    // Import-all scans the whole night so every pending filter shows up.
-    shootFilter: multi ? null : (ft ? ft.filter : null),
-    includeTargets: targetOpts.includeTargets,
-    targetCoords: targetOpts.targetCoords,
-    skipTargetHint: targetOpts.skipTargetHint,
-  });
-  const scan = await doScan();
+  let scan = opts.reuseScan || null;
+  if (!scan) {
+    scan = await window.zukoIngest.scanSession({
+      projectDir: sourceDir,
+      nightDate: night,
+      targetHint,
+      // Import-all scans the whole night so every pending filter shows up.
+      shootFilter: multi ? null : (ft ? ft.filter : null),
+      includeTargets: targetOpts.includeTargets,
+      targetCoords: targetOpts.targetCoords,
+      skipTargetHint: targetOpts.skipTargetHint,
+    });
+  }
   if (!scan || !scan.ok) {
     document.getElementById('ingest-progress').textContent = 'Scan failed: ' + ((scan && scan.error) || 'unknown');
     document.getElementById('ingest-stage-btn').disabled = true;
     return;
   }
   ingestCtx.scan = scan;
+  ensureIngestCalibOverrides();
   renderIngestTargetMatchRow();
   const pendingSet = multi ? new Set(ingestBatch.filters || []) : null;
   const shootFilter = ft ? ft.filter : null;
   const lightsForShoot = (scan.lights || []).filter((f) =>
     multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
   );
-  const flatsForShoot = (scan.flats || []).filter((f) =>
+  const flatsForShootAll = (scan.flats || []).filter((f) =>
     multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
   );
   const biases = scan.biases || [];
   const sessionDarks = scan.darks || [];
+
+  const lightTempC = modeLightTempC(lightsForShoot);
+  ingestCtx.lightTempC = lightTempC;
+
+  // Flats vs light temp (±3°C); overrides can include out-of-range.
+  const flatPart = partitionCalibVsLightTemp(flatsForShootAll, lightTempC, 'flats');
+  ingestCtx.flatRejected = flatPart.outOfRange;
+  const flatsForShoot = flatPart.usable;
 
   // Match session darks to light params (first pending / shoot filter).
   const focusFilter = multi
@@ -10401,15 +10515,36 @@ async function runIngestScan(opts = {}) {
       index: darkIndex,
       exposureSec: lightRowAll ? lightRowAll.exposureSec : (lightsForShoot[0] && lightsForShoot[0].exposureSec),
       gain: lightRowAll ? lightRowAll.gain : (lightsForShoot[0] && lightsForShoot[0].gain),
-      tempC: lightRowAll ? lightRowAll.tempC : (lightsForShoot[0] && lightsForShoot[0].tempC),
+      tempC: lightTempC != null
+        ? lightTempC
+        : (lightRowAll ? lightRowAll.tempC : (lightsForShoot[0] && lightsForShoot[0].tempC)),
     });
     darkMatched = (res && res.matches) || [];
     darkRejected = (res && res.rejected) || [];
   } else {
     darkMatched = sessionDarks;
   }
+  // Apply dark include overrides
+  const darkIncluded = [];
+  for (const d of darkRejected) {
+    if (ingestIsPathIncluded('darks', ingestFrameKey(d))) darkIncluded.push(d);
+  }
+  darkMatched = darkMatched.concat(darkIncluded);
   ingestCtx.darkMatched = darkMatched;
   ingestCtx.darkRejected = darkRejected;
+
+  // Darkflats: flat exp/gain/bin + light temp; overrides can include.
+  const biasUsable = collectUsableDarkflatsUi(biases, flatsForShoot, { lightTempC });
+  let biasMatched = biasUsable.matches.slice();
+  const biasRejected = biasUsable.rejected;
+  for (const b of biasRejected) {
+    if (ingestIsPathIncluded('biases', ingestFrameKey(b))
+      && !biasMatched.some((m) => ingestFrameKey(m) === ingestFrameKey(b))) {
+      biasMatched.push(b);
+    }
+  }
+  ingestCtx.biasMatched = biasMatched;
+  ingestCtx.biasRejected = biasRejected;
 
   const lightBreakdown = multi
     ? (ingestBatch.filters || []).map((f) => {
@@ -10431,16 +10566,41 @@ async function runIngestScan(opts = {}) {
     : (!darkMatched.length
       ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp (unusable)`
       : (darkRejected.length
-        ? `${darkRejected.length} dark(s) out of temp/exp/gain range — click to review`
+        ? `${darkRejected.length} dark(s) out of range — click to review / include`
         : 'Show matching session darks'));
+
+  const biasTone = !biasMatched.length
+    ? (biases.length ? 'err' : 'warn')
+    : (biasRejected.length ? 'warn' : 'ok');
+  const biasLabel = biases.length
+    ? `Bias (dark flats) ${biasMatched.length}/${biases.length}`
+    : 'Bias (dark flats)';
+  const biasTitle = !biases.length
+    ? 'No session darkflats found'
+    : (!biasMatched.length
+      ? `${biasRejected.length || biases.length} darkflat(s) — none match flat exp/gain/bin + light temp`
+      : (biasRejected.length
+        ? `${biasRejected.length} darkflat(s) out of range — click to review / include`
+        : 'Show darkflats matching flats + light temp'));
+
+  const flatTone = !flatsForShoot.length
+    ? (flatsForShootAll.length ? 'err' : 'warn')
+    : (flatPart.outOfRange.length ? 'warn' : 'ok');
+  const flatLabel = flatsForShootAll.length
+    ? `Flat ${flatsForShoot.length}/${flatsForShootAll.length}`
+    : 'Flat';
+  const flatTitle = !flatsForShootAll.length
+    ? 'No flats found'
+    : (flatPart.outOfRange.length
+      ? `${flatPart.outOfRange.length} flat(s) out of light temp (±${INGEST_TEMP_TOLERANCE_C}°C) — click to review / include`
+      : 'Show flats matching light temp');
 
   ingestCtx._chipBase = [
     chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'warn', lightsForShoot.length,
-      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : 'Show lights (shoot filter first; others marked)'),
-    chip('flats', 'Flat', flatsForShoot.length ? 'ok' : 'warn', flatsForShoot.length,
-      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : 'Show flats (shoot filter first; others marked)'),
+      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : `Lights · temp ${lightTempC != null ? lightTempC + '°C' : '—'} (source of truth)`),
+    chip('flats', flatLabel, flatTone, flatsForShoot.length, flatTitle),
     chip('darks', darkLabel, darkTone, darkCount, darkTitle),
-    chip('biases', 'Bias (dark flats)', biases.length ? 'ok' : 'warn', biases.length),
+    chip('biases', biasLabel, biasTone, biasMatched.length, biasTitle),
   ];
   document.getElementById('ingest-chips').innerHTML =
     `<div class="ingest-chips-row">${ingestCtx._chipBase.join('')}` +
@@ -10478,11 +10638,16 @@ async function runIngestScan(opts = {}) {
       ? integ.targetHtml
       : '<span class="shoot-integ-val na">—</span>';
     const tone = filterToneKey(r.filter);
+    const flatsForRowAll = (scan.flats || []).filter((x) => x.filter === r.filter);
+    const flatsForRow = flatsForRowAll.filter((f) =>
+      tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
+    );
+    const rowBiasOk = biasesMatchFlatsUi(biasMatched.length ? biasMatched : biases, flatsForRow, lightTempC);
     const missingForRow = [];
     if (isMatch && inLog) {
       if (!lightsN) missingForRow.push('Light');
-      if (!flatsN) missingForRow.push(`Flat (${r.filter})`);
-      if (!biases.length) missingForRow.push('Bias');
+      if (!flatsForRow.length) missingForRow.push(`Flat (${r.filter})`);
+      if (!rowBiasOk) missingForRow.push('Bias matching Flat');
       // Dark checked after master refresh in gate; preview session/master roughly here
       if (useMasterPreview) {
         /* master count filled later — row incompleteness for flats/bias is enough for red */
@@ -10544,7 +10709,9 @@ async function runIngestScan(opts = {}) {
       `<div class="line">Shoot ${filterLabelHtml(shootFilterName)} · ${matchRow.lights} lights · night ${escapeHtml(night)}</div>` +
       `<div class="line">Actual ${escapeHtml(actualStr)}h (${matchRow.lights}×${matchRow.exposureSec}s)` +
       (plannedHrs ? ` · target ${plannedHrs}h` : '') +
-      (darkRejected.length ? ` · <span style="color:var(--yellow);">${darkRejected.length} session dark(s) excluded</span>` : '') +
+      (darkRejected.length ? ` · <span style="color:var(--yellow);">${darkRejected.length} session dark(s) out of range</span>` : '') +
+      (flatPart.outOfRange.length ? ` · <span style="color:var(--yellow);">${flatPart.outOfRange.length} flat(s) out of light temp</span>` : '') +
+      (biasRejected.length ? ` · <span style="color:var(--yellow);">${biasRejected.length} darkflat(s) out of range</span>` : '') +
       `</div>`;
   } else {
     confirmEl.innerHTML =
@@ -10554,16 +10721,105 @@ async function runIngestScan(opts = {}) {
   ingestCtx._stageGate = {
     lights: lightsForShoot,
     flats: flatsForShoot,
-    biases,
-    // Only exp/gain/temp-matched session darks count — never fall back to rejected ones.
+    biases: biasMatched,
+    // Only exp/gain/temp-matched session darks count — plus explicit includes.
     sessionDarks: darkMatched,
     matchedRows,
     shootFilter: shootFilterName,
     night,
     totalLights,
+    lightTempC,
   };
   await refreshIngestDarkMatches();
   applyIngestStageGate();
+}
+
+/** Local nearly-equal for darkflat↔flat matching in the Import UI. */
+function ingestNearlyEqual(a, b, eps) {
+  return Math.abs(Number(a) - Number(b)) <= (eps != null ? eps : 1e-3);
+}
+
+/** True when session darkflats cover every unique flat exp/gain/bin group at light temp. */
+function biasesMatchFlatsUi(biases, flats, lightTempC) {
+  const usable = collectUsableDarkflatsUi(biases || [], flats || [], { lightTempC });
+  return usable.matches.length > 0 && usable.uncovered.length === 0;
+}
+
+/**
+ * Mirror of asiairIngest.collectUsableDarkflats — flat exp/gain/bin + light temp.
+ */
+function collectUsableDarkflatsUi(biases, flats, opts = {}) {
+  const list = biases || [];
+  const flatList = flats || [];
+  const lightTempC = opts.lightTempC != null && Number.isFinite(Number(opts.lightTempC))
+    ? Number(opts.lightTempC)
+    : null;
+  const paramMap = new Map();
+  for (const F of flatList) {
+    const key = [F.exposureSec, F.gain, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
+    if (!paramMap.has(key)) {
+      paramMap.set(key, {
+        exposureSec: F.exposureSec != null ? Number(F.exposureSec) : null,
+        gain: F.gain != null ? Number(F.gain) : null,
+        tempC: lightTempC,
+        bin: F.bin != null ? Number(F.bin) : null,
+      });
+    }
+  }
+  const paramSets = [...paramMap.values()];
+  const matchKeys = new Set();
+  const matches = [];
+  const uncovered = [];
+
+  function localMatch(b, params) {
+    if (params.exposureSec != null) {
+      if (b.exposureSec == null) return 'exposure missing';
+      if (!ingestNearlyEqual(b.exposureSec, params.exposureSec, 0.05)) return 'exposure mismatch';
+    }
+    if (params.gain != null) {
+      if (b.gain == null) return 'gain missing';
+      if (!ingestNearlyEqual(b.gain, params.gain, 0.5)) return 'gain mismatch';
+    }
+    if (params.tempC != null) {
+      if (b.tempC == null) return 'temp missing';
+      if (Math.abs(Number(b.tempC) - Number(params.tempC)) > INGEST_TEMP_TOLERANCE_C) return 'temp out of ±3°C vs lights';
+    }
+    if (params.bin != null) {
+      if (b.bin == null) return 'bin missing';
+      if (!ingestNearlyEqual(b.bin, params.bin, 0.5)) return 'bin mismatch';
+    }
+    return null;
+  }
+
+  for (const params of paramSets) {
+    let covered = false;
+    for (const b of list) {
+      const reason = localMatch(b, params);
+      if (reason) continue;
+      covered = true;
+      const k = b.filePath || b.fileName || `anon:${matches.length}`;
+      if (!matchKeys.has(k)) {
+        matchKeys.add(k);
+        matches.push(b);
+      }
+    }
+    if (!covered) uncovered.push(params);
+  }
+  const rejected = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const b = list[i];
+    const k = b.filePath || b.fileName;
+    const matched = matches.some((m) => {
+      const mk = m.filePath || m.fileName;
+      if (mk && k) return mk === k;
+      return m === b;
+    });
+    if (matched) continue;
+    let reason = 'does not match flat exp/gain/bin + light temp';
+    if (paramSets[0]) reason = localMatch(b, paramSets[0]) || reason;
+    rejected.push({ ...b, reason });
+  }
+  return { matches, rejected, uncovered, paramSets };
 }
 
 /** Mirror of asiairIngest.evaluateIngestFrameReadiness for UI gating. */
@@ -10573,26 +10829,20 @@ function evaluateIngestFrameReadinessUi(opts = {}) {
   const biases = opts.biases || [];
   const sessionDarks = opts.sessionDarks || [];
   const useMasterDarks = !!opts.useMasterDarks;
-  const useMasterBiases = !!opts.useMasterBiases;
   const filters = opts.filters || [];
+  const lightTempC = opts.lightTempC != null ? opts.lightTempC : modeLightTempC(lights);
   const missing = [];
   if (!lights.length) missing.push('Light');
   if (filters.length) {
     for (const f of filters) {
-      if (!flats.some((x) => x.filter === f)) missing.push(`Flat (${f})`);
+      const flatsF = flats.filter((x) => x.filter === f);
+      if (!flatsF.length) missing.push(`Flat (${f})`);
+      else if (!biasesMatchFlatsUi(biases, flatsF, lightTempC)) missing.push(`Bias matching Flat (${f})`);
     }
   } else if (!flats.length) {
     missing.push('Flat');
-  }
-  const masterBiasN = Number(opts.masterBiasCount) || 0;
-  const hasSessionBiases = biases.length > 0;
-  const hasMasterBiases = masterBiasN > 0;
-  if (!hasSessionBiases && !hasMasterBiases) {
-    missing.push('Bias (session or Bias Library)');
-  } else if (useMasterBiases) {
-    if (!hasMasterBiases) missing.push('Bias (Bias Library)');
-  } else if (!hasSessionBiases) {
-    missing.push('Bias (session)');
+  } else if (!biasesMatchFlatsUi(biases, flats, lightTempC)) {
+    missing.push('Bias matching Flat');
   }
   const masterN = Number(opts.masterDarkCount) || 0;
   const hasSessionDarks = sessionDarks.length > 0;
@@ -10680,17 +10930,15 @@ function applyIngestStageGate() {
 
   const filters = g.shootFilter ? [g.shootFilter] : [];
   const hasLights = (g.lights || []).length > 0;
-  const useMasterBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const readiness = evaluateIngestFrameReadinessUi({
     lights: g.lights || [],
     flats: g.flats || [],
     biases: g.biases || [],
     sessionDarks: g.sessionDarks || [],
     useMasterDarks: useMaster,
-    useMasterBiases,
     masterDarkCount: (ingestCtx.masterDarkMatches || []).length,
-    masterBiasCount: (ingestCtx.masterBiasMatches || []).length,
     filters,
+    lightTempC: g.lightTempC != null ? g.lightTempC : ingestCtx.lightTempC,
   });
   ingestCtx.frameReadiness = readiness;
   const canStage = hasLights && readiness.ok;
@@ -10736,7 +10984,6 @@ function syncIngestFilterStatusRowsFromScan() {
       : ((ingestCtx._stageGate && ingestCtx._stageGate.shootFilter) ? [ingestCtx._stageGate.shootFilter] : [])
   );
   const useMaster = !!(document.getElementById('ingest-use-masters') || {}).checked;
-  const useMasterBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const body = document.getElementById('ingest-filter-body');
   if (!body) return;
   for (const tr of body.querySelectorAll('tr[data-ingest-filter]')) {
@@ -10748,18 +10995,13 @@ function syncIngestFilterStatusRowsFromScan() {
       const masterN = (ingestCtx.darkMatchesByFilter && ingestCtx.darkMatchesByFilter[filter])
         ? ingestCtx.darkMatchesByFilter[filter].length
         : (ingestCtx.masterDarkMatches || []).length;
-      const masterBiasN = (ingestCtx.biasMatchesByFilter && ingestCtx.biasMatchesByFilter[filter])
-        ? ingestCtx.biasMatchesByFilter[filter].length
-        : (ingestCtx.masterBiasMatches || []).length;
       const readiness = evaluateShootStageReadiness({
         filter,
         scan,
         biases: scan.biases || [],
         sessionDarks: (ingestCtx._stageGate && ingestCtx._stageGate.sessionDarks) || [],
         useMasterDarks: useMaster,
-        useMasterBiases,
         masterDarkCount: masterN,
-        masterBiasCount: masterBiasN,
       });
       missing = readiness.missing || [];
     }
@@ -10814,63 +11056,53 @@ function isIngestUseMastersChecked() {
   return !!(document.getElementById('ingest-use-masters') || {}).checked;
 }
 
-/** Both master dark and master bias (darkflat) matches required to use library masters. */
+/** A matching master dark set is required to enable "use matching master darks". */
 function ingestMastersBothMatched() {
-  const darkN = (ingestCtx.masterDarkMatches || []).length;
-  const biasN = (ingestCtx.masterBiasMatches || []).length;
-  return darkN > 0 && biasN > 0;
+  return (ingestCtx.masterDarkMatches || []).length > 0;
 }
 
 function syncIngestMastersCheckbox() {
   const el = document.getElementById('ingest-use-masters');
   if (!el) return;
-  const both = ingestMastersBothMatched();
-  el.disabled = !both;
-  if (!both) {
+  const ok = ingestMastersBothMatched();
+  el.disabled = !ok;
+  if (!ok) {
     el.checked = false;
-    el.title = 'Need matching master dark AND master bias (darkflat) sets';
+    el.title = 'Need a matching master dark set (exp/gain/temp)';
   } else {
-    el.title = 'Use Dark Library + Bias Library matches (sub counts need not match)';
+    el.title = 'Use Dark Library masters that match light exp/gain/temp';
     if (!ingestCtx._mastersTouched) el.checked = true;
   }
 }
 
 function renderIngestMasterChipsRow() {
-  const row = document.getElementById('ingest-chips-masters');
   const chipsEl = document.getElementById('ingest-chips');
+  let row = document.getElementById('ingest-chips-masters');
+  if (!row && chipsEl) {
+    row = document.createElement('div');
+    row.className = 'ingest-chips-row';
+    row.id = 'ingest-chips-masters';
+    chipsEl.appendChild(row);
+  }
   const darkFolders = ingestCtx.masterDarkFolders || [];
-  const biasFolders = ingestCtx.masterBiasFolders || [];
   const darkCount = (ingestCtx.masterDarkMatches || []).length;
-  const biasCount = (ingestCtx.masterBiasMatches || []).length;
-
   const darkTone = darkFolders.length ? 'ok' : 'err';
-  const biasTone = biasFolders.length ? 'ok' : 'err';
   const darkLabel = darkFolders.length
     ? (darkFolders.length === 1
-      ? `${darkFolders[0].name} (${darkFolders[0].count})`
-      : `${darkFolders.length} folders · ${darkCount}`)
-    : 'none';
-  const biasLabel = biasFolders.length
-    ? (biasFolders.length === 1
-      ? `${biasFolders[0].name} (${biasFolders[0].count})`
-      : `${biasFolders.length} folders · ${biasCount}`)
+      ? darkFolders[0].name + ' (' + darkFolders[0].count + ')'
+      : darkFolders.length + ' folders · ' + darkCount)
     : 'none';
   const darkTitle = darkFolders.length
-    ? darkFolders.map((f) => `${f.name}: ${f.count} files`).join('\n')
-    : `No master dark matches (${ingestCtx.masterDarkProfile || 'exp/gain/temp'})`;
-  const biasTitle = biasFolders.length
-    ? biasFolders.map((f) => `${f.name}: ${f.count} files`).join('\n')
-    : `No Bias Library matches (${ingestCtx.masterBiasProfile || 'flat exp/gain/temp'})`;
-
+    ? darkFolders.map((f) => f.name + ': ' + f.count + ' files').join('\n')
+    : 'No master dark matches (' + (ingestCtx.masterDarkProfile || 'exp/gain/temp') + ')';
   const html =
-    `<button type="button" class="ingest-chip ${darkTone}" onclick="openIngestFilesPopup('master-darks')" title="${escapeAttr(darkTitle)}">Master dark: ${escapeHtml(darkLabel)}</button>` +
-    `<button type="button" class="ingest-chip ${biasTone}" onclick="openIngestFilesPopup('master-biases')" title="${escapeAttr(biasTitle)}">Master bias: ${escapeHtml(biasLabel)}</button>`;
-
+    '<button type="button" class="ingest-chip ' + darkTone + '" onclick="openIngestFilesPopup(\'master-darks\')" title="' +
+    escapeAttr(darkTitle) + '">Master dark: ' + escapeHtml(darkLabel) + '</button>';
   if (row) row.innerHTML = html;
   else if (chipsEl && ingestCtx._chipBase) {
     chipsEl.innerHTML =
-      `<div class="ingest-chips-row">${ingestCtx._chipBase.join('')}</div>` +
-      `<div class="ingest-chips-row" id="ingest-chips-masters">${html}</div>`;
+      '<div class="ingest-chips-row">' + ingestCtx._chipBase.join('') + '</div>' +
+      '<div class="ingest-chips-row" id="ingest-chips-masters">' + html + '</div>';
   }
   syncIngestMastersCheckbox();
 }
@@ -10963,113 +11195,6 @@ async function refreshIngestDarkMatches() {
     ingestCtx.masterDarkMatches = allMatches;
     ingestCtx.masterDarkFolders = groupMasterDarkFolders(allMatches, libPath);
     ingestCtx.masterDarkProfile = profiles.join(' · ') || '';
-  }
-
-  await refreshIngestBiasMatches();
-}
-
-async function refreshIngestBiasMatches() {
-  ingestCtx.biasMatchesByFilter = {};
-  ingestCtx.masterBiasMatches = [];
-  ingestCtx.masterBiasFolders = [];
-  ingestCtx.masterBiasProfile = '';
-
-  ensureBiasLibrary();
-  await ensureBiasLibraryIndexed({ quiet: true });
-
-  const scan = ingestCtx.scan;
-  if (!scan || !scan.filters) {
-    renderIngestMasterChipsRow();
-    applyIngestStageGate();
-    return;
-  }
-
-  const { pi, si } = ingestCtx;
-  const project = pi != null ? data.projects[pi] : null;
-  const sh = project && si != null ? project.shoots[si] : null;
-  const ft = project && sh ? project.filterTargets[sh.filterIndex] : null;
-  const pendingFilters = ingestBatch && ingestBatch.mode === 'multi'
-    ? (ingestBatch.filters || [])
-    : null;
-  const focusFilters = pendingFilters && pendingFilters.length
-    ? pendingFilters
-    : (ft && ft.filter ? [ft.filter] : []);
-
-  const libPath = data.biasLibrary.path || '';
-  if (data.biasLibrary.index && data.biasLibrary.index.length) {
-    const flatParamsByFilter = {};
-    for (const F of (scan.flats || [])) {
-      const f = F.filter || 'Unknown';
-      if (!flatParamsByFilter[f]) {
-        flatParamsByFilter[f] = {
-          exposureSec: F.exposureSec,
-          gain: F.gain,
-          tempC: F.tempC,
-          bin: F.bin,
-        };
-      }
-    }
-
-    const byProfile = new Map();
-    const filtersToMatch = (scan.filters || []).filter((r) => r.lights || r.flats);
-    for (const row of filtersToMatch) {
-      const params = flatParamsByFilter[row.filter] || {
-        exposureSec: row.exposureSec,
-        gain: row.gain,
-        tempC: row.tempC,
-        bin: row.bin,
-      };
-      const key = [params.exposureSec, params.gain, params.tempC, params.bin].join('|');
-      let matches = byProfile.get(key);
-      if (!matches) {
-        const res = await window.zukoIngest.matchBiases({
-          index: activeLibraryIndex(data.biasLibrary),
-          exposureSec: params.exposureSec,
-          gain: params.gain,
-          tempC: params.tempC,
-          bin: params.bin,
-        });
-        matches = (res && res.matches) || [];
-        byProfile.set(key, matches);
-      }
-      ingestCtx.biasMatchesByFilter[row.filter] = matches;
-    }
-    const first = [...byProfile.values()][0];
-    if (first) ingestCtx.biasMatchesByFilter['*'] = first;
-
-    let allMatches = [];
-    const profiles = [];
-    const seenProfile = new Set();
-    for (const fname of focusFilters) {
-      const row = (scan.filters || []).find((r) => r.filter === fname);
-      if (!row) continue;
-      const params = flatParamsByFilter[fname] || {
-        exposureSec: row.exposureSec,
-        gain: row.gain,
-        tempC: row.tempC,
-        bin: row.bin,
-      };
-      const key = [params.exposureSec, params.gain, params.tempC, params.bin].join('|');
-      allMatches = allMatches.concat(byProfile.get(key) || []);
-      if (!seenProfile.has(key)) {
-        seenProfile.add(key);
-        const exp = params.exposureSec != null ? params.exposureSec + 's' : '?s';
-        const gain = params.gain != null ? 'g' + params.gain : 'g?';
-        const temp = params.tempC != null ? params.tempC + '°C' : '?°C';
-        profiles.push(`${exp} · ${gain} · ${temp}`);
-      }
-    }
-    if (!focusFilters.length && first) allMatches = first.slice();
-    const seenFile = new Set();
-    allMatches = allMatches.filter((d) => {
-      const k = d.filePath || d.fileName;
-      if (!k || seenFile.has(k)) return false;
-      seenFile.add(k);
-      return true;
-    });
-    ingestCtx.masterBiasMatches = allMatches;
-    ingestCtx.masterBiasFolders = groupMasterDarkFolders(allMatches, libPath);
-    ingestCtx.masterBiasProfile = profiles.join(' · ') || '';
   }
 
   renderIngestMasterChipsRow();
@@ -11855,7 +11980,6 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
     shootFolder: meta.shootFolder || shootFolder,
     filters: meta.filters,
     destRoots: meta.destRoots,
-    biasLibrary: meta.biasLibrary,
     darkLibrary: meta.darkLibrary,
     calibReuse: meta.calibReuse || null,
     filesStaged: meta.filesStaged,
@@ -11912,69 +12036,6 @@ async function buildMasterDarkMatchesForScan(scan, shootFilterName) {
   return { darkMatchesByFilter, matchCount, useMasterDarks: matchCount > 0 };
 }
 
-async function buildMasterBiasMatchesForScan(scan, shootFilterName) {
-  const biasMatchesByFilter = {};
-  ensureBiasLibrary();
-  await ensureBiasLibraryIndexed({ quiet: true });
-  if (!data.biasLibrary.index || !data.biasLibrary.index.length || !scan || !scan.filters) {
-    return { biasMatchesByFilter, matchCount: 0, useMasterBiases: false };
-  }
-  const flatParamsByFilter = {};
-  for (const F of (scan.flats || [])) {
-    const f = F.filter || 'Unknown';
-    if (!flatParamsByFilter[f]) {
-      flatParamsByFilter[f] = {
-        exposureSec: F.exposureSec,
-        gain: F.gain,
-        tempC: F.tempC,
-        bin: F.bin,
-      };
-    }
-  }
-  const byProfile = new Map();
-  for (const row of scan.filters) {
-    if (!row.lights && !row.flats) continue;
-    const params = flatParamsByFilter[row.filter] || {
-      exposureSec: row.exposureSec,
-      gain: row.gain,
-      tempC: row.tempC,
-      bin: row.bin,
-    };
-    const key = [params.exposureSec, params.gain, params.tempC, params.bin].join('|');
-    let matches = byProfile.get(key);
-    if (!matches) {
-      const res = await window.zukoIngest.matchBiases({
-        index: activeLibraryIndex(data.biasLibrary),
-        exposureSec: params.exposureSec,
-        gain: params.gain,
-        tempC: params.tempC,
-        bin: params.bin,
-      });
-      matches = (res && res.matches) || [];
-      byProfile.set(key, matches);
-    }
-    biasMatchesByFilter[row.filter] = matches;
-  }
-  const first = [...byProfile.values()][0];
-  if (first) biasMatchesByFilter['*'] = first;
-  const shootRow = shootFilterName
-    ? (scan.filters || []).find((r) => r.filter === shootFilterName)
-    : (scan.filters || [])[0];
-  const params = shootRow
-    ? (flatParamsByFilter[shootRow.filter] || {
-      exposureSec: shootRow.exposureSec,
-      gain: shootRow.gain,
-      tempC: shootRow.tempC,
-      bin: shootRow.bin,
-    })
-    : null;
-  const shootKey = params
-    ? [params.exposureSec, params.gain, params.tempC, params.bin].join('|')
-    : null;
-  const matchCount = shootKey ? ((byProfile.get(shootKey) || []).length) : ((first || []).length);
-  return { biasMatchesByFilter, matchCount, useMasterBiases: matchCount > 0 };
-}
-
 /**
  * Stage one shoot without needing the modal pre-scanned.
  * opts: { force, sessionPath, useMasterDarks (bool|null=auto), minBusyMs, progressEl }
@@ -12016,12 +12077,9 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
   }
 
   const darkInfo = await buildMasterDarkMatchesForScan(scan, shootFilter);
-  const biasInfo = await buildMasterBiasMatchesForScan(scan, shootFilter);
-  const bothMasters = !!(darkInfo.useMasterDarks && biasInfo.useMasterBiases);
-  const forced = opts.useMasterDarks != null || opts.useMasterBiases != null;
-  const finalUseMasters = forced
-    ? (!!opts.useMasterDarks && !!opts.useMasterBiases)
-    : bothMasters;
+  const bothMasters = !!darkInfo.useMasterDarks;
+  const forced = opts.useMasterDarks != null;
+  const finalUseMasters = forced ? !!opts.useMasterDarks : bothMasters;
   const shootFolder = buildShootCode(sh, ft);
   const session = { path: sourceDir, paths: scan.sessionPaths || [] };
 
@@ -12035,11 +12093,10 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     targetHint,
     useMasterDarks: finalUseMasters,
     darkMatchesByFilter: finalUseMasters ? darkInfo.darkMatchesByFilter : {},
-    useMasterBiases: finalUseMasters,
-    biasMatchesByFilter: finalUseMasters ? biasInfo.biasMatchesByFilter : {},
     includeTargets: targetOpts.includeTargets,
     targetCoords: targetOpts.targetCoords,
     skipTargetHint: targetOpts.skipTargetHint,
+    ...ingestCalibOverridePayload(),
   });
 
   const minBusyMs = opts.minBusyMs == null ? 800 : opts.minBusyMs;
@@ -12110,17 +12167,25 @@ function evaluateShootStageReadiness(opts = {}) {
     return { ok: false, missing: ['Light'], error: 'No scan' };
   }
   const lights = (scan.lights || []).filter((L) => L.filter === filter);
-  const flats = (scan.flats || []).filter((F) => F.filter === filter);
+  const lightTempC = opts.lightTempC != null ? opts.lightTempC : modeLightTempC(lights);
+  const flatsAll = (scan.flats || []).filter((F) => F.filter === filter);
+  const flats = flatsAll.filter((f) =>
+    tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
+  );
+  let biases = opts.biases || scan.biases || [];
+  // Prefer already-matched list when provided (includes overrides).
+  if (!opts.biases && ingestCtx && Array.isArray(ingestCtx.biasMatched)) {
+    biases = ingestCtx.biasMatched;
+  }
   return evaluateIngestFrameReadinessUi({
     lights,
     flats,
-    biases: opts.biases || scan.biases || [],
+    biases,
     sessionDarks: opts.sessionDarks || [],
     useMasterDarks: !!opts.useMasterDarks,
-    useMasterBiases: !!opts.useMasterBiases,
     masterDarkCount: Number(opts.masterDarkCount) || 0,
-    masterBiasCount: Number(opts.masterBiasCount) || 0,
     filters: [filter],
+    lightTempC,
   });
 }
 
@@ -12132,10 +12197,8 @@ function computeReadyQueueFromScan(project, queue, scan, opts = {}) {
   const readyQueue = [];
   const readyFilters = [];
   const useMaster = !!opts.useMasterDarks;
-  const useMasterBiases = !!opts.useMasterBiases;
   const darkMatched = opts.sessionDarks || [];
   const darkByFilter = opts.darkMatchesByFilter || {};
-  const biasByFilter = opts.biasMatchesByFilter || {};
   const biases = (scan && scan.biases) || [];
   for (const si of queue || []) {
     const sh = project.shoots[si];
@@ -12145,18 +12208,13 @@ function computeReadyQueueFromScan(project, queue, scan, opts = {}) {
     const masterN = Array.isArray(darkByFilter[filter])
       ? darkByFilter[filter].length
       : (Number(opts.masterDarkCount) || 0);
-    const masterBiasN = Array.isArray(biasByFilter[filter])
-      ? biasByFilter[filter].length
-      : (Number(opts.masterBiasCount) || 0);
     const readiness = evaluateShootStageReadiness({
       filter,
       scan,
       biases,
       sessionDarks: darkMatched,
       useMasterDarks: useMaster,
-      useMasterBiases,
       masterDarkCount: masterN,
-      masterBiasCount: masterBiasN,
     });
     if (readiness.ok) {
       readyQueue.push(si);
@@ -12172,19 +12230,15 @@ function refreshIngestBatchReadyFromScan() {
   const project = data.projects[ingestBatch.pi];
   const scan = ingestCtx && ingestCtx.scan;
   const useMaster = !!(document.getElementById('ingest-use-masters') || {}).checked;
-  const useMasterBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const { readyQueue, readyFilters } = computeReadyQueueFromScan(
     project,
     ingestBatch.queue || [],
     scan,
     {
       useMasterDarks: useMaster,
-      useMasterBiases,
       sessionDarks: (ingestCtx._stageGate && ingestCtx._stageGate.sessionDarks) || ingestCtx.darkMatched || [],
       darkMatchesByFilter: ingestCtx.darkMatchesByFilter || {},
-      biasMatchesByFilter: ingestCtx.biasMatchesByFilter || {},
       masterDarkCount: (ingestCtx.masterDarkMatches || []).length,
-      masterBiasCount: (ingestCtx.masterBiasMatches || []).length,
     }
   );
   ingestBatch.readyQueue = readyQueue;
@@ -12203,12 +12257,10 @@ async function assessAllIngestNightsReadiness() {
   const project = data.projects[ingestBatch.pi];
   if (!project || !project.projectDir) return;
   const useMaster = !!(document.getElementById('ingest-use-masters') || {}).checked;
-  const useMasterBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const coords = projectTargetCoords(project);
   ensureDarkLibrary();
   await ensureDarkLibraryIndexed({ quiet: true });
-  ensureBiasLibrary();
-  await ensureBiasLibraryIndexed({ quiet: true });
+
 
   for (const night of ingestBatch.nightOrder || []) {
     const entry = ingestBatch.byNight[night];
@@ -12229,7 +12281,6 @@ async function assessAllIngestNightsReadiness() {
     const sessionDarks = scan.darks || [];
     let darkMatched = [];
     const darkMatchesByFilter = {};
-    const biasMatchesByFilter = {};
     // Match session + master darks per pending filter profile
     for (const filter of entry.filters || []) {
       const row = (scan.filters || []).find((r) => r.filter === filter && r.lights);
@@ -12259,19 +12310,14 @@ async function assessAllIngestNightsReadiness() {
         darkMatchesByFilter[filter] = (res && res.matches) || [];
       }
     }
-    const biasInfo = await buildMasterBiasMatchesForScan(scan, null);
-    Object.assign(biasMatchesByFilter, biasInfo.biasMatchesByFilter || {});
     const { readyQueue, readyFilters } = computeReadyQueueFromScan(
       project,
       entry.queue,
       scan,
       {
         useMasterDarks: useMaster,
-        useMasterBiases,
         sessionDarks: darkMatched,
         darkMatchesByFilter,
-        biasMatchesByFilter,
-        masterBiasCount: biasInfo.matchCount || 0,
       }
     );
     entry.readyQueue = readyQueue;
@@ -12402,6 +12448,9 @@ async function ingestAllCapturedShoots(pi) {
     editProjectMeta(pi);
     return;
   }
+  const sourceDir = await ensureAsiairSourceSelected(project);
+  if (!sourceDir) return;
+
   const pending = (project.shoots || [])
     .map((sh, si) => ({ sh, si }))
     .filter(({ sh }) => isShootNeedingIngest(sh));
@@ -12450,6 +12499,7 @@ async function ingestAllCapturedShoots(pi) {
     const resolved = await resolveTargetIncludesForNight(project, night, {
       pi,
       filters: entry.filters || [],
+      sourceDir,
     });
     if (resolved.canceled) return;
     if (!resolved.ok) {
@@ -12482,7 +12532,7 @@ async function ingestAllCapturedShoots(pi) {
     si: ingestBatch.queue[0],
     scan: null,
     sessions: [],
-    sourcePath: resolveAsiairSourceDir(project),
+    sourcePath: sourceDir,
     darkMatchesByFilter: {},
     darkMatched: [],
     darkRejected: [],
@@ -12536,7 +12586,6 @@ async function stageIngestQueue(queue, force = false) {
   if (!project.projectDir) return { ok: [], fail: ['No project directory'] };
 
   const useDarks = !!(document.getElementById('ingest-use-masters') || {}).checked;
-  const useBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const ok = [];
   const fail = [];
 
@@ -12549,7 +12598,6 @@ async function stageIngestQueue(queue, force = false) {
       `Importing ${i + 1}/${queue.length} · ${code}`;
     const res = await ingestSingleShootProgrammatic(pi, si, {
       useMasterDarks: useDarks,
-      useMasterBiases: useBiases,
       force: !!force,
       minBusyMs: i === 0 ? 1000 : 350,
       busyMessage: `Importing ${i + 1}/${queue.length}: ${code}`,
@@ -12681,7 +12729,7 @@ async function runIngestStage(force = false) {
     return;
   }
 
-  const { pi, si, scan, darkMatchesByFilter, biasMatchesByFilter } = ingestCtx;
+  const { pi, si, scan, darkMatchesByFilter } = ingestCtx;
   if (pi == null || !scan) return;
   const project = data.projects[pi];
   const sh = project.shoots[si];
@@ -12689,7 +12737,6 @@ async function runIngestStage(force = false) {
   if (!project.projectDir || !night) return;
 
   const useDarks = !!(document.getElementById('ingest-use-masters') || {}).checked;
-  const useBiases = !!(document.getElementById('ingest-use-masters') || {}).checked;
   document.getElementById('ingest-progress').textContent = 'Importing…';
 
   const targetHint = projectTargetHint(project);
@@ -12708,11 +12755,10 @@ async function runIngestStage(force = false) {
       targetHint,
       useMasterDarks: useDarks,
       darkMatchesByFilter: useDarks ? darkMatchesByFilter : {},
-      useMasterBiases: useBiases,
-      biasMatchesByFilter: useBiases ? biasMatchesByFilter : {},
       includeTargets: targetOpts.includeTargets,
       targetCoords: targetOpts.targetCoords,
       skipTargetHint: targetOpts.skipTargetHint,
+      ...ingestCalibOverridePayload(),
     }), { minMs: 2000 });
 
   if (!result || !result.ok) {
@@ -13136,6 +13182,32 @@ function closeModal() {
   modalType = null;
   editIndex = null;
   modalProjectIndex = null;
+  syncBodyScrollLock();
+}
+
+const MODAL_OPEN_SELECTOR = [
+  '.modal-overlay.open',
+  '.ingest-overlay.open',
+  '.ingest-target-confirm-overlay.open',
+  '.source-review-overlay.open',
+  '.ingest-files-overlay.open',
+  '.siril-progress-overlay.open',
+].join(', ');
+
+function syncBodyScrollLock() {
+  const open = !!document.querySelector(MODAL_OPEN_SELECTOR);
+  document.documentElement.classList.toggle('modal-open', open);
+  document.body.classList.toggle('modal-open', open);
+}
+
+function initModalScrollLock() {
+  syncBodyScrollLock();
+  const roots = document.querySelectorAll(
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .siril-progress-overlay'
+  );
+  if (!roots.length || typeof MutationObserver !== 'function') return;
+  const obs = new MutationObserver(() => syncBodyScrollLock());
+  roots.forEach((el) => obs.observe(el, { attributes: true, attributeFilter: ['class'] }));
 }
 
 function saveModal() {
@@ -13396,11 +13468,8 @@ async function openSettings() {
   const asiairEl = document.getElementById('settings-asiair-source');
   if (asiairEl) asiairEl.value = getAsiairSourcePath();
   ensureDarkLibrary();
-  ensureBiasLibrary();
   const darkLibEl = document.getElementById('settings-darklib-path');
   if (darkLibEl) darkLibEl.value = data.darkLibrary.path || '';
-  const biasLibEl = document.getElementById('settings-biaslib-path');
-  if (biasLibEl) biasLibEl.value = data.biasLibrary.path || '';
   const keyInput = document.getElementById('settings-api-key');
   if (keyInput) {
     keyInput.value = '';
@@ -13543,16 +13612,10 @@ async function saveSettings() {
     data.asiairSourcePath = normalizeWinPath((asiairSrc.value || '').trim()) || '';
   }
   ensureDarkLibrary();
-  ensureBiasLibrary();
   const darkLibSrc = document.getElementById('settings-darklib-path');
   if (darkLibSrc) {
     const p = normalizeWinPath((darkLibSrc.value || '').trim());
     if (p) data.darkLibrary.path = p;
-  }
-  const biasLibSrc = document.getElementById('settings-biaslib-path');
-  if (biasLibSrc) {
-    const p = normalizeWinPath((biasLibSrc.value || '').trim());
-    if (p) data.biasLibrary.path = p;
   }
 
   const keyInput = document.getElementById('settings-api-key');
@@ -13622,6 +13685,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     setBootStatus('Rendering…');
     render();
     initSectionCollapseControls();
+    initModalScrollLock();
     // Persist recomputed filter hours (and any other adopt fixes) back to disk
     persistData();
     syncHeaderVersion();

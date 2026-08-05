@@ -8,12 +8,10 @@ const os = require('os');
 const path = require('path');
 const {
   darkLibrarySetFolderName,
-  biasLibrarySetFolderName,
   formatLibraryTempLabel,
   scanCalibrationLibraryImport,
   deleteCalibrationLibrarySet,
   indexDarkLibrary,
-  indexBiasLibrary,
 } = require('../src/ingest/asiairIngest');
 
 let failed = 0;
@@ -43,8 +41,6 @@ async function main() {
 
   const darkName = darkLibrarySetFolderName({ exposureSec: 180, bin: 2, tempC: -10.2 });
   assert(darkName === 'Darks_180s_Bin2_-10c', `dark set name ${darkName}`);
-  const biasName = biasLibrarySetFolderName({ exposureSec: 2, bin: 1, tempC: -9.6 });
-  assert(biasName === 'Bias_2s_Bin1_-10c', `bias set name ${biasName}`);
 
   await withTempDir(async (root) => {
     const lib = path.join(root, 'Dark Library');
@@ -80,9 +76,8 @@ async function main() {
     assert(Array.isArray(scanEmpty.sets) && scanEmpty.sets.length === 0, 'no sets under empty source');
   });
 
-  // Index live libs if present
+  // Index live Dark Library if present
   const DARK = 'F:\\zuko_dev\\Dark Library';
-  const BIAS = 'F:\\zuko_dev\\Bias Library';
   if (fs.existsSync(DARK)) {
     const idx = await indexDarkLibrary(DARK);
     assert(idx.ok === true, `dark index ok frames=${idx.count} sets=${(idx.sets || []).length}`);
@@ -92,12 +87,6 @@ async function main() {
     }
   } else {
     console.log('skip: dark library missing on F:');
-  }
-  if (fs.existsSync(BIAS)) {
-    const idx = await indexBiasLibrary(BIAS);
-    assert(idx.ok === true, `bias index ok frames=${idx.count} sets=${(idx.sets || []).length}`);
-  } else {
-    console.log('skip: bias library missing on F:');
   }
 
   // Simulate remove-flag bookkeeping (frontend logic mirrored)
