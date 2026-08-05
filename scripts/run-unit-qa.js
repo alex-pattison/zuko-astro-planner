@@ -7,6 +7,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const scripts = [
+  'scripts/_test-calib-focused-qa.js',
   'scripts/qa-asiair-ingest.js',
   'scripts/qa-target-match-flow.js',
   'scripts/qa-target-match-deep.js',
@@ -19,7 +20,11 @@ for (const rel of scripts) {
   const r = spawnSync(process.execPath, [path.join(ROOT, rel)], {
     cwd: ROOT,
     stdio: 'inherit',
-    env: process.env,
+    env: {
+      ...process.env,
+      ASIAIR_QA_SRC: process.env.ASIAIR_QA_SRC
+        || path.join(process.env.USERPROFILE || '', 'OneDrive', 'Desktop', 'asiaIRDUMP'),
+    },
   });
   if (r.status !== 0) {
     failed += 1;

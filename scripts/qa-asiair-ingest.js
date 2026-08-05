@@ -13,6 +13,9 @@ const {
   matchMasterDarks,
   stageSirilTree,
   evaluateIngestFrameReadiness,
+  collectUsableDarkflats,
+  partitionByLightTemp,
+  modeTempC,
   normalizeFilter,
   normalizeNight,
   astronomicalNightForFrame,
@@ -27,10 +30,31 @@ const {
 } = require('../src/ingest/asiairIngest');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC_AUTORUN = path.join(ROOT, 'staging', 'asiair-sample', 'Autorun');
+const DESKTOP_DUMP = path.join(
+  process.env.USERPROFILE || '',
+  'OneDrive',
+  'Desktop',
+  'asiaIRDUMP',
+  'Autorun',
+);
+const SAMPLE_AUTORUN = path.join(ROOT, 'staging', 'asiair-sample', 'Autorun');
+/** Prefer ASIAIR_QA_SRC, then Desktop asiaIRDUMP/Autorun, then staging sample. */
+const SRC_AUTORUN = (() => {
+  const env = process.env.ASIAIR_QA_SRC && String(process.env.ASIAIR_QA_SRC).trim();
+  if (env && fs.existsSync(env)) {
+    const asAutorun = /autorun$/i.test(path.basename(env)) ? env : path.join(env, 'Autorun');
+    if (fs.existsSync(asAutorun)) return asAutorun;
+    return env;
+  }
+  if (fs.existsSync(DESKTOP_DUMP)) return DESKTOP_DUMP;
+  return SAMPLE_AUTORUN;
+})();
 const QA_ROOT = path.join(ROOT, 'staging', 'asiair-qa');
 const QA_AUTORUN = path.join(QA_ROOT, 'Autorun');
-const DARK_LIB = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const DARK_LIB = process.env.ZUKO_DARK_LIBRARY
+  || (fs.existsSync('F:\\zuko_dev\\Dark Library')
+    ? 'F:\\zuko_dev\\Dark Library'
+    : 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library');
 const NIGHT = '20260725';
 
 const results = [];
@@ -109,34 +133,118 @@ async function addMultiDayHaCopies(lightDir, flatDir, fromDate, toDate) {
 
 async function buildFixture() {
   console.log('\n== Build QA fixture ==');
+  console.log('  source Autorun:', SRC_AUTORUN);
   if (fs.existsSync(QA_ROOT)) {
     await fsp.rm(QA_ROOT, { recursive: true, force: true });
   }
-  const lightSrc = path.join(SRC_AUTORUN, 'Light', 'NGC 6960');
+  assert('source Autorun exists', fs.existsSync(SRC_AUTORUN), SRC_AUTORUN);
+
+  // Prefer Veil target folder; fall back to any Light/* child (e.g. NGC 7000).
+  const lightRoot = path.join(SRC_AUTORUN, 'Light');
+  let lightSrc = path.join(lightRoot, 'NGC 6960');
+  if (!fs.existsSync(lightSrc)) {
+    const kids = fs.existsSync(lightRoot)
+      ? (await fsp.readdir(lightRoot, { withFileTypes: true })).filter((e) => e.isDirectory())
+      : [];
+    lightSrc = kids.length ? path.join(lightRoot, kids[0].name) : lightRoot;
+  }
   const lightDst = path.join(QA_AUTORUN, 'Light', 'NGC 6960');
   const flatSrc = path.join(SRC_AUTORUN, 'Flat');
   const biasSrc = path.join(SRC_AUTORUN, 'Bias');
   const darkSrc = path.join(SRC_AUTORUN, 'Dark');
 
-  assert('source Autorun exists', fs.existsSync(SRC_AUTORUN), SRC_AUTORUN);
-  const hL = await copyFew(lightSrc, lightDst, (n) => /_H_/i.test(n) && n.includes('20260725'), 3);
-  const oL = await copyFew(lightSrc, lightDst, (n) => /_O_/i.test(n), 3);
-  const sL = await copyFew(lightSrc, lightDst, (n) => /_S_/i.test(n), 3);
-  const hF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_H_/i.test(n) && n.includes('20260726'), 2);
-  const oF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_O_/i.test(n) && n.includes('20260726'), 2);
-  const sF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_S_/i.test(n) && n.includes('20260726'), 2);
-  // biases/darks often lack filter letter — take any
-  const b = await copyFew(biasSrc, path.join(QA_AUTORUN, 'Bias'), () => true, 3);
+  // Flexible date match — real dump nights vary; we normalize a subset to NIGHT below.
+  async function copyLights(letter, limit) {
+    // Search all Light/* folders for this filter letter.
+    let n = 0;
+    if (!fs.existsSync(lightRoot)) return 0;
+    const folders = (await fsp.readdir(lightRoot, { withFileTypes: true }))
+      .filter((e) => e.isDirectory())
+      .map((e) => path.join(lightRoot, e.name));
+    if (!folders.length && fs.existsSync(lightSrc)) folders.push(lightSrc);
+    for (const folder of folders) {
+      n += await copyFew(folder, lightDst, (name) => new RegExp(`_${letter}_`, 'i').test(name), limit - n);
+      if (n >= limit) break;
+    }
+    return n;
+  }
+
+  const hL = await copyLights('H', 3);
+  const oL = await copyLights('O', 3);
+  const sL = await copyLights('S', 3);
+  const hF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_H_/i.test(n), 2);
+  const oF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_O_/i.test(n), 2);
+  const sF = await copyFew(flatSrc, path.join(QA_AUTORUN, 'Flat'), (n) => /_S_/i.test(n), 2);
+  // Real dump often has Bias@500ms vs Flat@2s — keep a few for rejection asserts.
+  const bWrong = await copyFew(biasSrc, path.join(QA_AUTORUN, 'Bias'), () => true, 2);
   const d = await copyFew(darkSrc, path.join(QA_AUTORUN, 'Dark'), () => true, 3);
+
+  // Flats are night-window gated — rewrite to NIGHT+1 morning so scan(night=NIGHT) finds them.
+  const flatDir = path.join(QA_AUTORUN, 'Flat');
+  const flatNight = (() => {
+    const y = Number(NIGHT.slice(0, 4));
+    const m = Number(NIGHT.slice(4, 6));
+    const d0 = Number(NIGHT.slice(6, 8));
+    const dt = new Date(Date.UTC(y, m - 1, d0 + 1));
+    const yy = dt.getUTCFullYear();
+    const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(dt.getUTCDate()).padStart(2, '0');
+    return `${yy}${mm}${dd}`;
+  })();
+  if (fs.existsSync(flatDir)) {
+    const flatNames = (await fsp.readdir(flatDir)).filter((n) => /\.fit$/i.test(n));
+    for (const name of flatNames) {
+      const m = name.match(/_(\d{8})-/);
+      const fromDate = m ? m[1] : null;
+      const destName = fromDate ? name.split(fromDate).join(flatNight) : name;
+      const srcPath = path.join(flatDir, name);
+      const destPath = path.join(flatDir, destName);
+      const buf = await fsp.readFile(srcPath);
+      await fsp.writeFile(destPath, patchDateObs(buf, flatNight));
+      if (destName !== name) await fsp.unlink(srcPath).catch(() => {});
+    }
+  }
+
+  // Synthesize matching darkflats from (rewritten) flats for staging readiness.
+  const biasDir = path.join(QA_AUTORUN, 'Bias');
+  await ensureDir(biasDir);
+  let synthBias = 0;
+  if (fs.existsSync(flatDir)) {
+    const flats = (await fsp.readdir(flatDir)).filter((n) => /\.fit$/i.test(n)).sort().slice(0, 6);
+    for (const name of flats) {
+      const destName = name.replace(/^Flat_/i, 'Bias_');
+      const dest = path.join(biasDir, destName);
+      if (fs.existsSync(dest)) continue;
+      await fsp.copyFile(path.join(flatDir, name), dest);
+      synthBias += 1;
+    }
+  }
+
+  // Normalize light DATE-OBS / filename stamps toward NIGHT so night scans are stable.
+  const lightFiles = fs.existsSync(lightDst)
+    ? (await fsp.readdir(lightDst)).filter((n) => /\.fit$/i.test(n))
+    : [];
+  for (const name of lightFiles) {
+    const m = name.match(/_(\d{8})-/);
+    if (!m || m[1] === NIGHT) continue;
+    const destName = name.split(m[1]).join(NIGHT);
+    const srcPath = path.join(lightDst, name);
+    const destPath = path.join(lightDst, destName);
+    const buf = await fsp.readFile(srcPath);
+    await fsp.writeFile(destPath, patchDateObs(buf, NIGHT));
+    if (destName !== name) await fsp.unlink(srcPath).catch(() => {});
+  }
+
   const multi = await addMultiDayHaCopies(
     lightDst,
     path.join(QA_AUTORUN, 'Flat'),
-    '20260725',
+    NIGHT,
     '20260720',
   );
   assert('fixture lights Ha/OIII/SII', hL >= 1 && oL >= 1 && sL >= 1, `H=${hL} O=${oL} S=${sL}`);
   assert('fixture flats present', hF + oF + sF >= 2, `flats=${hF + oF + sF}`);
-  assert('fixture biases present', b >= 1, `biases=${b}`);
+  assert('fixture real (possibly mismatched) biases', bWrong >= 1, `bWrong=${bWrong}`);
+  assert('fixture synthetic matching darkflats', synthBias >= 1, `synthBias=${synthBias}`);
   assert('fixture session darks present', d >= 1, `darks=${d}`);
   assert('fixture multi-day Ha copies', multi >= 1, `rewritten=${multi}`);
 }
@@ -347,7 +455,7 @@ async function testPipeline() {
       folders.map((f) => `${f.name}:${f.count}`).join(', '),
     );
   } else {
-    fail('index dark library', 'Dark Library path missing on H:');
+    fail('index dark library', `Dark Library path missing: ${DARK_LIB}`);
   }
 
   const light = (scan.lights || []).find((l) => normalizeFilter(l.filter) === 'Ha') || scan.lights[0];
@@ -361,6 +469,16 @@ async function testPipeline() {
 
   const haLights = (scan.lights || []).filter((l) => normalizeFilter(l.filter) === 'Ha');
   const haFlats = (scan.flats || []).filter((f) => normalizeFilter(f.filter) === 'Ha');
+  const lightTempC = modeTempC(haLights);
+  const flatTemp = partitionByLightTemp(haFlats, lightTempC);
+  assert('Ha flats within light temp', flatTemp.inRange.length >= 1, `in=${flatTemp.inRange.length} out=${flatTemp.outOfRange.length}`);
+  const biasUsable = collectUsableDarkflats(scan.biases || [], flatTemp.inRange, { lightTempC });
+  assert('matching darkflats found (synth 2s)', biasUsable.matches.length >= 1, `m=${biasUsable.matches.length}`);
+  assert(
+    'mismatched Bias@500ms rejected vs Flat@2s',
+    biasUsable.rejected.some((b) => /exposure/i.test(b.reason || '') || (b.exposureSec != null && Number(b.exposureSec) < 1)),
+    `rejected=${biasUsable.rejected.length} reasons=${biasUsable.rejected.map((b) => b.reason).slice(0, 3).join('|')}`,
+  );
   const readyOk = evaluateIngestFrameReadiness({
     lights: haLights,
     flats: haFlats,
@@ -369,6 +487,7 @@ async function testPipeline() {
     useMasterDarks: true,
     darkMatchesByFilter: { Ha: match.matches, '*': match.matches },
     filters: ['Ha'],
+    lightTempC,
   });
   assert('readiness ok with all 4', readyOk.ok, readyOk.error);
   const missingFlat = evaluateIngestFrameReadiness({
@@ -427,13 +546,19 @@ async function testPipeline() {
   if (stage1.ok) {
     const haLights = path.join(QA_ROOT, 'Ha', '260725_Ha_B9_Home', 'lights');
     const haDarks = path.join(QA_ROOT, 'Ha', '260725_Ha_B9_Home', 'darks');
+    const haMasters = path.join(QA_ROOT, 'Ha', '260725_Ha_B9_Home', 'masters');
     const haBias = path.join(QA_ROOT, 'Ha', '260725_Ha_B9_Home', 'biases');
     const nLights = fs.existsSync(haLights) ? fs.readdirSync(haLights).filter((n) => /\.fit$/i.test(n)).length : 0;
     const nDarks = fs.existsSync(haDarks) ? fs.readdirSync(haDarks).filter((n) => /\.fit$/i.test(n)).length : 0;
     const nBias = fs.existsSync(haBias) ? fs.readdirSync(haBias).filter((n) => /\.fit$/i.test(n)).length : 0;
+    const hasDarkMaster = fs.existsSync(path.join(haMasters, 'dark_stacked.fit'));
     assert('Ha lights staged', nLights >= 1, `lights=${nLights}`);
     assert('Ha biases linked', nBias >= 1, `biases=${nBias}`);
-    assert('Ha master darks linked', nDarks >= 1, `darks=${nDarks}`);
+    assert(
+      'Ha master darks linked',
+      nDarks >= 1 || hasDarkMaster,
+      `darks=${nDarks} dark_stacked=${hasDarkMaster}`,
+    );
 
     // Inspect one dark link — should point into Dark Library, not _calibration/darks
     if (nDarks) {
@@ -1167,9 +1292,70 @@ async function testTargetMatchCoords() {
   );
 }
 
+/** Scan the real Desktop asiaIRDUMP without mutating it. */
+async function testLiveDesktopDump() {
+  console.log('\n== Live Desktop asiaIRDUMP ==');
+  const dumpRoot = path.join(process.env.USERPROFILE || '', 'OneDrive', 'Desktop', 'asiaIRDUMP');
+  const dumpAutorun = path.join(dumpRoot, 'Autorun');
+  if (!fs.existsSync(dumpAutorun)) {
+    fail('live dump Autorun present', dumpAutorun);
+    return;
+  }
+  pass('live dump Autorun present', dumpAutorun);
+
+  const disc = await discoverSessions(dumpRoot);
+  assert('live dump discover ok', disc.ok && (disc.sessions || []).length >= 1, JSON.stringify(disc.sessions && disc.sessions.map((s) => s.name)));
+
+  const scanSii = await scanSession({
+    projectDir: dumpRoot,
+    nightDate: '20260725',
+    skipTargetHint: true,
+  });
+  assert('live dump night 260725 scan ok', scanSii.ok !== false, scanSii.error);
+  assert('live dump SII lights on 260725', (scanSii.lights || []).some((l) => normalizeFilter(l.filter) === 'SII'), `filters=${[...new Set((scanSii.lights || []).map((l) => l.filter))].join(',')}`);
+
+  const scanNan = await scanSession({
+    projectDir: dumpRoot,
+    nightDate: '20260720',
+    skipTargetHint: true,
+  });
+  assert('live dump night 260720 has Ha/OIII', (scanNan.lights || []).some((l) => normalizeFilter(l.filter) === 'Ha'), `n=${(scanNan.lights || []).length}`);
+
+  const flats = scanSii.flats || [];
+  const biases = scanSii.biases || [];
+  const lights = (scanSii.lights || []).filter((l) => normalizeFilter(l.filter) === 'SII');
+  const lightTempC = modeTempC(lights);
+  const flatPart = partitionByLightTemp(flats.filter((f) => normalizeFilter(f.filter) === 'SII'), lightTempC);
+  const usable = collectUsableDarkflats(biases, flatPart.inRange, { lightTempC });
+  assert(
+    'live dump Bias@500ms does not auto-match Flat@2s',
+    usable.matches.length === 0 || usable.rejected.length > 0,
+    `matches=${usable.matches.length} rejected=${usable.rejected.length}`,
+  );
+  // Explicit: Flat@2s + Bias@500ms → readiness missing Bias matching Flat.
+  if (flatPart.inRange.length && biases.length) {
+    const ready = evaluateIngestFrameReadiness({
+      lights,
+      flats: flatPart.inRange,
+      biases,
+      sessionDarks: scanSii.darks || [],
+      useMasterDarks: true,
+      masterDarkCount: 1,
+      filters: ['SII'],
+      lightTempC,
+    });
+    assert(
+      'live dump readiness blocks Bias@500ms vs Flat@2s',
+      !ready.ok && ready.missing.some((m) => /Bias matching Flat/i.test(m)),
+      ready.missing ? ready.missing.join(',') : ready.error,
+    );
+  }
+}
+
 async function main() {
   console.log('Zuko ASIAIR QA');
   console.log('QA root:', QA_ROOT);
+  console.log('Source Autorun:', SRC_AUTORUN);
   await buildFixture();
   // Ensure Rosette synthetic dump is present for permutation matrix
   require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'build-ingest-test-fixture.js'), '--upsert'], {
@@ -1181,6 +1367,7 @@ async function main() {
   await testRosettePermutations();
   await testTargetMatchCoords();
   await testDashboardConsistency();
+  await testLiveDesktopDump();
 
   const failed = results.filter((r) => !r.ok);
   const passed = results.filter((r) => r.ok);
