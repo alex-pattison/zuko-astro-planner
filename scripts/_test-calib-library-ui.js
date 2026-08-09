@@ -76,6 +76,24 @@ async function main() {
     assert(Array.isArray(scanEmpty.sets) && scanEmpty.sets.length === 0, 'no sets under empty source');
   });
 
+  // ensureLink replaces dangling destinations; prefers hardlink on same volume
+  await withTempDir(async (root) => {
+    const { ensureLink, isUsableLinkedFile } = require('../src/ingest/asiairIngest');
+    const src = path.join(root, 'lib', 'dark.fit');
+    const dest = path.join(root, 'darks', 'dark.fit');
+    await fsp.mkdir(path.dirname(src), { recursive: true });
+    await fsp.mkdir(path.dirname(dest), { recursive: true });
+    await fsp.writeFile(src, Buffer.alloc(64, 1));
+    // Plant a dangling relative symlink that existsSync would treat as present
+    await fsp.symlink(path.join('..', 'missing', 'dark.fit'), dest, 'file');
+    assert(!isUsableLinkedFile(dest), 'dangling symlink is not usable');
+    const linked = await ensureLink(src, dest);
+    assert(linked.action === 'hardlink' || linked.action === 'symlink' || linked.action === 'copy', `relink action=${linked.action}`);
+    assert(isUsableLinkedFile(dest), 'dest usable after ensureLink');
+    const st = await fsp.stat(dest);
+    assert(st.size === 64, 'dest size matches source');
+  });
+
   // Index live Dark Library if present
   const DARK = 'F:\\zuko_dev\\Dark Library';
   if (fs.existsSync(DARK)) {

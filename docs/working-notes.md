@@ -22,6 +22,14 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-09 — build 13 — beta release (dark link fix)
+- Promote hardlink-first `ensureLink`, replace dangling/0-byte dests, calibrate `UNREADABLE_FRAMES` preflight.
+- `npm run dist:win:beta`; refresh Desktop Beta shortcut after install.
+
+### 2026-08-09 — build 12 — cal failed on dangling Dark Library symlinks
+- SII `260725_SII_B5_Queechy`: bias/flat OK; dark stack failed — `darks/` were relative symlinks to `…\Astrophotography\Dark Library\…` (missing `\Zuko`), 0-byte to Siril.
+- Fix: `ensureLink` hardlink-first + replace broken dest; calibrate preflight rejects unreadable/0-byte FITS. Repaired this shoot’s 75 darks to hardlinks.
+
 ### 2026-08-09 — build 12 — beta release
 - Promote latest main (darkflat↔flat + light-temp matching, Include overrides, Settings ASIAIR mount check, Bias Library removed).
 - `npm run dist:win:beta`; refresh Desktop Beta shortcut after install.

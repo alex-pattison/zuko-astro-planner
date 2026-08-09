@@ -1899,27 +1899,79 @@ async function importCalibrationLibraryBundle(opts = {}) {
 
 async function ensureCopied(src, dest) {
   await fsp.mkdir(path.dirname(dest), { recursive: true });
-  if (fs.existsSync(dest)) return { dest, action: 'skipped' };
+  let destPresent = false;
+  try {
+    fs.lstatSync(dest);
+    destPresent = true;
+  } catch {
+    destPresent = false;
+  }
+  if (destPresent) {
+    if (isUsableLinkedFile(dest)) return { dest, action: 'skipped' };
+    try {
+      await fsp.unlink(dest);
+    } catch {
+      /* replace below */
+    }
+  }
   await fsp.copyFile(src, dest);
   return { dest, action: 'copied' };
 }
 
-/** Prefer file symlink; fall back to hardlink, then copy. Uses absolute targets across drives. */
+/** True if dest exists and resolves to a non-empty file (follows symlinks). */
+function isUsableLinkedFile(dest) {
+  try {
+    const st = fs.statSync(dest);
+    return st.isFile() && st.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Prefer hardlink (same volume), then absolute symlink, then copy.
+ * Relative symlinks are avoided — they break when library/project layout shifts,
+ * and dangling links still look “present” to existsSync.
+ * Replaces broken/0-byte/dangling destinations instead of skipping them.
+ */
 async function ensureLink(src, dest) {
   await fsp.mkdir(path.dirname(dest), { recursive: true });
-  if (fs.existsSync(dest)) return { dest, action: 'skipped' };
 
   const absSrc = path.resolve(src);
+  try {
+    const srcStat = fs.statSync(absSrc);
+    if (!srcStat.isFile() || srcStat.size <= 0) {
+      throw new Error(`Source missing or empty: ${absSrc}`);
+    }
+  } catch (err) {
+    throw new Error(`Source not readable: ${absSrc} (${err && err.message ? err.message : err})`);
+  }
+
+  let destPresent = false;
+  try {
+    fs.lstatSync(dest);
+    destPresent = true;
+  } catch {
+    destPresent = false;
+  }
+  if (destPresent) {
+    if (isUsableLinkedFile(dest)) return { dest, action: 'skipped' };
+    try {
+      await fsp.unlink(dest);
+    } catch {
+      /* replace below */
+    }
+  }
+
   const absDest = path.resolve(dest);
   const sameRoot = path.parse(absSrc).root.toLowerCase() === path.parse(absDest).root.toLowerCase();
 
   if (sameRoot) {
     try {
-      const rel = path.relative(path.dirname(absDest), absSrc);
-      await fsp.symlink(rel || absSrc, dest, 'file');
-      return { dest, action: 'symlink' };
+      await fsp.link(absSrc, dest);
+      return { dest, action: 'hardlink' };
     } catch {
-      // fall through to absolute
+      // fall through
     }
   }
   try {
@@ -1928,13 +1980,8 @@ async function ensureLink(src, dest) {
   } catch {
     // fall through
   }
-  try {
-    await fsp.link(absSrc, dest);
-    return { dest, action: 'hardlink' };
-  } catch {
-    await fsp.copyFile(absSrc, dest);
-    return { dest, action: 'copy' };
-  }
+  await fsp.copyFile(absSrc, dest);
+  return { dest, action: 'copy' };
 }
 
 /**
@@ -2823,4 +2870,6 @@ module.exports = {
   evaluateIngestFrameReadiness,
   stageSirilTree,
   masterDarkSourceSetDir,
+  ensureLink,
+  isUsableLinkedFile,
 };

@@ -26,12 +26,33 @@ function resolveSirilCli(override) {
   return null;
 }
 
-function hasFits(dir) {
+function isFitName(name) {
+  return /\.fit[s]?$/i.test(name);
+}
+
+/** FITS names in dir (does not follow/validate links). */
+function listFitNames(dir) {
   try {
-    return fs.readdirSync(dir).some((n) => /\.fit[s]?$/i.test(n));
+    return fs.readdirSync(dir).filter(isFitName);
   } catch {
-    return false;
+    return [];
   }
+}
+
+/** FITS that resolve to a non-empty file (follows symlinks; skips dangling/0-byte). */
+function listReadableFits(dir) {
+  return listFitNames(dir).filter((n) => {
+    try {
+      const st = fs.statSync(path.join(dir, n));
+      return st.isFile() && st.size > 0;
+    } catch {
+      return false;
+    }
+  });
+}
+
+function hasFits(dir) {
+  return listReadableFits(dir).length > 0;
 }
 
 function listPpLights(processDir) {
@@ -328,7 +349,28 @@ async function calibrateShoot(opts = {}) {
   const required = ['flats', 'lights'];
   if (!skipBiasStack) required.push('biases');
   if (!skipDarkStack) required.push('darks');
-  const missing = required.filter((d) => !hasFits(path.join(shootDir, d)));
+  const missing = [];
+  const unreadable = [];
+  for (const d of required) {
+    const dir = path.join(shootDir, d);
+    const named = listFitNames(dir);
+    const readable = listReadableFits(dir);
+    if (!readable.length) {
+      if (named.length) unreadable.push({ dir: d, named: named.length });
+      else missing.push(d);
+    }
+  }
+  if (unreadable.length) {
+    const detail = unreadable.map((u) => `${u.dir}/ (${u.named} broken or 0-byte)`).join(', ');
+    return {
+      ok: false,
+      code: 'UNREADABLE_FRAMES',
+      error:
+        `Unreadable FITS in: ${detail}. ` +
+        'Usually dangling Dark Library links — re-import with “Use matching master darks”, or repair darks/.',
+      unreadable,
+    };
+  }
   if (missing.length) {
     return {
       ok: false,
