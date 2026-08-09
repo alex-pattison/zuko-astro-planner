@@ -22,6 +22,10 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-09 — build 12 — beta release
+- Promote latest main (darkflat↔flat + light-temp matching, Include overrides, Settings ASIAIR mount check, Bias Library removed).
+- `npm run dist:win:beta`; refresh Desktop Beta shortcut after install.
+
 ### 2026-08-04 — remove Bias Library; session darkflats only
 - Dropped Bias Library product (path, index, Import/Build master, master-bias matching).
 - Dark Library remains; Import checkbox is “Use matching master darks” only.
