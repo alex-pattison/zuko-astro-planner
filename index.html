@@ -1030,6 +1030,9 @@
   .shoot-log-table th.sortable.sorted .sort-ind { opacity: 1; color: var(--accent2); }
   .ft-filter-name { font-weight: 600; }
   .pipeline-filter-list {
+    --pipeline-gutter-w: 36px;
+    /* Cull + Register + Registration btn — fixed so trunks/spines align across filters */
+    --pipeline-trunk-w: 22rem;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1041,7 +1044,7 @@
     --pipeline-line-done: var(--green);
     --pipeline-step-w: 6.25rem;
     --pipeline-dot: 10px;
-    --pipeline-dot-center: 5px; /* half of dot */
+    --pipeline-dot-center: 5px;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -1115,11 +1118,11 @@
   html[data-theme="light"] .pipeline-channel.flt-g .pipeline-channel-title { color: #15803d; }
   html[data-theme="light"] .pipeline-channel.flt-b .pipeline-channel-title { color: #1d4ed8; }
 
-  /* Multi-night: night rails | gutter | Cull/Reg trunk */
+  /* Same grid for every filter: night rails | gutter (spine) | Cull/Reg trunk */
   .pipeline-merge {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 36px auto;
+    grid-template-columns: minmax(0, 1fr) var(--pipeline-gutter-w) var(--pipeline-trunk-w);
     align-items: start;
     column-gap: 0;
     width: 100%;
@@ -1138,7 +1141,8 @@
     grid-column: 2;
     position: relative;
     align-self: stretch;
-    min-width: 36px;
+    width: var(--pipeline-gutter-w);
+    min-width: var(--pipeline-gutter-w);
     z-index: 0;
     pointer-events: none;
   }
@@ -1148,10 +1152,13 @@
     align-items: flex-start;
     position: relative;
     z-index: 1;
-    flex-shrink: 0;
+    width: var(--pipeline-trunk-w);
+    min-width: var(--pipeline-trunk-w);
+    max-width: var(--pipeline-trunk-w);
     padding: 0;
+    box-sizing: border-box;
   }
-  /* Full-bleed connector layer; paths only run at row-dot Y / gutter X so details stay clear. */
+  /* Full-bleed connector layer; paths only at row-dot Y / gutter X. */
   .pipeline-merge-svg {
     position: absolute;
     inset: 0;
@@ -1187,6 +1194,20 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Single night: same columns as multi, but read as one continuous bar */
+  .pipeline-merge-solo .pipeline-merge-gutter {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .pipeline-merge-solo .pipeline-shoot-row {
+    border-right: none;
+  }
+  .pipeline-merge-solo .pipeline-channel-row {
+    border-left: none;
   }
 
   /* Shared night / trunk / single-night row chrome */
@@ -1445,6 +1466,9 @@
     flex-shrink: 0;
     margin-top: 1px !important;
     align-self: flex-start;
+    min-width: 6.75rem;
+    text-align: center;
+    box-sizing: border-box;
   }
   .siril-progress-overlay {
     display: none;
@@ -7484,10 +7508,12 @@ function layoutOnePipelineMerge(root) {
     y: sinkR.top + sinkR.height / 2 - rootRect.top,
   };
 
-  // Spine centered in the gap between night cards and Cull card.
-  const gapLeft = nightsRect.right - rootRect.left;
-  const gapRight = trunkRect.left - rootRect.left;
-  const spineX = gapLeft + Math.max(8, (gapRight - gapLeft) / 2);
+  // Spine always at gutter center so every filter’s merge line shares an X.
+  const gutter = root.querySelector('.pipeline-merge-gutter');
+  const gutterRect = gutter ? gutter.getBoundingClientRect() : null;
+  const spineX = gutterRect
+    ? (gutterRect.left + gutterRect.width / 2 - rootRect.left)
+    : (nightsRect.right + trunkRect.left) / 2 - rootRect.left;
 
   const ys = pts.map((p) => p.y);
   const minY = Math.min(...ys, sinkPt.y);
@@ -11834,26 +11860,9 @@ function renderShootPipelineRow(project, pi, group, sh, si) {
   </div>`;
 }
 
-/** Single night: one card, Capture→Import→Calibrate→Cull→Register. */
+/** Single night uses the same column grid as multi (aligned Cull / spine). */
 function renderStraightChannelLine(project, pi, group, sh, si) {
-  const parts = channelCullRegParts(project, pi, group);
-  if (!parts) return '';
-  const { dateLabel, code, label, chip } = nightIdentity(project, group, sh);
-  const detailOpen = nightPipelineDetailOpen.has(`${pi}:${si}`);
-  return `<div class="pipeline-night-wrap" data-shoot-index="${si}">
-    <div class="pipeline-straight-row pipeline-filter-row" data-shoot-date="${escapeAttr(dateLabel)}" data-filter="${escapeAttr(group.name)}" onclick="toggleNightPipelineDetail(${pi},${si})">
-      <button type="button" class="pipeline-night-chevron ${detailOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleNightPipelineDetail(${pi},${si})" aria-expanded="${detailOpen ? 'true' : 'false'}" title="Night details">▶</button>
-      <button type="button" class="pipeline-night-date" onclick="event.stopPropagation(); editShoot(${pi},${si})" title="Edit ${escapeAttr(code)}">${escapeHtml(label)}</button>
-      <div class="pipeline-night-meta" title="${escapeAttr(chip.title)}">${escapeHtml(chip.text)}</div>
-      <div class="pipeline-track">
-        ${renderNightCaptureImportCalSteps(project, pi, sh, si)}
-        ${parts.cullStep}
-        ${parts.regStep}
-      </div>
-      ${parts.stackBtn}
-    </div>
-    ${nightDetailHtml(project, pi, group, sh, si, detailOpen)}
-  </div>`;
+  return renderChannelMergeLayout(project, pi, group, [{ sh, si }], { solo: true });
 }
 
 /** Multi-night trunk: Cull + Register after reverse-tree merge. */
@@ -11869,9 +11878,22 @@ function renderFilterChannelPipelineFooter(project, pi, group) {
   </div>`;
 }
 
+function renderChannelMergeLayout(project, pi, group, shootEntries, opts = {}) {
+  const shootRows = shootEntries
+    .map(({ sh, si }) => renderShootPipelineRow(project, pi, group, sh, si))
+    .join('');
+  const soloClass = opts.solo ? ' pipeline-merge-solo' : '';
+  return `<div class="pipeline-merge${soloClass}" data-pipeline-merge>
+    <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
+    <div class="pipeline-merge-nights">${shootRows}</div>
+    <div class="pipeline-merge-gutter" aria-hidden="true"></div>
+    <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
+  </div>`;
+}
+
 /**
  * One channel block per filter.
- * 0 nights: empty. 1 night: single card. 2+ nights: merge rails → Cull/Reg.
+ * 0 nights: empty. 1+ nights: shared rails | gutter | Cull/Reg columns (aligned across filters).
  */
 function renderFilterPipelineBar(project, pi, group) {
   const f = getPrimaryFilterTarget(project, group);
@@ -11899,19 +11921,10 @@ function renderFilterPipelineBar(project, pi, group) {
   let body;
   if (shootEntries.length === 0) {
     body = `<div class="pipeline-empty-shoots">No nights yet — click + to plan one</div>`;
-  } else if (shootEntries.length === 1) {
-    const { sh, si } = shootEntries[0];
-    body = renderStraightChannelLine(project, pi, group, sh, si);
   } else {
-    const shootRows = shootEntries
-      .map(({ sh, si }) => renderShootPipelineRow(project, pi, group, sh, si))
-      .join('');
-    body = `<div class="pipeline-merge" data-pipeline-merge>
-      <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
-      <div class="pipeline-merge-nights">${shootRows}</div>
-      <div class="pipeline-merge-gutter" aria-hidden="true"></div>
-      <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
-    </div>`;
+    body = renderChannelMergeLayout(project, pi, group, shootEntries, {
+      solo: shootEntries.length === 1,
+    });
   }
 
   return `<div class="pipeline-channel flt-${tone}" data-filter="${escapeAttr(group.name)}" data-testid="pipeline-channel-${tone}">
