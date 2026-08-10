@@ -22,6 +22,20 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-09 — build 14 — Imaging Pipeline merges Shoot Log + channel flow
+- Replaced separate Shoot Log table + Preprocessing Pipeline with one **Imaging Pipeline**: per-filter channels, night rails Capture→Import→Calibration, multi-night SVG fan-in into Cull→Registration.
+- Channel `+` locks shoot modal to that filter; rollup is `N nights · captured/planned`.
+- Night chrome: row/chevron expands details; date edits; Edit/Remove in the detail panel (no always-on ✕).
+- Merge lines: measured Calibration→Cull orthogonal SVG, redrawn on add/remove/resize.
+
+### 2026-08-09 — build 14 — pipeline: per-night Capture→Cal, channel Cull/Reg
+- *(superseded by Imaging Pipeline merge)* Per-night Capture→Import→Calibration; Cull + Registration per filter.
+
+### 2026-08-09 — build 14 — cleaned Dev data pool
+- Reseeded `data/zuko-dashboard-data.json` from Beta H: dashboard (path-remapped to `F:\zuko_dev`).
+- Synced Dark Library H→F; replaced polluted Veil F: tree with clean H: copy (shoots only; dangling Sirilic/Autorun links skipped).
+- Cleared cal/stack meta + `process/` so preprocess can be re-run; NAN ingest paths wired.
+
 ### 2026-08-09 — build 13 — beta release (dark link fix)
 - Promote hardlink-first `ensureLink`, replace dangling/0-byte dests, calibrate `UNREADABLE_FRAMES` preflight.
 - `npm run dist:win:beta`; refresh Desktop Beta shortcut after install.

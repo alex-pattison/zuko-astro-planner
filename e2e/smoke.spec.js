@@ -62,7 +62,7 @@ test('Review source opens overlay when projectDir is set', async () => {
   await expect(window.locator('#source-review-overlay.open')).toHaveCount(0);
 });
 
-test('project sections use Capture Plan / Shoot Log / Preprocessing Pipeline labels', async () => {
+test('project sections use Capture Plan / Imaging Pipeline labels', async () => {
   const card = window.locator('[data-testid="project-card"]').first();
   await expect(card).toBeVisible();
   if (!(await card.evaluate((el) => el.classList.contains('open')))) {
@@ -70,32 +70,32 @@ test('project sections use Capture Plan / Shoot Log / Preprocessing Pipeline lab
     await expect(card).toHaveClass(/open/);
   }
   await expect(card.getByText('Capture Plan', { exact: true }).first()).toBeVisible();
-  await expect(card.getByText(/^Shoot Log/).first()).toBeVisible();
+  await expect(card.getByText(/^Imaging Pipeline/).first()).toBeVisible();
+  await expect(card.locator('.pm-label', { hasText: 'Shoot Log' })).toHaveCount(0);
   await expect(card.locator('.pm-label', { hasText: 'Filter Targets' })).toHaveCount(0);
   await expect(card.locator('.pm-label', { hasText: '🌌' })).toHaveCount(0);
   const pipeline = card.getByTestId('pipeline-bars');
   if (await pipeline.count()) {
-    await expect(card.getByText('Preprocessing Pipeline', { exact: true })).toBeVisible();
+    await expect(pipeline.locator('.pipeline-channel').first()).toBeVisible();
     await expect(pipeline.locator('.pipeline-filter-row').first()).toBeVisible();
   }
 });
 
-test('shoot log table fits without horizontal scroll', async () => {
+test('imaging pipeline channel cards fit without horizontal scroll', async () => {
   const card = window.locator('[data-testid="project-card"][data-project-name="[E2E] Target Match Smoke"]');
   if (!(await card.evaluate((el) => el.classList.contains('open')))) {
     await card.getByTestId('project-expand').click();
   }
-  const table = card.locator('table.shoot-log-table');
-  if (!(await table.count())) {
-    await card.locator('.shoot-log-toggle').click();
+  const section = card.getByTestId('imaging-pipeline');
+  await expect(section).toBeVisible();
+  if (!(await section.locator('.pipeline-filter-list').count())) {
+    await section.locator('.shoot-log-toggle').click();
   }
-  await expect(table).toBeVisible();
-  const metrics = await table.evaluate((el) => {
-    const wrap = el.closest('.table-scroll');
-    return {
-      clientWidth: wrap ? wrap.clientWidth : el.clientWidth,
-      scrollWidth: wrap ? wrap.scrollWidth : el.scrollWidth,
-    };
-  });
+  const pipeline = section.getByTestId('pipeline-bars');
+  await expect(pipeline).toBeVisible();
+  const metrics = await pipeline.evaluate((el) => ({
+    clientWidth: el.clientWidth,
+    scrollWidth: el.scrollWidth,
+  }));
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
 });

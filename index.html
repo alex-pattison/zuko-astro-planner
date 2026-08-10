@@ -1032,63 +1032,333 @@
   .pipeline-filter-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
     margin-top: 12px;
     margin-bottom: 4px;
   }
-  .pipeline-filter-row {
+  .pipeline-channel {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 8px 10px;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 12px 12px;
     background: var(--bg3);
     border: 1px solid var(--border);
     border-left-width: 3px;
     border-radius: 6px;
   }
-  .pipeline-filter-row.flt-ha { border-left-color: #f87171; }
-  .pipeline-filter-row.flt-oiii { border-left-color: #67e8f9; }
-  .pipeline-filter-row.flt-sii { border-left-color: #fde68a; }
-  .pipeline-filter-row.flt-hb { border-left-color: #818cf8; }
-  .pipeline-filter-row.flt-l { border-left-color: #e2e8f0; }
-  .pipeline-filter-row.flt-r { border-left-color: #fca5a5; }
-  .pipeline-filter-row.flt-g { border-left-color: #86efac; }
-  .pipeline-filter-row.flt-b { border-left-color: #93c5fd; }
-  .pipeline-filter-row.flt-other { border-left-color: #94a3b8; }
+  .pipeline-channel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .pipeline-channel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .pipeline-channel-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .pipeline-channel-add {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg2);
+    color: var(--text2);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .pipeline-channel-add:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .pipeline-channel-rollup {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+  }
+  .pipeline-channel.flt-ha .pipeline-channel-title { color: #f87171; }
+  .pipeline-channel.flt-oiii .pipeline-channel-title { color: #67e8f9; }
+  .pipeline-channel.flt-sii .pipeline-channel-title { color: #fde68a; }
+  .pipeline-channel.flt-hb .pipeline-channel-title { color: #818cf8; }
+  .pipeline-channel.flt-l .pipeline-channel-title { color: #e2e8f0; }
+  .pipeline-channel.flt-r .pipeline-channel-title { color: #fca5a5; }
+  .pipeline-channel.flt-g .pipeline-channel-title { color: #86efac; }
+  .pipeline-channel.flt-b .pipeline-channel-title { color: #93c5fd; }
+  .pipeline-channel.flt-other .pipeline-channel-title { color: var(--text2); }
+  html[data-theme="light"] .pipeline-channel.flt-ha .pipeline-channel-title { color: #b91c1c; }
+  html[data-theme="light"] .pipeline-channel.flt-oiii .pipeline-channel-title { color: #0e7490; }
+  html[data-theme="light"] .pipeline-channel.flt-sii .pipeline-channel-title { color: #a16207; }
+  html[data-theme="light"] .pipeline-channel.flt-hb .pipeline-channel-title { color: #4f46e5; }
+  html[data-theme="light"] .pipeline-channel.flt-l .pipeline-channel-title { color: #334155; }
+  html[data-theme="light"] .pipeline-channel.flt-r .pipeline-channel-title { color: #dc2626; }
+  html[data-theme="light"] .pipeline-channel.flt-g .pipeline-channel-title { color: #15803d; }
+  html[data-theme="light"] .pipeline-channel.flt-b .pipeline-channel-title { color: #1d4ed8; }
+  .pipeline-merge {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .pipeline-merge-nights {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+  .pipeline-merge-bridge {
+    display: none;
+  }
+  .pipeline-merge-trunk {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 0 0 36px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .pipeline-merge-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .pipeline-port {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .pipeline-port-source {
+    /* Anchor at Calibration dot center-right — measured by layout JS */
+    left: 50%;
+    top: 5.5px;
+    right: auto;
+    bottom: auto;
+    transform: translate(5.5px, -50%);
+  }
+  .pipeline-port-sink {
+    /* Anchor at Cull dot center-left */
+    left: 50%;
+    top: 5.5px;
+    bottom: auto;
+    transform: translate(-5.5px, -50%);
+  }
+  .pipeline-merge .pipeline-step:last-child,
+  .pipeline-merge-trunk .pipeline-step:first-child {
+    position: relative;
+  }
+  .pipeline-merge .pipeline-shoot-row {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .pipeline-straight-row,
+  .pipeline-filter-row {
+    display: grid;
+    grid-template-columns: 1.1rem 5.5rem minmax(6rem, 9rem) minmax(300px, 1fr);
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 6px;
+    padding: 10px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .pipeline-straight-row {
+    grid-template-columns: 1.1rem 5.5rem minmax(6rem, 9rem) minmax(340px, 1fr) auto;
+  }
+  .pipeline-channel .pipeline-filter-row { border-left: none; }
+  .pipeline-shoot-row {
+    cursor: pointer;
+  }
+  .pipeline-shoot-row:hover,
+  .pipeline-straight-row:hover {
+    border-color: color-mix(in srgb, var(--accent2) 35%, var(--border));
+  }
+  .pipeline-night-chevron {
+    width: 1.1rem;
+    height: 1.1rem;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    font-size: 9px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s ease, color 0.12s ease;
+  }
+  .pipeline-night-chevron.open {
+    transform: rotate(90deg);
+    color: var(--accent2);
+  }
+  .pipeline-night-date {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    font: inherit;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .pipeline-night-date:hover {
+    color: var(--accent2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pipeline-shoot-row .pipeline-filter-name,
+  .pipeline-straight-row .pipeline-filter-name {
+    font-weight: 500;
+    color: var(--text2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pipeline-night-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pipeline-night-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 0;
+    flex-shrink: 0;
+    justify-self: end;
+  }
+  .pipeline-night-detail {
+    margin-top: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg3);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .pipeline-night-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px 14px;
+  }
+  .pipeline-night-detail .detail-k {
+    color: var(--gray);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pipeline-night-detail .detail-v {
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .pipeline-night-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .pipeline-night-detail-actions .mini-btn {
+    margin-top: 0;
+  }
+  .pipeline-night-detail-actions .pipeline-night-remove {
+    color: var(--red);
+    border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+  }
+  .pipeline-track-full { flex: 1; min-width: 280px; }
+  .pipeline-empty-shoots {
+    font-size: 11px;
+    color: var(--gray);
+    padding: 6px 8px;
+  }
+  .pipeline-track-channel { max-width: none; flex: 0 0 auto; min-width: 160px; }
+  .pipeline-channel-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .pipeline-channel-row .pipeline-filter-name { display: none; }
+  .pipeline-night-wrap { position: relative; }
+
+  .pipeline-step.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .pipeline-step.locked.clickable {
+    cursor: not-allowed;
+  }
+  .pipeline-step.running .pipeline-step-label {
+    color: var(--accent2);
+  }
+  .pipeline-channel.flt-ha { border-left-color: #f87171; }
+  .pipeline-channel.flt-oiii { border-left-color: #67e8f9; }
+  .pipeline-channel.flt-sii { border-left-color: #fde68a; }
+  .pipeline-channel.flt-hb { border-left-color: #818cf8; }
+  .pipeline-channel.flt-l { border-left-color: #e2e8f0; }
+  .pipeline-channel.flt-r { border-left-color: #fca5a5; }
+  .pipeline-channel.flt-g { border-left-color: #86efac; }
+  .pipeline-channel.flt-b { border-left-color: #93c5fd; }
+  .pipeline-channel.flt-other { border-left-color: #94a3b8; }
   .pipeline-filter-name {
     font-family: var(--mono);
     font-size: 11px;
     min-width: 3.5rem;
     font-weight: 600;
   }
-  .pipeline-filter-row.flt-ha .pipeline-filter-name { color: #f87171; }
-  .pipeline-filter-row.flt-oiii .pipeline-filter-name { color: #67e8f9; }
-  .pipeline-filter-row.flt-sii .pipeline-filter-name { color: #fde68a; }
-  .pipeline-filter-row.flt-hb .pipeline-filter-name { color: #818cf8; }
-  .pipeline-filter-row.flt-l .pipeline-filter-name { color: #e2e8f0; }
-  .pipeline-filter-row.flt-r .pipeline-filter-name { color: #fca5a5; }
-  .pipeline-filter-row.flt-g .pipeline-filter-name { color: #86efac; }
-  .pipeline-filter-row.flt-b .pipeline-filter-name { color: #93c5fd; }
-  .pipeline-filter-row.flt-other .pipeline-filter-name { color: var(--text2); }
 
   /* Light mode: darker filter tones for contrast on white */
-  html[data-theme="light"] .pipeline-filter-row.flt-ha { border-left-color: #b91c1c; }
-  html[data-theme="light"] .pipeline-filter-row.flt-oiii { border-left-color: #0e7490; }
-  html[data-theme="light"] .pipeline-filter-row.flt-sii { border-left-color: #a16207; }
-  html[data-theme="light"] .pipeline-filter-row.flt-hb { border-left-color: #4f46e5; }
-  html[data-theme="light"] .pipeline-filter-row.flt-l { border-left-color: #334155; }
-  html[data-theme="light"] .pipeline-filter-row.flt-r { border-left-color: #dc2626; }
-  html[data-theme="light"] .pipeline-filter-row.flt-g { border-left-color: #15803d; }
-  html[data-theme="light"] .pipeline-filter-row.flt-b { border-left-color: #1d4ed8; }
-  html[data-theme="light"] .pipeline-filter-row.flt-ha .pipeline-filter-name { color: #b91c1c; }
-  html[data-theme="light"] .pipeline-filter-row.flt-oiii .pipeline-filter-name { color: #0e7490; }
-  html[data-theme="light"] .pipeline-filter-row.flt-sii .pipeline-filter-name { color: #a16207; }
-  html[data-theme="light"] .pipeline-filter-row.flt-hb .pipeline-filter-name { color: #4f46e5; }
-  html[data-theme="light"] .pipeline-filter-row.flt-l .pipeline-filter-name { color: #334155; }
-  html[data-theme="light"] .pipeline-filter-row.flt-r .pipeline-filter-name { color: #dc2626; }
-  html[data-theme="light"] .pipeline-filter-row.flt-g .pipeline-filter-name { color: #15803d; }
-  html[data-theme="light"] .pipeline-filter-row.flt-b .pipeline-filter-name { color: #1d4ed8; }
+  html[data-theme="light"] .pipeline-channel.flt-ha { border-left-color: #b91c1c; }
+  html[data-theme="light"] .pipeline-channel.flt-oiii { border-left-color: #0e7490; }
+  html[data-theme="light"] .pipeline-channel.flt-sii { border-left-color: #a16207; }
+  html[data-theme="light"] .pipeline-channel.flt-hb { border-left-color: #4f46e5; }
+  html[data-theme="light"] .pipeline-channel.flt-l { border-left-color: #334155; }
+  html[data-theme="light"] .pipeline-channel.flt-r { border-left-color: #dc2626; }
+  html[data-theme="light"] .pipeline-channel.flt-g { border-left-color: #15803d; }
+  html[data-theme="light"] .pipeline-channel.flt-b { border-left-color: #1d4ed8; }
   html[data-theme="light"] tr.ingest-files-flt.flt-sii td.filter-cell,
   html[data-theme="light"] tr.ingest-row-match.flt-sii td:first-child,
   html[data-theme="light"] .ingest-chip .flt-sii { color: #a16207; }
@@ -1098,8 +1368,9 @@
     display: flex;
     align-items: center;
     gap: 0;
-    flex: 1;
-    min-width: 240px;
+    flex: 1 1 auto;
+    min-width: 280px;
+    width: 100%;
   }
   .pipeline-step {
     display: flex;
@@ -1107,7 +1378,9 @@
     align-items: center;
     gap: 4px;
     position: relative;
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 4.75rem;
+    padding: 0 2px;
   }
   .pipeline-step:not(:last-child)::after {
     content: '';
@@ -7103,15 +7376,113 @@ function renderUnsafe() {
 
 // ============ PROJECTS ============
 let openProjects = new Set();
-/** Shoot log collapsed state per project index (default: expanded). */
+/** Imaging pipeline collapsed state per project index (default: expanded). */
 const shootLogCollapsed = new Set();
-/** Shoot log sort state: { [pi]: { key, dir } } dir = 1 asc / -1 desc */
+/** Expanded night detail rows: `${pi}:${si}` */
+const nightPipelineDetailOpen = new Set();
+/** Legacy sort state (unused in channel view; kept for compare helpers). */
 const shootLogSort = {};
 
 function toggleShootLog(pi) {
   if (shootLogCollapsed.has(pi)) shootLogCollapsed.delete(pi);
   else shootLogCollapsed.add(pi);
   renderProjects();
+}
+
+function toggleNightPipelineDetail(pi, si) {
+  const key = `${pi}:${si}`;
+  if (nightPipelineDetailOpen.has(key)) nightPipelineDetailOpen.delete(key);
+  else nightPipelineDetailOpen.add(key);
+  renderProjects();
+}
+
+function schedulePipelineMergeLayout() {
+  requestAnimationFrame(() => {
+    layoutPipelineMerges();
+    // Second pass after grid/flex settles so elbows meet the dots.
+    requestAnimationFrame(() => {
+      layoutPipelineMerges();
+      observePipelineMerges();
+    });
+  });
+}
+
+let _pipelineMergeRo = null;
+let _pipelineMergeLayoutTimer = null;
+let _pipelineMergeResizeBound = false;
+
+function observePipelineMerges() {
+  if (typeof ResizeObserver === 'undefined') return;
+  if (!_pipelineMergeRo) {
+    _pipelineMergeRo = new ResizeObserver(() => {
+      clearTimeout(_pipelineMergeLayoutTimer);
+      _pipelineMergeLayoutTimer = setTimeout(layoutPipelineMerges, 40);
+    });
+  }
+  document.querySelectorAll('[data-pipeline-merge]').forEach((el) => {
+    try { _pipelineMergeRo.observe(el); } catch (_) { /* ignore */ }
+  });
+  if (!_pipelineMergeResizeBound) {
+    _pipelineMergeResizeBound = true;
+    window.addEventListener('resize', () => {
+      clearTimeout(_pipelineMergeLayoutTimer);
+      _pipelineMergeLayoutTimer = setTimeout(layoutPipelineMerges, 40);
+    });
+  }
+}
+
+/** Orthogonal fan-in: Calibration dots → spine → Cull (continuous SVG paths). */
+function layoutPipelineMerges() {
+  document.querySelectorAll('[data-pipeline-merge]').forEach(layoutOnePipelineMerge);
+}
+
+function pipelineMergeAnchor(portEl, rootRect, side) {
+  const step = portEl.closest('.pipeline-step') || portEl;
+  const dot = step.querySelector('.pipeline-dot') || portEl;
+  const r = dot.getBoundingClientRect();
+  const y = r.top + r.height / 2 - rootRect.top;
+  // Overlap the stroke into the dot by 1px so joins never show a hairline gap.
+  if (side === 'out') {
+    return { x: r.right - rootRect.left - 1, y };
+  }
+  return { x: r.left - rootRect.left + 1, y };
+}
+
+function layoutOnePipelineMerge(root) {
+  const svg = root.querySelector('.pipeline-merge-svg');
+  if (!svg) return;
+  const sources = Array.from(root.querySelectorAll('[data-pipeline-source]'));
+  const sinkEl = root.querySelector('[data-pipeline-sink]');
+  if (sources.length < 2 || !sinkEl) {
+    svg.innerHTML = '';
+    return;
+  }
+
+  const rootRect = root.getBoundingClientRect();
+  const w = Math.max(1, root.clientWidth);
+  const h = Math.max(1, root.clientHeight);
+  svg.setAttribute('width', String(w));
+  svg.setAttribute('height', String(h));
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+  const pts = sources.map((el) => pipelineMergeAnchor(el, rootRect, 'out'));
+  const sinkPt = pipelineMergeAnchor(sinkEl, rootRect, 'in');
+
+  const maxSourceX = Math.max(...pts.map((p) => p.x));
+  const gap = sinkPt.x - maxSourceX;
+  // Spine sits in the gutter between night rails and Cull.
+  const spineX = maxSourceX + Math.max(14, Math.min(28, gap * 0.5));
+  if (!(spineX < sinkPt.x - 2)) {
+    // Not enough room — still draw straight-ish elbows.
+  }
+
+  // One continuous path per night → Cull so every segment is connected.
+  const parts = pts.map((p) => (
+    `M ${p.x.toFixed(1)} ${p.y.toFixed(1)} H ${spineX.toFixed(1)} V ${sinkPt.y.toFixed(1)} H ${sinkPt.x.toFixed(1)}`
+  ));
+
+  const stroke = getComputedStyle(root).getPropertyValue('--border').trim() || '#64748b';
+  svg.innerHTML = `<path d="${parts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>`;
 }
 
 function sortShootLog(pi, key) {
@@ -7380,7 +7751,7 @@ function renderProjects() {
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.location}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.bortle || '—'}</td>
                   <td><div class="ft-bar-wrap"><div class="ft-bar ${pct >= 100 ? 'full' : ''}" style="width:${pct}%"></div><div class="ft-bar-pending" style="width:${pendingPct}%"></div></div></td>
-                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Logged hours come from the Shoot Log — click to edit the target hours"><span class="mono">${f.loggedHrs}</span> / ${f.targetHrs}h${pendingHrs > 0 ? ` <span style="color:var(--yellow);">(+${pendingHrs.toFixed(1)}h pending)</span>` : ''}</td>
+                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Logged hours come from Imaging Pipeline nights — click to edit the target hours"><span class="mono">${f.loggedHrs}</span> / ${f.targetHrs}h${pendingHrs > 0 ? ` <span style="color:var(--yellow);">(+${pendingHrs.toFixed(1)}h pending)</span>` : ''}</td>
                   <td><button class="remove-btn" onclick="removeFilterTarget(${pi},${fi})">✕</button></td>
                 </tr>`;
               }).join('')}
@@ -7390,136 +7761,7 @@ function renderProjects() {
           <button class="mini-btn" onclick="addFilterTarget(${pi})">+ Add to Capture Plan</button>
         </div>
 
-        <div class="shoot-box">
-          <div class="shoot-log-toggle" onclick="event.stopPropagation(); toggleShootLog(${pi})" title="Expand / collapse Shoot Log">
-            <span class="shoot-log-chevron ${shootLogCollapsed.has(pi) ? '' : 'open'}">▶</span>
-            <div class="pm-label">Shoot Log${p.shoots.length ? ` (${p.shoots.length})` : ''}</div>
-          </div>
-          ${shootLogCollapsed.has(pi) ? '' : (p.shoots.length ? `
-          <div class="table-scroll">
-          <table class="filter-target-table shoot-log-table">
-            <colgroup>
-              <col class="col-name">
-              <col class="col-date">
-              <col class="col-filter">
-              <col class="col-num">
-              <col class="col-num">
-              <col class="col-num">
-              <col class="col-num">
-              <col class="col-integ">
-              <col class="col-integ">
-              <col class="col-btn">
-              <col class="col-btn">
-              <col class="col-cal">
-              <col class="col-x">
-            </colgroup>
-            <thead><tr>
-              <th class="col-name sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'name') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'name')">Name ${shootLogSortIndicator(pi, 'name')}</th>
-              <th class="col-date sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'date') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'date')">Date ${shootLogSortIndicator(pi, 'date')}</th>
-              <th class="col-filter sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'filter') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'filter')">Capture Plan ${shootLogSortIndicator(pi, 'filter')}</th>
-              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'lights') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'lights')">Lights ${shootLogSortIndicator(pi, 'lights')}</th>
-              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'exp') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'exp')">Exp ${shootLogSortIndicator(pi, 'exp')}</th>
-              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'temp') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'temp')">Temp ${shootLogSortIndicator(pi, 'temp')}</th>
-              <th class="col-num sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'gain') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'gain')">Gain ${shootLogSortIndicator(pi, 'gain')}</th>
-              <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'actual') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'actual')">Actual ${shootLogSortIndicator(pi, 'actual')}</th>
-              <th class="col-integ sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'target') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'target')">Target ${shootLogSortIndicator(pi, 'target')}</th>
-              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'status') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'status')">Status ${shootLogSortIndicator(pi, 'status')}</th>
-              <th class="col-btn sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'ingest') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'ingest')">Import ${shootLogSortIndicator(pi, 'ingest')}</th>
-              <th class="col-cal sortable ${(shootLogSort[pi] && shootLogSort[pi].key === 'calibrate') ? 'sorted' : ''}" onclick="event.stopPropagation(); sortShootLog(${pi},'calibrate')">Calibrate ${shootLogSortIndicator(pi, 'calibrate')}</th>
-              <th class="col-x"></th>
-            </tr></thead>
-            <tbody>
-              ${(() => {
-                const sort = shootLogSort[pi] || { key: 'date', dir: 1 };
-                const order = p.shoots.map((_, si) => si)
-                  .sort((a, b) => compareShootLogRows(p, a, b, sort.key, sort.dir));
-                return order.map((si) => {
-                const sh = p.shoots[si];
-                const ft = p.filterTargets[sh.filterIndex];
-                const fltColor = ft ? filterToneColor(ft.filter) : 'inherit';
-                const ftLabel = ft
-                  ? `<span class="ft-filter-name" style="color:${fltColor}">${escapeHtml(ft.filter)}</span> — ${escapeHtml(ft.location)} (B${escapeHtml(String(ft.bortle || '?'))})`
-                  : '—';
-                const code = buildShootCode(sh, ft);
-                const meta = sh.ingestMeta || {};
-                const lightsN = meta.lightCount != null ? meta.lightCount : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
-                const exp = meta.exposureSec != null ? meta.exposureSec + 's' : '—';
-                const temp = meta.tempC != null ? meta.tempC + '°C' : '—';
-                const gain = meta.gain != null ? meta.gain : '—';
-                const plannedHrs = Number(sh.hours) || 0;
-                const integ = formatShootIntegration(lightsN, meta.exposureSec, plannedHrs);
-                const ingested = !!(sh.ingestPath && meta.stagedAt);
-                const calibrated = isShootCalibrated(sh);
-                const captured = !!sh.complete;
-                const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
-                const statusBtn = `<button class="mini-btn status-btn ${captured ? 'captured' : ''}" style="margin-top:0" onclick="event.stopPropagation(); toggleShootComplete(${pi},${si})" title="${captured ? 'Mark as pending' : 'Mark as captured'}">${captured ? 'Captured' : 'Pending'}</button>`;
-                let ingestBtn;
-                if (!hasProjectDir) {
-                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Set Project directory before import">Import</button>`;
-                } else if (!captured) {
-                  ingestBtn = `<button class="mini-btn ingest-btn locked" style="margin-top:0" disabled title="Mark Status as Captured before import">Import</button>`;
-                } else {
-                  ingestBtn = `<button class="mini-btn ingest-btn ${ingested ? 'done' : ''}" style="margin-top:0" onclick="event.stopPropagation(); openIngestModal(${pi},${si})" title="${ingested ? 'Open import (already imported)' : 'Import from ASIAIR source'}">Import</button>`;
-                }
-                let ppBtn;
-                if (!hasProjectDir) {
-                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Set Project directory first">Calibrate</button>`;
-                } else if (!ingested) {
-                  ppBtn = `<button class="mini-btn preprocess-btn locked" style="margin-top:0" disabled title="Import from ASIAIR before calibration">Calibrate</button>`;
-                } else {
-                  ppBtn = `<button class="mini-btn preprocess-btn ${calibrated ? 'done' : ''}" id="pp-btn-${pi}-${si}" style="margin-top:0" onclick="event.stopPropagation(); runPreprocessShoot(${pi},${si})" title="${calibrated ? 'Re-run calibration to pp_light' : 'Calibrate to pp_light via siril-cli'}">${calibrated ? 'Calibrated' : 'Calibrate'}</button>`;
-                }
-                return `
-                <tr>
-                  <td class="col-name mono editable" style="font-size:11px;" onclick="editShoot(${pi},${si})" title="Auto-generated — click to edit shoot">${code}</td>
-                  <td class="col-date editable" onclick="editShoot(${pi},${si})" title="Click to edit">${sh.date || '—'}</td>
-                  <td class="col-filter editable" onclick="editShoot(${pi},${si})" title="Click to edit">${ftLabel}</td>
-                  <td class="col-num mono">${lightsN != null ? lightsN : '—'}</td>
-                  <td class="col-num mono">${escapeHtml(String(exp))}</td>
-                  <td class="col-num mono">${escapeHtml(String(temp))}</td>
-                  <td class="col-num mono">${escapeHtml(String(gain))}</td>
-                  <td class="col-integ mono" title="${escapeAttr(integ.title)}">${integ.actualHtml}</td>
-                  <td class="col-integ mono editable" onclick="editShoot(${pi},${si})" title="Target integration (planned) — click to edit">${integ.targetHtml}</td>
-                  <td class="col-btn">${statusBtn}</td>
-                  <td class="col-btn">${ingestBtn}</td>
-                  <td class="col-cal">${ppBtn}</td>
-                  <td class="col-x"><button class="remove-btn" onclick="removeShoot(${pi},${si})">✕</button></td>
-                </tr>`;
-                }).join('');
-              })()}
-            </tbody>
-          </table>
-          </div>` : '<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">No shoots planned yet.</div>')}
-          ${shootLogCollapsed.has(pi) ? '' : `<div class="shoot-log-actions">
-            <button class="mini-btn" data-testid="plan-shoot" onclick="addShoot(${pi})">+ Plan Shoot</button>
-            ${(() => {
-              const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
-              if (!hasProjectDir) {
-                return `<button class="mini-btn ingest-btn locked" data-testid="review-source" disabled title="Set Project directory first">Review source</button>`;
-              }
-              return `<button class="mini-btn" data-testid="review-source" onclick="openSourceReview(${pi})" title="Lights with no shoot log or mismatched target">Review source</button>`;
-            })()}
-            ${(() => {
-              const hasProjectDir = !!(p.projectDir && String(p.projectDir).trim());
-              const pending = (p.shoots || []).filter(isShootNeedingIngest).length;
-              if (!hasProjectDir) {
-                return `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="Set Project directory before import">Import all</button>`;
-              }
-              return pending
-                ? `<button class="mini-btn ingest-btn" data-testid="ingest-all" onclick="ingestAllCapturedShoots(${pi})" title="Open import for all Captured shoots that are not already imported">Import all (${pending})</button>`
-                : `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="No Captured shoots waiting for import">Import all</button>`;
-            })()}
-          </div>`}
-        </div>
-
-        ${(() => {
-          const groups = listPipelineFilterGroups(p);
-          if (!groups.length) return '';
-          return `<div class="shoot-box">
-          <div class="pm-label">Preprocessing Pipeline</div>
-          <div class="pipeline-filter-list" data-testid="pipeline-bars">${groups.map((g) => renderFilterPipelineBar(p, pi, g)).join('')}</div>
-        </div>`;
-        })()}
+        ${renderChannelPipelineSection(p, pi)}
 
         <div class="shoot-box">
           <div class="pm-label">AstroBin</div>
@@ -7548,6 +7790,7 @@ function renderProjects() {
   }).join('');
   restoreLiveFramers(liveFramers);
   setTimeout(() => { window._suppressFramerToggle = false; }, 0);
+  schedulePipelineMergeLayout();
   // Init framers only when missing — never tear down a preserved viewer on routine saves.
   setTimeout(() => {
     data.projects.forEach((p, pi) => {
@@ -7967,10 +8210,37 @@ function addShoot(pi) {
   modalProjectIndex = pi;
   editIndex = null;
   const project = data.projects[pi];
+  modalConfigs.shoot.title = 'Plan Shoot';
   modalConfigs.shoot.fields[0].quickFill = shootDateQuickFill();
   modalConfigs.shoot.fields[1].options = project.filterTargets.map((f, i) => String(i));
   modalConfigs.shoot.fields[1].optionLabels = project.filterTargets.map(f => `${f.filter} — ${f.location} (B${f.bortle || '?'})`);
   openModal('shoot');
+}
+
+/** Plan a new night locked to this filter channel (same filter tone only). */
+function addShootForChannel(pi, tone) {
+  const project = data.projects[pi];
+  if (!project) return;
+  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  if (!group) {
+    addShoot(pi);
+    return;
+  }
+  const fis = (group.fis || []).filter((fi) => project.filterTargets[fi]);
+  if (!fis.length) {
+    addShoot(pi);
+    return;
+  }
+  modalProjectIndex = pi;
+  editIndex = null;
+  modalConfigs.shoot.title = `Plan ${group.name} Shoot`;
+  modalConfigs.shoot.fields[0].quickFill = shootDateQuickFill();
+  modalConfigs.shoot.fields[1].options = fis.map(String);
+  modalConfigs.shoot.fields[1].optionLabels = fis.map((fi) => {
+    const f = project.filterTargets[fi];
+    return `${f.filter} — ${f.location} (B${f.bortle || '?'})`;
+  });
+  openModal('shoot', { 'f-shootFilterIdx': String(fis[0]) });
 }
 
 function editShoot(pi, si) {
@@ -7978,6 +8248,7 @@ function editShoot(pi, si) {
   editIndex = si;
   const project = data.projects[pi];
   const sh = project.shoots[si];
+  modalConfigs.shoot.title = 'Plan Shoot';
   modalConfigs.shoot.fields[0].quickFill = shootDateQuickFill();
   modalConfigs.shoot.fields[1].options = project.filterTargets.map((f, i) => String(i));
   modalConfigs.shoot.fields[1].optionLabels = project.filterTargets.map(f => `${f.filter} — ${f.location} (B${f.bortle || '?'})`);
@@ -7988,7 +8259,11 @@ function editShoot(pi, si) {
 
 function removeShoot(pi, si) {
   const project = data.projects[pi];
+  const sh = project.shoots[si];
+  const label = sh && sh.date ? String(sh.date) : 'this night';
+  if (!confirm(`Remove night ${label} from the Imaging Pipeline?`)) return;
   project.shoots.splice(si, 1);
+  nightPipelineDetailOpen.delete(`${pi}:${si}`);
   recomputeProjectFilterHours(project);
   save();
 }
@@ -11241,9 +11516,17 @@ function pipelineStepHtml(label, state, opts = {}) {
   else if (state === 'partial') parts.push('partial');
   else if (state === 'stub') parts.push('stub');
   if (opts.clickable) parts.push('clickable');
+  if (opts.locked) parts.push('locked');
   const onclick = opts.onclick ? ` onclick="${opts.onclick}"` : '';
+  const idAttr = opts.id ? ` id="${escapeAttr(opts.id)}"` : '';
   const title = opts.title || label;
-  return `<div class="${parts.join(' ')}" title="${escapeAttr(title)}"${onclick}><div class="pipeline-dot"></div><div class="pipeline-step-label">${escapeHtml(label)}</div></div>`;
+  let port = '';
+  if (opts.port === 'source') {
+    port = `<span class="pipeline-port pipeline-port-source" data-pipeline-source aria-hidden="true"></span>`;
+  } else if (opts.port === 'sink') {
+    port = `<span class="pipeline-port pipeline-port-sink" data-pipeline-sink aria-hidden="true"></span>`;
+  }
+  return `<div class="${parts.join(' ')}"${idAttr} title="${escapeAttr(title)}"${onclick}><div class="pipeline-dot"></div><div class="pipeline-step-label">${escapeHtml(label)}</div>${port}</div>`;
 }
 
 function listPipelineFilterGroups(project) {
@@ -11311,7 +11594,7 @@ function toggleFilterCull(pi, tone) {
   const f = getPrimaryFilterTarget(project, group);
   const cal = getFilterCalibrationProgress(project, tone);
   if (!cal.complete) {
-    alert('Finish Calibration for every ingested shoot of this filter (all locations) before marking Cull done.');
+    alert('Finish Calibration for every imported shoot-log night of this filter before marking Cull done.');
     return;
   }
   if (isFilterCullComplete(f)) {
@@ -11330,63 +11613,349 @@ function toggleFilterCull(pi, tone) {
   renderProjects();
 }
 
-/** One bar per filter name (locations merged). Capture → Ingest → Calibration → Cull → Registration. */
+function shootNightMetaChip(sh) {
+  const meta = sh.ingestMeta || {};
+  const lightsN = meta.lightCount != null
+    ? meta.lightCount
+    : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
+  const plannedHrs = Number(sh.hours) || 0;
+  const integ = formatShootIntegration(lightsN, meta.exposureSec, plannedHrs);
+  const bits = [];
+  if (integ.actualHrs != null) bits.push(`${integ.actualHrs < 10 ? integ.actualHrs.toFixed(2) : integ.actualHrs.toFixed(1)}h`);
+  else if (plannedHrs) bits.push(`~${plannedHrs < 10 ? plannedHrs.toFixed(2) : plannedHrs.toFixed(1)}h`);
+  if (lightsN != null && meta.exposureSec != null) bits.push(`${lightsN}×${meta.exposureSec}s`);
+  else if (plannedHrs && !bits.length) bits.push(`target ${plannedHrs}h`);
+  return {
+    text: bits.join(' · ') || '—',
+    title: integ.title || 'Night integration',
+  };
+}
+
+function channelRollupText(project, group) {
+  const shoots = getShootsForFilterTone(project, group.tone);
+  const nights = shoots.length;
+  let captured = 0;
+  let planned = 0;
+  (group.fis || []).forEach((fi) => {
+    const ft = project.filterTargets[fi];
+    if (!ft) return;
+    captured += Number(ft.loggedHrs) || 0;
+    planned += Number(ft.targetHrs) || 0;
+  });
+  if (planned <= 0) {
+    planned = shoots.reduce((s, sh) => s + (Number(sh.hours) || 0), 0);
+  }
+  if (captured <= 0) {
+    captured = shoots.reduce((s, sh) => (sh.complete ? s + shootActualHours(sh) : s), 0);
+  }
+  const fmtH = (h) => {
+    const n = Math.round((Number(h) || 0) * 10) / 10;
+    return `${Number.isInteger(n) ? String(n) : n.toFixed(1)}h`;
+  };
+  return `${nights} night${nights === 1 ? '' : 's'} · ${fmtH(captured)}/${fmtH(planned)}`;
+}
+
+function shootNightStepOpts(project, pi, sh, si) {
+  const captureDone = !!sh.complete;
+  const ingestDone = isShootIngested(sh);
+  const calDone = isShootCalibrated(sh);
+  const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
+
+  const captureOpts = {
+    clickable: true,
+    onclick: `event.stopPropagation(); toggleShootComplete(${pi},${si})`,
+    title: captureDone ? 'Captured — click to mark pending' : 'Click to mark captured',
+  };
+
+  let importOpts;
+  if (!hasProjectDir) {
+    importOpts = { locked: true, title: 'Set Project directory before import' };
+  } else if (!captureDone) {
+    importOpts = { locked: true, title: 'Mark Capture done before import' };
+  } else {
+    importOpts = {
+      clickable: true,
+      onclick: `event.stopPropagation(); openIngestModal(${pi},${si})`,
+      title: ingestDone ? 'Already imported — click to reopen' : 'Import from ASIAIR',
+    };
+  }
+
+  let calOpts;
+  if (!hasProjectDir) {
+    calOpts = { locked: true, id: `pp-step-${pi}-${si}`, title: 'Set Project directory first' };
+  } else if (!ingestDone) {
+    calOpts = { locked: true, id: `pp-step-${pi}-${si}`, title: 'Import this night before calibrating' };
+  } else {
+    calOpts = {
+      clickable: true,
+      id: `pp-step-${pi}-${si}`,
+      onclick: `event.stopPropagation(); runPreprocessShoot(${pi},${si})`,
+      title: calDone ? 'Re-run calibration to pp_light' : 'Calibrate to pp_light via siril-cli',
+    };
+  }
+
+  return {
+    captureDone,
+    ingestDone,
+    calDone,
+    captureOpts,
+    importOpts,
+    calOpts,
+  };
+}
+
+function renderNightCaptureImportCalSteps(project, pi, sh, si, opts = {}) {
+  const s = shootNightStepOpts(project, pi, sh, si);
+  const calOpts = Object.assign({}, s.calOpts, opts.sourcePort ? { port: 'source' } : {});
+  return [
+    pipelineStepHtml('Capture', s.captureDone ? 'done' : '', s.captureOpts),
+    pipelineStepHtml('Import', s.ingestDone ? 'done' : '', s.importOpts),
+    pipelineStepHtml('Calibration', s.calDone ? 'done' : '', calOpts),
+  ].join('');
+}
+
+function channelCullRegParts(project, pi, group, opts = {}) {
+  const f = getPrimaryFilterTarget(project, group);
+  if (!f || !group) return null;
+  const tone = group.tone;
+  const cal = getFilterCalibrationProgress(project, tone);
+  const cullDone = isFilterCullComplete(f);
+  const regDone = !!(f.stackMeta && f.stackMeta.resultPath);
+  const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
+  const nightCount = getShootsForFilterTone(project, tone).length;
+  const locNote = group.fis.length > 1
+    ? ` · ${group.fis.length} location targets combined`
+    : '';
+  const nightsNote = nightCount > 1 ? ` · ${nightCount} nights` : '';
+
+  let stackBtn;
+  if (!hasProjectDir) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Set Project directory first" onclick="event.stopPropagation()">Registration</button>`;
+  } else if (!cal.complete) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Calibrate every imported ${escapeAttr(group.name)} night first (${cal.calibratedCount}/${cal.ingestedCount || 0})" onclick="event.stopPropagation()">Registration</button>`;
+  } else if (!cullDone) {
+    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Mark Cull complete (click Cull dot) before registration" onclick="event.stopPropagation()">Registration</button>`;
+  } else if (regDone) {
+    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="event.stopPropagation(); registerAndStackFilterTone(${pi},'${tone}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}${escapeAttr(nightsNote)}">Registered</button>`;
+  } else {
+    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="event.stopPropagation(); registerAndStackFilterTone(${pi},'${tone}')" title="Register &amp; stack all calibrated nights for ${escapeAttr(group.name)}${escapeAttr(locNote)}${escapeAttr(nightsNote)}">Registration</button>`;
+  }
+
+  const cullStep = pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
+    clickable: true,
+    onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
+    title: cullDone
+      ? 'Cull marked done for this channel — click to clear'
+      : cal.complete
+        ? 'Click when culling in Siril is finished (all nights)'
+        : 'Calibrate every imported night before marking Cull',
+    port: opts.sinkPort ? 'sink' : undefined,
+  });
+  const regStep = pipelineStepHtml('Registration', regDone ? 'done' : '', {
+    title: 'Register & stack all calibrated nights → working/result_<Filter>.fit',
+  });
+
+  return { cullStep, regStep, stackBtn, cal, cullDone, regDone };
+}
+
+function nightIdentity(project, group, sh) {
+  const ft = project.filterTargets[sh.filterIndex];
+  const dateLabel = String(sh.date || '—');
+  const loc = ft && ft.location ? String(ft.location).trim() : '';
+  const showLoc = group.fis.length > 1 && !!loc;
+  const code = buildShootCode(sh, ft);
+  const label = showLoc ? `${dateLabel} · ${loc}` : dateLabel;
+  const chip = shootNightMetaChip(sh);
+  return { ft, dateLabel, code, label, chip };
+}
+
+function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
+  if (!detailOpen) return '';
+  const { ft, code } = nightIdentity(project, group, sh);
+  const meta = sh.ingestMeta || {};
+  const lightsN = meta.lightCount != null
+    ? meta.lightCount
+    : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
+  return `<div class="pipeline-night-detail" onclick="event.stopPropagation()">
+    <div class="pipeline-night-detail-grid">
+      <div><div class="detail-k">Shoot code</div><div class="detail-v">${escapeHtml(code)}</div></div>
+      <div><div class="detail-k">Capture plan</div><div class="detail-v">${ft ? `${escapeHtml(ft.filter)} — ${escapeHtml(ft.location || '')}` : '—'}</div></div>
+      <div><div class="detail-k">Lights</div><div class="detail-v">${lightsN != null ? lightsN : '—'}</div></div>
+      <div><div class="detail-k">Exp</div><div class="detail-v">${meta.exposureSec != null ? `${meta.exposureSec}s` : '—'}</div></div>
+      <div><div class="detail-k">Temp</div><div class="detail-v">${meta.tempC != null ? `${meta.tempC}°C` : '—'}</div></div>
+      <div><div class="detail-k">Gain</div><div class="detail-v">${meta.gain != null ? meta.gain : '—'}</div></div>
+      <div><div class="detail-k">Target hours</div><div class="detail-v">${Number(sh.hours) || 0}h</div></div>
+      <div><div class="detail-k">Import path</div><div class="detail-v" style="word-break:break-all;">${sh.ingestPath ? escapeHtml(String(sh.ingestPath)) : '—'}</div></div>
+    </div>
+    <div class="pipeline-night-detail-actions">
+      <button type="button" class="mini-btn" onclick="editShoot(${pi},${si})">Edit night</button>
+      <button type="button" class="mini-btn pipeline-night-remove" onclick="removeShoot(${pi},${si})">Remove night</button>
+    </div>
+  </div>`;
+}
+
+/** Night rail: Capture→Import→Calibration only (feeds into channel trunk when multi). */
+function renderShootPipelineRow(project, pi, group, sh, si) {
+  const { dateLabel, code, label, chip } = nightIdentity(project, group, sh);
+  const detailOpen = nightPipelineDetailOpen.has(`${pi}:${si}`);
+  return `<div class="pipeline-night-wrap" data-shoot-index="${si}">
+    <div class="pipeline-filter-row pipeline-shoot-row" data-shoot-date="${escapeAttr(dateLabel)}" data-filter="${escapeAttr(group.name)}" onclick="toggleNightPipelineDetail(${pi},${si})">
+      <button type="button" class="pipeline-night-chevron ${detailOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleNightPipelineDetail(${pi},${si})" aria-expanded="${detailOpen ? 'true' : 'false'}" title="Night details">▶</button>
+      <button type="button" class="pipeline-night-date" onclick="event.stopPropagation(); editShoot(${pi},${si})" title="Edit ${escapeAttr(code)}">${escapeHtml(label)}</button>
+      <div class="pipeline-night-meta" title="${escapeAttr(chip.title)}">${escapeHtml(chip.text)}</div>
+      <div class="pipeline-track">
+        ${renderNightCaptureImportCalSteps(project, pi, sh, si, { sourcePort: true })}
+      </div>
+    </div>
+    ${nightDetailHtml(project, pi, group, sh, si, detailOpen)}
+  </div>`;
+}
+
+/** Single night: one straight Capture→Import→Cal→Cull→Registration line. */
+function renderStraightChannelLine(project, pi, group, sh, si) {
+  const parts = channelCullRegParts(project, pi, group);
+  if (!parts) return '';
+  const { dateLabel, code, label, chip } = nightIdentity(project, group, sh);
+  const detailOpen = nightPipelineDetailOpen.has(`${pi}:${si}`);
+  return `<div class="pipeline-night-wrap" data-shoot-index="${si}">
+    <div class="pipeline-straight-row pipeline-filter-row" data-shoot-date="${escapeAttr(dateLabel)}" data-filter="${escapeAttr(group.name)}" onclick="toggleNightPipelineDetail(${pi},${si})">
+      <button type="button" class="pipeline-night-chevron ${detailOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleNightPipelineDetail(${pi},${si})" aria-expanded="${detailOpen ? 'true' : 'false'}" title="Night details">▶</button>
+      <button type="button" class="pipeline-night-date" onclick="event.stopPropagation(); editShoot(${pi},${si})" title="Edit ${escapeAttr(code)}">${escapeHtml(label)}</button>
+      <div class="pipeline-night-meta" title="${escapeAttr(chip.title)}">${escapeHtml(chip.text)}</div>
+      <div class="pipeline-track pipeline-track-full">
+        ${renderNightCaptureImportCalSteps(project, pi, sh, si)}
+        ${parts.cullStep}
+        ${parts.regStep}
+      </div>
+      ${parts.stackBtn}
+    </div>
+    ${nightDetailHtml(project, pi, group, sh, si, detailOpen)}
+  </div>`;
+}
+
+/** Multi-night trunk: Cull + Registration after reverse-tree merge. */
+function renderFilterChannelPipelineFooter(project, pi, group) {
+  const parts = channelCullRegParts(project, pi, group, { sinkPort: true });
+  if (!parts) return '';
+  return `<div class="pipeline-filter-row pipeline-channel-row" data-filter="${escapeAttr(group.name)}">
+    <div class="pipeline-track pipeline-track-channel">
+      ${parts.cullStep}
+      ${parts.regStep}
+    </div>
+    ${parts.stackBtn}
+  </div>`;
+}
+
+/**
+ * One channel block per filter.
+ * 0–1 nights: straight line. 2+ nights: vertical fan-in merge into Cull→Registration.
+ */
 function renderFilterPipelineBar(project, pi, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f || !group) return '';
   const tone = group.tone;
-  const shoots = getShootsForFilterTone(project, tone);
-  const capturedShoots = shoots.filter((sh) => !!sh.complete);
-  const captureDone = capturedShoots.length > 0;
-  const ingestDone = capturedShoots.length
-    ? capturedShoots.every(isShootIngested)
-    : getFilterIngestedShootsByTone(project, tone).length > 0;
-  const cal = getFilterCalibrationProgress(project, tone);
-  let calState = '';
-  let calLabel = 'Calibration';
-  if (cal.complete) {
-    calState = 'done';
-    calLabel = `Calibration ${cal.calibratedCount}/${cal.ingestedCount}`;
-  } else if (cal.partial || (cal.calibratedCount > 0 && cal.ingestedCount > 0)) {
-    calState = 'partial';
-    calLabel = `Calibration ${cal.calibratedCount}/${cal.ingestedCount}`;
-  } else if (cal.ingestedCount > 0) {
-    calLabel = `Calibration 0/${cal.ingestedCount}`;
-  }
-  const cullDone = isFilterCullComplete(f);
-  const regDone = !!(f.stackMeta && f.stackMeta.resultPath);
-  const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
-  const locNote = group.fis.length > 1
-    ? ` · ${group.fis.length} location targets combined`
-    : '';
+  const shootEntries = getShootsForFilterTone(project, tone)
+    .map((sh) => ({ sh, si: project.shoots.indexOf(sh) }))
+    .filter((e) => e.si >= 0)
+    .sort((a, b) => {
+      const da = String(a.sh.date || '');
+      const db = String(b.sh.date || '');
+      if (da !== db) return da.localeCompare(db);
+      return (Number(a.sh.filterIndex) || 0) - (Number(b.sh.filterIndex) || 0);
+    });
 
-  let stackBtn;
-  if (!hasProjectDir) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Set Project directory first">Registration</button>`;
-  } else if (!cal.complete) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Complete Calibration for all ingested ${escapeAttr(group.name)} shoots (all locations) first">Registration</button>`;
-  } else if (!cullDone) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Mark Cull complete (click Cull dot) before registration">Registration</button>`;
-  } else if (regDone) {
-    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registered</button>`;
+  const addBtn = `<button type="button" class="pipeline-channel-add" title="Plan a ${escapeAttr(group.name)} night" onclick="event.stopPropagation(); addShootForChannel(${pi},'${tone}')">+</button>`;
+  const header = `<div class="pipeline-channel-header">
+      <div class="pipeline-channel-header-left">
+        <div class="pipeline-channel-title">${escapeHtml(group.name)}</div>
+        ${addBtn}
+      </div>
+      <div class="pipeline-channel-rollup">${escapeHtml(channelRollupText(project, group))}</div>
+    </div>`;
+
+  let body;
+  if (shootEntries.length === 0) {
+    body = `<div class="pipeline-empty-shoots">No nights yet — click + to plan one</div>`;
+  } else if (shootEntries.length === 1) {
+    const { sh, si } = shootEntries[0];
+    body = renderStraightChannelLine(project, pi, group, sh, si);
   } else {
-    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Register &amp; stack calibrated lights for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registration</button>`;
+    const shootRows = shootEntries
+      .map(({ sh, si }) => renderShootPipelineRow(project, pi, group, sh, si))
+      .join('');
+    body = `<div class="pipeline-merge" data-pipeline-merge>
+      <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
+      <div class="pipeline-merge-nights">${shootRows}</div>
+      <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
+    </div>`;
   }
 
-  return `<div class="pipeline-filter-row flt-${tone}" data-filter="${escapeAttr(group.name)}">
-    <div class="pipeline-filter-name">${escapeHtml(group.name)}</div>
-    <div class="pipeline-track">
-      ${pipelineStepHtml('Capture', captureDone ? 'done' : '', { title: 'Capture' })}
-      ${pipelineStepHtml('Import', ingestDone ? 'done' : '', { title: 'Import from ASIAIR' })}
-      ${pipelineStepHtml(calLabel, calState, { title: 'Calibration to pp_light (all nights & locations for this filter)' })}
-      ${pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
-        clickable: true,
-        onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
-        title: cullDone ? 'Cull marked done — click to clear' : 'Click when culling in Siril is finished',
-      })}
-      ${pipelineStepHtml('Registration', regDone ? 'done' : '', { title: 'Register & stack → working/result_<Filter>.fit' })}
+  return `<div class="pipeline-channel flt-${tone}" data-filter="${escapeAttr(group.name)}" data-testid="pipeline-channel-${tone}">
+    ${header}
+    ${body}
+  </div>`;
+}
+
+function renderChannelPipelineSection(project, pi) {
+  const groups = listPipelineFilterGroups(project);
+  const nightCount = (project.shoots || []).length;
+  const collapsed = shootLogCollapsed.has(pi);
+
+  const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
+  const pending = (project.shoots || []).filter(isShootNeedingIngest).length;
+
+  let reviewBtn;
+  if (!hasProjectDir) {
+    reviewBtn = `<button class="mini-btn ingest-btn locked" data-testid="review-source" disabled title="Set Project directory first">Review source</button>`;
+  } else {
+    reviewBtn = `<button class="mini-btn" data-testid="review-source" onclick="openSourceReview(${pi})" title="Lights with no shoot log or mismatched target">Review source</button>`;
+  }
+
+  let importAllBtn;
+  if (!hasProjectDir) {
+    importAllBtn = `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="Set Project directory before import">Import all</button>`;
+  } else if (pending) {
+    importAllBtn = `<button class="mini-btn ingest-btn" data-testid="ingest-all" onclick="ingestAllCapturedShoots(${pi})" title="Open import for all Captured nights not yet imported">Import all (${pending})</button>`;
+  } else {
+    importAllBtn = `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="No Captured nights waiting for import">Import all</button>`;
+  }
+
+  const assigned = new Set();
+  groups.forEach((g) => {
+    getShootsForFilterTone(project, g.tone).forEach((sh) => assigned.add(sh));
+  });
+  const orphans = (project.shoots || [])
+    .map((sh, si) => ({ sh, si }))
+    .filter(({ sh }) => !assigned.has(sh));
+
+  const actions = `<div class="shoot-log-actions" style="margin:6px 0 10px;">
+      <button class="mini-btn" data-testid="plan-shoot" onclick="addShoot(${pi})">+ Plan Shoot</button>
+      ${reviewBtn}
+      ${importAllBtn}
+    </div>`;
+
+  let body = '';
+  if (!collapsed) {
+    body += actions;
+    if (!groups.length && !nightCount) {
+      body += `<div style="color:var(--gray);font-size:12px;margin-bottom:8px;">Add filters to Capture Plan, then plan nights here.</div>`;
+    } else {
+      const channels = groups.map((g) => renderFilterPipelineBar(project, pi, g)).join('');
+      const orphanHtml = orphans.length
+        ? `<div class="pipeline-empty-shoots">Unassigned nights (no matching Capture Plan filter): ${orphans.map(({ sh, si }) =>
+            `<button type="button" class="mini-btn" style="margin:2px;" onclick="editShoot(${pi},${si})">${escapeHtml(String(sh.date || '—'))}</button>`
+          ).join('')}</div>`
+        : '';
+      body += `<div class="pipeline-filter-list" data-testid="pipeline-bars">${channels}</div>${orphanHtml}`;
+    }
+  }
+
+  return `<div class="shoot-box" data-testid="imaging-pipeline">
+    <div class="shoot-log-toggle" onclick="event.stopPropagation(); toggleShootLog(${pi})" title="Expand / collapse Imaging Pipeline">
+      <span class="shoot-log-chevron ${collapsed ? '' : 'open'}">▶</span>
+      <div class="pm-label">Imaging Pipeline${nightCount ? ` (${nightCount})` : ''}</div>
     </div>
-    ${stackBtn}
+    ${body}
   </div>`;
 }
 
@@ -11600,10 +12169,12 @@ async function runPreprocessShoot(pi, si) {
     return;
   }
   const logPath = pathJoinWin(shootDir, 'scripts', 'calibrate.log');
-  const btn = document.getElementById(`pp-btn-${pi}-${si}`);
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Running…';
+  const step = document.getElementById(`pp-step-${pi}-${si}`);
+  const stepLabel = step && step.querySelector('.pipeline-step-label');
+  const prevLabel = stepLabel ? stepLabel.textContent : '';
+  if (step) {
+    step.classList.add('running', 'locked');
+    if (stepLabel) stepLabel.textContent = 'Running…';
   }
 
   const result = await runSirilJobWithProgress({
@@ -11614,9 +12185,9 @@ async function runPreprocessShoot(pi, si) {
   });
 
   if (!result || !result.ok) {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = isShootCalibrated(sh) ? 'Calibrated' : 'Calibrate';
+    if (step) {
+      step.classList.remove('running', 'locked');
+      if (stepLabel) stepLabel.textContent = isShootCalibrated(sh) ? 'Calibration' : (prevLabel || 'Calibration');
     }
     return;
   }
