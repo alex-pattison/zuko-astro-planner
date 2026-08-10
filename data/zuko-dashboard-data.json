@@ -217,6 +217,17 @@
           "ingestPath": null,
           "ingestMeta": null,
           "preprocessMeta": null
+        },
+        {
+          "date": "260808",
+          "filterIndex": 3,
+          "hours": 0,
+          "complete": false,
+          "creditedHours": 0,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
         }
       ],
       "astrobinLinks": [],
@@ -922,9 +933,9 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 14,
-    "savedAt": "2026-08-10T01:29:21.935Z"
+    "savedAt": "2026-08-10T02:16:08.486Z"
   },
-  "uiTheme": "light",
+  "uiTheme": "dark",
   "homeSite": {
     "zip": "10002",
     "name": "NYC",

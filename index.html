@@ -1339,8 +1339,11 @@
   .pipeline-night-wrap { position: relative; }
 
   .pipeline-step.locked {
-    opacity: 0.45;
     cursor: not-allowed;
+  }
+  .pipeline-step.locked .pipeline-dot,
+  .pipeline-step.locked .pipeline-step-label {
+    opacity: 0.45;
   }
   .pipeline-step.locked.clickable {
     cursor: not-allowed;
@@ -11810,10 +11813,9 @@ function channelCullRegParts(project, pi, group, opts = {}) {
 function nightIdentity(project, group, sh) {
   const ft = project.filterTargets[sh.filterIndex];
   const dateLabel = String(sh.date || '—');
-  const loc = ft && ft.location ? String(ft.location).trim() : '';
-  const showLoc = group.fis.length > 1 && !!loc;
   const code = buildShootCode(sh, ft);
-  const label = showLoc ? `${dateLabel} · ${loc}` : dateLabel;
+  // Collapsed rail: date only. Location lives in expanded Capture plan detail.
+  const label = dateLabel;
   const chip = shootNightMetaChip(sh);
   return { ft, dateLabel, code, label, chip };
 }
