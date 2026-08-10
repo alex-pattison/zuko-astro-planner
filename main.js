@@ -140,6 +140,16 @@ function channelProductTitle() {
  * Dashboard JSON stays on H: (beta) / repo data/ (dev) via resolveDataPaths().
  */
 function applyChannelUserData() {
+  // E2E / automation: honor explicit profile so Dev can stay open.
+  const override = process.env.ZUKO_USER_DATA_DIR && String(process.env.ZUKO_USER_DATA_DIR).trim();
+  if (override) {
+    try {
+      app.setPath('userData', path.resolve(override));
+    } catch (err) {
+      console.warn('ZUKO_USER_DATA_DIR failed:', err && err.message ? err.message : err);
+    }
+    return;
+  }
   const channel = getZukoChannel();
   const dirName = channel === 'beta' ? 'zuko-astro-planner-beta' : 'zuko-astro-planner-dev';
   try {

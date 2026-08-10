@@ -1,5 +1,6 @@
 // @ts-check
 const path = require('path');
+const fs = require('fs');
 const { spawnSync } = require('child_process');
 const playwright = require('@playwright/test');
 const electron = playwright._electron;
@@ -7,6 +8,7 @@ const electron = playwright._electron;
 const ROOT = path.resolve(__dirname, '..');
 const E2E_DATA = path.join(ROOT, 'staging', 'e2e-data');
 const E2E_PROJECTS = path.join(ROOT, 'staging', 'e2e-projects');
+const E2E_USER_DATA = path.join(ROOT, 'staging', 'e2e-userdata');
 
 function seedE2eData() {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'seed-e2e-data.js')], {
@@ -20,17 +22,20 @@ function seedE2eData() {
 }
 
 /**
+ * Isolated userData + ZUKO_CHANNEL so E2E does not collide with Dev Electron.
  * @returns {Promise<{ electronApp: import('@playwright/test').ElectronApplication, window: import('@playwright/test').Page }>}
  */
 async function launchApp() {
   seedE2eData();
+  fs.mkdirSync(E2E_USER_DATA, { recursive: true });
   const electronApp = await electron.launch({
     cwd: ROOT,
-    args: ['.'],
+    args: ['.', `--user-data-dir=${E2E_USER_DATA}`],
     env: {
       ...process.env,
       ZUKO_DATA_DIR: E2E_DATA,
       ZUKO_PROJECTS_DIR: E2E_PROJECTS,
+      ZUKO_USER_DATA_DIR: E2E_USER_DATA,
     },
   });
   const window = await electronApp.firstWindow();
@@ -38,4 +43,4 @@ async function launchApp() {
   return { electronApp, window };
 }
 
-module.exports = { launchApp, E2E_DATA, ROOT, electron };
+module.exports = { launchApp, E2E_DATA, E2E_USER_DATA, ROOT, electron };

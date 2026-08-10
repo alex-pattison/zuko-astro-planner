@@ -28,23 +28,20 @@ const project = {
   notes: 'Playwright E2E seed — isolated from live dashboard',
   filterTargets: [
     { filter: 'Ha', location: 'Home', bortle: '9', targetHrs: 4, loggedHrs: 0 },
-    { filter: 'OIII', location: 'Home', bortle: '9', targetHrs: 4, loggedHrs: 0 },
-    { filter: 'SII', location: 'Home', bortle: '9', targetHrs: 2, loggedHrs: 0 },
+    { filter: 'OIII', location: 'Home', bortle: '9', targetHrs: 4.5, loggedHrs: 0 },
+    { filter: 'SII', location: 'Home', bortle: '9', targetHrs: 3.5, loggedHrs: 0 },
   ],
   checklist: [],
   shoots: [
-    {
-      date: '260728',
-      filterIndex: 0,
-      hours: 1.5,
-      complete: true,
-    },
-    {
-      date: '260729',
-      filterIndex: 1,
-      hours: 1,
-      complete: false,
-    },
+    // Ha ×3 — multi-night merge
+    { date: '260803', filterIndex: 0, hours: 1, complete: true },
+    { date: '260808', filterIndex: 0, hours: 0, complete: false },
+    { date: '260890', filterIndex: 0, hours: 0, complete: false },
+    // OIII ×2 — multi-night merge
+    { date: '260808', filterIndex: 1, hours: 0, complete: false },
+    { date: '260809', filterIndex: 1, hours: 0, complete: false },
+    // SII ×1 — solo merge (aligned columns)
+    { date: '260810', filterIndex: 2, hours: 1.5, complete: false },
   ],
   astrobinLinks: [],
   projectDir: hasAsiair ? FIXTURE_ASIAIR : '',
