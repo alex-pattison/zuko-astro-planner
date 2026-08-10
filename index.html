@@ -1072,7 +1072,7 @@
   .pipeline-filter-row.flt-b .pipeline-filter-name { color: #93c5fd; }
   .pipeline-filter-row.flt-other .pipeline-filter-name { color: var(--text2); }
 
-  /* Light mode: darker filter tones for contrast on white */
+  /* Light mode: darker filter colors for contrast on white */
   html[data-theme="light"] .pipeline-filter-row.flt-ha { border-left-color: #b91c1c; }
   html[data-theme="light"] .pipeline-filter-row.flt-oiii { border-left-color: #0e7490; }
   html[data-theme="light"] .pipeline-filter-row.flt-sii { border-left-color: #a16207; }
@@ -7374,7 +7374,7 @@ function renderProjects() {
                 const pendingHrs = p.shoots.filter(sh => sh.filterIndex === fi && !sh.complete).reduce((s, sh) => s + (sh.hours || 0), 0);
                 const pct = f.targetHrs > 0 ? Math.min(100, Math.round(f.loggedHrs / f.targetHrs * 100)) : 0;
                 const pendingPct = f.targetHrs > 0 ? Math.min(100 - pct, Math.round(pendingHrs / f.targetHrs * 100)) : 0;
-                const fltColor = filterToneColor(f.filter);
+                const fltColor = filterWavelengthColor(f.filter);
                 return `<tr>
                   <td class="editable ft-filter-name" onclick="editFilterTarget(${pi},${fi})" title="Click to edit" style="color:${fltColor}">${escapeHtml(f.filter)}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.location}</td>
@@ -7436,7 +7436,7 @@ function renderProjects() {
                 return order.map((si) => {
                 const sh = p.shoots[si];
                 const ft = p.filterTargets[sh.filterIndex];
-                const fltColor = ft ? filterToneColor(ft.filter) : 'inherit';
+                const fltColor = ft ? filterWavelengthColor(ft.filter) : 'inherit';
                 const ftLabel = ft
                   ? `<span class="ft-filter-name" style="color:${fltColor}">${escapeHtml(ft.filter)}</span> — ${escapeHtml(ft.location)} (B${escapeHtml(String(ft.bortle || '?'))})`
                   : '—';
@@ -7917,7 +7917,7 @@ function editFilterTarget(pi, fi) {
   // Keep current value selectable even if not on the wheel yet
   const values = opts.map((o) => o.value);
   const labels = opts.map((o) => o.label);
-  if (f.filter && !values.some((v) => filterToneKey(v) === filterToneKey(f.filter))) {
+  if (f.filter && !values.some((v) => filterWavelengthKey(v) === filterWavelengthKey(f.filter))) {
     values.unshift(f.filter);
     labels.unshift(`${f.filter} (current)`);
   }
@@ -9341,11 +9341,11 @@ function openIngestFilesPopup(kind) {
       const name = f.fileName || (f.filePath ? String(f.filePath).split(/[/\\]/).pop() : '—');
       const folder = ingestFrameFolder(f.filePath);
       const date = [f.date, f.time].filter(Boolean).join(' ') || (f.night ? 'night ' + f.night : '—');
-      const tone = colorFilters ? filterToneKey(f.filter) : '';
+      const wavelength = colorFilters ? filterWavelengthKey(f.filter) : '';
       const rowCls = [
         f.excluded ? 'ingest-dark-reject' : '',
         f.includedOverride ? 'ingest-dark-include' : '',
-        colorFilters && !f.excluded ? `ingest-files-flt flt-${tone}` : '',
+        colorFilters && !f.excluded ? `ingest-files-flt flt-${wavelength}` : '',
       ].filter(Boolean).join(' ');
       const filterCell = colorFilters
         ? `<td class="filter-cell">${filterLabelHtml(f.filter)}</td>`
@@ -10549,7 +10549,7 @@ async function runIngestScan(opts = {}) {
   const lightBreakdown = multi
     ? (ingestBatch.filters || []).map((f) => {
       const n = (scan.lights || []).filter((x) => x.filter === f).length;
-      return `<span class="flt-${filterToneKey(f)}">${escapeHtml(f)} ${n}</span>`;
+      return `<span class="flt-${filterWavelengthKey(f)}">${escapeHtml(f)} ${n}</span>`;
     }).join(' · ')
     : '';
   const chip = (kind, label, tone, count, title) =>
@@ -10637,7 +10637,7 @@ async function runIngestScan(opts = {}) {
     const targetCell = (isMatch && inLog)
       ? integ.targetHtml
       : '<span class="shoot-integ-val na">—</span>';
-    const tone = filterToneKey(r.filter);
+    const wavelength = filterWavelengthKey(r.filter);
     const flatsForRowAll = (scan.flats || []).filter((x) => x.filter === r.filter);
     const flatsForRow = flatsForRowAll.filter((f) =>
       tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
@@ -10664,7 +10664,7 @@ async function runIngestScan(opts = {}) {
     });
     // After dark refresh, incomplete dark rows get corrected via re-render... 
     // For flats/bias-missing, mark incomplete immediately.
-    let rowCls = `${status.rowClass} flt-${tone}`;
+    let rowCls = `${status.rowClass} flt-${wavelength}`;
     return `
     <tr class="${rowCls}" data-ingest-filter="${escapeAttr(r.filter)}">
       <td>${filterLabelHtml(r.filter)}</td>
@@ -11012,8 +11012,8 @@ function syncIngestFilterStatusRowsFromScan() {
       isPendingMatch: isPending,
       missingFrames: missing,
     });
-    const tone = filterToneKey(filter);
-    tr.className = `${status.rowClass} flt-${tone}`;
+    const wavelength = filterWavelengthKey(filter);
+    tr.className = `${status.rowClass} flt-${wavelength}`;
     const statusTd = tr.lastElementChild;
     if (statusTd) statusTd.innerHTML = ingestStatusColumnHtml(status);
   }
@@ -11045,8 +11045,8 @@ function syncIngestFilterStatusRows(pendingFilters, missingAll) {
       isPendingMatch: isPending,
       missingFrames: isPending ? rowMissing : [],
     });
-    const tone = filterToneKey(filter);
-    tr.className = `${status.rowClass} flt-${tone}`;
+    const wavelength = filterWavelengthKey(filter);
+    tr.className = `${status.rowClass} flt-${wavelength}`;
     const statusTd = tr.lastElementChild;
     if (statusTd) statusTd.innerHTML = ingestStatusColumnHtml(status);
   }
@@ -11250,13 +11250,13 @@ function listPipelineFilterGroups(project) {
   const seen = new Map();
   (project.filterTargets || []).forEach((f, fi) => {
     if (!f || !f.filter) return;
-    const tone = filterToneKey(f.filter);
-    if (seen.has(tone)) {
-      seen.get(tone).fis.push(fi);
+    const wavelength = filterWavelengthKey(f.filter);
+    if (seen.has(wavelength)) {
+      seen.get(wavelength).fis.push(fi);
       return;
     }
-    seen.set(tone, {
-      tone,
+    seen.set(wavelength, {
+      wavelength,
       name: f.filter,
       fis: [fi],
       primaryFi: fi,
@@ -11265,19 +11265,19 @@ function listPipelineFilterGroups(project) {
   return Array.from(seen.values());
 }
 
-function getShootsForFilterTone(project, tone) {
+function getShootsForFilterWavelength(project, wavelength) {
   return (project.shoots || []).filter((sh) => {
     const ft = project.filterTargets[sh.filterIndex];
-    return ft && filterToneKey(ft.filter) === tone;
+    return ft && filterWavelengthKey(ft.filter) === wavelength;
   });
 }
 
-function getFilterIngestedShootsByTone(project, tone) {
-  return getShootsForFilterTone(project, tone).filter(isShootIngested);
+function getFilterIngestedShootsByWavelength(project, wavelength) {
+  return getShootsForFilterWavelength(project, wavelength).filter(isShootIngested);
 }
 
-function getFilterCalibrationProgress(project, tone) {
-  const ingested = getFilterIngestedShootsByTone(project, tone);
+function getFilterCalibrationProgress(project, wavelength) {
+  const ingested = getFilterIngestedShootsByWavelength(project, wavelength);
   const calibrated = ingested.filter(isShootCalibrated);
   return {
     ingestedCount: ingested.length,
@@ -11299,17 +11299,17 @@ function isFilterCullComplete(f) {
 function isFilterReadyToRegister(project, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f) return false;
-  const cal = getFilterCalibrationProgress(project, group.tone);
+  const cal = getFilterCalibrationProgress(project, group.wavelength);
   return cal.complete && isFilterCullComplete(f);
 }
 
-function toggleFilterCull(pi, tone) {
+function toggleFilterCull(pi, wavelength) {
   const project = data.projects[pi];
   if (!project) return;
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = listPipelineFilterGroups(project).find((g) => g.wavelength === wavelength);
   if (!group) return;
   const f = getPrimaryFilterTarget(project, group);
-  const cal = getFilterCalibrationProgress(project, tone);
+  const cal = getFilterCalibrationProgress(project, wavelength);
   if (!cal.complete) {
     alert('Finish Calibration for every ingested shoot of this filter (all locations) before marking Cull done.');
     return;
@@ -11322,7 +11322,7 @@ function toggleFilterCull(pi, tone) {
       note: 'Marked complete (manual / Siril cull stub). Registration uses remaining process/pp_light_*.fit only — delete or list culled names in process/culled.txt.',
     };
   }
-  // Mirror onto sibling filterTargets with same filter tone (location variants)
+  // Mirror onto sibling filterTargets with the same wavelength (location variants)
   group.fis.forEach((fi) => {
     if (project.filterTargets[fi]) project.filterTargets[fi].cullMeta = f.cullMeta;
   });
@@ -11334,14 +11334,14 @@ function toggleFilterCull(pi, tone) {
 function renderFilterPipelineBar(project, pi, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f || !group) return '';
-  const tone = group.tone;
-  const shoots = getShootsForFilterTone(project, tone);
+  const wavelength = group.wavelength;
+  const shoots = getShootsForFilterWavelength(project, wavelength);
   const capturedShoots = shoots.filter((sh) => !!sh.complete);
   const captureDone = capturedShoots.length > 0;
   const ingestDone = capturedShoots.length
     ? capturedShoots.every(isShootIngested)
-    : getFilterIngestedShootsByTone(project, tone).length > 0;
-  const cal = getFilterCalibrationProgress(project, tone);
+    : getFilterIngestedShootsByWavelength(project, wavelength).length > 0;
+  const cal = getFilterCalibrationProgress(project, wavelength);
   let calState = '';
   let calLabel = 'Calibration';
   if (cal.complete) {
@@ -11368,12 +11368,12 @@ function renderFilterPipelineBar(project, pi, group) {
   } else if (!cullDone) {
     stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Mark Cull complete (click Cull dot) before registration">Registration</button>`;
   } else if (regDone) {
-    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registered</button>`;
+    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${wavelength}" onclick="registerAndStackFilterWavelength(${pi},'${wavelength}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registered</button>`;
   } else {
-    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="registerAndStackFilterTone(${pi},'${tone}')" title="Register &amp; stack calibrated lights for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registration</button>`;
+    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${wavelength}" onclick="registerAndStackFilterWavelength(${pi},'${wavelength}')" title="Register &amp; stack calibrated lights for ${escapeAttr(group.name)}${escapeAttr(locNote)}">Registration</button>`;
   }
 
-  return `<div class="pipeline-filter-row flt-${tone}" data-filter="${escapeAttr(group.name)}">
+  return `<div class="pipeline-filter-row flt-${wavelength}" data-filter="${escapeAttr(group.name)}">
     <div class="pipeline-filter-name">${escapeHtml(group.name)}</div>
     <div class="pipeline-track">
       ${pipelineStepHtml('Capture', captureDone ? 'done' : '', { title: 'Capture' })}
@@ -11381,7 +11381,7 @@ function renderFilterPipelineBar(project, pi, group) {
       ${pipelineStepHtml(calLabel, calState, { title: 'Calibration to pp_light (all nights & locations for this filter)' })}
       ${pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
         clickable: true,
-        onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
+        onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${wavelength}')`,
         title: cullDone ? 'Cull marked done — click to clear' : 'Click when culling in Siril is finished',
       })}
       ${pipelineStepHtml('Registration', regDone ? 'done' : '', { title: 'Register & stack → working/result_<Filter>.fit' })}
@@ -11627,12 +11627,12 @@ async function runPreprocessShoot(pi, si) {
     logPath: result.logPath || logPath,
     scriptPath: result.scriptPath,
   };
-  // New calibration invalidates cull + registration for that filter tone
+  // New calibration invalidates cull + registration for that wavelength
   const ft = project.filterTargets[sh.filterIndex];
-  const tone = ft ? filterToneKey(ft.filter) : null;
-  if (tone) {
+  const wavelength = ft ? filterWavelengthKey(ft.filter) : null;
+  if (wavelength) {
     listPipelineFilterGroups(project)
-      .filter((g) => g.tone === tone)
+      .filter((g) => g.wavelength === wavelength)
       .forEach((g) => {
         g.fis.forEach((fi) => {
           if (project.filterTargets[fi]) {
@@ -11661,7 +11661,7 @@ function pathJoinWin(...parts) {
     .join('\\');
 }
 
-async function registerAndStackFilterTone(pi, tone) {
+async function registerAndStackFilterWavelength(pi, wavelength) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
     alert('Registration needs the Electron desktop app (npm start).');
     return;
@@ -11671,12 +11671,12 @@ async function registerAndStackFilterTone(pi, tone) {
     alert('Set Project directory first.');
     return;
   }
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = listPipelineFilterGroups(project).find((g) => g.wavelength === wavelength);
   if (!group || !isFilterReadyToRegister(project, group)) {
     alert('Complete Calibration for all ingested shoots of this filter (all locations), then mark Cull done.');
     return;
   }
-  const shootDirs = getFilterIngestedShootsByTone(project, tone)
+  const shootDirs = getFilterIngestedShootsByWavelength(project, wavelength)
     .filter(isShootCalibrated)
     .map((sh) => resolveShootCalibrateDir(project, sh))
     .filter(Boolean);
@@ -11687,7 +11687,7 @@ async function registerAndStackFilterTone(pi, tone) {
 
   const filter = String(group.name || '');
   const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
-  const btn = document.getElementById(`stack-btn-${pi}-${tone}`);
+  const btn = document.getElementById(`stack-btn-${pi}-${wavelength}`);
   if (btn) {
     btn.disabled = true;
     btn.textContent = 'Registering…';
@@ -11735,7 +11735,7 @@ async function registerAndStackFilter(pi, fi) {
   const project = data.projects[pi];
   const ft = project && project.filterTargets[fi];
   if (!ft) return;
-  await registerAndStackFilterTone(pi, filterToneKey(ft.filter));
+  await registerAndStackFilterWavelength(pi, filterWavelengthKey(ft.filter));
 }
 
 /** @deprecated */
@@ -11744,7 +11744,7 @@ async function registerAndStackProject(pi) {
   if (!project) return;
   for (const g of listPipelineFilterGroups(project)) {
     if (isFilterReadyToRegister(project, g)) {
-      await registerAndStackFilterTone(pi, g.tone);
+      await registerAndStackFilterWavelength(pi, g.wavelength);
     }
   }
 }
@@ -11752,13 +11752,13 @@ async function registerAndStackProject(pi) {
 /** True if this project already has a staged shoot for filter+night. */
 function hasIngestedShootForFilterNight(project, filterName, nightYmd) {
   if (!project || !filterName || !nightYmd) return false;
-  const want = filterToneKey(filterName);
+  const want = filterWavelengthKey(filterName);
   return (project.shoots || []).some((sh) => {
     if (!isShootIngested(sh)) return false;
     if (shootNightYmd(sh) !== nightYmd) return false;
     const ft = project.filterTargets[sh.filterIndex];
     if (!ft || !ft.filter) return false;
-    return filterToneKey(ft.filter) === want;
+    return filterWavelengthKey(ft.filter) === want;
   });
 }
 
@@ -11767,12 +11767,12 @@ function hasIngestedShootForFilterNight(project, filterName, nightYmd) {
  */
 function hasShootLogForFilterNight(project, filterName, nightYmd) {
   if (!project || !filterName || !nightYmd) return false;
-  const want = filterToneKey(filterName);
+  const want = filterWavelengthKey(filterName);
   return (project.shoots || []).some((sh) => {
     if (shootNightYmd(sh) !== nightYmd) return false;
     const ft = project.filterTargets[sh.filterIndex];
     if (!ft || !ft.filter) return false;
-    return filterToneKey(ft.filter) === want;
+    return filterWavelengthKey(ft.filter) === want;
   });
 }
 
@@ -11842,7 +11842,7 @@ function ingestStatusColumnHtml(status) {
   return `<span style="color:${color};" title="${escapeAttr(s.title || s.label || '')}">${escapeHtml(s.label || '—')}</span>`;
 }
 
-function filterToneKey(name) {
+function filterWavelengthKey(name) {
   const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   if (n === 'ha' || n === 'h' || n === 'halpha' || n === 'hα') return 'ha';
   if (n === 'oiii' || n === 'o3' || n === 'o' || n === 'oiii') return 'oiii';
@@ -11856,8 +11856,8 @@ function filterToneKey(name) {
   return 'other';
 }
 
-function filterToneColor(name) {
-  const key = filterToneKey(name);
+function filterWavelengthColor(name) {
+  const key = filterWavelengthKey(name);
   const light = document.documentElement.getAttribute('data-theme') === 'light';
   const map = light
     ? {
@@ -11888,11 +11888,11 @@ function filterToneColor(name) {
 }
 
 function filterSwatchHtml(name) {
-  return `<span class="ingest-flt-swatch" style="background:${filterToneColor(name)};"></span>`;
+  return `<span class="ingest-flt-swatch" style="background:${filterWavelengthColor(name)};"></span>`;
 }
 
 function filterLabelHtml(name) {
-  const key = filterToneKey(name);
+  const key = filterWavelengthKey(name);
   return `${filterSwatchHtml(name)}<span class="flt-${key}">${escapeHtml(name || '—')}</span>`;
 }
 
@@ -13373,7 +13373,7 @@ function setUiTheme(theme) {
   applyUiTheme(theme);
   if (data) data.uiTheme = normalizeUiTheme(theme);
   persistData();
-  // Re-render so inline filterToneColor() picks light/dark tones
+  // Re-render so inline filterWavelengthColor() picks light/dark colors
   if (data && typeof renderProjects === 'function') renderProjects();
 }
 

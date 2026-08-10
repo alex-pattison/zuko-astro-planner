@@ -60,7 +60,7 @@ Keep dated notes terse. Use the template below when useful.
 - **Layout:** Project directory is `NGC6960_Q326` (no night folder). Filter / `_calibration` / `working` live at that root (same shape as NAN Dev).
 - **Disk:** Flattened `260725\` up into project root on H: Beta and F: Dev (`scripts/flatten-veil-night-folder.js`).
 - **Dumps:** Prefer `asiair/<YYMMDD>/Autorun|Plan` per night; legacy root `Autorun`/`Plan` still discovered. Shoot Log → **Import ASIAIR dump** copies into `asiair/<YYMMDD>/` without staging. Live ASIAIR connect/watch deferred.
-- **UI:** Project directory path ellipsis; light-mode darker SII/Ha filter tones.
+- **UI:** Project directory path ellipsis; light-mode darker SII/Ha filter colors.
 
 ### 2026-08-03 — build 9 — Filter dropdown + cull skip + log heartbeat
 - Add Filter Target: **dropdown** of wheel filters (L/R/G/B/SII/Ha/OIII/Hb). Editable wheel filters → backlog.
@@ -70,7 +70,7 @@ Keep dated notes terse. Use the template below when useful.
 ### 2026-08-03 — build 9 — Calibration/Registration rename + working/ + live logs
 - Renamed pipeline steps: **Calibration** (was PP1), **Registration** (was PP2). Shoot button: Calibrate.
 - Final stacks copy to `<projectDir>/working/result_<Filter>.fit` (create `working/` if missing). Intermediates stay in `<Filter>/_stack/`.
-- Pipeline bars grouped by **filter name** (locations combine). Color-coded by filter tone (Ha/OIII/SII…); done dots green again.
+- Pipeline bars grouped by **filter wavelength** (locations combine). Color-coded by wavelength (Ha/OIII/SII…); done dots green again.
 - Live log via IPC `zuko-siril-log` + file poll; banner written immediately so the modal isn’t empty while Siril buffers.
 - Seeded `Ha/260722_Ha_B9_Test50` (50 lights) for longer Calibration/log testing (`scripts/seed-ha-50-test.js`).
 

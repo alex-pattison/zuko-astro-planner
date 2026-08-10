@@ -25,7 +25,7 @@
     return map[key] || s;
   }
 
-  function filterToneKey(name) {
+  function filterWavelengthKey(name) {
     const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     if (n === 'ha' || n === 'h' || n === 'halpha') return 'ha';
     if (n === 'oiii' || n === 'o3' || n === 'o') return 'oiii';
@@ -48,12 +48,12 @@
 
   function hasShootLogForFilterNight(project, filterName, nightYmd) {
     if (!project || !filterName || !nightYmd) return false;
-    const want = filterToneKey(filterName);
+    const want = filterWavelengthKey(filterName);
     return (project.shoots || []).some((sh) => {
       if (shootNightYmd(sh) !== nightYmd) return false;
       const ft = project.filterTargets && project.filterTargets[sh.filterIndex];
       if (!ft || !ft.filter) return false;
-      return filterToneKey(ft.filter) === want;
+      return filterWavelengthKey(ft.filter) === want;
     });
   }
 
@@ -362,7 +362,7 @@
 
   return {
     normalizeFilterName,
-    filterToneKey,
+    filterWavelengthKey,
     yymmddFromNightYmd,
     shootNightYmd,
     hasShootLogForFilterNight,
