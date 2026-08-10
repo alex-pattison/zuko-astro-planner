@@ -23,10 +23,11 @@ Keep dated notes terse. Use the template below when useful.
 ## Log
 
 ### 2026-08-09 — build 14 — Imaging Pipeline merges Shoot Log + channel flow
-- Replaced separate Shoot Log table + Preprocessing Pipeline with one **Imaging Pipeline**: per-filter channels, night rails Capture→Import→Calibration, multi-night SVG fan-in into Cull→Registration.
+- Replaced separate Shoot Log table + Preprocessing Pipeline with one **Imaging Pipeline**: per-filter channels, night rails Capture→Import→Calibrate, multi-night SVG fan-in into Cull→Register.
 - Channel `+` locks shoot modal to that filter; rollup is `N nights · captured/planned`.
 - Night chrome: row/chevron expands details; date edits; Edit/Remove in the detail panel (no always-on ✕).
 - Merge lines: measured Calibration→Cull orthogonal SVG, redrawn on add/remove/resize.
+- UX polish: single- and multi-night share the same rails|gutter|trunk grid; fixed step widths; shared `--pipeline-line` color; labels spaced off dots.
 
 ### 2026-08-09 — build 14 — pipeline: per-night Capture→Cal, channel Cull/Reg
 - *(superseded by Imaging Pipeline merge)* Per-night Capture→Import→Calibration; Cull + Registration per filter.

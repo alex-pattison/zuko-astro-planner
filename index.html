@@ -1037,6 +1037,11 @@
     margin-bottom: 4px;
   }
   .pipeline-channel {
+    --pipeline-line: var(--gray);
+    --pipeline-line-done: var(--green);
+    --pipeline-step-w: 6.25rem;
+    --pipeline-dot: 10px;
+    --pipeline-dot-center: 5px; /* half of dot */
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -1052,7 +1057,7 @@
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .pipeline-channel-header-left {
     display: flex;
@@ -1109,16 +1114,19 @@
   html[data-theme="light"] .pipeline-channel.flt-r .pipeline-channel-title { color: #dc2626; }
   html[data-theme="light"] .pipeline-channel.flt-g .pipeline-channel-title { color: #15803d; }
   html[data-theme="light"] .pipeline-channel.flt-b .pipeline-channel-title { color: #1d4ed8; }
+
+  /* Multi-night: night rails | gutter | Cull/Reg trunk */
   .pipeline-merge {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) 36px auto;
+    align-items: start;
     column-gap: 0;
     width: 100%;
     min-width: 0;
   }
   .pipeline-merge-nights {
+    grid-column: 1;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -1126,18 +1134,24 @@
     z-index: 1;
     min-width: 0;
   }
-  .pipeline-merge-bridge {
-    display: none;
+  .pipeline-merge-gutter {
+    grid-column: 2;
+    position: relative;
+    align-self: stretch;
+    min-width: 36px;
+    z-index: 0;
+    pointer-events: none;
   }
   .pipeline-merge-trunk {
+    grid-column: 3;
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 0 0 0 36px;
+    align-items: flex-start;
     position: relative;
     z-index: 1;
     flex-shrink: 0;
+    padding: 0;
   }
+  /* Full-bleed connector layer; paths only run at row-dot Y / gutter X so details stay clear. */
   .pipeline-merge-svg {
     position: absolute;
     inset: 0;
@@ -1149,26 +1163,16 @@
   }
   .pipeline-port {
     position: absolute;
-    width: 2px;
-    height: 2px;
-    border-radius: 0;
+    width: 1px;
+    height: 1px;
     pointer-events: none;
     opacity: 0;
   }
-  .pipeline-port-source {
-    /* Anchor at Calibration dot center-right — measured by layout JS */
-    left: 50%;
-    top: 5.5px;
-    right: auto;
-    bottom: auto;
-    transform: translate(5.5px, -50%);
-  }
+  .pipeline-port-source,
   .pipeline-port-sink {
-    /* Anchor at Cull dot center-left */
     left: 50%;
-    top: 5.5px;
-    bottom: auto;
-    transform: translate(-5.5px, -50%);
+    top: var(--pipeline-dot-center);
+    transform: translate(-50%, -50%);
   }
   .pipeline-merge .pipeline-step:last-child,
   .pipeline-merge-trunk .pipeline-step:first-child {
@@ -1177,24 +1181,41 @@
   .pipeline-merge .pipeline-shoot-row {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    overflow: visible;
   }
+  .pipeline-merge .pipeline-channel-row {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    overflow: visible;
+  }
+
+  /* Shared night / trunk / single-night row chrome */
   .pipeline-straight-row,
-  .pipeline-filter-row {
+  .pipeline-filter-row,
+  .pipeline-channel-row {
     display: grid;
-    grid-template-columns: 1.1rem 5.5rem minmax(6rem, 9rem) minmax(300px, 1fr);
-    align-items: center;
-    column-gap: 10px;
-    row-gap: 6px;
+    grid-template-columns: 1.1rem 5.75rem 8.5rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: 12px;
     padding: 10px 12px;
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 4px;
   }
   .pipeline-straight-row {
-    grid-template-columns: 1.1rem 5.5rem minmax(6rem, 9rem) minmax(340px, 1fr) auto;
+    grid-template-columns: 1.1rem 5.75rem 8.5rem minmax(0, 1fr) auto;
   }
-  .pipeline-channel .pipeline-filter-row { border-left: none; }
-  .pipeline-shoot-row {
+  .pipeline-channel-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    grid-template-columns: none;
+    min-height: 0;
+  }
+  .pipeline-channel .pipeline-filter-row,
+  .pipeline-channel .pipeline-channel-row { border-left: none; }
+  .pipeline-shoot-row,
+  .pipeline-straight-row {
     cursor: pointer;
   }
   .pipeline-shoot-row:hover,
@@ -1204,8 +1225,8 @@
   .pipeline-night-chevron {
     width: 1.1rem;
     height: 1.1rem;
+    margin-top: 2px;
     padding: 0;
-    margin: 0;
     border: none;
     background: transparent;
     color: var(--gray);
@@ -1224,10 +1245,12 @@
   .pipeline-night-date {
     border: none;
     background: transparent;
-    padding: 0;
+    padding: 1px 0 0;
     margin: 0;
     text-align: left;
     font: inherit;
+    font-family: var(--mono);
+    font-size: 12px;
     font-weight: 500;
     color: var(--text2);
     cursor: pointer;
@@ -1241,29 +1264,14 @@
     text-decoration: underline;
     text-underline-offset: 2px;
   }
-  .pipeline-shoot-row .pipeline-filter-name,
-  .pipeline-straight-row .pipeline-filter-name {
-    font-weight: 500;
-    color: var(--text2);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .pipeline-night-meta {
     font-family: var(--mono);
     font-size: 10px;
     color: var(--gray);
+    padding-top: 3px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .pipeline-night-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: 0;
-    flex-shrink: 0;
-    justify-self: end;
   }
   .pipeline-night-detail {
     margin-top: 6px;
@@ -1297,31 +1305,16 @@
     padding-top: 8px;
     border-top: 1px dashed var(--border);
   }
-  .pipeline-night-detail-actions .mini-btn {
-    margin-top: 0;
-  }
+  .pipeline-night-detail-actions .mini-btn { margin-top: 0; }
   .pipeline-night-detail-actions .pipeline-night-remove {
     color: var(--red);
     border-color: color-mix(in srgb, var(--red) 35%, var(--border));
   }
-  .pipeline-track-full { flex: 1; min-width: 280px; }
   .pipeline-empty-shoots {
     font-size: 11px;
     color: var(--gray);
-    padding: 6px 8px;
+    padding: 8px 4px;
   }
-  .pipeline-track-channel { max-width: none; flex: 0 0 auto; min-width: 160px; }
-  .pipeline-channel-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    padding: 8px 12px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-  }
-  .pipeline-channel-row .pipeline-filter-name { display: none; }
   .pipeline-night-wrap { position: relative; }
 
   .pipeline-step.locked {
@@ -1366,47 +1359,58 @@
 
   .pipeline-track {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     gap: 0;
-    flex: 1 1 auto;
-    min-width: 280px;
-    width: 100%;
+    flex: 0 1 auto;
+    width: max-content;
+    max-width: 100%;
+    min-width: 0;
+    padding-top: 1px;
+  }
+  .pipeline-track-channel {
+    flex: 0 0 auto;
   }
   .pipeline-step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     position: relative;
-    flex: 1 1 0;
-    min-width: 4.75rem;
-    padding: 0 2px;
+    flex: 0 0 var(--pipeline-step-w);
+    width: var(--pipeline-step-w);
+    min-width: var(--pipeline-step-w);
+    padding: 0;
+    box-sizing: border-box;
   }
   .pipeline-step:not(:last-child)::after {
     content: '';
     position: absolute;
-    top: 6px;
-    left: calc(50% + 7px);
-    right: calc(-50% + 7px);
+    top: var(--pipeline-dot-center);
+    left: calc(50% + (var(--pipeline-dot) / 2) + 1px);
+    width: calc(var(--pipeline-step-w) - var(--pipeline-dot) - 2px);
     height: 2px;
-    background: var(--border);
+    margin-top: -1px;
+    background: var(--pipeline-line);
     z-index: 0;
   }
   .pipeline-step.done:not(:last-child)::after {
-    background: var(--green);
+    background: var(--pipeline-line-done);
   }
   .pipeline-dot {
-    width: 11px;
-    height: 11px;
+    width: var(--pipeline-dot);
+    height: var(--pipeline-dot);
     border-radius: 50%;
-    border: 2px solid var(--border);
+    border: 2px solid var(--pipeline-line);
     background: var(--bg2);
     position: relative;
     z-index: 1;
+    box-sizing: border-box;
+    flex-shrink: 0;
   }
   .pipeline-step.done .pipeline-dot {
-    border-color: var(--green);
-    background: var(--green);
+    border-color: var(--pipeline-line-done);
+    background: var(--pipeline-line-done);
   }
   .pipeline-step.partial .pipeline-dot {
     border-color: var(--yellow);
@@ -1414,6 +1418,7 @@
   }
   .pipeline-step.stub .pipeline-dot {
     border-style: dashed;
+    border-color: var(--pipeline-line);
     background: transparent;
   }
   .pipeline-step.clickable {
@@ -1424,17 +1429,22 @@
   }
   .pipeline-step-label {
     font-family: var(--mono);
-    font-size: 8px;
+    font-size: 9px;
+    line-height: 1.15;
     color: var(--gray);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: normal;
+    max-width: 100%;
+    padding: 0 2px;
   }
   .pipeline-step.done .pipeline-step-label,
   .pipeline-step.partial .pipeline-step-label { color: var(--text2); }
   .pipeline-stack-btn {
     flex-shrink: 0;
-    margin-top: 0 !important;
+    margin-top: 1px !important;
+    align-self: flex-start;
   }
   .siril-progress-overlay {
     display: none;
@@ -7431,58 +7441,71 @@ function observePipelineMerges() {
   }
 }
 
-/** Orthogonal fan-in: Calibration dots → spine → Cull (continuous SVG paths). */
+/** Continuous Calibrate → spine → Cull; spine sits in the gutter between cards. */
 function layoutPipelineMerges() {
   document.querySelectorAll('[data-pipeline-merge]').forEach(layoutOnePipelineMerge);
 }
 
-function pipelineMergeAnchor(portEl, rootRect, side) {
-  const step = portEl.closest('.pipeline-step') || portEl;
-  const dot = step.querySelector('.pipeline-dot') || portEl;
-  const r = dot.getBoundingClientRect();
-  const y = r.top + r.height / 2 - rootRect.top;
-  // Overlap the stroke into the dot by 1px so joins never show a hairline gap.
-  if (side === 'out') {
-    return { x: r.right - rootRect.left - 1, y };
-  }
-  return { x: r.left - rootRect.left + 1, y };
-}
-
 function layoutOnePipelineMerge(root) {
   const svg = root.querySelector('.pipeline-merge-svg');
-  if (!svg) return;
+  const nights = root.querySelector('.pipeline-merge-nights');
+  const trunk = root.querySelector('.pipeline-merge-trunk');
+  if (!svg || !nights || !trunk) return;
   const sources = Array.from(root.querySelectorAll('[data-pipeline-source]'));
   const sinkEl = root.querySelector('[data-pipeline-sink]');
-  if (sources.length < 2 || !sinkEl) {
+  if (!sources.length || !sinkEl) {
     svg.innerHTML = '';
     return;
   }
 
   const rootRect = root.getBoundingClientRect();
+  const nightsRect = nights.getBoundingClientRect();
+  const trunkRect = trunk.getBoundingClientRect();
   const w = Math.max(1, root.clientWidth);
   const h = Math.max(1, root.clientHeight);
   svg.setAttribute('width', String(w));
   svg.setAttribute('height', String(h));
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
-  const pts = sources.map((el) => pipelineMergeAnchor(el, rootRect, 'out'));
-  const sinkPt = pipelineMergeAnchor(sinkEl, rootRect, 'in');
+  const pts = sources.map((el) => {
+    const step = el.closest('.pipeline-step') || el;
+    const dot = step.querySelector('.pipeline-dot') || el;
+    const r = dot.getBoundingClientRect();
+    return {
+      x: r.right - rootRect.left - 1,
+      y: r.top + r.height / 2 - rootRect.top,
+    };
+  });
+  const sinkStep = sinkEl.closest('.pipeline-step') || sinkEl;
+  const sinkDot = sinkStep.querySelector('.pipeline-dot') || sinkEl;
+  const sinkR = sinkDot.getBoundingClientRect();
+  const sinkPt = {
+    x: sinkR.left - rootRect.left + 1,
+    y: sinkR.top + sinkR.height / 2 - rootRect.top,
+  };
 
-  const maxSourceX = Math.max(...pts.map((p) => p.x));
-  const gap = sinkPt.x - maxSourceX;
-  // Spine sits in the gutter between night rails and Cull.
-  const spineX = maxSourceX + Math.max(14, Math.min(28, gap * 0.5));
-  if (!(spineX < sinkPt.x - 2)) {
-    // Not enough room — still draw straight-ish elbows.
+  // Spine centered in the gap between night cards and Cull card.
+  const gapLeft = nightsRect.right - rootRect.left;
+  const gapRight = trunkRect.left - rootRect.left;
+  const spineX = gapLeft + Math.max(8, (gapRight - gapLeft) / 2);
+
+  const ys = pts.map((p) => p.y);
+  const minY = Math.min(...ys, sinkPt.y);
+  const maxY = Math.max(...ys, sinkPt.y);
+
+  const parts = [];
+  pts.forEach((p) => {
+    parts.push(`M ${p.x.toFixed(1)} ${p.y.toFixed(1)} H ${spineX.toFixed(1)}`);
+  });
+  if (sources.length > 1 || Math.abs(ys[0] - sinkPt.y) > 0.5) {
+    parts.push(`M ${spineX.toFixed(1)} ${minY.toFixed(1)} V ${maxY.toFixed(1)}`);
   }
+  parts.push(`M ${spineX.toFixed(1)} ${sinkPt.y.toFixed(1)} H ${sinkPt.x.toFixed(1)}`);
 
-  // One continuous path per night → Cull so every segment is connected.
-  const parts = pts.map((p) => (
-    `M ${p.x.toFixed(1)} ${p.y.toFixed(1)} H ${spineX.toFixed(1)} V ${sinkPt.y.toFixed(1)} H ${sinkPt.x.toFixed(1)}`
-  ));
-
-  const stroke = getComputedStyle(root).getPropertyValue('--border').trim() || '#64748b';
-  svg.innerHTML = `<path d="${parts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>`;
+  const stroke = getComputedStyle(root).getPropertyValue('--pipeline-line').trim()
+    || getComputedStyle(root).getPropertyValue('--gray').trim()
+    || '#64748b';
+  svg.innerHTML = `<path d="${parts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>`;
 }
 
 function sortShootLog(pi, key) {
@@ -11710,7 +11733,7 @@ function renderNightCaptureImportCalSteps(project, pi, sh, si, opts = {}) {
   return [
     pipelineStepHtml('Capture', s.captureDone ? 'done' : '', s.captureOpts),
     pipelineStepHtml('Import', s.ingestDone ? 'done' : '', s.importOpts),
-    pipelineStepHtml('Calibration', s.calDone ? 'done' : '', calOpts),
+    pipelineStepHtml('Calibrate', s.calDone ? 'done' : '', calOpts),
   ].join('');
 }
 
@@ -11751,7 +11774,7 @@ function channelCullRegParts(project, pi, group, opts = {}) {
         : 'Calibrate every imported night before marking Cull',
     port: opts.sinkPort ? 'sink' : undefined,
   });
-  const regStep = pipelineStepHtml('Registration', regDone ? 'done' : '', {
+  const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', {
     title: 'Register & stack all calibrated nights → working/result_<Filter>.fit',
   });
 
@@ -11794,7 +11817,7 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
   </div>`;
 }
 
-/** Night rail: Capture→Import→Calibration only (feeds into channel trunk when multi). */
+/** Night rail: Capture→Import→Calibrate only (feeds into channel trunk when multi). */
 function renderShootPipelineRow(project, pi, group, sh, si) {
   const { dateLabel, code, label, chip } = nightIdentity(project, group, sh);
   const detailOpen = nightPipelineDetailOpen.has(`${pi}:${si}`);
@@ -11811,7 +11834,7 @@ function renderShootPipelineRow(project, pi, group, sh, si) {
   </div>`;
 }
 
-/** Single night: one straight Capture→Import→Cal→Cull→Registration line. */
+/** Single night: one card, Capture→Import→Calibrate→Cull→Register. */
 function renderStraightChannelLine(project, pi, group, sh, si) {
   const parts = channelCullRegParts(project, pi, group);
   if (!parts) return '';
@@ -11822,7 +11845,7 @@ function renderStraightChannelLine(project, pi, group, sh, si) {
       <button type="button" class="pipeline-night-chevron ${detailOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleNightPipelineDetail(${pi},${si})" aria-expanded="${detailOpen ? 'true' : 'false'}" title="Night details">▶</button>
       <button type="button" class="pipeline-night-date" onclick="event.stopPropagation(); editShoot(${pi},${si})" title="Edit ${escapeAttr(code)}">${escapeHtml(label)}</button>
       <div class="pipeline-night-meta" title="${escapeAttr(chip.title)}">${escapeHtml(chip.text)}</div>
-      <div class="pipeline-track pipeline-track-full">
+      <div class="pipeline-track">
         ${renderNightCaptureImportCalSteps(project, pi, sh, si)}
         ${parts.cullStep}
         ${parts.regStep}
@@ -11833,11 +11856,11 @@ function renderStraightChannelLine(project, pi, group, sh, si) {
   </div>`;
 }
 
-/** Multi-night trunk: Cull + Registration after reverse-tree merge. */
+/** Multi-night trunk: Cull + Register after reverse-tree merge. */
 function renderFilterChannelPipelineFooter(project, pi, group) {
   const parts = channelCullRegParts(project, pi, group, { sinkPort: true });
   if (!parts) return '';
-  return `<div class="pipeline-filter-row pipeline-channel-row" data-filter="${escapeAttr(group.name)}">
+  return `<div class="pipeline-channel-row" data-filter="${escapeAttr(group.name)}">
     <div class="pipeline-track pipeline-track-channel">
       ${parts.cullStep}
       ${parts.regStep}
@@ -11848,7 +11871,7 @@ function renderFilterChannelPipelineFooter(project, pi, group) {
 
 /**
  * One channel block per filter.
- * 0–1 nights: straight line. 2+ nights: vertical fan-in merge into Cull→Registration.
+ * 0 nights: empty. 1 night: single card. 2+ nights: merge rails → Cull/Reg.
  */
 function renderFilterPipelineBar(project, pi, group) {
   const f = getPrimaryFilterTarget(project, group);
@@ -11886,6 +11909,7 @@ function renderFilterPipelineBar(project, pi, group) {
     body = `<div class="pipeline-merge" data-pipeline-merge>
       <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
       <div class="pipeline-merge-nights">${shootRows}</div>
+      <div class="pipeline-merge-gutter" aria-hidden="true"></div>
       <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
     </div>`;
   }
