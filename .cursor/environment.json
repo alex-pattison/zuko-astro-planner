@@ -1,0 +1,5 @@
+{
+  "name": "Zuko Astro Planner",
+  "user": "ubuntu",
+  "install": "npm ci"
+}
