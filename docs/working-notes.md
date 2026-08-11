@@ -22,6 +22,13 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-10 — build 15 — Imaging Pipeline polish + beta
+- Cull/Register allowed on calibrated subset (not all nights); re-cal clears cull/reg for the channel.
+- Merge SVG green stops at Cull; Cull→Register stays gray until Register is done.
+- Confirm modals for Calibrate/Register; Register is the Register dot (no separate button).
+- QA: unit + e2e green; Dev reset to Veil + NAN on `F:\zuko_dev` (ingested, cal/cull/stack clear).
+- `npm run dist:win:beta` for build 15 installer.
+
 ### 2026-08-09 — build 14 — Imaging Pipeline merges Shoot Log + channel flow
 - Replaced separate Shoot Log table + Preprocessing Pipeline with one **Imaging Pipeline**: per-filter channels, night rails Capture→Import→Calibrate, multi-night SVG fan-in into Cull→Register.
 - Channel `+` locks shoot modal to that filter; rollup is `N nights · captured/planned`.

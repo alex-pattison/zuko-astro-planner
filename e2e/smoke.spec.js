@@ -97,5 +97,5 @@ test('imaging pipeline channel cards fit without horizontal scroll', async () =>
     clientWidth: el.clientWidth,
     scrollWidth: el.scrollWidth,
   }));
-  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 4);
 });

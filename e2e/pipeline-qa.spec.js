@@ -130,7 +130,9 @@ test('Imaging Pipeline: night expand does not remove merge path', async () => {
   await ha.locator('.pipeline-night-chevron').first().click();
   await expect(ha.locator('.pipeline-night-detail').first()).toBeVisible();
   await window.waitForTimeout(80);
-  const d = await ha.locator('.pipeline-merge-svg path').getAttribute('d');
+  const pathCount = await ha.locator('.pipeline-merge-svg path').count();
+  expect(pathCount).toBeGreaterThan(0);
+  const d = await ha.locator('.pipeline-merge-svg path').first().getAttribute('d');
   expect(d && d.length).toBeGreaterThan(10);
   await ha.locator('.pipeline-night-chevron').first().click();
 });

@@ -27,6 +27,8 @@ const KEEP_SHOOTS = new Set([
 const SYNTHETIC_DIRS = [
   path.join(PROJECT, 'Ha', '260721_Ha_B9_Home'),
   path.join(PROJECT, 'Ha', '260722_Ha_B9_Test50'),
+  path.join(PROJECT, 'Ha', '260901_Ha_B9_Home'),
+  path.join(PROJECT, 'Ha', '260902_Ha_B9_Home'),
   path.join(PROJECT, 'OIII', '260721_OIII_B9_Home'),
   path.join(PROJECT, 'SII', '260721_SII_B9_Home'),
 ];

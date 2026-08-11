@@ -1493,7 +1493,15 @@
     background: var(--pipeline-line);
     z-index: 0;
   }
+  /* Night rails: green when the left step is done. */
   .pipeline-step.done:not(:last-child)::after {
+    background: var(--pipeline-line-done);
+  }
+  /* Trunk Cull→Register: stay gray until Register is also done (don't run past Cull). */
+  .pipeline-track-channel .pipeline-step.done:not(:last-child)::after {
+    background: var(--pipeline-line);
+  }
+  .pipeline-track-channel .pipeline-step.done:has(+ .pipeline-step.done)::after {
     background: var(--pipeline-line-done);
   }
   .pipeline-dot {
@@ -5045,7 +5053,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 14, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 15, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -7736,6 +7744,13 @@ function layoutOnePipelineMerge(root) {
   const ox = rootRect.left;
   const oy = rootRect.top;
   const snap = (n) => Math.round(n);
+  const cs = getComputedStyle(root);
+  const idleStroke = cs.getPropertyValue('--pipeline-line').trim()
+    || cs.getPropertyValue('--gray').trim()
+    || '#64748b';
+  const doneStroke = cs.getPropertyValue('--pipeline-line-done').trim()
+    || cs.getPropertyValue('--green').trim()
+    || '#22c55e';
 
   const pts = sources.map((el) => {
     const step = el.closest('.pipeline-step') || el;
@@ -7744,6 +7759,7 @@ function layoutOnePipelineMerge(root) {
     return {
       x: snap(r.right - ox),
       y: snap(r.top + r.height / 2 - oy),
+      done: !!(step && step.classList.contains('done')),
     };
   });
   const sinkStep = sinkEl.closest('.pipeline-step') || sinkEl;
@@ -7753,6 +7769,7 @@ function layoutOnePipelineMerge(root) {
     x: snap(sinkR.left - ox),
     y: snap(sinkR.top + sinkR.height / 2 - oy),
   };
+  const cullDone = !!(sinkStep && sinkStep.classList.contains('done'));
 
   const gutter = root.querySelector('.pipeline-merge-gutter');
   const gutterRect = gutter ? gutter.getBoundingClientRect() : null;
@@ -7760,32 +7777,44 @@ function layoutOnePipelineMerge(root) {
     ? snap(gutterRect.left + gutterRect.width / 2 - ox)
     : snap((nights.getBoundingClientRect().right + trunk.getBoundingClientRect().left) / 2 - ox);
 
-  const ys = pts.map((p) => p.y);
-  const minY = Math.min(...ys, sinkPt.y);
-  const maxY = Math.max(...ys, sinkPt.y);
-
-  const parts = [];
-  pts.forEach((p) => {
-    parts.push(`M${p.x} ${p.y}H${spineX}`);
-  });
-  if (sources.length > 1 || Math.abs(ys[0] - sinkPt.y) > 0.5) {
-    parts.push(`M${spineX} ${minY}V${maxY}`);
-  }
-  parts.push(`M${spineX} ${sinkPt.y}H${sinkPt.x}`);
-
-  const stroke = getComputedStyle(root).getPropertyValue('--pipeline-line').trim()
-    || getComputedStyle(root).getPropertyValue('--gray').trim()
-    || '#64748b';
   svg.replaceChildren();
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', parts.join(''));
-  path.setAttribute('fill', 'none');
-  path.setAttribute('stroke', stroke);
-  path.setAttribute('stroke-width', '2');
-  path.setAttribute('stroke-linecap', 'square');
-  path.setAttribute('stroke-linejoin', 'miter');
-  path.setAttribute('shape-rendering', 'crispEdges');
-  svg.appendChild(path);
+  const addPath = (d, stroke) => {
+    if (!d) return;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', stroke);
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'square');
+    path.setAttribute('stroke-linejoin', 'miter');
+    path.setAttribute('shape-rendering', 'crispEdges');
+    svg.appendChild(path);
+  };
+
+  // Calibrate → spine: green only after Cull is marked (path ends at Cull, not Register).
+  pts.forEach((p) => {
+    addPath(`M${p.x} ${p.y}H${spineX}`, (cullDone && p.done) ? doneStroke : idleStroke);
+  });
+
+  // Spine + Cull feed: green only for calibrated nights, and only up to Cull’s Y (never past it).
+  const doneYs = pts.filter((p) => p.done).map((p) => p.y);
+  const idleYs = pts.filter((p) => !p.done).map((p) => p.y);
+  const ys = pts.map((p) => p.y);
+  if (sources.length > 1 || (ys.length && Math.abs(ys[0] - sinkPt.y) > 0.5)) {
+    // Gray spine for the full fan (includes incomplete nights).
+    addPath(`M${spineX} ${Math.min(...ys, sinkPt.y)}V${Math.max(...ys, sinkPt.y)}`, idleStroke);
+  }
+  addPath(`M${spineX} ${sinkPt.y}H${sinkPt.x}`, idleStroke);
+
+  if (cullDone && doneYs.length) {
+    // Green overlay: each done night → spine → Cull, clamped to sink Y (does not pass Cull).
+    doneYs.forEach((y) => {
+      if (Math.abs(y - sinkPt.y) > 0.5) {
+        addPath(`M${spineX} ${y}V${sinkPt.y}`, doneStroke);
+      }
+    });
+    addPath(`M${spineX} ${sinkPt.y}H${sinkPt.x}`, doneStroke);
+  }
 }
 
 function sortShootLog(pi, key) {
@@ -11914,11 +11943,14 @@ function getFilterIngestedShootsByTone(project, tone) {
 function getFilterCalibrationProgress(project, tone) {
   const ingested = getFilterIngestedShootsByTone(project, tone);
   const calibrated = ingested.filter(isShootCalibrated);
+  const allShoots = getShootsForFilterTone(project, tone);
   return {
     ingestedCount: ingested.length,
     calibratedCount: calibrated.length,
+    shootCount: allShoots.length,
     complete: ingested.length > 0 && calibrated.length === ingested.length,
     partial: calibrated.length > 0 && calibrated.length < ingested.length,
+    hasCalibrated: calibrated.length > 0,
   };
 }
 
@@ -11931,11 +11963,15 @@ function isFilterCullComplete(f) {
   return !!(f && f.cullMeta && f.cullMeta.completedAt);
 }
 
+/** Cull/Register may run on any calibrated subset — not every night must be done. */
+function isFilterReadyToCull(project, tone) {
+  return getFilterCalibrationProgress(project, tone).hasCalibrated;
+}
+
 function isFilterReadyToRegister(project, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f) return false;
-  const cal = getFilterCalibrationProgress(project, group.tone);
-  return cal.complete && isFilterCullComplete(f);
+  return isFilterReadyToCull(project, group.tone) && isFilterCullComplete(f);
 }
 
 function toggleFilterCull(pi, tone) {
@@ -11945,16 +11981,22 @@ function toggleFilterCull(pi, tone) {
   if (!group) return;
   const f = getPrimaryFilterTarget(project, group);
   const cal = getFilterCalibrationProgress(project, tone);
-  if (!cal.complete) {
-    alert('Finish Calibration for every imported shoot-log night of this filter before marking Cull done.');
+  if (!cal.hasCalibrated) {
+    alert('Calibrate at least one imported night of this filter before marking Cull done.');
     return;
   }
   if (isFilterCullComplete(f)) {
     f.cullMeta = null;
   } else {
+    const subsetNote = cal.partial || cal.calibratedCount < cal.shootCount
+      ? ` Using ${cal.calibratedCount} calibrated night(s)` +
+        (cal.ingestedCount ? ` of ${cal.ingestedCount} imported` : '') +
+        ' — later nights can be added after re-cal / re-cull / re-register.'
+      : '';
     f.cullMeta = {
       completedAt: new Date().toISOString(),
-      note: 'Marked complete (manual / Siril cull stub). Registration uses remaining process/pp_light_*.fit only — delete or list culled names in process/culled.txt.',
+      calibratedCount: cal.calibratedCount,
+      note: 'Marked complete (manual / Siril cull stub). Registration uses remaining process/pp_light_*.fit only — delete or list culled names in process/culled.txt.' + subsetNote,
     };
   }
   // Mirror onto sibling filterTargets with same filter tone (location variants)
@@ -12101,10 +12143,10 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   let regOpts;
   if (!hasProjectDir) {
     regOpts = { locked: true, title: 'Set Project directory first' };
-  } else if (!cal.complete) {
+  } else if (!cal.hasCalibrated) {
     regOpts = {
       locked: true,
-      title: `Calibrate every imported ${group.name} night first (${cal.calibratedCount}/${cal.ingestedCount || 0})`,
+      title: `Calibrate at least one ${group.name} night first (${cal.calibratedCount}/${cal.ingestedCount || 0} calibrated)`,
     };
   } else if (!cullDone) {
     regOpts = { locked: true, title: 'Mark Cull complete (click Cull dot) before registration' };
@@ -12129,9 +12171,11 @@ function channelCullRegParts(project, pi, group, opts = {}) {
     onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
     title: cullDone
       ? 'Cull marked done for this channel — click to clear'
-      : cal.complete
-        ? 'Click when culling in Siril is finished (all nights)'
-        : 'Calibrate every imported night before marking Cull',
+      : cal.hasCalibrated
+        ? (cal.partial || cal.calibratedCount < nightCount
+          ? `Click when culling is finished (${cal.calibratedCount} calibrated night(s) — more can be added later)`
+          : 'Click when culling in Siril is finished')
+        : 'Calibrate at least one night before marking Cull',
     port: opts.sinkPort ? 'sink' : undefined,
   });
   const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', regOpts);
@@ -12713,7 +12757,7 @@ function openRegisterConfirm(pi, tone) {
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
   if (!group || !isFilterReadyToRegister(project, group)) {
-    alert('Complete Calibration for all ingested shoots of this filter (all locations), then mark Cull done.');
+    alert('Calibrate at least one night of this filter and mark Cull done before registration.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
@@ -12749,9 +12793,14 @@ function openRegisterConfirm(pi, tone) {
     <div class="k" style="margin-bottom:4px;color:var(--gray);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.04em;">Nights included</div>
     <ul class="pipeline-job-list">${nightLis}</ul>
   </div>`;
+  const cal = getFilterCalibrationProgress(project, tone);
+  const allNights = getShootsForFilterTone(project, tone).length;
   const notesHtml = `
-    <div><strong>Siril</strong> will register &amp; stack all listed nights → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
+    <div><strong>Siril</strong> will register &amp; stack the listed calibrated nights → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
     <div style="margin-top:6px;">Frames listed in <code>process/culled.txt</code> (or deleted) are skipped. Cull is already marked done for this channel.</div>
+    ${shoots.length < allNights
+      ? `<div style="margin-top:6px;" class="warn">Only <strong>${shoots.length}</strong> of <strong>${allNights}</strong> nights are calibrated — uncalibrated nights are left out. Re-calibrate / re-cull / re-register later to include them.</div>`
+      : ''}
     ${rerun ? '<div style="margin-top:6px;" class="warn">This replaces the existing registration result.</div>' : ''}
   `;
   openPipelineJobConfirm({
@@ -12856,7 +12905,7 @@ async function registerAndStackFilterTone(pi, tone) {
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
   if (!group || !isFilterReadyToRegister(project, group)) {
-    alert('Complete Calibration for all ingested shoots of this filter (all locations), then mark Cull done.');
+    alert('Calibrate at least one night of this filter and mark Cull done before registration.');
     return;
   }
   const shootDirs = getFilterIngestedShootsByTone(project, tone)
