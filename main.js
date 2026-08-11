@@ -774,10 +774,18 @@ ipcMain.handle('zuko-ingest-run', async (_event, payload = {}) => {
 ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
   if (!folderPath) return { ok: false, error: 'path is required' };
   try {
-    await fsp.mkdir(folderPath, { recursive: true });
-    const err = await shell.openPath(folderPath);
+    let target = String(folderPath);
+    // If a file path was passed, open its parent folder instead of mkdir'ing a bogus path.
+    try {
+      const st = await fsp.stat(target);
+      if (st.isFile()) target = path.dirname(target);
+    } catch {
+      /* may not exist yet — create as folder below */
+    }
+    await fsp.mkdir(target, { recursive: true });
+    const err = await shell.openPath(target);
     if (err) return { ok: false, error: err };
-    return { ok: true, path: folderPath };
+    return { ok: true, path: target };
   } catch (e) {
     return { ok: false, error: String(e && e.message ? e.message : e) };
   }

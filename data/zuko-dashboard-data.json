@@ -21,20 +21,9 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 1,
-          "stackMeta": {
-            "stackedAt": "2026-08-10T01:24:19.890Z",
-            "resultPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\working\\result_Ha.fit",
-            "shootCount": 1,
-            "ppLightCount": 20,
-            "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\_stack\\scripts\\stack.log",
-            "stackDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\_stack",
-            "workingDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\working"
-          },
-          "cullMeta": {
-            "completedAt": "2026-08-10T01:24:14.610Z",
-            "note": "Marked complete (manual / Siril cull stub). Registration uses remaining process/pp_light_*.fit only — delete or list culled names in process/culled.txt."
-          }
+          "loggedHrs": 4,
+          "stackMeta": null,
+          "cullMeta": null
         },
         {
           "filter": "OIII",
@@ -156,7 +145,7 @@
             "stagedAt": "2026-08-10T01:23:58.707Z"
           },
           "preprocessMeta": {
-            "calibratedAt": "2026-08-10T01:24:09.119Z",
+            "calibratedAt": "2026-08-10T23:54:39.785Z",
             "shootDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home",
             "ppLightCount": 20,
             "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home\\scripts\\calibrate.log",
@@ -167,7 +156,7 @@
           "date": "260890",
           "filterIndex": 0,
           "hours": 0,
-          "complete": false,
+          "complete": true,
           "creditedHours": 0,
           "sourcePath": null,
           "ingestPath": null,
@@ -177,9 +166,9 @@
         {
           "date": "260808",
           "filterIndex": 0,
-          "hours": 0,
-          "complete": false,
-          "creditedHours": 0,
+          "hours": 2,
+          "complete": true,
+          "creditedHours": 2,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
@@ -208,8 +197,8 @@
           "preprocessMeta": null
         },
         {
-          "date": "260809",
-          "filterIndex": 2,
+          "date": "260808",
+          "filterIndex": 3,
           "hours": 0,
           "complete": false,
           "creditedHours": 0,
@@ -219,11 +208,11 @@
           "preprocessMeta": null
         },
         {
-          "date": "260808",
-          "filterIndex": 3,
-          "hours": 0,
-          "complete": false,
-          "creditedHours": 0,
+          "date": "260814",
+          "filterIndex": 0,
+          "hours": 1,
+          "complete": true,
+          "creditedHours": 1,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
@@ -933,7 +922,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 14,
-    "savedAt": "2026-08-10T02:16:08.486Z"
+    "savedAt": "2026-08-11T00:39:18.630Z"
   },
   "uiTheme": "dark",
   "homeSite": {

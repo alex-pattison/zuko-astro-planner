@@ -1030,9 +1030,13 @@
   .shoot-log-table th.sortable.sorted .sort-ind { opacity: 1; color: var(--accent2); }
   .ft-filter-name { font-weight: 600; }
   .pipeline-filter-list {
-    --pipeline-gutter-w: 36px;
-    /* Cull + Register + Registration btn — fixed so trunks/spines align across filters */
-    --pipeline-trunk-w: 22rem;
+    --pipeline-gutter-w: 32px;
+    /* Cull + Register + row pad — fixed so trunks/spines align across filters */
+    --pipeline-trunk-w: calc((2 * var(--pipeline-step-w)) + 24px);
+    --pipeline-step-w: 8rem;
+    /* Chevron + Date + Lights + Actual + Target (even numeric cols) */
+    --pipeline-nights-cols: 1.1rem 4.5rem 3rem 3rem 3rem;
+    --pipeline-nights-min: calc(1.1rem + 4.5rem + 3rem + 3rem + 3rem + 60px + (3 * var(--pipeline-step-w)) + 24px);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1042,7 +1046,6 @@
   .pipeline-channel {
     --pipeline-line: var(--gray);
     --pipeline-line-done: var(--green);
-    --pipeline-step-w: 6.25rem;
     --pipeline-dot: 10px;
     --pipeline-dot-center: 5px;
     display: flex;
@@ -1053,6 +1056,8 @@
     border: 1px solid var(--border);
     border-left-width: 3px;
     border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
   }
   .pipeline-channel-header {
     display: flex;
@@ -1119,14 +1124,25 @@
   html[data-theme="light"] .pipeline-channel.flt-b .pipeline-channel-title { color: #1d4ed8; }
 
   /* Same grid for every filter: night rails | gutter (spine) | Cull/Reg trunk */
+  .pipeline-merge-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  .pipeline-merge-head {
+    display: grid;
+    grid-template-columns: minmax(var(--pipeline-nights-min), 1fr) var(--pipeline-gutter-w) var(--pipeline-trunk-w);
+    column-gap: 0;
+    width: 100%;
+  }
   .pipeline-merge {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--pipeline-gutter-w) var(--pipeline-trunk-w);
+    grid-template-columns: minmax(var(--pipeline-nights-min), 1fr) var(--pipeline-gutter-w) var(--pipeline-trunk-w);
     align-items: start;
     column-gap: 0;
     width: 100%;
-    min-width: 0;
   }
   .pipeline-merge-nights {
     grid-column: 1;
@@ -1161,12 +1177,12 @@
   /* Full-bleed connector layer; paths only at row-dot Y / gutter X. */
   .pipeline-merge-svg {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: 0;
+    top: 0;
     overflow: visible;
     pointer-events: none;
     z-index: 2;
+    display: block;
   }
   .pipeline-port {
     position: absolute;
@@ -1195,6 +1211,7 @@
     border-bottom-left-radius: 0;
     overflow: visible;
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
   }
   /* Single night: same columns as multi, but read as one continuous bar */
@@ -1215,7 +1232,7 @@
   .pipeline-filter-row,
   .pipeline-channel-row {
     display: grid;
-    grid-template-columns: 1.1rem 5.75rem 8.5rem minmax(0, 1fr);
+    grid-template-columns: var(--pipeline-nights-cols) minmax(calc(3 * var(--pipeline-step-w)), 1fr);
     align-items: start;
     column-gap: 12px;
     padding: 10px 12px;
@@ -1224,7 +1241,53 @@
     border-radius: 4px;
   }
   .pipeline-straight-row {
-    grid-template-columns: 1.1rem 5.75rem 8.5rem minmax(0, 1fr) auto;
+    grid-template-columns: var(--pipeline-nights-cols) minmax(calc(3 * var(--pipeline-step-w)), 1fr) auto;
+  }
+  .pipeline-night-cols-head {
+    display: grid;
+    grid-template-columns: var(--pipeline-nights-cols) minmax(calc(3 * var(--pipeline-step-w)), 1fr);
+    column-gap: 12px;
+    padding: 0 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 1.2;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pipeline-night-cols-head > span,
+  .pipeline-night-cols-head > button {
+    min-width: 0;
+  }
+  .pipeline-night-cols-head > button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .pipeline-night-cols-head > button:hover { color: var(--accent2); }
+  .pipeline-night-cols-head > button.sorted { color: var(--accent2); }
+  .pipeline-night-cols-head > button .sort-ind {
+    font-size: 9px;
+    opacity: 0.55;
+    margin-left: 2px;
+  }
+  .pipeline-night-cols-head > button.sorted .sort-ind { opacity: 1; }
+  .pipeline-night-cols-head > span:nth-child(2),
+  .pipeline-night-cols-head > button:nth-child(2) {
+    text-align: left;
+  }
+  .pipeline-night-cols-head > span:nth-child(n+3):nth-child(-n+5),
+  .pipeline-night-cols-head > button:nth-child(n+3):nth-child(-n+5) {
+    text-align: right;
   }
   .pipeline-channel-row {
     display: flex;
@@ -1266,7 +1329,7 @@
   .pipeline-night-date {
     border: none;
     background: transparent;
-    padding: 1px 0 0;
+    padding: 2px 0 0;
     margin: 0;
     text-align: left;
     font: inherit;
@@ -1289,11 +1352,23 @@
     font-family: var(--mono);
     font-size: 10px;
     color: var(--gray);
-    padding-top: 3px;
+    padding-top: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .pipeline-night-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text2);
+    padding-top: 2px;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pipeline-night-num .shoot-integ-val { font-size: 11px; }
   .pipeline-night-detail {
     margin-top: 6px;
     padding: 10px 12px;
@@ -1388,12 +1463,12 @@
     gap: 0;
     flex: 0 1 auto;
     width: max-content;
-    max-width: 100%;
-    min-width: 0;
+    min-width: calc(3 * var(--pipeline-step-w));
     padding-top: 1px;
   }
   .pipeline-track-channel {
     flex: 0 0 auto;
+    min-width: calc(2 * var(--pipeline-step-w));
   }
   .pipeline-step {
     display: flex;
@@ -1465,14 +1540,6 @@
   }
   .pipeline-step.done .pipeline-step-label,
   .pipeline-step.partial .pipeline-step-label { color: var(--text2); }
-  .pipeline-stack-btn {
-    flex-shrink: 0;
-    margin-top: 1px !important;
-    align-self: flex-start;
-    min-width: 6.75rem;
-    text-align: center;
-    box-sizing: border-box;
-  }
   .siril-progress-overlay {
     display: none;
     position: fixed;
@@ -1500,11 +1567,47 @@
     font-size: 15px;
     color: var(--text);
   }
+  .siril-progress-status {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .siril-progress-status.ok {
+    color: var(--green);
+    border-color: color-mix(in srgb, var(--green) 45%, transparent);
+    background: color-mix(in srgb, var(--green) 12%, transparent);
+  }
+  .siril-progress-status.err {
+    color: var(--red);
+    border-color: color-mix(in srgb, var(--red) 45%, transparent);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
   .siril-progress-sub {
     font-size: 12px;
     color: var(--gray);
     font-family: var(--mono);
   }
+  .pipeline-path-link {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent2);
+    text-align: left;
+    cursor: pointer;
+    word-break: break-all;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pipeline-path-link:hover { filter: brightness(1.15); }
   .siril-progress-bar-wrap {
     height: 8px;
     background: var(--bg3);
@@ -1519,6 +1622,7 @@
     border-radius: 99px;
     transition: width 0.35s ease;
   }
+  .siril-progress-bar.err { background: var(--red); }
   .siril-progress-log {
     flex: 1;
     min-height: 180px;
@@ -1534,6 +1638,78 @@
     white-space: pre-wrap;
     word-break: break-word;
   }
+  .pipeline-job-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 11900;
+    background: rgba(0,0,0,0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .pipeline-job-overlay.open { display: flex; }
+  .pipeline-job-modal {
+    width: min(520px, 100%);
+    max-height: min(80vh, 640px);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: auto;
+  }
+  .pipeline-job-modal h3 {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .pipeline-job-sub {
+    font-size: 12px;
+    color: var(--gray);
+    font-family: var(--mono);
+  }
+  .pipeline-job-grid {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 6px 12px;
+    font-size: 12px;
+  }
+  .pipeline-job-grid .k {
+    color: var(--gray);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 2px;
+  }
+  .pipeline-job-grid .v {
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 12px;
+    word-break: break-word;
+  }
+  .pipeline-job-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .pipeline-job-notes {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.45;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .pipeline-job-notes strong { color: var(--text); }
+  .pipeline-job-notes .warn { color: var(--yellow); }
   .mini-btn.status-btn {
     margin-top: 0;
     border: none;
@@ -2815,6 +2991,24 @@
   }
 
   .filter-target-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .filter-target-table:not(.shoot-log-table) {
+    table-layout: fixed;
+  }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-filter { width: 4.5rem; }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-loc { width: 7.5rem; }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-bortle { width: 4.5rem; }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-progress { width: 32%; }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-hours { width: auto; }
+  .filter-target-table:not(.shoot-log-table) col.ft-col-x { width: 2.25rem; }
+  .filter-target-table:not(.shoot-log-table) td.ft-hours-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-variant-numeric: tabular-nums;
+  }
+  .filter-target-table:not(.shoot-log-table) .ft-hours-pending {
+    color: var(--yellow);
+  }
   .filter-target-table th {
     font-family: var(--mono); font-size: 9px; color: var(--gray);
     text-transform: uppercase; letter-spacing: 0.06em; text-align: left; padding: 6px 8px;
@@ -2912,7 +3106,7 @@
   .shoot-log-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 16px;
     align-items: center;
     margin-top: 8px;
   }
@@ -4470,11 +4664,25 @@
 <div class="siril-progress-overlay" id="siril-progress-overlay" onclick="if(event.target===this && window._sirilProgressAllowClose) closeSirilProgressModal()">
   <div class="siril-progress-modal" role="dialog" aria-labelledby="siril-progress-title">
     <h3 id="siril-progress-title">Siril pre-process</h3>
+    <div class="siril-progress-status" id="siril-progress-status" hidden></div>
     <div class="siril-progress-sub" id="siril-progress-sub">Starting…</div>
     <div class="siril-progress-bar-wrap"><div class="siril-progress-bar" id="siril-progress-bar"></div></div>
     <div class="siril-progress-log" id="siril-progress-log"></div>
     <div class="modal-actions" style="justify-content:flex-end;">
       <button type="button" class="modal-btn" id="siril-progress-close" disabled onclick="closeSirilProgressModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="pipeline-job-overlay" id="pipeline-job-overlay" onclick="if(event.target===this)closePipelineJobConfirm()">
+  <div class="pipeline-job-modal" role="dialog" aria-modal="true" aria-labelledby="pipeline-job-title">
+    <h3 id="pipeline-job-title">Run job</h3>
+    <div class="pipeline-job-sub" id="pipeline-job-sub"></div>
+    <div class="pipeline-job-body" id="pipeline-job-body"></div>
+    <div class="pipeline-job-notes" id="pipeline-job-notes"></div>
+    <div class="modal-actions" style="justify-content:flex-end;gap:8px;">
+      <button type="button" class="modal-btn" data-testid="pipeline-job-cancel" onclick="closePipelineJobConfirm()">Cancel</button>
+      <button type="button" class="modal-btn primary" data-testid="pipeline-job-start" id="pipeline-job-start" onclick="confirmPipelineJobStart()">Start</button>
     </div>
   </div>
 </div>
@@ -7417,8 +7625,10 @@ let openProjects = new Set();
 const shootLogCollapsed = new Set();
 /** Expanded night detail rows: `${pi}:${si}` */
 const nightPipelineDetailOpen = new Set();
-/** Legacy sort state (unused in channel view; kept for compare helpers). */
+/** Legacy project-wide sort (unused in channel view; kept for compare helpers). */
 const shootLogSort = {};
+/** Per-filter channel night sort: key `${pi}:${tone}` → { key, dir }. */
+const pipelineChannelSort = {};
 
 function toggleShootLog(pi) {
   if (shootLogCollapsed.has(pi)) shootLogCollapsed.delete(pi);
@@ -7431,6 +7641,35 @@ function toggleNightPipelineDetail(pi, si) {
   if (nightPipelineDetailOpen.has(key)) nightPipelineDetailOpen.delete(key);
   else nightPipelineDetailOpen.add(key);
   renderProjects();
+}
+
+function pipelineChannelSortKey(pi, tone) {
+  return `${pi}:${tone}`;
+}
+
+function getPipelineChannelSort(pi, tone) {
+  return pipelineChannelSort[pipelineChannelSortKey(pi, tone)] || { key: 'date', dir: 1 };
+}
+
+function sortPipelineChannel(pi, tone, key) {
+  const id = pipelineChannelSortKey(pi, tone);
+  const cur = getPipelineChannelSort(pi, tone);
+  if (cur.key === key) pipelineChannelSort[id] = { key, dir: -cur.dir };
+  else pipelineChannelSort[id] = { key, dir: key === 'date' ? 1 : -1 };
+  renderProjects();
+}
+
+function pipelineChannelSortIndicator(pi, tone, key) {
+  const cur = getPipelineChannelSort(pi, tone);
+  if (!cur || cur.key !== key) return '<span class="sort-ind">↕</span>';
+  return `<span class="sort-ind">${cur.dir > 0 ? '↑' : '↓'}</span>`;
+}
+
+function pipelineChannelSortHeaderBtn(pi, tone, key, label) {
+  const cur = getPipelineChannelSort(pi, tone);
+  const sorted = cur.key === key ? ' sorted' : '';
+  const toneAttr = escapeAttr(tone);
+  return `<button type="button" class="${sorted}" onclick="event.stopPropagation(); sortPipelineChannel(${pi},'${toneAttr}','${key}')" title="Sort by ${escapeAttr(label)}">${escapeHtml(label)}${pipelineChannelSortIndicator(pi, tone, key)}</button>`;
 }
 
 function schedulePipelineMergeLayout() {
@@ -7481,42 +7720,45 @@ function layoutOnePipelineMerge(root) {
   const sources = Array.from(root.querySelectorAll('[data-pipeline-source]'));
   const sinkEl = root.querySelector('[data-pipeline-sink]');
   if (!sources.length || !sinkEl) {
-    svg.innerHTML = '';
+    svg.replaceChildren();
     return;
   }
 
+  // Size SVG in CSS px 1:1 (no % stretch / viewBox skew — that made H/V look slanted).
   const rootRect = root.getBoundingClientRect();
-  const nightsRect = nights.getBoundingClientRect();
-  const trunkRect = trunk.getBoundingClientRect();
-  const w = Math.max(1, root.clientWidth);
-  const h = Math.max(1, root.clientHeight);
+  const w = Math.max(1, Math.round(rootRect.width));
+  const h = Math.max(1, Math.round(rootRect.height));
   svg.setAttribute('width', String(w));
   svg.setAttribute('height', String(h));
-  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.removeAttribute('viewBox');
+  svg.setAttribute('preserveAspectRatio', 'none');
+
+  const ox = rootRect.left;
+  const oy = rootRect.top;
+  const snap = (n) => Math.round(n);
 
   const pts = sources.map((el) => {
     const step = el.closest('.pipeline-step') || el;
     const dot = step.querySelector('.pipeline-dot') || el;
     const r = dot.getBoundingClientRect();
     return {
-      x: r.right - rootRect.left - 1,
-      y: r.top + r.height / 2 - rootRect.top,
+      x: snap(r.right - ox),
+      y: snap(r.top + r.height / 2 - oy),
     };
   });
   const sinkStep = sinkEl.closest('.pipeline-step') || sinkEl;
   const sinkDot = sinkStep.querySelector('.pipeline-dot') || sinkEl;
   const sinkR = sinkDot.getBoundingClientRect();
   const sinkPt = {
-    x: sinkR.left - rootRect.left + 1,
-    y: sinkR.top + sinkR.height / 2 - rootRect.top,
+    x: snap(sinkR.left - ox),
+    y: snap(sinkR.top + sinkR.height / 2 - oy),
   };
 
-  // Spine always at gutter center so every filter’s merge line shares an X.
   const gutter = root.querySelector('.pipeline-merge-gutter');
   const gutterRect = gutter ? gutter.getBoundingClientRect() : null;
   const spineX = gutterRect
-    ? (gutterRect.left + gutterRect.width / 2 - rootRect.left)
-    : (nightsRect.right + trunkRect.left) / 2 - rootRect.left;
+    ? snap(gutterRect.left + gutterRect.width / 2 - ox)
+    : snap((nights.getBoundingClientRect().right + trunk.getBoundingClientRect().left) / 2 - ox);
 
   const ys = pts.map((p) => p.y);
   const minY = Math.min(...ys, sinkPt.y);
@@ -7524,17 +7766,26 @@ function layoutOnePipelineMerge(root) {
 
   const parts = [];
   pts.forEach((p) => {
-    parts.push(`M ${p.x.toFixed(1)} ${p.y.toFixed(1)} H ${spineX.toFixed(1)}`);
+    parts.push(`M${p.x} ${p.y}H${spineX}`);
   });
   if (sources.length > 1 || Math.abs(ys[0] - sinkPt.y) > 0.5) {
-    parts.push(`M ${spineX.toFixed(1)} ${minY.toFixed(1)} V ${maxY.toFixed(1)}`);
+    parts.push(`M${spineX} ${minY}V${maxY}`);
   }
-  parts.push(`M ${spineX.toFixed(1)} ${sinkPt.y.toFixed(1)} H ${sinkPt.x.toFixed(1)}`);
+  parts.push(`M${spineX} ${sinkPt.y}H${sinkPt.x}`);
 
   const stroke = getComputedStyle(root).getPropertyValue('--pipeline-line').trim()
     || getComputedStyle(root).getPropertyValue('--gray').trim()
     || '#64748b';
-  svg.innerHTML = `<path d="${parts.join(' ')}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"/>`;
+  svg.replaceChildren();
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', parts.join(''));
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke', stroke);
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-linecap', 'square');
+  path.setAttribute('stroke-linejoin', 'miter');
+  path.setAttribute('shape-rendering', 'crispEdges');
+  svg.appendChild(path);
 }
 
 function sortShootLog(pi, key) {
@@ -7791,6 +8042,14 @@ function renderProjects() {
           <div class="pm-label">Capture Plan</div>
           <div class="table-scroll">
           <table class="filter-target-table">
+            <colgroup>
+              <col class="ft-col-filter">
+              <col class="ft-col-loc">
+              <col class="ft-col-bortle">
+              <col class="ft-col-progress">
+              <col class="ft-col-hours">
+              <col class="ft-col-x">
+            </colgroup>
             <thead><tr><th>Filter</th><th>Location</th><th>Bortle</th><th>Progress</th><th>Hours</th><th></th></tr></thead>
             <tbody>
               ${p.filterTargets.map((f, fi) => {
@@ -7798,12 +8057,15 @@ function renderProjects() {
                 const pct = f.targetHrs > 0 ? Math.min(100, Math.round(f.loggedHrs / f.targetHrs * 100)) : 0;
                 const pendingPct = f.targetHrs > 0 ? Math.min(100 - pct, Math.round(pendingHrs / f.targetHrs * 100)) : 0;
                 const fltColor = filterToneColor(f.filter);
+                const pendingNote = pendingHrs > 0
+                  ? ` <span class="ft-hours-pending">(+${pendingHrs.toFixed(1)}h pending)</span>`
+                  : '';
                 return `<tr>
                   <td class="editable ft-filter-name" onclick="editFilterTarget(${pi},${fi})" title="Click to edit" style="color:${fltColor}">${escapeHtml(f.filter)}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.location}</td>
                   <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Click to edit">${f.bortle || '—'}</td>
                   <td><div class="ft-bar-wrap"><div class="ft-bar ${pct >= 100 ? 'full' : ''}" style="width:${pct}%"></div><div class="ft-bar-pending" style="width:${pendingPct}%"></div></div></td>
-                  <td class="editable" onclick="editFilterTarget(${pi},${fi})" title="Logged hours come from Imaging Pipeline nights — click to edit the target hours"><span class="mono">${f.loggedHrs}</span> / ${f.targetHrs}h${pendingHrs > 0 ? ` <span style="color:var(--yellow);">(+${pendingHrs.toFixed(1)}h pending)</span>` : ''}</td>
+                  <td class="editable ft-hours-cell" onclick="editFilterTarget(${pi},${fi})" title="Logged hours come from Imaging Pipeline nights — click to edit the target hours"><span class="mono">${f.loggedHrs}</span> / ${f.targetHrs}h${pendingNote}</td>
                   <td><button class="remove-btn" onclick="removeFilterTarget(${pi},${fi})">✕</button></td>
                 </tr>`;
               }).join('')}
@@ -10371,7 +10633,10 @@ function renderIngestTargetMatchRow() {
     row.innerHTML = '';
     return;
   }
-  // Green = this shoot’s target is bound (auto or user-approved).
+  const lightN = ingestCtx && ingestCtx._stageGate && Array.isArray(ingestCtx._stageGate.lights)
+    ? ingestCtx._stageGate.lights.length
+    : null;
+  // Green = this shoot’s target is bound (auto or user-approved) AND we have lights to import.
   // Yellow = assumed only (no confident coords). Never list ignored/excluded folders here.
   let label = 'Target matched';
   let tone = 'ok';
@@ -10384,6 +10649,11 @@ function renderIngestTargetMatchRow() {
     label = 'Target assumed';
     tone = 'warn';
     title = 'Single Light folder with no confident RA/Dec match — assumed for this import';
+  }
+  if (lightN === 0) {
+    label = 'No lights for target';
+    tone = 'err';
+    title = 'Planner target may match a dump folder, but no lights were found for this shoot filter/night — nothing usable to import';
   }
   row.innerHTML = `<button type="button" class="ingest-chip ${tone}" onclick="reopenIngestTargetMatchSummary()" title="${escapeAttr(title)}">${escapeHtml(label)}</button>`;
 }
@@ -10718,7 +10988,9 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-title').textContent = 'ASIAIR Import — ' + (project.name || 'Project');
   document.getElementById('ingest-sub').textContent =
     `Night ${night || '(set shoot date)'} · shoot filter ${ft ? ft.filter : '—'} · folder ${buildShootCode(sh, ft)}`;
-  document.getElementById('ingest-project-path').textContent = project.projectDir;
+  document.getElementById('ingest-project-path').innerHTML = project.projectDir
+    ? folderPathLink(project.projectDir)
+    : '—';
   syncIngestSourcePathInput(ingestCtx.sourcePath);
   document.getElementById('ingest-session-path').textContent = '…';
   document.getElementById('ingest-progress').textContent = 'Discovering Autorun / Plan…';
@@ -10820,7 +11092,16 @@ async function runIngestScan(opts = {}) {
   ingestCtx.lightTempC = lightTempC;
 
   // Flats vs light temp (±3°C); overrides can include out-of-range.
-  const flatPart = partitionCalibVsLightTemp(flatsForShootAll, lightTempC, 'flats');
+  // With no lights there is no temp to match — treat all flats as unusable until lights exist.
+  let flatPart;
+  if (!lightsForShoot.length) {
+    flatPart = {
+      usable: [],
+      outOfRange: flatsForShootAll.map((f) => ({ ...f, reason: 'no lights to match against' })),
+    };
+  } else {
+    flatPart = partitionCalibVsLightTemp(flatsForShootAll, lightTempC, 'flats');
+  }
   ingestCtx.flatRejected = flatPart.outOfRange;
   const flatsForShoot = flatPart.usable;
 
@@ -10837,7 +11118,11 @@ async function runIngestScan(opts = {}) {
   }));
   let darkMatched = [];
   let darkRejected = [];
-  if (sessionDarks.length && window.zukoIngest && window.zukoIngest.matchDarks) {
+  if (!lightsForShoot.length) {
+    // matchDarks with null exp/gain/temp would treat every dark as a match — don't.
+    darkMatched = [];
+    darkRejected = sessionDarks.map((d) => ({ ...d, reason: 'no lights to match against' }));
+  } else if (sessionDarks.length && window.zukoIngest && window.zukoIngest.matchDarks) {
     const res = await window.zukoIngest.matchDarks({
       index: darkIndex,
       exposureSec: lightRowAll ? lightRowAll.exposureSec : (lightsForShoot[0] && lightsForShoot[0].exposureSec),
@@ -10881,50 +11166,64 @@ async function runIngestScan(opts = {}) {
     : '';
   const chip = (kind, label, tone, count, title) =>
     `<button type="button" class="ingest-chip ${tone}" onclick="openIngestFilesPopup('${kind}')" title="${escapeAttr(title || ('Show ' + label + ' files'))}">${escapeHtml(label)}: ${count}</button>`;
-  const darkTone = !darkMatched.length
-    ? 'err'
-    : (darkRejected.length ? 'warn' : 'ok');
+  const darkTone = !lightsForShoot.length
+    ? (sessionDarks.length ? 'warn' : 'err')
+    : (!darkMatched.length
+      ? 'err'
+      : (darkRejected.length ? 'warn' : 'ok'));
   const darkLabel = sessionDarks.length
     ? `Dark (session) ${darkMatched.length}/${sessionDarks.length}`
     : 'Dark (session)';
   const darkCount = darkMatched.length;
   const darkTitle = !sessionDarks.length
     ? 'No session darks found'
-    : (!darkMatched.length
-      ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp (unusable)`
-      : (darkRejected.length
-        ? `${darkRejected.length} dark(s) out of range — click to review / include`
-        : 'Show matching session darks'));
+    : (!lightsForShoot.length
+      ? `${sessionDarks.length} session dark(s) present, but no lights for this shoot — nothing to match against`
+      : (!darkMatched.length
+        ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp (unusable)`
+        : (darkRejected.length
+          ? `${darkRejected.length} dark(s) out of range — click to review / include`
+          : 'Show matching session darks')));
 
-  const biasTone = !biasMatched.length
-    ? (biases.length ? 'err' : 'warn')
-    : (biasRejected.length ? 'warn' : 'ok');
+  const biasTone = !lightsForShoot.length
+    ? (biases.length ? 'warn' : 'warn')
+    : (!biasMatched.length
+      ? (biases.length ? 'err' : 'warn')
+      : (biasRejected.length ? 'warn' : 'ok'));
   const biasLabel = biases.length
     ? `Bias (dark flats) ${biasMatched.length}/${biases.length}`
     : 'Bias (dark flats)';
   const biasTitle = !biases.length
     ? 'No session darkflats found'
-    : (!biasMatched.length
-      ? `${biasRejected.length || biases.length} darkflat(s) — none match flat exp/gain/bin + light temp`
-      : (biasRejected.length
-        ? `${biasRejected.length} darkflat(s) out of range — click to review / include`
-        : 'Show darkflats matching flats + light temp'));
+    : (!lightsForShoot.length
+      ? `${biases.length} darkflat(s) present, but no lights for this shoot — nothing to match against`
+      : (!biasMatched.length
+        ? `${biasRejected.length || biases.length} darkflat(s) — none match flat exp/gain/bin + light temp`
+        : (biasRejected.length
+          ? `${biasRejected.length} darkflat(s) out of range — click to review / include`
+          : 'Show darkflats matching flats + light temp')));
 
-  const flatTone = !flatsForShoot.length
-    ? (flatsForShootAll.length ? 'err' : 'warn')
-    : (flatPart.outOfRange.length ? 'warn' : 'ok');
+  const flatTone = !lightsForShoot.length
+    ? (flatsForShootAll.length ? 'warn' : 'warn')
+    : (!flatsForShoot.length
+      ? (flatsForShootAll.length ? 'err' : 'warn')
+      : (flatPart.outOfRange.length ? 'warn' : 'ok'));
   const flatLabel = flatsForShootAll.length
     ? `Flat ${flatsForShoot.length}/${flatsForShootAll.length}`
     : 'Flat';
   const flatTitle = !flatsForShootAll.length
     ? 'No flats found'
-    : (flatPart.outOfRange.length
-      ? `${flatPart.outOfRange.length} flat(s) out of light temp (±${INGEST_TEMP_TOLERANCE_C}°C) — click to review / include`
-      : 'Show flats matching light temp');
+    : (!lightsForShoot.length
+      ? `${flatsForShootAll.length} flat(s) present, but no lights for this shoot — nothing to match against`
+      : (flatPart.outOfRange.length
+        ? `${flatPart.outOfRange.length} flat(s) out of light temp (±${INGEST_TEMP_TOLERANCE_C}°C) — click to review / include`
+        : 'Show flats matching light temp'));
 
   ingestCtx._chipBase = [
-    chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'warn', lightsForShoot.length,
-      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : `Lights · temp ${lightTempC != null ? lightTempC + '°C' : '—'} (source of truth)`),
+    chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'err', lightsForShoot.length,
+      multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : (lightsForShoot.length
+        ? `Lights · temp ${lightTempC != null ? lightTempC + '°C' : '—'} (source of truth)`
+        : `No lights for shoot filter ${shootFilter || '—'} on this night`)),
     chip('flats', flatLabel, flatTone, flatsForShoot.length, flatTitle),
     chip('darks', darkLabel, darkTone, darkCount, darkTitle),
     chip('biases', biasLabel, biasTone, biasMatched.length, biasTitle),
@@ -11057,6 +11356,7 @@ async function runIngestScan(opts = {}) {
     totalLights,
     lightTempC,
   };
+  renderIngestTargetMatchRow();
   await refreshIngestDarkMatches();
   applyIngestStageGate();
 }
@@ -11666,19 +11966,37 @@ function toggleFilterCull(pi, tone) {
 }
 
 function shootNightMetaChip(sh) {
-  const meta = sh.ingestMeta || {};
+  const stats = shootNightStats(sh);
+  const bits = [];
+  if (stats.lights !== '—') bits.push(stats.lights + (stats.expSec != null ? `×${stats.expSec}s` : ''));
+  if (stats.actualText && stats.actualText !== '—') bits.push(stats.actualText);
+  else if (stats.targetText && stats.targetText !== '—') bits.push(`target ${stats.targetText}`);
+  return {
+    text: bits.join(' · ') || '—',
+    title: stats.title,
+  };
+}
+
+function shootNightStats(sh) {
+  const meta = (sh && sh.ingestMeta) || {};
   const lightsN = meta.lightCount != null
     ? meta.lightCount
     : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
-  const plannedHrs = Number(sh.hours) || 0;
+  const plannedHrs = Number(sh && sh.hours) || 0;
   const integ = formatShootIntegration(lightsN, meta.exposureSec, plannedHrs);
-  const bits = [];
-  if (integ.actualHrs != null) bits.push(`${integ.actualHrs < 10 ? integ.actualHrs.toFixed(2) : integ.actualHrs.toFixed(1)}h`);
-  else if (plannedHrs) bits.push(`~${plannedHrs < 10 ? plannedHrs.toFixed(2) : plannedHrs.toFixed(1)}h`);
-  if (lightsN != null && meta.exposureSec != null) bits.push(`${lightsN}×${meta.exposureSec}s`);
-  else if (plannedHrs && !bits.length) bits.push(`target ${plannedHrs}h`);
+  const actualText = integ.actualHrs != null
+    ? (integ.actualHrs < 10 ? integ.actualHrs.toFixed(2) : integ.actualHrs.toFixed(1)) + 'h'
+    : '—';
+  const targetText = integ.plannedHrs
+    ? (integ.plannedHrs < 10 ? integ.plannedHrs.toFixed(2) : integ.plannedHrs.toFixed(1)) + 'h'
+    : (plannedHrs ? (plannedHrs < 10 ? plannedHrs.toFixed(2) : plannedHrs.toFixed(1)) + 'h' : '—');
   return {
-    text: bits.join(' · ') || '—',
+    lights: lightsN != null ? String(lightsN) : '—',
+    expSec: meta.exposureSec != null ? meta.exposureSec : null,
+    actualHtml: integ.actualHtml,
+    targetHtml: integ.targetHtml,
+    actualText,
+    targetText,
     title: integ.title || 'Night integration',
   };
 }
@@ -11741,8 +12059,8 @@ function shootNightStepOpts(project, pi, sh, si) {
     calOpts = {
       clickable: true,
       id: `pp-step-${pi}-${si}`,
-      onclick: `event.stopPropagation(); runPreprocessShoot(${pi},${si})`,
-      title: calDone ? 'Re-run calibration to pp_light' : 'Calibrate to pp_light via siril-cli',
+      onclick: `event.stopPropagation(); openCalibrateConfirm(${pi},${si})`,
+      title: calDone ? 'Review & re-run calibration' : 'Review & start calibration',
     };
   }
 
@@ -11780,17 +12098,30 @@ function channelCullRegParts(project, pi, group, opts = {}) {
     : '';
   const nightsNote = nightCount > 1 ? ` · ${nightCount} nights` : '';
 
-  let stackBtn;
+  let regOpts;
   if (!hasProjectDir) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Set Project directory first" onclick="event.stopPropagation()">Registration</button>`;
+    regOpts = { locked: true, title: 'Set Project directory first' };
   } else if (!cal.complete) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Calibrate every imported ${escapeAttr(group.name)} night first (${cal.calibratedCount}/${cal.ingestedCount || 0})" onclick="event.stopPropagation()">Registration</button>`;
+    regOpts = {
+      locked: true,
+      title: `Calibrate every imported ${group.name} night first (${cal.calibratedCount}/${cal.ingestedCount || 0})`,
+    };
   } else if (!cullDone) {
-    stackBtn = `<button class="mini-btn preprocess-btn locked pipeline-stack-btn" disabled title="Mark Cull complete (click Cull dot) before registration" onclick="event.stopPropagation()">Registration</button>`;
+    regOpts = { locked: true, title: 'Mark Cull complete (click Cull dot) before registration' };
   } else if (regDone) {
-    stackBtn = `<button class="mini-btn preprocess-btn done pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="event.stopPropagation(); registerAndStackFilterTone(${pi},'${tone}')" title="Re-run registration for ${escapeAttr(group.name)}${escapeAttr(locNote)}${escapeAttr(nightsNote)}">Registered</button>`;
+    regOpts = {
+      clickable: true,
+      id: `stack-step-${pi}-${tone}`,
+      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
+      title: `Review & re-run registration for ${group.name}${locNote}${nightsNote}`,
+    };
   } else {
-    stackBtn = `<button class="mini-btn preprocess-btn pipeline-stack-btn" id="stack-btn-${pi}-${tone}" onclick="event.stopPropagation(); registerAndStackFilterTone(${pi},'${tone}')" title="Register &amp; stack all calibrated nights for ${escapeAttr(group.name)}${escapeAttr(locNote)}${escapeAttr(nightsNote)}">Registration</button>`;
+    regOpts = {
+      clickable: true,
+      id: `stack-step-${pi}-${tone}`,
+      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
+      title: `Review & start registration for ${group.name}${locNote}${nightsNote}`,
+    };
   }
 
   const cullStep = pipelineStepHtml('Cull', cullDone ? 'done' : 'stub', {
@@ -11803,11 +12134,9 @@ function channelCullRegParts(project, pi, group, opts = {}) {
         : 'Calibrate every imported night before marking Cull',
     port: opts.sinkPort ? 'sink' : undefined,
   });
-  const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', {
-    title: 'Register & stack all calibrated nights → working/result_<Filter>.fit',
-  });
+  const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', regOpts);
 
-  return { cullStep, regStep, stackBtn, cal, cullDone, regDone };
+  return { cullStep, regStep, cal, cullDone, regDone };
 }
 
 function nightIdentity(project, group, sh) {
@@ -11816,8 +12145,8 @@ function nightIdentity(project, group, sh) {
   const code = buildShootCode(sh, ft);
   // Collapsed rail: date only. Location lives in expanded Capture plan detail.
   const label = dateLabel;
-  const chip = shootNightMetaChip(sh);
-  return { ft, dateLabel, code, label, chip };
+  const stats = shootNightStats(sh);
+  return { ft, dateLabel, code, label, stats };
 }
 
 function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
@@ -11847,13 +12176,15 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
 
 /** Night rail: Capture→Import→Calibrate only (feeds into channel trunk when multi). */
 function renderShootPipelineRow(project, pi, group, sh, si) {
-  const { dateLabel, code, label, chip } = nightIdentity(project, group, sh);
+  const { dateLabel, code, label, stats } = nightIdentity(project, group, sh);
   const detailOpen = nightPipelineDetailOpen.has(`${pi}:${si}`);
   return `<div class="pipeline-night-wrap" data-shoot-index="${si}">
     <div class="pipeline-filter-row pipeline-shoot-row" data-shoot-date="${escapeAttr(dateLabel)}" data-filter="${escapeAttr(group.name)}" onclick="toggleNightPipelineDetail(${pi},${si})">
       <button type="button" class="pipeline-night-chevron ${detailOpen ? 'open' : ''}" onclick="event.stopPropagation(); toggleNightPipelineDetail(${pi},${si})" aria-expanded="${detailOpen ? 'true' : 'false'}" title="Night details">▶</button>
       <button type="button" class="pipeline-night-date" onclick="event.stopPropagation(); editShoot(${pi},${si})" title="Edit ${escapeAttr(code)}">${escapeHtml(label)}</button>
-      <div class="pipeline-night-meta" title="${escapeAttr(chip.title)}">${escapeHtml(chip.text)}</div>
+      <div class="pipeline-night-num" title="Lights">${escapeHtml(stats.lights)}</div>
+      <div class="pipeline-night-num" title="${escapeAttr(stats.title)}">${stats.actualHtml}</div>
+      <div class="pipeline-night-num" title="Target hours">${stats.targetHtml}</div>
       <div class="pipeline-track">
         ${renderNightCaptureImportCalSteps(project, pi, sh, si, { sourcePort: true })}
       </div>
@@ -11876,7 +12207,6 @@ function renderFilterChannelPipelineFooter(project, pi, group) {
       ${parts.cullStep}
       ${parts.regStep}
     </div>
-    ${parts.stackBtn}
   </div>`;
 }
 
@@ -11884,12 +12214,31 @@ function renderChannelMergeLayout(project, pi, group, shootEntries, opts = {}) {
   const shootRows = shootEntries
     .map(({ sh, si }) => renderShootPipelineRow(project, pi, group, sh, si))
     .join('');
+  const tone = group.tone;
+  // Header sits above the merge so Cull/Reg stays top-aligned with night 1 (SVG Y stays sane).
+  const colHead = shootEntries.length
+    ? `<div class="pipeline-merge-head">
+        <div class="pipeline-night-cols-head">
+          <span></span>
+          ${pipelineChannelSortHeaderBtn(pi, tone, 'date', 'Date')}
+          ${pipelineChannelSortHeaderBtn(pi, tone, 'lights', 'Lights')}
+          ${pipelineChannelSortHeaderBtn(pi, tone, 'actual', 'Actual')}
+          ${pipelineChannelSortHeaderBtn(pi, tone, 'target', 'Target')}
+          <span></span>
+        </div>
+        <div aria-hidden="true"></div>
+        <div aria-hidden="true"></div>
+      </div>`
+    : '';
   const soloClass = opts.solo ? ' pipeline-merge-solo' : '';
-  return `<div class="pipeline-merge${soloClass}" data-pipeline-merge>
-    <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
-    <div class="pipeline-merge-nights">${shootRows}</div>
-    <div class="pipeline-merge-gutter" aria-hidden="true"></div>
-    <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
+  return `<div class="pipeline-merge-wrap">
+    ${colHead}
+    <div class="pipeline-merge${soloClass}" data-pipeline-merge>
+      <svg class="pipeline-merge-svg" aria-hidden="true"></svg>
+      <div class="pipeline-merge-nights">${shootRows}</div>
+      <div class="pipeline-merge-gutter" aria-hidden="true"></div>
+      <div class="pipeline-merge-trunk">${renderFilterChannelPipelineFooter(project, pi, group)}</div>
+    </div>
   </div>`;
 }
 
@@ -11901,10 +12250,13 @@ function renderFilterPipelineBar(project, pi, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f || !group) return '';
   const tone = group.tone;
+  const sortState = getPipelineChannelSort(pi, tone);
   const shootEntries = getShootsForFilterTone(project, tone)
     .map((sh) => ({ sh, si: project.shoots.indexOf(sh) }))
     .filter((e) => e.si >= 0)
     .sort((a, b) => {
+      const c = compareShootLogRows(project, a.si, b.si, sortState.key, sortState.dir);
+      if (c) return c;
       const da = String(a.sh.date || '');
       const db = String(b.sh.date || '');
       if (da !== db) return da.localeCompare(db);
@@ -12030,9 +12382,16 @@ function openSirilProgressModal({ title, sub, logPath }) {
   _sirilLiveLog = '';
   const overlay = document.getElementById('siril-progress-overlay');
   const closeBtn = document.getElementById('siril-progress-close');
+  const statusEl = document.getElementById('siril-progress-status');
   document.getElementById('siril-progress-title').textContent = title || 'Siril';
   document.getElementById('siril-progress-sub').textContent = sub || (logPath ? `Log: ${logPath}` : 'Starting…');
   document.getElementById('siril-progress-bar').style.width = '4%';
+  document.getElementById('siril-progress-bar').classList.remove('ok', 'err');
+  if (statusEl) {
+    statusEl.hidden = true;
+    statusEl.className = 'siril-progress-status';
+    statusEl.textContent = '';
+  }
   // Seed the log immediately so it isn't blank while Siril buffers stdout
   const seed =
     `[zuko] ${new Date().toLocaleTimeString()} — launching Siril…\n` +
@@ -12055,7 +12414,7 @@ function appendSirilProgressLog(chunk) {
   }
 }
 
-function updateSirilProgressModal({ pct, logText, sub, done, append }) {
+function updateSirilProgressModal({ pct, logText, sub, done, append, ok, status }) {
   if (pct != null) {
     const bar = document.getElementById('siril-progress-bar');
     if (bar) bar.style.width = `${Math.max(4, Math.min(100, pct))}%`;
@@ -12071,14 +12430,28 @@ function updateSirilProgressModal({ pct, logText, sub, done, append }) {
   }
   if (sub != null) {
     const subEl = document.getElementById('siril-progress-sub');
-    if (subEl) subEl.textContent = sub;
+    if (subEl) {
+      // Allow a short HTML subline (e.g. clickable folder) after the job finishes.
+      if (done && typeof sub === 'string' && sub.includes('<')) subEl.innerHTML = sub;
+      else subEl.textContent = sub;
+    }
   }
   if (done) {
     window._sirilProgressAllowClose = true;
     const closeBtn = document.getElementById('siril-progress-close');
     if (closeBtn) closeBtn.disabled = false;
     const bar = document.getElementById('siril-progress-bar');
-    if (bar) bar.style.width = '100%';
+    if (bar) {
+      bar.style.width = '100%';
+      bar.classList.toggle('ok', ok === true);
+      bar.classList.toggle('err', ok === false);
+    }
+    const statusEl = document.getElementById('siril-progress-status');
+    if (statusEl) {
+      statusEl.hidden = false;
+      statusEl.className = 'siril-progress-status ' + (ok ? 'ok' : 'err');
+      statusEl.textContent = status || (ok ? 'SUCCESS' : 'FAILED');
+    }
   }
 }
 
@@ -12181,13 +12554,213 @@ async function runSirilJobWithProgress({ title, logPath, kind, startJob }) {
 
   updateSirilProgressModal({
     done: true,
+    ok: !!(result && result.ok),
     pct: 100,
+    status: result && result.ok
+      ? (kind === 'stack' ? 'SUCCESS — registration finished' : kind === 'calibrate' ? 'SUCCESS — calibration finished' : 'SUCCESS')
+      : (kind === 'stack' ? 'FAILED — registration did not complete' : kind === 'calibrate' ? 'FAILED — calibration did not complete' : 'FAILED'),
     sub: result && result.ok
-      ? `Done${result.ppLightCount != null ? ` · ${result.ppLightCount} pp_light` : ''}${result.resultPath ? ` · ${result.resultPath}` : ''}`
-      : `Failed: ${(result && (result.error || result.code)) || 'unknown'}`,
+      ? (
+          (result.ppLightCount != null ? `${result.ppLightCount} pp_light` : 'Done')
+          + (result.resultPath ? ` · ${escapeHtml(String(result.resultPath))}` : '')
+          + (result.shootDir || result.resultPath || logPath
+            ? ` · ${folderPathLink(result.shootDir || (result.resultPath ? String(result.resultPath).replace(/[\\/][^\\/]+$/, '') : '') || (logPath ? String(logPath).replace(/[\\/][^\\/]+$/, '') : ''), 'Open folder')}`
+            : '')
+        )
+      : `Failed: ${escapeHtml(String((result && (result.error || result.code)) || 'unknown'))}`,
   });
 
   return result;
+}
+
+let _pipelineJobPending = null;
+
+function closePipelineJobConfirm() {
+  _pipelineJobPending = null;
+  const overlay = document.getElementById('pipeline-job-overlay');
+  if (overlay) overlay.classList.remove('open');
+  syncBodyScrollLock();
+}
+
+function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending }) {
+  _pipelineJobPending = pending || null;
+  const overlay = document.getElementById('pipeline-job-overlay');
+  if (!overlay) return;
+  document.getElementById('pipeline-job-title').textContent = title || 'Run job';
+  document.getElementById('pipeline-job-sub').textContent = sub || '';
+  document.getElementById('pipeline-job-body').innerHTML = bodyHtml || '';
+  document.getElementById('pipeline-job-notes').innerHTML = notesHtml || '';
+  const startBtn = document.getElementById('pipeline-job-start');
+  if (startBtn) startBtn.textContent = pending && pending.rerun ? 'Start re-run' : 'Start';
+  overlay.classList.add('open');
+  syncBodyScrollLock();
+}
+
+function confirmPipelineJobStart() {
+  const pending = _pipelineJobPending;
+  closePipelineJobConfirm();
+  if (!pending) return;
+  if (pending.kind === 'calibrate') {
+    runPreprocessShoot(pending.pi, pending.si);
+    return;
+  }
+  if (pending.kind === 'register') {
+    registerAndStackFilterTone(pending.pi, pending.tone);
+  }
+}
+
+function pipelineJobRow(k, v) {
+  return `<div class="k">${escapeHtml(k)}</div><div class="v">${v}</div>`;
+}
+
+/** Open a folder (or a file's parent folder) in Explorer / Finder. */
+async function openInFileManager(targetPath) {
+  if (!targetPath) return;
+  if (!window.zukoIngest || typeof window.zukoIngest.open !== 'function') {
+    alert('Open folder needs the Electron desktop app (npm start).');
+    return;
+  }
+  let p = String(targetPath).trim();
+  if (!p) return;
+  const leaf = p.replace(/[\\/]+$/, '');
+  if (/\.[A-Za-z0-9]{1,8}$/.test(leaf)) {
+    const parent = leaf.replace(/[\\/][^\\/]+$/, '');
+    if (parent && parent !== leaf) p = parent;
+  }
+  try {
+    const res = await window.zukoIngest.open(p);
+    if (res && res.ok === false) alert(res.error || 'Could not open folder');
+  } catch (e) {
+    alert(String(e && e.message ? e.message : e));
+  }
+}
+
+function folderPathLink(path, label) {
+  const p = String(path || '').trim();
+  if (!p) return '—';
+  const text = label ? escapeHtml(label) : escapeHtml(p);
+  const title = label ? escapeAttr(p) : 'Open folder';
+  // data-open-path avoids breaking onclick with Windows paths / quotes
+  return `<button type="button" class="pipeline-path-link" data-open-path="${escapeAttr(p)}" title="${title}" onclick="event.stopPropagation(); openInFileManager(this.getAttribute('data-open-path'))">${text}</button>`;
+}
+
+function openCalibrateConfirm(pi, si) {
+  if (!window.zukoSiril || typeof window.zukoSiril.calibrate !== 'function') {
+    alert('Calibration needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  const sh = project && project.shoots && project.shoots[si];
+  if (!project || !sh) return;
+  if (!isShootIngested(sh)) {
+    alert('Import this shoot from ASIAIR before calibration.');
+    return;
+  }
+  const ft = project.filterTargets[sh.filterIndex];
+  const code = buildShootCode(sh, ft);
+  const shootDir = resolveShootCalibrateDir(project, sh);
+  if (!shootDir) {
+    alert('Could not resolve staged shoot folder.');
+    return;
+  }
+  const stats = shootNightStats(sh);
+  const rerun = isShootCalibrated(sh);
+  const calAt = sh.preprocessMeta && sh.preprocessMeta.calibratedAt
+    ? String(sh.preprocessMeta.calibratedAt)
+    : '';
+  const tone = ft ? filterToneKey(ft.filter) : null;
+  const group = tone ? listPipelineFilterGroups(project).find((g) => g.tone === tone) : null;
+  const primary = group ? getPrimaryFilterTarget(project, group) : ft;
+  const cullDone = isFilterCullComplete(primary);
+  const regDone = !!(primary && primary.stackMeta && primary.stackMeta.resultPath);
+  const clearBits = [];
+  if (cullDone) clearBits.push('Cull');
+  if (regDone) clearBits.push('Register');
+  const bodyHtml = `<div class="pipeline-job-grid">
+    ${pipelineJobRow('Shoot', escapeHtml(code))}
+    ${pipelineJobRow('Capture plan', ft ? escapeHtml(`${ft.filter} — ${ft.location || ''} (B${ft.bortle || '?'})`) : '—')}
+    ${pipelineJobRow('Lights', escapeHtml(stats.lights) + (stats.expSec != null ? ` × ${stats.expSec}s` : ''))}
+    ${pipelineJobRow('Integration', stats.actualHtml + ' / ' + stats.targetHtml)}
+    ${pipelineJobRow('Folder', folderPathLink(shootDir))}
+    ${rerun ? pipelineJobRow('Last run', escapeHtml(calAt || 'calibrated')) : ''}
+  </div>`;
+  const clearWarn = clearBits.length
+    ? `<div style="margin-top:6px;" class="warn">Re-running clears <strong>${escapeHtml(clearBits.join(' and '))}</strong> for the whole ${escapeHtml((ft && ft.filter) || 'filter')} channel.</div>`
+    : '';
+  const notesHtml = `
+    <div><strong>Siril</strong> will calibrate lights in this night’s folder → <code>process/pp_light_*.fit</code>.</div>
+    ${clearWarn}
+    <div style="margin-top:6px;">Needs a working <code>siril-cli</code> and Dark Library matches staged at Import.</div>
+  `;
+  openPipelineJobConfirm({
+    title: rerun ? 'Re-run Calibration' : 'Start Calibration',
+    sub: `${project.name || 'Project'} · ${code}`,
+    bodyHtml,
+    notesHtml,
+    pending: { kind: 'calibrate', pi, si, rerun },
+  });
+}
+
+function openRegisterConfirm(pi, tone) {
+  if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
+    alert('Registration needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  if (!project || !project.projectDir) {
+    alert('Set Project directory first.');
+    return;
+  }
+  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  if (!group || !isFilterReadyToRegister(project, group)) {
+    alert('Complete Calibration for all ingested shoots of this filter (all locations), then mark Cull done.');
+    return;
+  }
+  const f = getPrimaryFilterTarget(project, group);
+  const shoots = getFilterIngestedShootsByTone(project, tone).filter(isShootCalibrated);
+  const shootDirs = shoots.map((sh) => resolveShootCalibrateDir(project, sh)).filter(Boolean);
+  if (!shootDirs.length) {
+    alert('No calibrated shoot folders found for this filter.');
+    return;
+  }
+  const filter = String(group.name || '');
+  const rerun = !!(f && f.stackMeta && f.stackMeta.resultPath);
+  const resultPath = (f && f.stackMeta && f.stackMeta.resultPath)
+    || pathJoinWin(project.projectDir, 'working', `result_${filter}.fit`);
+  const outFolder = pathJoinWin(project.projectDir, 'working');
+  const nightLis = shoots.map((sh) => {
+    const ft = project.filterTargets[sh.filterIndex];
+    const code = buildShootCode(sh, ft);
+    const dir = resolveShootCalibrateDir(project, sh);
+    const n = (sh.preprocessMeta && sh.preprocessMeta.ppLightCount != null)
+      ? sh.preprocessMeta.ppLightCount
+      : '—';
+    const dirLink = dir ? ` · ${folderPathLink(dir, 'folder')}` : '';
+    return `<li>${escapeHtml(code)} · pp_light ${escapeHtml(String(n))}${dirLink}</li>`;
+  }).join('');
+  const bodyHtml = `<div class="pipeline-job-grid">
+    ${pipelineJobRow('Filter', escapeHtml(filter))}
+    ${pipelineJobRow('Nights', `${shoots.length} calibrated`)}
+    ${pipelineJobRow('Output', folderPathLink(resultPath))}
+    ${pipelineJobRow('Working', folderPathLink(outFolder))}
+    ${rerun && f.stackMeta && f.stackMeta.stackedAt ? pipelineJobRow('Last run', escapeHtml(String(f.stackMeta.stackedAt))) : ''}
+  </div>
+  <div style="margin-top:10px;">
+    <div class="k" style="margin-bottom:4px;color:var(--gray);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.04em;">Nights included</div>
+    <ul class="pipeline-job-list">${nightLis}</ul>
+  </div>`;
+  const notesHtml = `
+    <div><strong>Siril</strong> will register &amp; stack all listed nights → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
+    <div style="margin-top:6px;">Frames listed in <code>process/culled.txt</code> (or deleted) are skipped. Cull is already marked done for this channel.</div>
+    ${rerun ? '<div style="margin-top:6px;" class="warn">This replaces the existing registration result.</div>' : ''}
+  `;
+  openPipelineJobConfirm({
+    title: rerun ? 'Re-run Registration' : 'Start Registration',
+    sub: `${project.name || 'Project'} · ${filter} · ${shoots.length} night${shoots.length === 1 ? '' : 's'}`,
+    bodyHtml,
+    notesHtml,
+    pending: { kind: 'register', pi, tone, rerun },
+  });
 }
 
 async function runPreprocessShoot(pi, si) {
@@ -12297,11 +12870,14 @@ async function registerAndStackFilterTone(pi, tone) {
 
   const filter = String(group.name || '');
   const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
-  const btn = document.getElementById(`stack-btn-${pi}-${tone}`);
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Registering…';
+  const step = document.getElementById(`stack-step-${pi}-${tone}`);
+  const stepLabel = step && step.querySelector('.pipeline-step-label');
+  const prevLabel = stepLabel ? stepLabel.textContent : '';
+  if (step) {
+    step.classList.add('locked');
+    step.style.pointerEvents = 'none';
   }
+  if (stepLabel) stepLabel.textContent = 'Registering…';
 
   const result = await runSirilJobWithProgress({
     title: `Registration · ${filter}`,
@@ -12315,10 +12891,11 @@ async function registerAndStackFilterTone(pi, tone) {
   });
 
   if (!result || !result.ok) {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Registration';
+    if (step) {
+      step.classList.remove('locked');
+      step.style.pointerEvents = '';
     }
+    if (stepLabel) stepLabel.textContent = prevLabel || 'Register';
     return;
   }
   const stackMeta = {
@@ -13158,7 +13735,9 @@ async function ingestAllCapturedShoots(pi) {
 
   document.getElementById('ingest-title').textContent =
     `Import all — ${project.name || 'Project'}`;
-  document.getElementById('ingest-project-path').textContent = project.projectDir;
+  document.getElementById('ingest-project-path').innerHTML = project.projectDir
+    ? folderPathLink(project.projectDir)
+    : '—';
   syncIngestSourcePathInput(ingestCtx.sourcePath);
   document.getElementById('ingest-session-path').textContent = '…';
   document.getElementById('ingest-progress').textContent = 'Checking which shoots are ready to import…';
@@ -13802,6 +14381,7 @@ const MODAL_OPEN_SELECTOR = [
   '.source-review-overlay.open',
   '.ingest-files-overlay.open',
   '.siril-progress-overlay.open',
+  '.pipeline-job-overlay.open',
 ].join(', ');
 
 function syncBodyScrollLock() {
@@ -13813,7 +14393,7 @@ function syncBodyScrollLock() {
 function initModalScrollLock() {
   syncBodyScrollLock();
   const roots = document.querySelectorAll(
-    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .siril-progress-overlay'
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .siril-progress-overlay, .pipeline-job-overlay'
   );
   if (!roots.length || typeof MutationObserver !== 'function') return;
   const obs = new MutationObserver(() => syncBodyScrollLock());
@@ -14261,6 +14841,12 @@ document.getElementById('settings-overlay').addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  const jobOverlay = document.getElementById('pipeline-job-overlay');
+  if (jobOverlay && jobOverlay.classList.contains('open')) {
+    closePipelineJobConfirm();
+    e.preventDefault();
+    return;
+  }
   const overlay = document.getElementById('settings-overlay');
   if (overlay && overlay.classList.contains('open')) {
     closeSettings();
