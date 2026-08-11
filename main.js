@@ -323,10 +323,11 @@ function resolveWindowIcon() {
 function createWindow() {
   const iconPath = resolveWindowIcon();
   const win = new BrowserWindow({
-    width: 1280,
+    width: 1320,
     height: 900,
-    minWidth: 860,
-    minHeight: 600,
+    // Imaging Pipeline needs ~1180px content with Aggregate+Cull+Reg trunk.
+    minWidth: 1280,
+    minHeight: 640,
     backgroundColor: '#070b12',
     title: channelProductTitle(),
     autoHideMenuBar: false,
@@ -822,6 +823,15 @@ ipcMain.handle('zuko-siril-build-master', async (event, payload = {}) => {
         }
       },
     });
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-aggregate', async (_event, payload = {}) => {
+  try {
+    const { aggregateFilter } = loadSirilPreprocess();
+    return await aggregateFilter(payload || {});
   } catch (e) {
     return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
   }

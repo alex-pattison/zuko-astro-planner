@@ -22,6 +22,9 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-10 — build 15 — Aggregate before Cull
+- Per-filter trunk: **Aggregate → Cull → Register**. Aggregate hardlinks calibrated nights’ `process/pp_light_*` into `<Filter>/Aggregate/` (Siril home for cross-night cull). Register reads surviving Aggregate files (not re-gather from nights). Confirm modal includes Copy path.
+
 ### 2026-08-10 — build 15 — Imaging Pipeline polish + beta
 - Cull/Register allowed on calibrated subset (not all nights); re-cal clears cull/reg for the channel.
 - Merge SVG green stops at Cull; Cull→Register stays gray until Register is done.

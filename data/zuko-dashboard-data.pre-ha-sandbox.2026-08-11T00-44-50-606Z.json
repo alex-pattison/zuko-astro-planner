@@ -23,15 +23,7 @@
           "targetHrs": 4,
           "loggedHrs": 4,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": {
-            "aggregatedAt": "2026-08-11T02:16:30.139Z",
-            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\Aggregate",
-            "shootCount": 1,
-            "frameCount": 20,
-            "hardlinks": 20,
-            "copies": 0
-          }
+          "cullMeta": null
         },
         {
           "filter": "OIII",
@@ -40,8 +32,7 @@
           "targetHrs": 4.5,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "SII",
@@ -50,8 +41,7 @@
           "targetHrs": 2.5,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "SII",
@@ -60,8 +50,7 @@
           "targetHrs": 1,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "R",
@@ -70,8 +59,7 @@
           "targetHrs": 0.5,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "G",
@@ -80,8 +68,7 @@
           "targetHrs": 0.5,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "B",
@@ -90,8 +77,7 @@
           "targetHrs": 0.5,
           "loggedHrs": 0,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         }
       ],
       "checklist": [
@@ -159,7 +145,7 @@
             "stagedAt": "2026-08-10T01:23:58.707Z"
           },
           "preprocessMeta": {
-            "calibratedAt": "2026-08-11T01:47:12.254Z",
+            "calibratedAt": "2026-08-10T23:54:39.785Z",
             "shootDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home",
             "ppLightCount": 20,
             "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home\\scripts\\calibrate.log",
@@ -265,8 +251,7 @@
           "targetHrs": 0.5,
           "loggedHrs": 0.5,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "OIII",
@@ -275,8 +260,7 @@
           "targetHrs": 0.25,
           "loggedHrs": 0.25,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         },
         {
           "filter": "SII",
@@ -285,8 +269,7 @@
           "targetHrs": 0.25,
           "loggedHrs": 0.25,
           "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null
+          "cullMeta": null
         }
       ],
       "checklist": [
@@ -938,8 +921,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 15,
-    "savedAt": "2026-08-11T02:16:56.485Z"
+    "build": 14,
+    "savedAt": "2026-08-11T00:43:57.078Z"
   },
   "uiTheme": "dark",
   "homeSite": {

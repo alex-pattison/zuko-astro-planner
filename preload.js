@@ -54,6 +54,7 @@ contextBridge.exposeInMainWorld('zukoIngest', {
 
 contextBridge.exposeInMainWorld('zukoSiril', {
   calibrate: (opts) => ipcRenderer.invoke('zuko-siril-calibrate', opts || {}),
+  aggregate: (opts) => ipcRenderer.invoke('zuko-siril-aggregate', opts || {}),
   stackFilter: (opts) => ipcRenderer.invoke('zuko-siril-stack-filter', opts || {}),
   buildMaster: (opts) => ipcRenderer.invoke('zuko-siril-build-master', opts || {}),
   readLog: (opts) => ipcRenderer.invoke('zuko-siril-read-log', opts || {}),
