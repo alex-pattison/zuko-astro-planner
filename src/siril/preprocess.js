@@ -867,6 +867,186 @@ async function stackFilter(opts = {}) {
   };
 }
 
+/** Siril night scratch folders (safe to delete after Aggregate / Register). */
+const SHOOT_INTERMEDIATE_DIRS = ['masters', 'process', 'scripts'];
+const CHANNEL_INTERMEDIATE_DIRS = ['Aggregate', '_stack'];
+
+async function pathExistsAsync(p) {
+  try {
+    await fsp.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function folderSizeBytes(dir) {
+  if (!dir || !(await pathExistsAsync(dir))) return 0;
+  let total = 0;
+  async function walk(d) {
+    let entries;
+    try {
+      entries = await fsp.readdir(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const fp = path.join(d, ent.name);
+      if (ent.isDirectory()) await walk(fp);
+      else if (ent.isFile()) {
+        try {
+          const st = await fsp.stat(fp);
+          total += st.size || 0;
+        } catch { /* ignore */ }
+      }
+    }
+  }
+  await walk(dir);
+  return total;
+}
+
+async function inspectShootDisk(shootDir) {
+  const dir = shootDir && String(shootDir).trim();
+  if (!dir) return { ok: false, error: 'shootDir is required' };
+  if (!(await pathExistsAsync(dir))) {
+    return {
+      ok: true,
+      shootDir: dir,
+      exists: false,
+      sizeBytes: 0,
+      intermediates: { masters: false, process: false, scripts: false },
+      intermediateBytes: 0,
+      hasIntermediates: false,
+      status: 'missing',
+    };
+  }
+  const intermediates = {};
+  let intermediateBytes = 0;
+  for (const name of SHOOT_INTERMEDIATE_DIRS) {
+    const p = path.join(dir, name);
+    const exists = await pathExistsAsync(p);
+    intermediates[name] = exists;
+    if (exists) intermediateBytes += await folderSizeBytes(p);
+  }
+  const hasIntermediates = SHOOT_INTERMEDIATE_DIRS.some((n) => intermediates[n]);
+  const sizeBytes = await folderSizeBytes(dir);
+  return {
+    ok: true,
+    shootDir: dir,
+    exists: true,
+    sizeBytes,
+    intermediates,
+    intermediateBytes,
+    hasIntermediates,
+    status: hasIntermediates ? 'dirty' : 'clean',
+  };
+}
+
+/**
+ * Delete masters/, process/, scripts/ under a staged night folder.
+ * Leaves lights/flats/darks/biases (and any Aggregate hardlinks elsewhere).
+ */
+async function cleanShootIntermediates(shootDir) {
+  const dir = shootDir && String(shootDir).trim();
+  if (!dir) return { ok: false, error: 'shootDir is required' };
+  if (!(await pathExistsAsync(dir))) {
+    return { ok: false, error: `Shoot folder not found: ${dir}` };
+  }
+  const removed = [];
+  const failed = [];
+  for (const name of SHOOT_INTERMEDIATE_DIRS) {
+    const p = path.join(dir, name);
+    if (!(await pathExistsAsync(p))) continue;
+    try {
+      await fsp.rm(p, { recursive: true, force: true });
+      removed.push(name);
+    } catch (e) {
+      failed.push({ name, error: String(e && e.message ? e.message : e) });
+    }
+  }
+  const inspect = await inspectShootDisk(dir);
+  return {
+    ...inspect,
+    ok: failed.length === 0,
+    shootDir: dir,
+    removed,
+    failed,
+    error: failed.length ? failed.map((f) => `${f.name}: ${f.error}`).join('; ') : undefined,
+  };
+}
+
+async function listProjectFilterDirs(projectDir) {
+  const root = projectDir && String(projectDir).trim();
+  if (!root || !(await pathExistsAsync(root))) return [];
+  const skip = new Set(['working', 'dark library', 'dark_library', '.git']);
+  try {
+    const entries = await fsp.readdir(root, { withFileTypes: true });
+    return entries
+      .filter((e) => e.isDirectory() && !skip.has(String(e.name).toLowerCase()))
+      .map((e) => e.name);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Clean all night intermediates, then each filter's Aggregate/ and _stack/.
+ * Keeps original subs and project working/ results.
+ */
+async function cleanProjectIntermediates({ projectDir, shootDirs = [], filters = [] } = {}) {
+  const root = projectDir && String(projectDir).trim();
+  if (!root) return { ok: false, error: 'projectDir is required' };
+  if (!(await pathExistsAsync(root))) {
+    return { ok: false, error: `Project folder not found: ${root}` };
+  }
+
+  const shootResults = [];
+  const seen = new Set();
+  for (const raw of shootDirs || []) {
+    const d = String(raw || '').trim();
+    if (!d || seen.has(d.toLowerCase())) continue;
+    seen.add(d.toLowerCase());
+    shootResults.push(await cleanShootIntermediates(d));
+  }
+
+  let filterNames = (filters || []).map((f) => String(f || '').trim()).filter(Boolean);
+  if (!filterNames.length) filterNames = await listProjectFilterDirs(root);
+
+  const channelRemoved = [];
+  const channelFailed = [];
+  for (const filter of filterNames) {
+    for (const name of CHANNEL_INTERMEDIATE_DIRS) {
+      const p = path.join(root, filter, name);
+      if (!(await pathExistsAsync(p))) continue;
+      try {
+        await fsp.rm(p, { recursive: true, force: true });
+        channelRemoved.push(path.join(filter, name));
+      } catch (e) {
+        channelFailed.push({
+          path: path.join(filter, name),
+          error: String(e && e.message ? e.message : e),
+        });
+      }
+    }
+  }
+
+  const shootFailed = shootResults.filter((r) => !r.ok);
+  const ok = shootFailed.length === 0 && channelFailed.length === 0;
+  return {
+    ok,
+    projectDir: root,
+    shootResults,
+    channelRemoved,
+    channelFailed,
+    error: !ok
+      ? [
+          ...shootFailed.map((r) => r.error || r.shootDir),
+          ...channelFailed.map((f) => `${f.path}: ${f.error}`),
+        ].join('; ')
+      : undefined,
+  };
+}
+
 module.exports = {
   resolveSirilCli,
   calibrateShoot,
@@ -880,5 +1060,8 @@ module.exports = {
   listPpLights,
   listAllPpLights,
   aggregateDirFor,
+  inspectShootDisk,
+  cleanShootIntermediates,
+  cleanProjectIntermediates,
   DEFAULT_SIRIL_CLI,
 };

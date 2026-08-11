@@ -587,6 +587,17 @@ ipcMain.handle('zuko-data-open-folder', async () => {
   return shell.openPath(dir);
 });
 
+ipcMain.handle('zuko-path-exists', async (_event, payload = {}) => {
+  const target = String((payload && payload.path) || '').trim();
+  if (!target) return { ok: false, exists: false, error: 'path is required' };
+  try {
+    await fsp.access(target);
+    return { ok: true, exists: true };
+  } catch {
+    return { ok: true, exists: false };
+  }
+});
+
 ipcMain.handle('zuko-data-load', async () => {
   const { label } = resolveDataPaths();
   try {
@@ -859,6 +870,33 @@ ipcMain.handle('zuko-siril-read-log', async (_event, payload = {}) => {
   try {
     const { readSirilLog } = loadSirilPreprocess();
     return await readSirilLog(payload || {});
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-inspect-shoot-disk', async (_event, payload = {}) => {
+  try {
+    const { inspectShootDisk } = loadSirilPreprocess();
+    return await inspectShootDisk(payload && payload.shootDir);
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-clean-shoot', async (_event, payload = {}) => {
+  try {
+    const { cleanShootIntermediates } = loadSirilPreprocess();
+    return await cleanShootIntermediates(payload && payload.shootDir);
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-clean-project', async (_event, payload = {}) => {
+  try {
+    const { cleanProjectIntermediates } = loadSirilPreprocess();
+    return await cleanProjectIntermediates(payload || {});
   } catch (e) {
     return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
   }

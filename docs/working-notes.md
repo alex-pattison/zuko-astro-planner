@@ -22,6 +22,13 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-11 — build 16 — Cleanup + source review polish
+- Night **Cleanup** + project **Cleanup project** remove Siril intermediates (`masters`/`process`/`scripts`; project also `Aggregate`/`_stack`); keeps lights and `working/` results. In-app confirm modal (not Windows `confirm`).
+- Night detail shows Folder size + Intermediates size; Copy Working Path; Source review shows ASIAIR path with Browse/Rescan.
+- Capture/Cull unchecked = dashed stub; green connectors only between consecutive done steps.
+- Red mode: filter colors remapped to red-only tones.
+- `npm run dist:win:beta` for build 16 installer.
+
 ### 2026-08-10 — build 15 — Aggregate before Cull
 - Per-filter trunk: **Aggregate → Cull → Register**. Aggregate hardlinks calibrated nights’ `process/pp_light_*` into `<Filter>/Aggregate/` (Siril home for cross-night cull). Register reads surviving Aggregate files (not re-gather from nights). Confirm modal includes Copy path.
 

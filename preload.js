@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('zukoFs', {
   save: (data) => ipcRenderer.invoke('zuko-data-save', data),
   getPath: () => ipcRenderer.invoke('zuko-data-path'),
   openFolder: () => ipcRenderer.invoke('zuko-data-open-folder'),
+  pathExists: (targetPath) => ipcRenderer.invoke('zuko-path-exists', { path: targetPath }),
 });
 
 contextBridge.exposeInMainWorld('zukoIngest', {
@@ -58,6 +59,9 @@ contextBridge.exposeInMainWorld('zukoSiril', {
   stackFilter: (opts) => ipcRenderer.invoke('zuko-siril-stack-filter', opts || {}),
   buildMaster: (opts) => ipcRenderer.invoke('zuko-siril-build-master', opts || {}),
   readLog: (opts) => ipcRenderer.invoke('zuko-siril-read-log', opts || {}),
+  inspectShootDisk: (opts) => ipcRenderer.invoke('zuko-siril-inspect-shoot-disk', opts || {}),
+  cleanShoot: (opts) => ipcRenderer.invoke('zuko-siril-clean-shoot', opts || {}),
+  cleanProject: (opts) => ipcRenderer.invoke('zuko-siril-clean-project', opts || {}),
   onLog: (handler) => {
     if (typeof handler !== 'function') return () => {};
     const listener = (_event, payload) => handler(payload || {});

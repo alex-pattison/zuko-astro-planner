@@ -21,17 +21,10 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 4,
+          "loggedHrs": 1,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": {
-            "aggregatedAt": "2026-08-11T02:16:30.139Z",
-            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\Aggregate",
-            "shootCount": 1,
-            "frameCount": 20,
-            "hardlinks": 20,
-            "copies": 0
-          }
+          "aggregateMeta": null
         },
         {
           "filter": "OIII",
@@ -159,7 +152,7 @@
             "stagedAt": "2026-08-10T01:23:58.707Z"
           },
           "preprocessMeta": {
-            "calibratedAt": "2026-08-11T01:47:12.254Z",
+            "calibratedAt": "2026-08-11T21:47:52.661Z",
             "shootDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home",
             "ppLightCount": 20,
             "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home\\scripts\\calibrate.log",
@@ -167,22 +160,11 @@
           }
         },
         {
-          "date": "260890",
-          "filterIndex": 0,
-          "hours": 0,
-          "complete": true,
-          "creditedHours": 0,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
           "date": "260808",
           "filterIndex": 0,
           "hours": 2,
-          "complete": true,
-          "creditedHours": 2,
+          "complete": false,
+          "creditedHours": 0,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
@@ -203,7 +185,7 @@
           "date": "260808",
           "filterIndex": 1,
           "hours": 0,
-          "complete": true,
+          "complete": false,
           "creditedHours": 0,
           "sourcePath": null,
           "ingestPath": null,
@@ -225,8 +207,8 @@
           "date": "260814",
           "filterIndex": 0,
           "hours": 1,
-          "complete": true,
-          "creditedHours": 1,
+          "complete": false,
+          "creditedHours": 0,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
@@ -939,7 +921,7 @@
   "appMeta": {
     "version": "0.2.0",
     "build": 15,
-    "savedAt": "2026-08-11T02:16:56.485Z"
+    "savedAt": "2026-08-11T21:47:53.813Z"
   },
   "uiTheme": "dark",
   "homeSite": {
@@ -3409,7 +3391,7 @@
   },
   "uiSections": {
     "tracked-projects": true,
-    "sky-forecast": false,
+    "sky-forecast": true,
     "action-items": false,
     "calibration-libraries": false,
     "optical-train": false,

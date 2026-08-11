@@ -72,17 +72,19 @@ async function cleanProjectDisk() {
     }
   }
   for (const filter of ['Ha', 'OIII', 'SII']) {
-    const stack = path.join(PROJECT, filter, '_stack');
-    if (fs.existsSync(stack)) {
-      if (await rm(stack)) removed.push(stack);
-      else failed.push(stack);
+    for (const name of ['_stack', 'Aggregate']) {
+      const dir = path.join(PROJECT, filter, name);
+      if (fs.existsSync(dir)) {
+        if (await rm(dir)) removed.push(dir);
+        else failed.push(dir);
+      }
     }
     const filterRoot = path.join(PROJECT, filter);
     if (!fs.existsSync(filterRoot)) continue;
     for (const name of await fsp.readdir(filterRoot)) {
       const shootRoot = path.join(filterRoot, name);
       if (!fs.statSync(shootRoot).isDirectory()) continue;
-      if (name === '_stack') continue;
+      if (name === '_stack' || name === 'Aggregate') continue;
       await cleanSirilOutputsUnder(shootRoot);
     }
   }
@@ -118,6 +120,7 @@ function resetNanProject(p) {
   }));
 
   for (const ft of p.filterTargets || []) {
+    ft.aggregateMeta = null;
     ft.cullMeta = null;
     ft.stackMeta = null;
     ft.loggedHrs = 0;
@@ -137,6 +140,7 @@ function clearPipelineMeta(p) {
     sh.preprocessMeta = null;
   }
   for (const ft of p.filterTargets || []) {
+    ft.aggregateMeta = null;
     ft.cullMeta = null;
     ft.stackMeta = null;
   }
@@ -176,6 +180,7 @@ function patchJson(filePath, diskRemoved) {
       nan.filterTargets.map((f) => ({
         f: f.filter,
         logged: f.loggedHrs,
+        agg: !!f.aggregateMeta,
         cull: !!f.cullMeta,
         stack: !!f.stackMeta,
       })),
@@ -200,7 +205,7 @@ async function main() {
 
   console.log('\nReady for manual try:');
   console.log('  • Shoot log: 3× 260720 (Ha/OIII/SII), ingested, not calibrated');
-  console.log('  • Pipeline: Capture/Ingest done; Calibration / Cull / Registration clear');
+  console.log('  • Pipeline: Capture/Ingest done; Calibrate / Aggregate / Cull / Register clear');
   console.log('  • Reload Electron (Ctrl+R) from C:\\Users\\alexp\\Projects\\zuko-astro-planner');
   if (failed.length) process.exitCode = 2;
 }

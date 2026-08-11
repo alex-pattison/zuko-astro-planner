@@ -714,7 +714,46 @@
   .source-review-sub {
     font-size: 12px;
     color: var(--text2);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+  }
+  .source-review-path {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .source-review-path-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .source-review-path-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .source-review-path-row input {
+    flex: 1;
+    min-width: 180px;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg2);
+    color: var(--text);
+  }
+  .source-review-path-row .modal-btn {
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 11px;
   }
   .source-review-table {
     width: 100%;
@@ -956,6 +995,14 @@
   tr.ingest-files-flt.flt-b td.filter-cell { color: #93c5fd; font-weight: 600; }
   tr.ingest-files-flt.flt-l td.filter-cell { color: #e2e8f0; font-weight: 600; }
   tr.ingest-files-flt.flt-hb td.filter-cell { color: #818cf8; font-weight: 600; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-ha td.filter-cell,
+  html[data-theme="red"] tr.ingest-files-flt.flt-r td.filter-cell { color: #ff1a1a; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-oiii td.filter-cell { color: #e05050; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-sii td.filter-cell { color: #ff7777; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-g td.filter-cell { color: #dd5555; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-b td.filter-cell { color: #bb4444; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-l td.filter-cell { color: #ff9999; }
+  html[data-theme="red"] tr.ingest-files-flt.flt-hb td.filter-cell { color: #cc3333; }
   .ingest-files-actions {
     display: flex;
     justify-content: flex-end;
@@ -1123,6 +1170,16 @@
   html[data-theme="light"] .pipeline-channel.flt-r .pipeline-channel-title { color: #dc2626; }
   html[data-theme="light"] .pipeline-channel.flt-g .pipeline-channel-title { color: #15803d; }
   html[data-theme="light"] .pipeline-channel.flt-b .pipeline-channel-title { color: #1d4ed8; }
+  html[data-theme="red"] .pipeline-channel.flt-ha .pipeline-channel-title,
+  html[data-theme="red"] .pipeline-channel.flt-r .pipeline-channel-title,
+  html[data-theme="red"] .pipeline-channel.flt-rgb .pipeline-channel-title { color: #ff1a1a; }
+  html[data-theme="red"] .pipeline-channel.flt-oiii .pipeline-channel-title { color: #e05050; }
+  html[data-theme="red"] .pipeline-channel.flt-sii .pipeline-channel-title { color: #ff7777; }
+  html[data-theme="red"] .pipeline-channel.flt-hb .pipeline-channel-title { color: #cc3333; }
+  html[data-theme="red"] .pipeline-channel.flt-l .pipeline-channel-title { color: #ff9999; }
+  html[data-theme="red"] .pipeline-channel.flt-g .pipeline-channel-title { color: #dd5555; }
+  html[data-theme="red"] .pipeline-channel.flt-b .pipeline-channel-title { color: #bb4444; }
+  html[data-theme="red"] .pipeline-channel.flt-other .pipeline-channel-title { color: #992222; }
 
   /* Same grid for every filter: night rails | gutter (spine) | Cull/Reg trunk */
   .pipeline-merge-wrap {
@@ -1474,6 +1531,15 @@
   html[data-theme="light"] .pipeline-channel.flt-r { border-left-color: #dc2626; }
   html[data-theme="light"] .pipeline-channel.flt-g { border-left-color: #15803d; }
   html[data-theme="light"] .pipeline-channel.flt-b { border-left-color: #1d4ed8; }
+  html[data-theme="red"] .pipeline-channel.flt-ha,
+  html[data-theme="red"] .pipeline-channel.flt-r { border-left-color: #ff1a1a; }
+  html[data-theme="red"] .pipeline-channel.flt-oiii { border-left-color: #e05050; }
+  html[data-theme="red"] .pipeline-channel.flt-sii { border-left-color: #ff7777; }
+  html[data-theme="red"] .pipeline-channel.flt-hb { border-left-color: #cc3333; }
+  html[data-theme="red"] .pipeline-channel.flt-l { border-left-color: #ff9999; }
+  html[data-theme="red"] .pipeline-channel.flt-g { border-left-color: #dd5555; }
+  html[data-theme="red"] .pipeline-channel.flt-b { border-left-color: #bb4444; }
+  html[data-theme="red"] .pipeline-channel.flt-other { border-left-color: #992222; }
   html[data-theme="light"] tr.ingest-files-flt.flt-sii td.filter-cell,
   html[data-theme="light"] tr.ingest-row-match.flt-sii td:first-child,
   html[data-theme="light"] .ingest-chip .flt-sii { color: #a16207; }
@@ -1516,15 +1582,8 @@
     background: var(--pipeline-line);
     z-index: 0;
   }
-  /* Night rails: green when the left step is done. */
-  .pipeline-step.done:not(:last-child)::after {
-    background: var(--pipeline-line-done);
-  }
-  /* Trunk Cull→Register: stay gray until Register is also done (don't run past Cull). */
-  .pipeline-track-channel .pipeline-step.done:not(:last-child)::after {
-    background: var(--pipeline-line);
-  }
-  .pipeline-track-channel .pipeline-step.done:has(+ .pipeline-step.done)::after {
+  /* Connector goes green only when the next step is also done (line to the left of a done bubble). */
+  .pipeline-step.done:has(+ .pipeline-step.done)::after {
     background: var(--pipeline-line-done);
   }
   .pipeline-dot {
@@ -1787,6 +1846,14 @@
   tr.ingest-row-match.flt-g td:first-child { color: #86efac; font-weight: 600; }
   tr.ingest-row-match.flt-b td:first-child { color: #93c5fd; font-weight: 600; }
   tr.ingest-row-match.flt-l td:first-child { color: #e2e8f0; font-weight: 600; }
+  html[data-theme="red"] tr.ingest-row-match.flt-ha td:first-child,
+  html[data-theme="red"] tr.ingest-row-match.flt-r td:first-child,
+  html[data-theme="red"] tr.ingest-row-match.flt-rgb td:first-child { color: #ff1a1a; }
+  html[data-theme="red"] tr.ingest-row-match.flt-oiii td:first-child { color: #e05050; }
+  html[data-theme="red"] tr.ingest-row-match.flt-sii td:first-child { color: #ff7777; }
+  html[data-theme="red"] tr.ingest-row-match.flt-g td:first-child { color: #dd5555; }
+  html[data-theme="red"] tr.ingest-row-match.flt-b td:first-child { color: #bb4444; }
+  html[data-theme="red"] tr.ingest-row-match.flt-l td:first-child { color: #ff9999; }
   tr.ingest-row-match {
     background: color-mix(in srgb, var(--accent) 8%, transparent);
   }
@@ -1841,6 +1908,9 @@
   .ingest-chip .flt-ha { color: #f87171; }
   .ingest-chip .flt-oiii { color: #67e8f9; }
   .ingest-chip .flt-sii { color: #fde68a; }
+  html[data-theme="red"] .ingest-chip .flt-ha { color: #ff1a1a; }
+  html[data-theme="red"] .ingest-chip .flt-oiii { color: #e05050; }
+  html[data-theme="red"] .ingest-chip .flt-sii { color: #ff7777; }
   tr.ingest-dark-reject {
     background: color-mix(in srgb, var(--yellow) 14%, transparent);
   }
@@ -2539,6 +2609,14 @@
   .filter-r { color: #fca5a5; border-color: #7f1d1d; }
   .filter-g { color: #86efac; border-color: #14532d; }
   .filter-b { color: #93c5fd; border-color: #1e3a5f; }
+  html[data-theme="red"] .filter-ha,
+  html[data-theme="red"] .filter-r { color: #ff1a1a; border-color: #7a0000; }
+  html[data-theme="red"] .filter-oiii { color: #e05050; border-color: #5a0000; }
+  html[data-theme="red"] .filter-sii { color: #ff7777; border-color: #6a1010; }
+  html[data-theme="red"] .filter-hb { color: #cc3333; border-color: #4a0000; }
+  html[data-theme="red"] .filter-l { color: #ff9999; border-color: #661111; }
+  html[data-theme="red"] .filter-g { color: #dd5555; border-color: #550000; }
+  html[data-theme="red"] .filter-b { color: #bb4444; border-color: #440000; }
 
   /* Config table */
   .config-table { width: 100%; border-collapse: collapse; }
@@ -3149,6 +3227,13 @@
     margin-top: 6px;
   }
   .mini-btn:hover { background: rgba(59,130,246,0.25); }
+  .mini-btn:disabled,
+  .mini-btn.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: none;
+    pointer-events: none;
+  }
 
   .gaia-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
   .shoot-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); }
@@ -4861,6 +4946,15 @@
   <div class="source-review-modal" role="dialog" aria-labelledby="source-review-title">
     <h3 id="source-review-title">Source review</h3>
     <div class="source-review-sub" id="source-review-sub">Lights with no shoot log or a mismatched target.</div>
+    <div class="source-review-path" id="source-review-path">
+      <span class="source-review-path-label">ASIAIR source</span>
+      <div class="source-review-path-row">
+        <input type="text" id="source-review-path-input" data-testid="source-review-path" readonly
+          placeholder="ASIAIR unit / USB Autorun parent…">
+        <button type="button" class="modal-btn" data-testid="source-review-browse" onclick="browseSourceReviewPath()">Browse…</button>
+        <button type="button" class="modal-btn" data-testid="source-review-rescan" onclick="rescanSourceReview()">Rescan</button>
+      </div>
+    </div>
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:8px;">
       <input type="checkbox" id="source-review-show-ignored" onchange="renderSourceReviewTable()"> Show ignored folders
     </label>
@@ -5076,7 +5170,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 15, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 16, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -7672,6 +7766,7 @@ function toggleNightPipelineDetail(pi, si) {
   if (nightPipelineDetailOpen.has(key)) nightPipelineDetailOpen.delete(key);
   else nightPipelineDetailOpen.add(key);
   renderProjects();
+  refreshOpenNightDiskInfo();
 }
 
 function pipelineChannelSortKey(pi, tone) {
@@ -8158,6 +8253,8 @@ function renderProjects() {
   restoreLiveFramers(liveFramers);
   setTimeout(() => { window._suppressFramerToggle = false; }, 0);
   schedulePipelineMergeLayout();
+  refreshWorkingPathButtons();
+  refreshOpenNightDiskInfo();
   // Init framers only when missing — never tear down a preserved viewer on routine saves.
   setTimeout(() => {
     data.projects.forEach((p, pi) => {
@@ -10736,7 +10833,50 @@ function ingestTargetStageOpts(project) {
 function closeSourceReview() {
   const el = document.getElementById('source-review-overlay');
   if (el) el.classList.remove('open');
-  sourceReviewCtx = { pi: null, rows: [] };
+  sourceReviewCtx = { pi: null, rows: [], scan: null, sourceDir: '' };
+  syncBodyScrollLock();
+}
+
+function syncSourceReviewPathInput(pathVal) {
+  const el = document.getElementById('source-review-path-input');
+  if (el) {
+    el.value = pathVal || '';
+    el.title = pathVal || '';
+  }
+}
+
+async function browseSourceReviewPath() {
+  if (!window.zukoIngest) {
+    alert('Folder browse needs the Electron app (npm start).');
+    return;
+  }
+  const pi = sourceReviewCtx && sourceReviewCtx.pi;
+  const current = (document.getElementById('source-review-path-input') || {}).value
+    || getAsiairSourcePath();
+  const picked = await window.zukoIngest.pickFolder({
+    title: 'Select ASIAIR source (Autorun/Plan parent, or Autorun itself)',
+    defaultPath: current || undefined,
+  });
+  if (!picked || !picked.ok || picked.canceled) return;
+  if (ingestCtx) ingestCtx.sourcePath = picked.path;
+  setAsiairSourcePath(picked.path, { persist: true });
+  syncSourceReviewPathInput(picked.path);
+  syncIngestSourcePathInput(picked.path);
+  const settingsEl = document.getElementById('settings-asiair-source');
+  if (settingsEl) settingsEl.value = picked.path;
+  if (pi != null) await openSourceReview(pi);
+}
+
+async function rescanSourceReview() {
+  const pi = sourceReviewCtx && sourceReviewCtx.pi;
+  if (pi == null) return;
+  const inputVal = String((document.getElementById('source-review-path-input') || {}).value || '').trim();
+  if (inputVal) {
+    if (ingestCtx) ingestCtx.sourcePath = inputVal;
+    setAsiairSourcePath(inputVal, { persist: true });
+    syncIngestSourcePathInput(inputVal);
+  }
+  await openSourceReview(pi);
 }
 
 async function openSourceReview(pi) {
@@ -10749,18 +10889,21 @@ async function openSourceReview(pi) {
     alert('Set a Project directory first.');
     return;
   }
-  const sourceDir = resolveAsiairSourceDir(project);
-  if (!sourceDir) {
-    alert('Set an ASIAIR source path (Settings → ASIAIR source).');
-    return;
-  }
-  sourceReviewCtx = { pi, rows: [], scan: null };
+  const inputVal = String((document.getElementById('source-review-path-input') || {}).value || '').trim();
+  const sourceDir = inputVal || resolveAsiairSourceDir(project) || '';
+  sourceReviewCtx = { pi, rows: [], scan: null, sourceDir };
   document.getElementById('source-review-title').textContent =
     `Source review — ${project.name || 'Project'}`;
-  document.getElementById('source-review-sub').textContent = `Scanning ${shortPath(sourceDir)}…`;
+  document.getElementById('source-review-sub').textContent = sourceDir ? 'Scanning…' : 'Set an ASIAIR source path to scan.';
+  syncSourceReviewPathInput(sourceDir);
   document.getElementById('source-review-body').innerHTML =
-    '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
+    sourceDir
+      ? '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>'
+      : '<tr><td colspan="10" style="color:var(--yellow);">No ASIAIR source set — use Browse…</td></tr>';
   document.getElementById('source-review-overlay').classList.add('open');
+  syncBodyScrollLock();
+
+  if (!sourceDir) return;
 
   const coords = projectTargetCoords(project);
   const scan = await window.zukoIngest.scanSession({
@@ -10772,7 +10915,7 @@ async function openSourceReview(pi) {
     document.getElementById('source-review-sub').textContent =
       (scan && scan.error) || 'Scan failed';
     document.getElementById('source-review-body').innerHTML =
-      '<tr><td colspan="10" style="color:var(--yellow);">Could not scan ASIAIR source. Set Settings → ASIAIR source or Browse in Import.</td></tr>';
+      '<tr><td colspan="10" style="color:var(--yellow);">Could not scan ASIAIR source. Use Browse… or check Settings → ASIAIR source.</td></tr>';
     return;
   }
   sourceReviewCtx.scan = scan;
@@ -12170,7 +12313,7 @@ function renderNightCaptureImportCalSteps(project, pi, sh, si, opts = {}) {
   const s = shootNightStepOpts(project, pi, sh, si);
   const calOpts = Object.assign({}, s.calOpts, opts.sourcePort ? { port: 'source' } : {});
   return [
-    pipelineStepHtml('Capture', s.captureDone ? 'done' : '', s.captureOpts),
+    pipelineStepHtml('Capture', s.captureDone ? 'done' : 'stub', s.captureOpts),
     pipelineStepHtml('Import', s.ingestDone ? 'done' : '', s.importOpts),
     pipelineStepHtml('Calibrate', s.calDone ? 'done' : '', calOpts),
   ].join('');
@@ -12252,10 +12395,10 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   }
 
   const aggStep = pipelineStepHtml('Aggregate', aggDone ? 'done' : '', aggOpts);
-  // Cull stays unchecked until Aggregate is done; stub only when ready to cull; green only when marked.
+  // Cull is a manual checkbox (dashed stub until marked); green only when marked after Aggregate.
   const cullStep = pipelineStepHtml(
     'Cull',
-    cullDone ? 'done' : (aggDone ? 'stub' : ''),
+    cullDone ? 'done' : 'stub',
     cullOpts,
   );
   const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', regOpts);
@@ -12280,7 +12423,12 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
   const lightsN = meta.lightCount != null
     ? meta.lightCount
     : (meta.frameCount != null ? meta.frameCount : (meta.byType && meta.byType.light));
-  return `<div class="pipeline-night-detail" onclick="event.stopPropagation()">
+  const shootDir = resolveShootCalibrateDir(project, sh);
+  const canCleanup = !!(shootDir && window.zukoSiril && typeof window.zukoSiril.cleanShoot === 'function');
+  const cleanupBtn = canCleanup
+    ? `<button type="button" class="mini-btn" data-testid="cleanup-night" data-cleanup-shoot="${pi}:${si}" onclick="event.stopPropagation(); cleanupShootNight(${pi},${si})" title="Delete masters/, process/, and scripts/ for this night">Cleanup</button>`
+    : `<button type="button" class="mini-btn locked" data-testid="cleanup-night" disabled title="${shootDir ? 'Cleanup needs the Electron desktop app' : 'Import this night first'}">Cleanup</button>`;
+  return `<div class="pipeline-night-detail" onclick="event.stopPropagation()" data-night-detail="${pi}:${si}" data-shoot-dir="${escapeAttr(shootDir || '')}">
     <div class="pipeline-night-detail-grid">
       <div><div class="detail-k">Shoot code</div><div class="detail-v">${escapeHtml(code)}</div></div>
       <div><div class="detail-k">Capture plan</div><div class="detail-v">${ft ? `${escapeHtml(ft.filter)} — ${escapeHtml(ft.location || '')}` : '—'}</div></div>
@@ -12289,9 +12437,12 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
       <div><div class="detail-k">Temp</div><div class="detail-v">${meta.tempC != null ? `${meta.tempC}°C` : '—'}</div></div>
       <div><div class="detail-k">Gain</div><div class="detail-v">${meta.gain != null ? meta.gain : '—'}</div></div>
       <div><div class="detail-k">Target hours</div><div class="detail-v">${Number(sh.hours) || 0}h</div></div>
+      <div><div class="detail-k">Folder size</div><div class="detail-v" data-shoot-folder-size="${pi}:${si}">…</div></div>
+      <div><div class="detail-k">Intermediates</div><div class="detail-v" data-shoot-intermediate-size="${pi}:${si}">…</div></div>
       <div><div class="detail-k">Import path</div><div class="detail-v" style="word-break:break-all;">${sh.ingestPath ? escapeHtml(String(sh.ingestPath)) : '—'}</div></div>
     </div>
     <div class="pipeline-night-detail-actions">
+      ${cleanupBtn}
       <button type="button" class="mini-btn" onclick="editShoot(${pi},${si})">Edit night</button>
       <button type="button" class="mini-btn pipeline-night-remove" onclick="removeShoot(${pi},${si})">Remove night</button>
     </div>
@@ -12427,6 +12578,26 @@ function renderChannelPipelineSection(project, pi) {
     reviewBtn = `<button class="mini-btn" data-testid="review-source" onclick="openSourceReview(${pi})" title="Lights with no shoot log or mismatched target">Review source</button>`;
   }
 
+  const workingDir = hasProjectDir ? pathJoinWin(project.projectDir, 'working') : '';
+  const workingReady = !!(workingDir && projectWorkingDirExistsHint(project, workingDir));
+  let copyWorkingBtn;
+  if (!hasProjectDir || !workingDir) {
+    copyWorkingBtn = `<button class="mini-btn locked" data-testid="copy-working-path" disabled title="Set Project directory first">Copy Working Path</button>`;
+  } else if (workingReady) {
+    copyWorkingBtn = `<button class="mini-btn" data-testid="copy-working-path" data-copy-working-path="${escapeAttr(workingDir)}" title="${escapeAttr(workingDir)}" onclick="event.stopPropagation(); copyPathToClipboard(this.getAttribute('data-copy-working-path'))">Copy Working Path</button>`;
+  } else {
+    copyWorkingBtn = `<button class="mini-btn locked" data-testid="copy-working-path" data-copy-working-path="${escapeAttr(workingDir)}" disabled title="Working folder not created yet — run Register first">Copy Working Path</button>`;
+  }
+
+  let cleanupProjectBtn;
+  if (!hasProjectDir) {
+    cleanupProjectBtn = `<button class="mini-btn locked" data-testid="cleanup-project" disabled title="Set Project directory first">Cleanup project</button>`;
+  } else if (!window.zukoSiril || typeof window.zukoSiril.cleanProject !== 'function') {
+    cleanupProjectBtn = `<button class="mini-btn locked" data-testid="cleanup-project" disabled title="Cleanup needs the Electron desktop app">Cleanup project</button>`;
+  } else {
+    cleanupProjectBtn = `<button class="mini-btn" data-testid="cleanup-project" onclick="cleanupProjectIntermediates(${pi})" title="Delete masters/process/scripts per night plus Aggregate/ and _stack/; keeps lights and working/">Cleanup project</button>`;
+  }
+
   let importAllBtn;
   if (!hasProjectDir) {
     importAllBtn = `<button class="mini-btn ingest-btn locked" data-testid="ingest-all" disabled title="Set Project directory before import">Import all</button>`;
@@ -12446,6 +12617,8 @@ function renderChannelPipelineSection(project, pi) {
 
   const actions = `<div class="shoot-log-actions" style="margin:6px 0 10px;">
       <button class="mini-btn" data-testid="plan-shoot" onclick="addShoot(${pi})">+ Plan Shoot</button>
+      ${copyWorkingBtn}
+      ${cleanupProjectBtn}
       ${reviewBtn}
       ${importAllBtn}
     </div>`;
@@ -12710,7 +12883,7 @@ function closePipelineJobConfirm() {
   syncBodyScrollLock();
 }
 
-function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending }) {
+function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, startLabel }) {
   _pipelineJobPending = pending || null;
   const overlay = document.getElementById('pipeline-job-overlay');
   if (!overlay) return;
@@ -12720,8 +12893,12 @@ function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending }) {
   document.getElementById('pipeline-job-notes').innerHTML = notesHtml || '';
   const startBtn = document.getElementById('pipeline-job-start');
   if (startBtn) {
-    if (pending && pending.kind === 'aggregate') {
+    if (startLabel) {
+      startBtn.textContent = startLabel;
+    } else if (pending && pending.kind === 'aggregate') {
       startBtn.textContent = pending.rerun ? 'Re-aggregate' : 'Aggregate';
+    } else if (pending && (pending.kind === 'cleanup-shoot' || pending.kind === 'cleanup-project')) {
+      startBtn.textContent = 'Cleanup';
     } else {
       startBtn.textContent = pending && pending.rerun ? 'Start re-run' : 'Start';
     }
@@ -12744,6 +12921,14 @@ function confirmPipelineJobStart() {
   }
   if (pending.kind === 'register') {
     registerAndStackFilterTone(pending.pi, pending.tone);
+    return;
+  }
+  if (pending.kind === 'cleanup-shoot') {
+    runCleanupShootNight(pending.pi, pending.si, pending.shootDir);
+    return;
+  }
+  if (pending.kind === 'cleanup-project') {
+    runCleanupProjectIntermediates(pending.pi, pending.shootDirs, pending.filters);
   }
 }
 
@@ -12794,6 +12979,214 @@ function copyPathToClipboard(path) {
     return;
   }
   alert('Clipboard not available');
+}
+
+/** Cache: working/ path → exists on disk (created by Register). */
+const _workingDirExistsCache = new Map();
+
+function projectWorkingDirExistsHint(project, workingDir) {
+  const dir = String(workingDir || '').trim();
+  if (!dir) return false;
+  if (_workingDirExistsCache.has(dir)) return !!_workingDirExistsCache.get(dir);
+  return (project.filterTargets || []).some((f) => f && f.stackMeta && f.stackMeta.resultPath);
+}
+
+async function refreshWorkingPathButtons() {
+  const btns = document.querySelectorAll('[data-copy-working-path]');
+  if (!btns.length) return;
+  const canCheck = !!(window.zukoFs && typeof window.zukoFs.pathExists === 'function');
+  for (const btn of btns) {
+    const dir = String(btn.getAttribute('data-copy-working-path') || '').trim();
+    if (!dir) {
+      btn.disabled = true;
+      btn.classList.add('locked');
+      continue;
+    }
+    let exists = _workingDirExistsCache.has(dir) ? !!_workingDirExistsCache.get(dir) : false;
+    if (canCheck) {
+      try {
+        const r = await window.zukoFs.pathExists(dir);
+        exists = !!(r && r.exists);
+        _workingDirExistsCache.set(dir, exists);
+      } catch {
+        /* keep prior hint */
+      }
+    }
+    btn.disabled = !exists;
+    if (exists) {
+      btn.classList.remove('locked');
+      btn.removeAttribute('disabled');
+      btn.title = dir;
+      btn.onclick = (event) => {
+        event.stopPropagation();
+        copyPathToClipboard(btn.getAttribute('data-copy-working-path'));
+      };
+    } else {
+      btn.classList.add('locked');
+      btn.setAttribute('disabled', 'disabled');
+      btn.title = 'Working folder not created yet — run Register first';
+      btn.onclick = null;
+    }
+  }
+}
+
+async function refreshOpenNightDiskInfo() {
+  if (!window.zukoSiril || typeof window.zukoSiril.inspectShootDisk !== 'function') return;
+  const panels = document.querySelectorAll('[data-night-detail]');
+  for (const panel of panels) {
+    const key = panel.getAttribute('data-night-detail') || '';
+    const shootDir = String(panel.getAttribute('data-shoot-dir') || '').trim();
+    const sizeEl = panel.querySelector(`[data-shoot-folder-size="${key}"]`);
+    const interEl = panel.querySelector(`[data-shoot-intermediate-size="${key}"]`);
+    const btn = panel.querySelector('[data-cleanup-shoot]');
+    if (!shootDir) {
+      if (sizeEl) sizeEl.textContent = '—';
+      if (interEl) interEl.textContent = '—';
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('locked');
+      }
+      continue;
+    }
+    if (sizeEl) sizeEl.textContent = '…';
+    if (interEl) interEl.textContent = '…';
+    try {
+      const info = await window.zukoSiril.inspectShootDisk({ shootDir });
+      if (sizeEl) {
+        sizeEl.textContent = info && info.ok && info.exists
+          ? formatBytesShort(info.sizeBytes)
+          : '—';
+        if (info && info.ok && info.exists) sizeEl.title = shootDir;
+      }
+      if (interEl) {
+        const bytes = info && info.ok && info.exists ? (Number(info.intermediateBytes) || 0) : 0;
+        interEl.textContent = info && info.ok && info.exists ? formatBytesShort(bytes) : '—';
+        interEl.title = bytes
+          ? 'masters/ + process/ + scripts/'
+          : 'No masters/, process/, or scripts/';
+      }
+      if (btn) {
+        const dirty = !!(info && info.ok && info.hasIntermediates);
+        btn.disabled = !dirty;
+        if (dirty) {
+          btn.classList.remove('locked');
+          btn.title = 'Delete masters/, process/, and scripts/ for this night';
+        } else {
+          btn.classList.add('locked');
+          btn.title = 'No masters/process/scripts to remove';
+        }
+      }
+    } catch (e) {
+      if (sizeEl) sizeEl.textContent = '—';
+      if (interEl) interEl.textContent = '—';
+    }
+  }
+}
+
+async function cleanupShootNight(pi, si) {
+  if (!window.zukoSiril || typeof window.zukoSiril.cleanShoot !== 'function') {
+    alert('Cleanup needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  const sh = project && project.shoots && project.shoots[si];
+  if (!project || !sh) return;
+  const shootDir = resolveShootCalibrateDir(project, sh);
+  if (!shootDir) {
+    alert('Import this night before cleanup.');
+    return;
+  }
+  const ft = project.filterTargets[sh.filterIndex];
+  const code = buildShootCode(sh, ft);
+  const bodyHtml = `<div class="pipeline-job-grid">
+    ${pipelineJobRow('Night', escapeHtml(String(sh.date || '—')))}
+    ${pipelineJobRow('Shoot', escapeHtml(code))}
+    ${pipelineJobRow('Folder', `<code style="word-break:break-all;">${escapeHtml(shootDir)}</code>`)}
+  </div>`;
+  openPipelineJobConfirm({
+    title: 'Cleanup night',
+    sub: 'Remove Siril intermediates for this night only.',
+    bodyHtml,
+    notesHtml:
+      `<div>Deletes <code>masters/</code>, <code>process/</code>, <code>scripts/</code>.</div>` +
+      `<div style="margin-top:6px;">Keeps lights, flats, darks, and biases.</div>` +
+      `<div class="warn" style="margin-top:6px;">Calibrate will need to be run again for this night.</div>`,
+    startLabel: 'Cleanup',
+    pending: { kind: 'cleanup-shoot', pi, si, shootDir },
+  });
+}
+
+async function runCleanupShootNight(pi, si, shootDir) {
+  const project = data.projects[pi];
+  const sh = project && project.shoots && project.shoots[si];
+  if (!project || !sh || !shootDir) return;
+  const result = await window.zukoSiril.cleanShoot({ shootDir });
+  if (!result || !result.ok) {
+    alert((result && result.error) || 'Cleanup failed');
+    return;
+  }
+  sh.preprocessMeta = null;
+  save();
+  renderProjects();
+}
+
+async function cleanupProjectIntermediates(pi) {
+  if (!window.zukoSiril || typeof window.zukoSiril.cleanProject !== 'function') {
+    alert('Cleanup needs the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  if (!project || !project.projectDir) {
+    alert('Set Project directory first.');
+    return;
+  }
+  const shootDirs = (project.shoots || [])
+    .map((sh) => resolveShootCalibrateDir(project, sh))
+    .filter(Boolean);
+  const filters = [...new Set(
+    (project.filterTargets || []).map((f) => f && f.filter).filter(Boolean)
+  )];
+  const bodyHtml = `<div class="pipeline-job-grid">
+    ${pipelineJobRow('Project', escapeHtml(project.name || '—'))}
+    ${pipelineJobRow('Directory', `<code style="word-break:break-all;">${escapeHtml(String(project.projectDir))}</code>`)}
+    ${pipelineJobRow('Nights', String(shootDirs.length))}
+    ${pipelineJobRow('Filters', escapeHtml(filters.join(', ') || '—'))}
+  </div>`;
+  openPipelineJobConfirm({
+    title: 'Cleanup project',
+    sub: 'Free disk space while keeping originals and final stacks.',
+    bodyHtml,
+    notesHtml:
+      `<div>Deletes per night: <code>masters/</code>, <code>process/</code>, <code>scripts/</code>.</div>` +
+      `<div style="margin-top:6px;">Deletes per filter: <code>Aggregate/</code>, <code>_stack/</code>.</div>` +
+      `<div style="margin-top:6px;">Keeps original subs and <code>working/</code> result FITS.</div>` +
+      `<div class="warn" style="margin-top:6px;">Calibrate / Aggregate / Cull will need to be re-run to rebuild the pipeline.</div>`,
+    startLabel: 'Cleanup',
+    pending: { kind: 'cleanup-project', pi, shootDirs, filters },
+  });
+}
+
+async function runCleanupProjectIntermediates(pi, shootDirs, filters) {
+  const project = data.projects[pi];
+  if (!project || !project.projectDir) return;
+  const result = await window.zukoSiril.cleanProject({
+    projectDir: project.projectDir,
+    shootDirs: shootDirs || [],
+    filters: filters || [],
+  });
+  if (!result || !result.ok) {
+    alert((result && result.error) || 'Project cleanup failed');
+  }
+  (project.shoots || []).forEach((sh) => {
+    sh.preprocessMeta = null;
+  });
+  (project.filterTargets || []).forEach((ft) => {
+    if (!ft) return;
+    ft.aggregateMeta = null;
+    ft.cullMeta = null;
+  });
+  save();
+  renderProjects();
 }
 
 function copyPathButton(path, label) {
@@ -13248,6 +13641,7 @@ async function registerAndStackFilterTone(pi, tone) {
     workingDir: result.workingDir || pathJoinWin(project.projectDir, 'working'),
     aggregateDir: result.aggregateDir || resolveFilterAggregateDir(project, group),
   };
+  if (stackMeta.workingDir) _workingDirExistsCache.set(String(stackMeta.workingDir), true);
   group.fis.forEach((fi) => {
     if (project.filterTargets[fi]) project.filterTargets[fi].stackMeta = { ...stackMeta };
   });
@@ -13386,7 +13780,24 @@ function filterToneKey(name) {
 
 function filterToneColor(name) {
   const key = filterToneKey(name);
-  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'red') {
+    // Night-vision: keep filter identity via brightness only (no cyan/yellow/green).
+    const map = {
+      ha: '#ff1a1a',
+      oiii: '#e05050',
+      sii: '#ff7777',
+      hb: '#cc3333',
+      l: '#ff9999',
+      r: '#ff2a2a',
+      g: '#dd5555',
+      b: '#bb4444',
+      rgb: '#ff2a2a',
+      other: '#992222',
+    };
+    return map[key] || map.other;
+  }
+  const light = theme === 'light';
   const map = light
     ? {
         ha: '#b91c1c',
