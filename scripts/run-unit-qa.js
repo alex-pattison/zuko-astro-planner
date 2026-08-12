@@ -12,6 +12,9 @@ const scripts = [
   'scripts/qa-target-match-flow.js',
   'scripts/qa-target-match-deep.js',
   'scripts/qa-sky-astro-modules.js',
+  'scripts/qa-siril-cull-seq.js',
+  'scripts/qa-siril-register-stack.js',
+  'scripts/qa-cleanup-helpers.js',
 ];
 
 let failed = 0;

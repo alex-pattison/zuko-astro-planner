@@ -1031,6 +1031,128 @@
     gap: 8px;
     margin-top: 12px;
   }
+  .cull-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 132;
+    background: rgba(0,0,0,0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .cull-overlay.open { display: flex; }
+  .cull-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: min(720px, 96vw);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 16px;
+  }
+  .cull-modal h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .cull-modal-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+    line-height: 1.45;
+  }
+  .cull-modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg3);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .cull-modal-meta .cull-stat strong { color: var(--text); }
+  .cull-modal-meta .cull-stat { color: var(--text2); }
+  .cull-modal-meta .cull-stat.included strong { color: var(--green); }
+  .cull-modal-meta .cull-stat.excluded strong { color: var(--yellow); }
+  .cull-modal-scroll {
+    overflow: auto;
+    flex: 1;
+    min-height: 140px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .cull-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .cull-modal-table th, .cull-modal-table td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .cull-modal-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg3);
+    color: var(--gray);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+  .cull-modal-table .file-cell {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+  }
+  .cull-status-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .cull-status-pill.included {
+    color: var(--green);
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+  }
+  .cull-status-pill.excluded {
+    color: var(--yellow);
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.35);
+  }
+  .cull-modal-notes {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.45;
+  }
+  .cull-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .cull-modal-actions .cull-left,
+  .cull-modal-actions .cull-right {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
   .mini-btn.ingest-btn {
     margin-top: 0;
     border: none;
@@ -1101,7 +1223,7 @@
   .ft-filter-name { font-weight: 600; }
   .pipeline-filter-list {
     --pipeline-gutter-w: 32px;
-    /* Aggregate + Cull + Register + row pad/borders — fixed so trunks align */
+    /* Register + Cull + Stack + row pad/borders — fixed so trunks align */
     --pipeline-trunk-w: calc((3 * var(--pipeline-step-w)) + 26px);
     --pipeline-step-w: 8rem;
     /* Chevron + Date + Lights + Actual + Target (even numeric cols) */
@@ -5191,6 +5313,40 @@
   </div>
 </div>
 
+<div class="cull-overlay" id="cull-overlay" onclick="if(event.target===this)closeCullModal()">
+  <div class="cull-modal" role="dialog" aria-modal="true" aria-labelledby="cull-modal-title">
+    <h3 id="cull-modal-title">Cull</h3>
+    <div class="cull-modal-sub" id="cull-modal-sub">—</div>
+    <div class="cull-modal-meta" id="cull-modal-meta">
+      <span class="cull-stat">Scan Siril’s <code>.seq</code> in Aggregate/ to read included / excluded frames.</span>
+    </div>
+    <div class="cull-modal-scroll">
+      <table class="cull-modal-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>File</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="cull-modal-body"></tbody>
+      </table>
+    </div>
+    <div class="cull-modal-notes" id="cull-modal-notes">
+      Exclude frames in Siril on <code>r_pp_light</code>, then <strong>Scan sequence</strong>. Apply writes <code>culled.txt</code> and unlocks Stack.
+    </div>
+    <div class="cull-modal-actions">
+      <div class="cull-left">
+        <button type="button" class="modal-btn" data-testid="cull-scan" id="cull-scan-btn" onclick="runCullScan()">Scan sequence</button>
+      </div>
+      <div class="cull-right">
+        <button type="button" class="modal-btn" data-testid="cull-cancel" onclick="closeCullModal()">Close</button>
+        <button type="button" class="modal-btn primary" data-testid="cull-apply" id="cull-apply-btn" onclick="applyCullFromModal()" disabled>Apply &amp; mark done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="scripts/defaultAssets.js"></script>
 <script src="src/ingest/targetMatchProject.js"></script>
 <script>
@@ -5199,7 +5355,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 17, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 18, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -8178,6 +8334,7 @@ function renderProjects() {
       if (f.stackMeta === undefined) f.stackMeta = null;
       if (f.cullMeta === undefined) f.cullMeta = null;
       if (f.aggregateMeta === undefined) f.aggregateMeta = null;
+      if (f.registerMeta === undefined) f.registerMeta = null;
     });
     p.shoots.forEach(sh => {
       if (sh.filterIndex === undefined) sh.filterIndex = null;
@@ -12218,7 +12375,7 @@ function getPrimaryFilterTarget(project, group) {
   return project.filterTargets[group.primaryFi];
 }
 
-/** Cull/stack/aggregate meta live on the primary filterTarget for that filter name (all locations share it). */
+/** Cull/stack/register/aggregate meta live on the primary filterTarget for that filter name (all locations share it). */
 function isFilterCullComplete(f) {
   return !!(f && f.cullMeta && f.cullMeta.completedAt);
 }
@@ -12227,69 +12384,243 @@ function isFilterAggregateComplete(f) {
   return !!(f && f.aggregateMeta && f.aggregateMeta.aggregatedAt && f.aggregateMeta.aggregateDir);
 }
 
+function isFilterRegisterComplete(f) {
+  return !!(f && f.registerMeta && f.registerMeta.registeredAt);
+}
+
+function isFilterStackComplete(f) {
+  return !!(f && f.stackMeta && f.stackMeta.resultPath);
+}
+
 function resolveFilterAggregateDir(project, group) {
   const f = getPrimaryFilterTarget(project, group);
+  if (f && f.registerMeta && f.registerMeta.aggregateDir) return String(f.registerMeta.aggregateDir);
   if (f && f.aggregateMeta && f.aggregateMeta.aggregateDir) return String(f.aggregateMeta.aggregateDir);
   if (!project || !project.projectDir || !group) return null;
   return pathJoinWin(project.projectDir, String(group.name || ''), 'Aggregate');
 }
 
-/** Aggregate may run on any calibrated subset — not every night must be done. */
-function isFilterReadyToAggregate(project, tone) {
+/** Register may run on any calibrated subset — not every night must be done. */
+function isFilterReadyToRegister(project, tone) {
   return getFilterCalibrationProgress(project, tone).hasCalibrated;
 }
 
 function isFilterReadyToCull(project, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f) return false;
-  return isFilterReadyToAggregate(project, group.tone) && isFilterAggregateComplete(f);
+  return isFilterReadyToRegister(project, group.tone) && isFilterRegisterComplete(f);
 }
 
-function isFilterReadyToRegister(project, group) {
+function isFilterReadyToStack(project, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f) return false;
   return isFilterReadyToCull(project, group) && isFilterCullComplete(f);
 }
 
+/** @deprecated use isFilterReadyToRegister — Aggregate is internal to Register */
+function isFilterReadyToAggregate(project, tone) {
+  return isFilterReadyToRegister(project, tone);
+}
+
 function toggleFilterCull(pi, tone) {
+  openCullModal(pi, tone);
+}
+
+let _cullModalCtx = null;
+let _cullScanResult = null;
+
+function closeCullModal() {
+  _cullModalCtx = null;
+  _cullScanResult = null;
+  const overlay = document.getElementById('cull-overlay');
+  if (overlay) overlay.classList.remove('open');
+  syncBodyScrollLock();
+}
+
+function renderCullModalSummary(scan, savedMeta) {
+  const metaEl = document.getElementById('cull-modal-meta');
+  const applyBtn = document.getElementById('cull-apply-btn');
+  if (!metaEl) return;
+  const src = scan && scan.ok ? scan : null;
+  const saved = savedMeta && savedMeta.completedAt ? savedMeta : null;
+  if (src && src.frames && src.frames.length) {
+    const seqNote = src.seqPath
+      ? ` · ${escapeHtml(pathBasename(src.seqPath))}${src.seqModifiedAt ? ` (${escapeHtml(String(src.seqModifiedAt).slice(0, 19).replace('T', ' '))})` : ''}`
+      : '';
+    metaEl.innerHTML =
+      `<span class="cull-stat included"><strong>${src.includedCount}</strong> included</span>` +
+      `<span class="cull-stat excluded"><strong>${src.excludedCount}</strong> excluded</span>` +
+      `<span class="cull-stat"><strong>${src.totalCount}</strong> total${seqNote}</span>`;
+    if (applyBtn) applyBtn.disabled = !src.seqPath;
+  } else if (saved && saved.frames && saved.frames.length) {
+    metaEl.innerHTML =
+      `<span class="cull-stat included"><strong>${saved.includedCount != null ? saved.includedCount : saved.frames.filter((f) => f.included).length}</strong> included</span>` +
+      `<span class="cull-stat excluded"><strong>${saved.excludedCount != null ? saved.excludedCount : saved.frames.filter((f) => !f.included).length}</strong> excluded</span>` +
+      `<span class="cull-stat">Saved ${escapeHtml(String(saved.scannedAt || saved.completedAt || '').slice(0, 19).replace('T', ' '))}</span>`;
+    if (applyBtn) applyBtn.disabled = true;
+  } else {
+    metaEl.innerHTML = '<span class="cull-stat">Scan Siril’s <code>.seq</code> in Aggregate/ to read included / excluded frames.</span>';
+    if (applyBtn) applyBtn.disabled = true;
+  }
+}
+
+function renderCullModalTable(frames) {
+  const body = document.getElementById('cull-modal-body');
+  if (!body) return;
+  if (!frames || !frames.length) {
+    body.innerHTML = '<tr><td colspan="3" style="color:var(--text2);padding:12px;">No frames yet — run Register, cull <code>r_pp_light</code> in Siril, then Scan sequence.</td></tr>';
+    return;
+  }
+  body.innerHTML = frames.map((f) => {
+    const status = f.included ? 'included' : 'excluded';
+    const label = f.included ? 'Included' : 'Excluded';
+    const missing = f.exists === false ? ' · missing on disk' : '';
+    return `<tr>
+      <td>${escapeHtml(String(f.index != null ? f.index : (f.filenum != null ? f.filenum : '—')))}</td>
+      <td class="file-cell">${escapeHtml(String(f.basename || '—'))}${missing ? `<span style="color:var(--yellow);">${escapeHtml(missing)}</span>` : ''}</td>
+      <td><span class="cull-status-pill ${status}">${label}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function pathBasename(p) {
+  const s = String(p || '').replace(/\\/g, '/');
+  const i = s.lastIndexOf('/');
+  return i >= 0 ? s.slice(i + 1) : s;
+}
+
+function buildCullMetaFromScan(scan, applyResult) {
+  return {
+    completedAt: new Date().toISOString(),
+    scannedAt: applyResult && applyResult.scannedAt ? applyResult.scannedAt : new Date().toISOString(),
+    aggregateDir: scan.aggregateDir,
+    seqPath: scan.seqPath || null,
+    seqModifiedAt: scan.seqModifiedAt || null,
+    manifestPath: (applyResult && applyResult.manifestPath) || scan.manifestPath || null,
+    totalCount: scan.totalCount,
+    includedCount: scan.includedCount,
+    excludedCount: scan.excludedCount,
+    frames: (scan.frames || []).map((f) => ({
+      index: f.index,
+      basename: f.basename,
+      filenum: f.filenum,
+      included: f.included,
+      exists: f.exists,
+    })),
+  };
+}
+
+function mirrorCullMeta(project, group, cullMeta) {
+  group.fis.forEach((fi) => {
+    if (project.filterTargets[fi]) project.filterTargets[fi].cullMeta = cullMeta;
+  });
+}
+
+async function openCullModal(pi, tone) {
   const project = data.projects[pi];
   if (!project) return;
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
   if (!group) return;
   const f = getPrimaryFilterTarget(project, group);
   const cal = getFilterCalibrationProgress(project, tone);
-  if (!isFilterAggregateComplete(f)) {
-    alert('Run Aggregate for this filter first, then cull in Siril on the Aggregate folder before marking Cull done.');
+  if (!isFilterRegisterComplete(f)) {
+    alert('Run Register for this filter first (aggregates nights and creates r_pp_light), then cull in Siril on Aggregate/.');
     return;
   }
   if (!cal.hasCalibrated) {
-    alert('Calibrate at least one imported night of this filter before marking Cull done.');
+    alert('Calibrate at least one imported night of this filter before culling.');
     return;
   }
-  if (isFilterCullComplete(f)) {
-    f.cullMeta = null;
-  } else {
-    const aggDir = resolveFilterAggregateDir(project, group) || '';
-    const subsetNote = cal.partial || cal.calibratedCount < cal.shootCount
-      ? ` Using ${cal.calibratedCount} calibrated night(s)` +
-        (cal.ingestedCount ? ` of ${cal.ingestedCount} imported` : '') +
-        ' — later nights can be added after re-cal / re-aggregate / re-cull / re-register.'
-      : '';
-    f.cullMeta = {
-      completedAt: new Date().toISOString(),
-      calibratedCount: cal.calibratedCount,
-      note:
-        'Marked complete (manual / Siril cull). Registration uses surviving files in Aggregate/' +
-        (aggDir ? ` (${aggDir})` : '') +
-        ' — delete rejects there or list them in Aggregate/culled.txt.' +
-        subsetNote,
-    };
+  if (!window.zukoSiril || typeof window.zukoSiril.scanCull !== 'function') {
+    alert('Cull scan needs the Electron desktop app (npm start).');
+    return;
   }
-  // Mirror onto sibling filterTargets with same filter tone (location variants)
-  group.fis.forEach((fi) => {
-    if (project.filterTargets[fi]) project.filterTargets[fi].cullMeta = f.cullMeta;
-  });
+  const aggregateDir = resolveFilterAggregateDir(project, group);
+  _cullModalCtx = { pi, tone, aggregateDir };
+  _cullScanResult = null;
+  document.getElementById('cull-modal-title').textContent = `Cull — ${group.name}`;
+  document.getElementById('cull-modal-sub').innerHTML =
+    `${escapeHtml(project.name || 'Project')} · ${folderPathLink(aggregateDir)} ${copyPathButton(aggregateDir)}`;
+  const notes = document.getElementById('cull-modal-notes');
+  if (notes) {
+    notes.innerHTML =
+      'In Siril, load <code>r_pp_light</code>, exclude frames (Plot works after Register), then <strong>Scan sequence</strong>. ' +
+      '<strong>Apply &amp; mark done</strong> writes <code>culled.txt</code> and unlocks Stack.';
+  }
+  const saved = f && f.cullMeta;
+  if (saved && saved.frames && saved.frames.length) {
+    renderCullModalTable(saved.frames);
+    renderCullModalSummary(null, saved);
+  } else {
+    renderCullModalTable([]);
+    renderCullModalSummary(null, null);
+  }
+  document.getElementById('cull-overlay').classList.add('open');
+  syncBodyScrollLock();
+  await runCullScan(true);
+}
+
+async function runCullScan(silent) {
+  if (!_cullModalCtx) return;
+  const scanBtn = document.getElementById('cull-scan-btn');
+  if (scanBtn) scanBtn.classList.add('is-loading');
+  let scan;
+  try {
+    scan = await window.zukoSiril.scanCull({ aggregateDir: _cullModalCtx.aggregateDir });
+  } catch (e) {
+    scan = { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+  if (scanBtn) scanBtn.classList.remove('is-loading');
+  if (!scan || !scan.ok) {
+    if (!silent) alert('Cull scan failed: ' + String((scan && scan.error) || 'unknown'));
+    return;
+  }
+  _cullScanResult = scan;
+  renderCullModalTable(scan.frames || []);
+  renderCullModalSummary(scan, null);
+  const notes = document.getElementById('cull-modal-notes');
+  if (notes) {
+    if (scan.code === 'NO_SEQ' && scan.warning) {
+      notes.innerHTML = escapeHtml(scan.warning);
+    } else if (scan.seqPath) {
+      notes.innerHTML =
+        `Read <code>${escapeHtml(pathBasename(scan.seqPath))}</code> — ` +
+        `${scan.includedCount} included, ${scan.excludedCount} excluded. ` +
+        'Click <strong>Apply &amp; mark done</strong> to save for Stack.';
+    }
+  }
+}
+
+async function applyCullFromModal() {
+  if (!_cullModalCtx || !_cullScanResult || !_cullScanResult.seqPath) {
+    alert('Scan the Siril sequence first.');
+    return;
+  }
+  if (!window.zukoSiril || typeof window.zukoSiril.applyCull !== 'function') {
+    alert('Cull apply needs the Electron desktop app (npm start).');
+    return;
+  }
+  const applyBtn = document.getElementById('cull-apply-btn');
+  if (applyBtn) applyBtn.classList.add('is-loading');
+  let result;
+  try {
+    result = await window.zukoSiril.applyCull({ aggregateDir: _cullModalCtx.aggregateDir });
+  } catch (e) {
+    result = { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+  if (applyBtn) applyBtn.classList.remove('is-loading');
+  if (!result || !result.ok) {
+    alert('Could not apply cull: ' + String((result && result.error) || 'unknown'));
+    return;
+  }
+  const project = data.projects[_cullModalCtx.pi];
+  const group = listPipelineFilterGroups(project).find((g) => g.tone === _cullModalCtx.tone);
+  const f = getPrimaryFilterTarget(project, group);
+  const cullMeta = buildCullMetaFromScan(_cullScanResult, result);
+  f.cullMeta = cullMeta;
+  mirrorCullMeta(project, group, cullMeta);
   save();
+  closeCullModal();
   renderProjects();
 }
 
@@ -12417,9 +12748,9 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   if (!f || !group) return null;
   const tone = group.tone;
   const cal = getFilterCalibrationProgress(project, tone);
-  const aggDone = isFilterAggregateComplete(f);
-  const cullDone = aggDone && isFilterCullComplete(f);
-  const regDone = !!(f.stackMeta && f.stackMeta.resultPath);
+  const regDone = isFilterRegisterComplete(f);
+  const cullDone = regDone && isFilterCullComplete(f);
+  const stackDone = isFilterStackComplete(f);
   const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
   const nightCount = getShootsForFilterTone(project, tone).length;
   const locNote = group.fis.length > 1
@@ -12428,75 +12759,74 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   const nightsNote = nightCount > 1 ? ` · ${nightCount} nights` : '';
   const aggDir = resolveFilterAggregateDir(project, group);
 
-  let aggOpts;
+  let regOpts;
   if (!hasProjectDir) {
-    aggOpts = { locked: true, title: 'Set Project directory first' };
+    regOpts = { locked: true, title: 'Set Project directory first' };
   } else if (!cal.hasCalibrated) {
-    aggOpts = {
+    regOpts = {
       locked: true,
       title: `Calibrate at least one ${group.name} night first (${cal.calibratedCount}/${cal.ingestedCount || 0} calibrated)`,
     };
   } else {
-    aggOpts = {
+    regOpts = {
       clickable: true,
-      id: `agg-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openAggregateConfirm(${pi},'${tone}')`,
-      title: aggDone
-        ? `Review & re-aggregate ${group.name} into Aggregate/${locNote}${nightsNote}`
-        : `Aggregate calibrated nights into ${group.name}/Aggregate/${locNote}${nightsNote}`,
+      id: `reg-step-${pi}-${tone}`,
+      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
+      title: regDone
+        ? `Review & re-register ${group.name} (re-aggregates nights → Aggregate/)${locNote}${nightsNote}`
+        : `Aggregate + register calibrated nights into ${group.name}/Aggregate/${locNote}${nightsNote}`,
     };
   }
-  if (opts.sinkPort) aggOpts.port = 'sink';
-  if (!aggOpts.id) aggOpts.id = `agg-step-${pi}-${tone}`;
+  if (opts.sinkPort) regOpts.port = 'sink';
+  if (!regOpts.id) regOpts.id = `reg-step-${pi}-${tone}`;
 
   let cullOpts;
   if (!hasProjectDir) {
     cullOpts = { locked: true, title: 'Set Project directory first' };
-  } else if (!aggDone) {
-    cullOpts = { locked: true, title: 'Run Aggregate first, then cull in Siril on Aggregate/' };
+  } else if (!regDone) {
+    cullOpts = { locked: true, title: 'Run Register first, then cull r_pp_light in Siril on Aggregate/' };
   } else {
     cullOpts = {
       clickable: true,
-      onclick: `event.stopPropagation(); toggleFilterCull(${pi},'${tone}')`,
+      onclick: `event.stopPropagation(); openCullModal(${pi},'${tone}')`,
       title: cullDone
-        ? 'Cull marked done for this channel — click to clear'
-        : `Cull in Siril on Aggregate/ then click when finished${aggDir ? ` · ${aggDir}` : ''}`,
+        ? 'Cull saved — click to review or re-scan Siril sequence'
+        : `Cull r_pp_light in Siril on Aggregate/, then scan & apply${aggDir ? ` · ${aggDir}` : ''}`,
     };
   }
 
-  let regOpts;
+  let stackOpts;
   if (!hasProjectDir) {
-    regOpts = { locked: true, title: 'Set Project directory first' };
-  } else if (!aggDone) {
-    regOpts = { locked: true, title: 'Run Aggregate first' };
+    stackOpts = { locked: true, title: 'Set Project directory first' };
+  } else if (!regDone) {
+    stackOpts = { locked: true, title: 'Run Register first' };
   } else if (!cullDone) {
-    regOpts = { locked: true, title: 'Mark Cull complete (click Cull dot) before registration' };
-  } else if (regDone) {
-    regOpts = {
+    stackOpts = { locked: true, title: 'Scan Siril cull & apply before stacking' };
+  } else if (stackDone) {
+    stackOpts = {
       clickable: true,
       id: `stack-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
-      title: `Review & re-run registration for ${group.name}${locNote}${nightsNote}`,
+      onclick: `event.stopPropagation(); openStackConfirm(${pi},'${tone}')`,
+      title: `Review & re-run stack for ${group.name}${locNote}${nightsNote}`,
     };
   } else {
-    regOpts = {
+    stackOpts = {
       clickable: true,
       id: `stack-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
-      title: `Review & start registration for ${group.name}${locNote}${nightsNote}`,
+      onclick: `event.stopPropagation(); openStackConfirm(${pi},'${tone}')`,
+      title: `Review & start stack for ${group.name}${locNote}${nightsNote}`,
     };
   }
 
-  const aggStep = pipelineStepHtml('Aggregate', aggDone ? 'done' : '', aggOpts);
-  // Cull is a manual checkbox (dashed stub until marked); green only when marked after Aggregate.
+  const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', regOpts);
   const cullStep = pipelineStepHtml(
     'Cull',
     cullDone ? 'done' : 'stub',
     cullOpts,
   );
-  const regStep = pipelineStepHtml('Register', regDone ? 'done' : '', regOpts);
+  const stackStep = pipelineStepHtml('Stack', stackDone ? 'done' : '', stackOpts);
 
-  return { aggStep, cullStep, regStep, cal, aggDone, cullDone, regDone };
+  return { regStep, cullStep, stackStep, cal, regDone, cullDone, stackDone };
 }
 
 function nightIdentity(project, group, sh) {
@@ -12566,15 +12896,15 @@ function renderStraightChannelLine(project, pi, group, sh, si) {
   return renderChannelMergeLayout(project, pi, group, [{ sh, si }], { solo: true });
 }
 
-/** Multi-night trunk: Cull + Register after reverse-tree merge. */
+/** Multi-night trunk: Register + Cull + Stack after reverse-tree merge. */
 function renderFilterChannelPipelineFooter(project, pi, group) {
   const parts = channelCullRegParts(project, pi, group, { sinkPort: true });
   if (!parts) return '';
   return `<div class="pipeline-channel-row" data-filter="${escapeAttr(group.name)}">
     <div class="pipeline-track pipeline-track-channel">
-      ${parts.aggStep}
-      ${parts.cullStep}
       ${parts.regStep}
+      ${parts.cullStep}
+      ${parts.stackStep}
     </div>
   </div>`;
 }
@@ -12951,8 +13281,8 @@ async function runSirilJobWithProgress({ title, logPath, kind, startJob }) {
     ok: !!(result && result.ok),
     pct: 100,
     status: result && result.ok
-      ? (kind === 'stack' ? 'SUCCESS — registration finished' : kind === 'calibrate' ? 'SUCCESS — calibration finished' : 'SUCCESS')
-      : (kind === 'stack' ? 'FAILED — registration did not complete' : kind === 'calibrate' ? 'FAILED — calibration did not complete' : 'FAILED'),
+      ? (kind === 'stack' ? 'SUCCESS — stack finished' : kind === 'register' ? 'SUCCESS — register finished' : kind === 'calibrate' ? 'SUCCESS — calibration finished' : 'SUCCESS')
+      : (kind === 'stack' ? 'FAILED — stack did not complete' : kind === 'register' ? 'FAILED — register did not complete' : kind === 'calibrate' ? 'FAILED — calibration did not complete' : 'FAILED'),
     sub: result && result.ok
       ? (
           (result.ppLightCount != null ? `${result.ppLightCount} pp_light` : 'Done')
@@ -12988,8 +13318,10 @@ function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, star
   if (startBtn) {
     if (startLabel) {
       startBtn.textContent = startLabel;
-    } else if (pending && pending.kind === 'aggregate') {
-      startBtn.textContent = pending.rerun ? 'Re-aggregate' : 'Aggregate';
+    } else if (pending && pending.kind === 'register') {
+      startBtn.textContent = pending.rerun ? 'Re-register' : 'Register';
+    } else if (pending && pending.kind === 'stack') {
+      startBtn.textContent = pending.rerun ? 'Re-stack' : 'Stack';
     } else if (pending && (pending.kind === 'cleanup-shoot' || pending.kind === 'cleanup-project')) {
       startBtn.textContent = 'Cleanup';
     } else {
@@ -13002,18 +13334,23 @@ function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, star
 
 function confirmPipelineJobStart() {
   const pending = _pipelineJobPending;
+  let stackReregister = false;
+  if (pending && pending.kind === 'stack') {
+    const cb = document.getElementById('stack-reregister-cb');
+    stackReregister = !!(cb && cb.checked);
+  }
   closePipelineJobConfirm();
   if (!pending) return;
   if (pending.kind === 'calibrate') {
     runPreprocessShoot(pending.pi, pending.si);
     return;
   }
-  if (pending.kind === 'aggregate') {
-    runAggregateFilterTone(pending.pi, pending.tone);
+  if (pending.kind === 'register') {
+    runRegisterFilterTone(pending.pi, pending.tone);
     return;
   }
-  if (pending.kind === 'register') {
-    registerAndStackFilterTone(pending.pi, pending.tone);
+  if (pending.kind === 'stack') {
+    runStackFilterTone(pending.pi, pending.tone, { reregister: stackReregister });
     return;
   }
   if (pending.kind === 'cleanup-shoot') {
@@ -13253,7 +13590,7 @@ async function cleanupProjectIntermediates(pi) {
       `<div>Deletes per night: <code>masters/</code>, <code>process/</code>, <code>scripts/</code>.</div>` +
       `<div style="margin-top:6px;">Deletes per filter: <code>Aggregate/</code>, <code>_stack/</code>.</div>` +
       `<div style="margin-top:6px;">Keeps original subs and <code>working/</code> result FITS.</div>` +
-      `<div class="warn" style="margin-top:6px;">Calibrate / Aggregate / Cull will need to be re-run to rebuild the pipeline.</div>`,
+      `<div class="warn" style="margin-top:6px;">Calibrate / Register / Cull / Stack will need to be re-run to rebuild the pipeline.</div>`,
     startLabel: 'Cleanup',
     pending: { kind: 'cleanup-project', pi, shootDirs, filters },
   });
@@ -13276,6 +13613,7 @@ async function runCleanupProjectIntermediates(pi, shootDirs, filters) {
   (project.filterTargets || []).forEach((ft) => {
     if (!ft) return;
     ft.aggregateMeta = null;
+    ft.registerMeta = null;
     ft.cullMeta = null;
   });
   save();
@@ -13317,12 +13655,12 @@ function openCalibrateConfirm(pi, si) {
   const group = tone ? listPipelineFilterGroups(project).find((g) => g.tone === tone) : null;
   const primary = group ? getPrimaryFilterTarget(project, group) : ft;
   const cullDone = isFilterCullComplete(primary);
-  const aggDone = isFilterAggregateComplete(primary);
-  const regDone = !!(primary && primary.stackMeta && primary.stackMeta.resultPath);
+  const regDone = isFilterRegisterComplete(primary);
+  const stackDone = isFilterStackComplete(primary);
   const clearBits = [];
-  if (aggDone) clearBits.push('Aggregate');
-  if (cullDone) clearBits.push('Cull');
   if (regDone) clearBits.push('Register');
+  if (cullDone) clearBits.push('Cull');
+  if (stackDone) clearBits.push('Stack');
   const bodyHtml = `<div class="pipeline-job-grid">
     ${pipelineJobRow('Shoot', escapeHtml(code))}
     ${pipelineJobRow('Capture plan', ft ? escapeHtml(`${ft.filter} — ${ft.location || ''} (B${ft.bortle || '?'})`) : '—')}
@@ -13348,9 +13686,9 @@ function openCalibrateConfirm(pi, si) {
   });
 }
 
-function openAggregateConfirm(pi, tone) {
-  if (!window.zukoSiril || typeof window.zukoSiril.aggregate !== 'function') {
-    alert('Aggregate needs the Electron desktop app (npm start).');
+function openRegisterConfirm(pi, tone) {
+  if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
+    alert('Register needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -13359,8 +13697,8 @@ function openAggregateConfirm(pi, tone) {
     return;
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
-  if (!group || !isFilterReadyToAggregate(project, tone)) {
-    alert('Calibrate at least one night of this filter before aggregating.');
+  if (!group || !isFilterReadyToRegister(project, tone)) {
+    alert('Calibrate at least one night of this filter before registering.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
@@ -13373,7 +13711,7 @@ function openAggregateConfirm(pi, tone) {
   const filter = String(group.name || '');
   const aggregateDir = resolveFilterAggregateDir(project, group)
     || pathJoinWin(project.projectDir, filter, 'Aggregate');
-  const rerun = isFilterAggregateComplete(f);
+  const rerun = isFilterRegisterComplete(f);
   const frameEst = shoots.reduce((sum, sh) => {
     const n = sh.preprocessMeta && sh.preprocessMeta.ppLightCount;
     return sum + (n != null ? Number(n) || 0 : 0);
@@ -13390,14 +13728,14 @@ function openAggregateConfirm(pi, tone) {
   }).join('');
   const clearBits = [];
   if (isFilterCullComplete(f)) clearBits.push('Cull');
-  if (f && f.stackMeta && f.stackMeta.resultPath) clearBits.push('Register');
+  if (isFilterStackComplete(f)) clearBits.push('Stack');
   const bodyHtml = `<div class="pipeline-job-grid">
     ${pipelineJobRow('Filter', escapeHtml(filter))}
     ${pipelineJobRow('Nights', `${shoots.length} calibrated`)}
     ${pipelineJobRow('Frames (est.)', frameEst ? String(frameEst) : '—')}
     ${pipelineJobRow('Destination', `<code style="font-size:11px;word-break:break-all;">${escapeHtml(aggregateDir)}</code>`)}
-    ${rerun && f.aggregateMeta && f.aggregateMeta.aggregatedAt
-      ? pipelineJobRow('Last run', escapeHtml(String(f.aggregateMeta.aggregatedAt)))
+    ${rerun && f.registerMeta && f.registerMeta.registeredAt
+      ? pipelineJobRow('Last run', escapeHtml(String(f.registerMeta.registeredAt)))
       : ''}
   </div>
   <div style="margin-top:10px;">
@@ -13405,24 +13743,24 @@ function openAggregateConfirm(pi, tone) {
     <ul class="pipeline-job-list">${nightLis}</ul>
   </div>`;
   const notesHtml = `
-    <div>Hardlinks (or copies) each night’s <code>process/pp_light_*.fit</code> into <code>${escapeHtml(filter)}/Aggregate/</code>.</div>
-    <div style="margin-top:6px;">After it finishes you’ll get <strong>Copy path</strong> to set as Siril home, then mark <strong>Cull</strong> done and <strong>Register</strong>.</div>
+    <div>Aggregates each night’s <code>process/pp_light_*.fit</code> into <code>${escapeHtml(filter)}/Aggregate/</code>, then Siril <strong>register</strong> → <code>r_pp_light_*</code>.</div>
+    <div style="margin-top:6px;">Then cull <code>r_pp_light</code> in Siril (Plot works), scan &amp; apply in <strong>Cull</strong>, then <strong>Stack</strong>.</div>
     ${clearBits.length
-      ? `<div style="margin-top:6px;" class="warn">Re-aggregating rebuilds the folder and clears <strong>${escapeHtml(clearBits.join(' and '))}</strong>.</div>`
+      ? `<div style="margin-top:6px;" class="warn">Re-register rebuilds Aggregate/ and clears <strong>${escapeHtml(clearBits.join(' and '))}</strong>.</div>`
       : ''}
   `;
   openPipelineJobConfirm({
-    title: rerun ? 'Re-aggregate' : 'Aggregate for cull',
+    title: rerun ? 'Re-register' : 'Register (aggregate + align)',
     sub: `${project.name || 'Project'} · ${filter} · ${shoots.length} night${shoots.length === 1 ? '' : 's'}`,
     bodyHtml,
     notesHtml,
-    pending: { kind: 'aggregate', pi, tone, rerun },
+    pending: { kind: 'register', pi, tone, rerun },
   });
 }
 
-function openRegisterConfirm(pi, tone) {
+function openStackConfirm(pi, tone) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
-    alert('Registration needs the Electron desktop app (npm start).');
+    alert('Stack needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -13431,41 +13769,48 @@ function openRegisterConfirm(pi, tone) {
     return;
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
-  if (!group || !isFilterReadyToRegister(project, group)) {
-    alert('Aggregate, cull, and mark Cull done before registration.');
+  if (!group || !isFilterReadyToStack(project, group)) {
+    alert('Register, cull, and apply Cull before stacking.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
   const filter = String(group.name || '');
   const aggregateDir = resolveFilterAggregateDir(project, group);
   if (!aggregateDir) {
-    alert('Aggregate folder not found — run Aggregate first.');
+    alert('Aggregate folder not found — run Register first.');
     return;
   }
-  const rerun = !!(f && f.stackMeta && f.stackMeta.resultPath);
+  const rerun = isFilterStackComplete(f);
   const resultPath = (f && f.stackMeta && f.stackMeta.resultPath)
     || pathJoinWin(project.projectDir, 'working', `result_${filter}.fit`);
   const outFolder = pathJoinWin(project.projectDir, 'working');
-  const frameCount = (f && f.aggregateMeta && f.aggregateMeta.frameCount) || '—';
+  const frameCount = (f && f.cullMeta && f.cullMeta.includedCount != null)
+    ? f.cullMeta.includedCount
+    : ((f && f.registerMeta && f.registerMeta.rPpLightCount) || (f && f.aggregateMeta && f.aggregateMeta.frameCount) || '—');
+  const excludedCount = (f && f.cullMeta && f.cullMeta.excludedCount != null) ? f.cullMeta.excludedCount : null;
   const bodyHtml = `<div class="pipeline-job-grid">
     ${pipelineJobRow('Filter', escapeHtml(filter))}
     ${pipelineJobRow('Aggregate', `${folderPathLink(aggregateDir)} ${copyPathButton(aggregateDir)}`)}
-    ${pipelineJobRow('Frames (at aggregate)', escapeHtml(String(frameCount)))}
+    ${pipelineJobRow('Frames for stack', escapeHtml(String(frameCount)) + (excludedCount != null ? ` (${excludedCount} excluded)` : ''))}
     ${pipelineJobRow('Output', folderPathLink(resultPath))}
     ${pipelineJobRow('Working', folderPathLink(outFolder))}
     ${rerun && f.stackMeta && f.stackMeta.stackedAt ? pipelineJobRow('Last run', escapeHtml(String(f.stackMeta.stackedAt))) : ''}
-  </div>`;
+  </div>
+  <label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:12px;color:var(--text2);cursor:pointer;">
+    <input type="checkbox" id="stack-reregister-cb" style="margin-top:2px;">
+    <span><strong style="color:var(--text);">Re-register before stacking</strong> — re-align only the included frames, then stack (slower; default off).</span>
+  </label>`;
   const notesHtml = `
-    <div><strong>Siril</strong> will register &amp; stack surviving lights from <code>Aggregate/</code> → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
-    <div style="margin-top:6px;">Frames deleted in Aggregate (or listed in <code>Aggregate/culled.txt</code>) are skipped. Cull is already marked done.</div>
-    ${rerun ? '<div style="margin-top:6px;" class="warn">This replaces the existing registration result.</div>' : ''}
+    <div><strong>Siril</strong> stacks included <code>r_pp_light_*</code> from <code>Aggregate/</code> → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
+    <div style="margin-top:6px;">Excluded frames come from the saved cull scan (<code>culled.txt</code>).</div>
+    ${rerun ? '<div style="margin-top:6px;" class="warn">This replaces the existing stack result.</div>' : ''}
   `;
   openPipelineJobConfirm({
-    title: rerun ? 'Re-run Registration' : 'Start Registration',
+    title: rerun ? 'Re-run Stack' : 'Start Stack',
     sub: `${project.name || 'Project'} · ${filter}`,
     bodyHtml,
     notesHtml,
-    pending: { kind: 'register', pi, tone, rerun },
+    pending: { kind: 'stack', pi, tone, rerun },
   });
 }
 
@@ -13526,6 +13871,7 @@ async function runPreprocessShoot(pi, si) {
         g.fis.forEach((fi) => {
           if (project.filterTargets[fi]) {
             project.filterTargets[fi].aggregateMeta = null;
+            project.filterTargets[fi].registerMeta = null;
             project.filterTargets[fi].cullMeta = null;
             project.filterTargets[fi].stackMeta = null;
           }
@@ -13551,9 +13897,9 @@ function pathJoinWin(...parts) {
     .join('\\');
 }
 
-async function runAggregateFilterTone(pi, tone) {
-  if (!window.zukoSiril || typeof window.zukoSiril.aggregate !== 'function') {
-    alert('Aggregate needs the Electron desktop app (npm start).');
+async function runRegisterFilterTone(pi, tone) {
+  if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
+    alert('Register needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -13562,8 +13908,8 @@ async function runAggregateFilterTone(pi, tone) {
     return;
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
-  if (!group || !isFilterReadyToAggregate(project, tone)) {
-    alert('Calibrate at least one night of this filter before aggregating.');
+  if (!group || !isFilterReadyToRegister(project, tone)) {
+    alert('Calibrate at least one night of this filter before registering.');
     return;
   }
   const shootDirs = getFilterIngestedShootsByTone(project, tone)
@@ -13578,73 +13924,33 @@ async function runAggregateFilterTone(pi, tone) {
   const filter = String(group.name || '');
   const destHint = resolveFilterAggregateDir(project, group)
     || pathJoinWin(project.projectDir, filter, 'Aggregate');
-  const step = document.getElementById(`agg-step-${pi}-${tone}`);
+  const logPath = pathJoinWin(destHint, 'scripts', 'register.log');
+  const step = document.getElementById(`reg-step-${pi}-${tone}`);
   const stepLabel = step && step.querySelector('.pipeline-step-label');
   const prevLabel = stepLabel ? stepLabel.textContent : '';
   if (step) {
     step.classList.add('locked');
     step.style.pointerEvents = 'none';
   }
-  if (stepLabel) stepLabel.textContent = 'Aggregating…';
+  if (stepLabel) stepLabel.textContent = 'Registering…';
 
-  const startedAt = Date.now();
-  const minMs = 1500;
-  openSirilProgressModal({
-    title: `Aggregate · ${filter}`,
-    sub: 'Preparing Aggregate folder…',
-    logPath: null,
-  });
-  updateSirilProgressModal({
-    pct: 10,
-    sub: `Linking ${shootDirs.length} calibrated night(s) → ${filter}/Aggregate/`,
-    logText:
-      `[zuko] ${new Date().toLocaleTimeString()} — aggregating ${filter}\n` +
-      `[zuko] nights: ${shootDirs.length}\n` +
-      `[zuko] destination: ${destHint}\n` +
-      `[zuko] hardlink-first (copy fallback)\n\n`,
-  });
-
-  let result;
-  try {
-    result = await window.zukoSiril.aggregate({
+  const result = await runSirilJobWithProgress({
+    title: `Register · ${filter}`,
+    logPath,
+    kind: 'register',
+    startJob: () => window.zukoSiril.register({
       projectDir: project.projectDir,
       filter,
       shootDirs,
-    });
-  } catch (e) {
-    result = { ok: false, error: String(e && e.message ? e.message : e) };
-  }
-
-  updateSirilProgressModal({
-    pct: result && result.ok ? 92 : 100,
-    sub: result && result.ok ? 'Finishing…' : 'Failed',
-    append: result && result.ok
-      ? `[zuko] linked ${result.frameCount || result.ppLightCount || 0} frames` +
-        (result.hardlinks != null ? ` (${result.hardlinks} hardlink, ${result.copies || 0} copy)\n` : '\n') +
-        `[zuko] ${result.aggregateDir}\n`
-      : `[zuko] FAILED: ${(result && result.error) || 'unknown error'}\n`,
+    }),
   });
-
-  const elapsed = Date.now() - startedAt;
-  if (elapsed < minMs) {
-    await new Promise((r) => {
-      _sirilProgressTimer = setTimeout(r, minMs - elapsed);
-    });
-  }
 
   if (!result || !result.ok) {
     if (step) {
       step.classList.remove('locked');
       step.style.pointerEvents = '';
     }
-    if (stepLabel) stepLabel.textContent = prevLabel || 'Aggregate';
-    updateSirilProgressModal({
-      done: true,
-      ok: false,
-      pct: 100,
-      status: 'FAILED — aggregate did not complete',
-      sub: (result && result.error) || 'Aggregate failed',
-    });
+    if (stepLabel) stepLabel.textContent = prevLabel || 'Register';
     return;
   }
 
@@ -13656,9 +13962,19 @@ async function runAggregateFilterTone(pi, tone) {
     hardlinks: result.hardlinks,
     copies: result.copies,
   };
+  const registerMeta = {
+    registeredAt: result.registeredAt,
+    aggregateDir: result.aggregateDir,
+    shootCount: result.shootCount,
+    frameCount: result.frameCount != null ? result.frameCount : result.ppLightCount,
+    rPpLightCount: result.rPpLightCount,
+    logPath: result.logPath || logPath,
+    scriptPath: result.scriptPath,
+  };
   group.fis.forEach((fi) => {
     if (project.filterTargets[fi]) {
       project.filterTargets[fi].aggregateMeta = { ...aggregateMeta };
+      project.filterTargets[fi].registerMeta = { ...registerMeta };
       project.filterTargets[fi].cullMeta = null;
       project.filterTargets[fi].stackMeta = null;
     }
@@ -13671,17 +13987,17 @@ async function runAggregateFilterTone(pi, tone) {
     done: true,
     ok: true,
     pct: 100,
-    status: `SUCCESS — ${result.frameCount || result.ppLightCount || 0} frames aggregated`,
+    status: `SUCCESS — ${result.rPpLightCount || result.frameCount || 0} frames registered`,
     sub:
       `${folderPathLink(aggPath, 'Open Aggregate folder')} · ${copyPathButton(aggPath, 'Copy path')}` +
-      `<div style="margin-top:6px;font-size:11px;color:var(--text2);">Set this folder as Siril home to cull across nights, then mark Cull done.</div>`,
-    append: `[zuko] done — copy path and set as Siril home to cull\n`,
+      `<div style="margin-top:6px;font-size:11px;color:var(--text2);">Set Siril home here, open <code>r_pp_light</code>, cull with Plot, then <strong>Cull</strong> → scan &amp; apply, then <strong>Stack</strong>.</div>`,
+    append: `[zuko] done — ${result.rPpLightCount || 0} r_pp_light in Aggregate/\n`,
   });
 }
 
-async function registerAndStackFilterTone(pi, tone) {
+async function runStackFilterTone(pi, tone, opts = {}) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
-    alert('Registration needs the Electron desktop app (npm start).');
+    alert('Stack needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -13690,12 +14006,13 @@ async function registerAndStackFilterTone(pi, tone) {
     return;
   }
   const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
-  if (!group || !isFilterReadyToRegister(project, group)) {
-    alert('Aggregate, cull, and mark Cull done before registration.');
+  if (!group || !isFilterReadyToStack(project, group)) {
+    alert('Register, cull, and apply Cull before stacking.');
     return;
   }
 
   const filter = String(group.name || '');
+  const reregister = !!(opts && opts.reregister);
   const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
   const step = document.getElementById(`stack-step-${pi}-${tone}`);
   const stepLabel = step && step.querySelector('.pipeline-step-label');
@@ -13704,15 +14021,16 @@ async function registerAndStackFilterTone(pi, tone) {
     step.classList.add('locked');
     step.style.pointerEvents = 'none';
   }
-  if (stepLabel) stepLabel.textContent = 'Registering…';
+  if (stepLabel) stepLabel.textContent = reregister ? 'Re-registering…' : 'Stacking…';
 
   const result = await runSirilJobWithProgress({
-    title: `Registration · ${filter}`,
+    title: `Stack · ${filter}${reregister ? ' (re-register)' : ''}`,
     logPath,
     kind: 'stack',
     startJob: () => window.zukoSiril.stackFilter({
       projectDir: project.projectDir,
       filter,
+      reregister,
     }),
   });
 
@@ -13721,7 +14039,7 @@ async function registerAndStackFilterTone(pi, tone) {
       step.classList.remove('locked');
       step.style.pointerEvents = '';
     }
-    if (stepLabel) stepLabel.textContent = prevLabel || 'Register';
+    if (stepLabel) stepLabel.textContent = prevLabel || 'Stack';
     return;
   }
   const stackMeta = {
@@ -13733,6 +14051,7 @@ async function registerAndStackFilterTone(pi, tone) {
     stackDir: result.stackDir || result.stackRoot,
     workingDir: result.workingDir || pathJoinWin(project.projectDir, 'working'),
     aggregateDir: result.aggregateDir || resolveFilterAggregateDir(project, group),
+    reregister: !!result.reregister,
   };
   if (stackMeta.workingDir) _workingDirExistsCache.set(String(stackMeta.workingDir), true);
   group.fis.forEach((fi) => {
@@ -13750,7 +14069,7 @@ async function registerAndStackFilter(pi, fi) {
   const project = data.projects[pi];
   const ft = project && project.filterTargets[fi];
   if (!ft) return;
-  await registerAndStackFilterTone(pi, filterToneKey(ft.filter));
+  await runStackFilterTone(pi, filterToneKey(ft.filter));
 }
 
 /** @deprecated */
@@ -13758,8 +14077,8 @@ async function registerAndStackProject(pi) {
   const project = data.projects[pi];
   if (!project) return;
   for (const g of listPipelineFilterGroups(project)) {
-    if (isFilterReadyToRegister(project, g)) {
-      await registerAndStackFilterTone(pi, g.tone);
+    if (isFilterReadyToStack(project, g)) {
+      await runStackFilterTone(pi, g.tone);
     }
   }
 }
@@ -15246,6 +15565,7 @@ const MODAL_OPEN_SELECTOR = [
   '.ingest-target-confirm-overlay.open',
   '.source-review-overlay.open',
   '.ingest-files-overlay.open',
+  '.cull-overlay.open',
   '.siril-progress-overlay.open',
   '.pipeline-job-overlay.open',
 ].join(', ');
@@ -15259,7 +15579,7 @@ function syncBodyScrollLock() {
 function initModalScrollLock() {
   syncBodyScrollLock();
   const roots = document.querySelectorAll(
-    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .siril-progress-overlay, .pipeline-job-overlay'
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay'
   );
   if (!roots.length || typeof MutationObserver !== 'function') return;
   const obs = new MutationObserver(() => syncBodyScrollLock());
@@ -15328,9 +15648,10 @@ function saveModal() {
         stackMeta: targets[editIndex].stackMeta || null,
         cullMeta: targets[editIndex].cullMeta || null,
         aggregateMeta: targets[editIndex].aggregateMeta || null,
+        registerMeta: targets[editIndex].registerMeta || null,
       };
     } else {
-      targets.push({ ...row, loggedHrs: 0, stackMeta: null, cullMeta: null, aggregateMeta: null });
+      targets.push({ ...row, loggedHrs: 0, stackMeta: null, cullMeta: null, aggregateMeta: null, registerMeta: null });
     }
   } else if (modalType === 'checkstep') {
     if (!v('f-stepText') || modalProjectIndex === null) return;

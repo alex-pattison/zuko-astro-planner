@@ -18,9 +18,14 @@ Keep dated notes terse. Use the template below when useful.
 ## Backlog
 
 - **Filter Wheel: add/edit filters** — Filter Target dropdown is fed from the hard-coded EFW slots; make the wheel section editable and the source of truth for available filters.
-- **In-app culling** — Replace the Cull-dot stub with a UI over `process/pp_light_*` (preview, reject, write `culled.txt` / delete). Until then: cull in Siril by removing frames or listing names in `process/culled.txt`; Registration already skips missing + culled-listed files.
 
 ## Log
+
+### 2026-08-12 — build 18 — Register → Cull → Stack (Siril .seq cull)
+- Pipeline trunk: **Register** (aggregate nights into `Filter/Aggregate/` + Siril register → `r_pp_light_*`) → **Cull** (scan Siril `.seq`, write `culled.txt`) → **Stack** (optional re-register checkbox, default off).
+- Cull popup lists included/excluded frames; Plot works on registered sequence. Aggregate folder keeps both `pp_light_*` and `r_pp_light_*`.
+- QA: `qa-siril-cull-seq`, `qa-siril-register-stack` (synth + real mini Siril smoke); unit + e2e green.
+- `npm run dist:win:beta` for build 18 installer.
 
 ### 2026-08-11 — build 17 — Import master-dark fallback + Siril script warn
 - Import all / stage: if “Use matching master darks” is on but no library match, fall back to session darks instead of staging nothing.

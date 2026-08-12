@@ -2,14 +2,20 @@
  * Siril preprocess automation (Mono 1.4 settings via siril-cli).
  *
  * PP1 calibrateShoot: bias → flat → dark → calibrate lights → stop at pp_light.
- * Aggregate: gather pp_light from nights → Filter/Aggregate/.
- * PP2 stackFilter: register+stack surviving Aggregate lights → working/result_<Filter>.fit.
+ * registerFilter: aggregate nights into Filter/Aggregate/ + register → r_pp_light_*.
+ * Cull (UI): scan r_pp_light_.seq → culled.txt.
+ * stackFilter: stack included r_pp_light → working/result_<Filter>.fit (optional re-register).
  */
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
 const { spawn } = require('child_process');
+const {
+  scanAggregateCull,
+  writeAggregateCullManifest,
+  resolveExcludedPpLights,
+} = require('./sirilSeq');
 
 const DEFAULT_SIRIL_CLI = path.join(
   process.env['ProgramFiles'] || 'C:\\Program Files',
@@ -69,29 +75,31 @@ function hasFits(dir) {
   return listReadableFits(dir).length > 0;
 }
 
+
 function listPpLights(processDir) {
   try {
-    const culled = new Set();
-    for (const name of ['culled.txt', 'culled.lst', 'rejected.txt']) {
-      const p = path.join(processDir, name);
-      if (!fs.existsSync(p)) continue;
-      try {
-        const text = fs.readFileSync(p, 'utf8');
-        text.split(/\r?\n/).forEach((line) => {
-          const s = String(line || '').trim();
-          if (!s || s.startsWith('#')) return;
-          culled.add(path.basename(s).toLowerCase());
-        });
-      } catch {
-        /* ignore */
-      }
-    }
+    const culled = resolveExcludedPpLights(processDir);
     return fs
       .readdirSync(processDir)
       .filter((n) => /^pp_light_\d+\.fit[s]?$/i.test(n))
       .filter((n) => !culled.has(n.toLowerCase()))
       .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
       .map((n) => path.join(processDir, n));
+  } catch {
+    return [];
+  }
+}
+
+/** Registered Aggregate lights, honoring culled.txt / r_pp_light_.seq exclusions. */
+function listRPpLights(aggregateDir) {
+  try {
+    const culled = resolveExcludedPpLights(aggregateDir);
+    return fs
+      .readdirSync(aggregateDir)
+      .filter((n) => /^r_pp_light_\d+\.fit[s]?$/i.test(n))
+      .filter((n) => !culled.has(n.toLowerCase()))
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+      .map((n) => path.join(aggregateDir, n));
   } catch {
     return [];
   }
@@ -188,11 +196,40 @@ close
 `;
 }
 
-function buildStackScript(resultBase) {
-  const safe = String(resultBase || 'result').replace(/[^\w.-]+/g, '_');
+/** Register only — run with workDir = Filter/Aggregate/ (pp_light_* already present). */
+function buildRegisterScript() {
   return `############################################
-# Zuko register+stack (Mono 1.4 settings)
-# Expects calibrated FITS in inputs/ (any names)
+# Zuko register (Mono 1.4 settings)
+# Expects Aggregate/pp_light_*.fit — writes r_pp_light_*
+# Generated — do not hand-edit mid-run
+############################################
+
+requires 1.3.4
+
+register pp_light
+
+close
+`;
+}
+
+/**
+ * Stack included frames staged into _stack/inputs/.
+ * @param {string} resultBase
+ * @param {{ reregister?: boolean }} opts
+ */
+function buildStackScript(resultBase, opts = {}) {
+  const safe = String(resultBase || 'result').replace(/[^\w.-]+/g, '_');
+  const reregister = !!opts.reregister;
+  const alignBlock = reregister
+    ? `register pp_light
+
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result
+`
+    : `stack pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result
+`;
+  return `############################################
+# Zuko stack (Mono 1.4 settings)
+# Expects included FITS in inputs/ (aligned r_pp_light or pp_light for re-register)
 # Generated — do not hand-edit mid-run
 ############################################
 
@@ -202,10 +239,7 @@ cd inputs
 convert pp_light -out=..
 cd ..
 
-register pp_light
-
-stack r_pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result
-
+${alignBlock}
 load result
 mirrorx -bottomup
 save ${safe}
@@ -720,13 +754,111 @@ async function aggregateFilter(opts = {}) {
 }
 
 /**
- * PP2: register+stack surviving lights from Filter/Aggregate/ (after Cull).
+ * Aggregate calibrated nights into Filter/Aggregate/, then register → r_pp_light_*.
+ * @param {{ projectDir: string, filter: string, shootDirs: string[], sirilCli?: string, onLog?: Function }} opts
+ */
+async function registerFilter(opts = {}) {
+  const projectDir = opts.projectDir && path.resolve(String(opts.projectDir));
+  const filter = sanitizeFilterName(opts.filter);
+  const shootDirs = Array.isArray(opts.shootDirs)
+    ? opts.shootDirs.map((d) => path.resolve(String(d))).filter(Boolean)
+    : [];
+
+  if (!projectDir) return { ok: false, code: 'MISSING_PROJECT_DIR', error: 'projectDir is required' };
+  if (!filter) return { ok: false, code: 'MISSING_FILTER', error: 'filter is required' };
+  if (!shootDirs.length) {
+    return { ok: false, code: 'NO_SHOOTS', error: 'shootDirs must include at least one calibrated shoot' };
+  }
+
+  const cliPath = resolveSirilCli(opts.sirilCli);
+  if (!cliPath) {
+    return {
+      ok: false,
+      code: 'SIRIL_CLI_NOT_FOUND',
+      error: `siril-cli not found (expected ${DEFAULT_SIRIL_CLI})`,
+    };
+  }
+
+  const agg = await aggregateFilter({ projectDir, filter, shootDirs });
+  if (!agg.ok) return agg;
+
+  const aggregateDir = agg.aggregateDir;
+  const scriptsDir = path.join(aggregateDir, 'scripts');
+  await fsp.mkdir(scriptsDir, { recursive: true });
+  const scriptPath = path.join(scriptsDir, 'register.ssf');
+  const logPath = path.join(scriptsDir, 'register.log');
+  await fsp.writeFile(scriptPath, buildRegisterScript(), 'utf8');
+
+  const run = await runSirilCli({
+    cliPath,
+    workDir: aggregateDir,
+    scriptPath,
+    logPath,
+    onLog: opts.onLog,
+  });
+  if (!run.ok) {
+    return {
+      ok: false,
+      code: run.code,
+      error: run.error,
+      exitCode: run.exitCode,
+      logPath,
+      logTail: run.logTail,
+      logText: run.logText,
+      aggregateDir,
+      scriptPath,
+      frameCount: agg.frameCount,
+      shootCount: agg.shootCount,
+      aggregatedAt: agg.aggregatedAt,
+    };
+  }
+
+  const rLights = fs
+    .readdirSync(aggregateDir)
+    .filter((n) => /^r_pp_light_\d+\.fit[s]?$/i.test(n));
+  if (!rLights.length) {
+    return {
+      ok: false,
+      code: 'NO_R_PP_LIGHTS',
+      error: `siril-cli finished but no r_pp_light_*.fit in ${aggregateDir}`,
+      logPath,
+      logTail: run.logTail,
+      logText: run.logText,
+      aggregateDir,
+      scriptPath,
+      frameCount: agg.frameCount,
+    };
+  }
+
+  return {
+    ok: true,
+    code: 'OK',
+    filter,
+    aggregateDir,
+    scriptPath,
+    logPath,
+    shootCount: agg.shootCount,
+    frameCount: agg.frameCount,
+    ppLightCount: agg.ppLightCount,
+    rPpLightCount: rLights.length,
+    hardlinks: agg.hardlinks,
+    copies: agg.copies,
+    aggregatedAt: agg.aggregatedAt,
+    registeredAt: new Date().toISOString(),
+    logText: run.logText,
+    logTail: run.logTail,
+  };
+}
+
+/**
+ * Stack included Aggregate/r_pp_light_* (after Cull). Optional re-register of included pp_light.
  * Stages into Filter/_stack/inputs for Siril scratch, then writes working/result_<Filter>.fit.
- * @param {{ projectDir: string, filter: string, sirilCli?: string }} opts
+ * @param {{ projectDir: string, filter: string, sirilCli?: string, reregister?: boolean, onLog?: Function }} opts
  */
 async function stackFilter(opts = {}) {
   const projectDir = opts.projectDir && path.resolve(String(opts.projectDir));
   const filter = sanitizeFilterName(opts.filter);
+  const reregister = !!opts.reregister;
 
   if (!projectDir) return { ok: false, code: 'MISSING_PROJECT_DIR', error: 'projectDir is required' };
   if (!filter) return { ok: false, code: 'MISSING_FILTER', error: 'filter is required' };
@@ -744,31 +876,46 @@ async function stackFilter(opts = {}) {
   if (!fs.existsSync(aggregateDir)) {
     return {
       ok: false,
-      code: 'NEED_AGGREGATE',
-      error: `Aggregate folder missing — run Aggregate first: ${aggregateDir}`,
+      code: 'NEED_REGISTER',
+      error: `Aggregate folder missing — run Register first: ${aggregateDir}`,
       aggregateDir,
     };
   }
 
-  // Surviving frames in Aggregate (deleted during cull are gone; culled.txt also honored)
-  let sourceFiles = listPpLights(aggregateDir);
-  if (!sourceFiles.length) {
-    sourceFiles = listReadableFits(aggregateDir).map((n) => path.join(aggregateDir, n));
+  // Prefer registered lights for stack; for re-register, use matching included pp_light_*
+  let sourceFiles;
+  if (reregister) {
+    const includedR = listRPpLights(aggregateDir);
+    if (includedR.length) {
+      sourceFiles = includedR
+        .map((fp) => {
+          const ppName = path.basename(fp).replace(/^r_pp_light_/i, 'pp_light_');
+          const ppPath = path.join(aggregateDir, ppName);
+          return fs.existsSync(ppPath) ? ppPath : null;
+        })
+        .filter(Boolean);
+    } else {
+      sourceFiles = listPpLights(aggregateDir);
+    }
+  } else {
+    sourceFiles = listRPpLights(aggregateDir);
+    if (!sourceFiles.length) sourceFiles = listPpLights(aggregateDir);
   }
+
   if (!sourceFiles.length) {
     return {
       ok: false,
-      code: 'NO_PP_LIGHTS',
-      error: `No lights left in Aggregate (cull may have removed all): ${aggregateDir}`,
+      code: 'NO_LIGHTS',
+      error: `No lights left to stack in Aggregate (cull may have removed all): ${aggregateDir}`,
       aggregateDir,
     };
   }
+
   const stackRoot = path.join(projectDir, filter, '_stack');
   const inputsDir = path.join(stackRoot, 'inputs');
   const scriptsDir = path.join(stackRoot, 'scripts');
   await fsp.mkdir(scriptsDir, { recursive: true });
 
-  // Clear previous _stack contents (except scripts/, which we overwrite)
   try {
     const existing = await fsp.readdir(stackRoot);
     for (const name of existing) {
@@ -793,7 +940,7 @@ async function stackFilter(opts = {}) {
   const resultBase = `result_${filter}`;
   const scriptPath = path.join(scriptsDir, 'stack.ssf');
   const logPath = path.join(scriptsDir, 'stack.log');
-  await fsp.writeFile(scriptPath, buildStackScript(resultBase), 'utf8');
+  await fsp.writeFile(scriptPath, buildStackScript(resultBase, { reregister }), 'utf8');
 
   const run = await runSirilCli({
     cliPath,
@@ -815,6 +962,7 @@ async function stackFilter(opts = {}) {
       aggregateDir,
       scriptPath,
       linkedCount: linked.length,
+      reregister,
     };
   }
 
@@ -838,10 +986,10 @@ async function stackFilter(opts = {}) {
       aggregateDir,
       scriptPath,
       linkedCount: linked.length,
+      reregister,
     };
   }
 
-  // Promote final into project working/ (flat: result_<Filter>.fit)
   const workingDir = path.join(projectDir, 'working');
   await fsp.mkdir(workingDir, { recursive: true });
   const workingPath = path.join(workingDir, path.basename(resultPath));
@@ -858,6 +1006,7 @@ async function stackFilter(opts = {}) {
       aggregateDir,
       resultPath,
       workingDir,
+      reregister,
     };
   }
 
@@ -876,7 +1025,10 @@ async function stackFilter(opts = {}) {
     frameCount: linked.length,
     ppLightCount: linked.length,
     linked,
+    reregister,
     stackedAt: new Date().toISOString(),
+    logText: run.logText,
+    logTail: run.logTail,
   };
 }
 
@@ -1141,19 +1293,48 @@ async function inspectMonoPreprocessingScript(opts = {}) {
   };
 }
 
+async function applyAggregateCull(opts = {}) {
+  const aggregateDir = opts.aggregateDir && path.resolve(String(opts.aggregateDir));
+  if (!aggregateDir) {
+    return { ok: false, code: 'MISSING_DIR', error: 'aggregateDir is required' };
+  }
+  const scan = await scanAggregateCull(aggregateDir);
+  if (!scan.ok) return scan;
+  const excluded = (scan.frames || []).filter((f) => !f.included).map((f) => f.basename);
+  const manifest = await writeAggregateCullManifest(aggregateDir, excluded);
+  return {
+    ok: true,
+    code: 'OK',
+    aggregateDir,
+    seqPath: scan.seqPath,
+    seqModifiedAt: scan.seqModifiedAt,
+    scannedAt: new Date().toISOString(),
+    frames: scan.frames,
+    totalCount: scan.totalCount,
+    includedCount: scan.includedCount,
+    excludedCount: scan.excludedCount,
+    manifestPath: manifest.manifestPath,
+  };
+}
+
 module.exports = {
   resolveSirilCli,
   calibrateShoot,
   aggregateFilter,
+  registerFilter,
   stackFilter,
   buildLibraryMaster,
   readSirilLog,
   buildCalibrateScript,
   buildLibraryMasterScript,
+  buildRegisterScript,
   buildStackScript,
   listPpLights,
+  listRPpLights,
   listAllPpLights,
   aggregateDirFor,
+  scanAggregateCull,
+  applyAggregateCull,
   inspectShootDisk,
   cleanShootIntermediates,
   cleanProjectIntermediates,

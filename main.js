@@ -848,6 +848,42 @@ ipcMain.handle('zuko-siril-aggregate', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-siril-register', async (event, payload = {}) => {
+  try {
+    const { registerFilter } = loadSirilPreprocess();
+    return await registerFilter({
+      ...(payload || {}),
+      onLog: (chunk) => {
+        try {
+          event.sender.send('zuko-siril-log', { chunk: String(chunk || '') });
+        } catch {
+          /* ignore */
+        }
+      },
+    });
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-scan-cull', async (_event, payload = {}) => {
+  try {
+    const { scanAggregateCull } = loadSirilPreprocess();
+    return await scanAggregateCull(payload.aggregateDir);
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-siril-apply-cull', async (_event, payload = {}) => {
+  try {
+    const { applyAggregateCull } = loadSirilPreprocess();
+    return await applyAggregateCull(payload || {});
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
 ipcMain.handle('zuko-siril-stack-filter', async (event, payload = {}) => {
   try {
     const { stackFilter } = loadSirilPreprocess();

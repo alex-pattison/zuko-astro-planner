@@ -24,7 +24,8 @@
           "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "OIII",
@@ -34,7 +35,8 @@
           "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "SII",
@@ -44,7 +46,8 @@
           "loggedHrs": 0,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "SII",
@@ -54,7 +57,8 @@
           "loggedHrs": 1,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "R",
@@ -64,7 +68,8 @@
           "loggedHrs": 0,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "G",
@@ -74,7 +79,8 @@
           "loggedHrs": 0,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "B",
@@ -84,7 +90,8 @@
           "loggedHrs": 0,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         }
       ],
       "checklist": [
@@ -177,7 +184,8 @@
           "loggedHrs": 0.5,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "OIII",
@@ -187,7 +195,8 @@
           "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         },
         {
           "filter": "SII",
@@ -197,7 +206,8 @@
           "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null
+          "aggregateMeta": null,
+          "registerMeta": null
         }
       ],
       "checklist": [
@@ -823,8 +833,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 17,
-    "savedAt": "2026-08-12T00:17:39.942Z"
+    "build": 18,
+    "savedAt": "2026-08-12T16:30:33.852Z"
   },
   "uiTheme": "dark",
   "homeSite": {
