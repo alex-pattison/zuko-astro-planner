@@ -62,6 +62,7 @@ contextBridge.exposeInMainWorld('zukoSiril', {
   inspectShootDisk: (opts) => ipcRenderer.invoke('zuko-siril-inspect-shoot-disk', opts || {}),
   cleanShoot: (opts) => ipcRenderer.invoke('zuko-siril-clean-shoot', opts || {}),
   cleanProject: (opts) => ipcRenderer.invoke('zuko-siril-clean-project', opts || {}),
+  monoScriptStatus: (opts) => ipcRenderer.invoke('zuko-siril-mono-script-status', opts || {}),
   onLog: (handler) => {
     if (typeof handler !== 'function') return () => {};
     const listener = (_event, payload) => handler(payload || {});

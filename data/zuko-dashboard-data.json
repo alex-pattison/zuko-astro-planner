@@ -21,7 +21,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 1,
+          "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null
@@ -31,7 +31,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4.5,
-          "loggedHrs": 0,
+          "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null
@@ -51,7 +51,7 @@
           "location": "Queechy",
           "bortle": "5",
           "targetHrs": 1,
-          "loggedHrs": 0,
+          "loggedHrs": 1,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null
@@ -111,104 +111,33 @@
       ],
       "shoots": [
         {
-          "date": "260803",
+          "date": "260725",
           "filterIndex": 0,
+          "hours": 0.25,
+          "complete": true,
+          "creditedHours": 0.25,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260725",
+          "filterIndex": 1,
+          "hours": 0.25,
+          "complete": true,
+          "creditedHours": 0.25,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260725",
+          "filterIndex": 3,
           "hours": 1,
           "complete": true,
           "creditedHours": 1,
-          "sourcePath": "C:\\Users\\alexp\\OneDrive\\Desktop\\asiaIRDUMP",
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260803",
-            "shootFolder": "260803_Ha_B9_Home",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260803",
-              "biasesPreexisting": 30,
-              "darksPreexisting": 0,
-              "biasesAfter": 30,
-              "darksAfter": 1
-            },
-            "filesStaged": 0,
-            "filesSkipped": 81,
-            "biasesMoved": 0,
-            "byType": {
-              "light": 20,
-              "flat": 30,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 20,
-            "frameCount": 20,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-08-10T01:23:58.707Z"
-          },
-          "preprocessMeta": {
-            "calibratedAt": "2026-08-11T21:47:52.661Z",
-            "shootDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home",
-            "ppLightCount": 20,
-            "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home\\scripts\\calibrate.log",
-            "scriptPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260803_Ha_B9_Home\\scripts\\calibrate.ssf"
-          }
-        },
-        {
-          "date": "260808",
-          "filterIndex": 0,
-          "hours": 2,
-          "complete": false,
-          "creditedHours": 0,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260808",
-          "filterIndex": 1,
-          "hours": 0,
-          "complete": false,
-          "creditedHours": 0,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260808",
-          "filterIndex": 1,
-          "hours": 0,
-          "complete": false,
-          "creditedHours": 0,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260808",
-          "filterIndex": 3,
-          "hours": 0,
-          "complete": false,
-          "creditedHours": 0,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260814",
-          "filterIndex": 0,
-          "hours": 1,
-          "complete": false,
-          "creditedHours": 0,
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
@@ -291,17 +220,8 @@
           "complete": true,
           "creditedHours": 0.5,
           "sourcePath": null,
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC7000_260720\\Ha\\260720_Ha_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260720",
-            "shootFolder": "260720_Ha_B9_Home",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC7000_260720\\Ha\\260720_Ha_B9_Home"
-            ]
-          },
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -311,17 +231,8 @@
           "complete": true,
           "creditedHours": 0.25,
           "sourcePath": null,
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC7000_260720\\OIII\\260720_OIII_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260720",
-            "shootFolder": "260720_OIII_B9_Home",
-            "filters": [
-              "OIII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC7000_260720\\OIII\\260720_OIII_B9_Home"
-            ]
-          },
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -331,17 +242,8 @@
           "complete": true,
           "creditedHours": 0.25,
           "sourcePath": null,
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC7000_260720\\SII\\260720_SII_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260720",
-            "shootFolder": "260720_SII_B9_Home",
-            "filters": [
-              "SII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC7000_260720\\SII\\260720_SII_B9_Home"
-            ]
-          },
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         }
       ],
@@ -360,7 +262,8 @@
       "framerMode": "reducer",
       "framerRotation": 122,
       "ignoredAsiairFolders": [],
-      "asiairBoundFolders": []
+      "asiairBoundFolders": [],
+      "asiairIgnoredSources": []
     }
   ],
   "notes": [
@@ -920,8 +823,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 15,
-    "savedAt": "2026-08-11T21:47:53.813Z"
+    "build": 17,
+    "savedAt": "2026-08-12T00:17:39.942Z"
   },
   "uiTheme": "dark",
   "homeSite": {

@@ -510,21 +510,44 @@ async function testPipeline() {
   });
   assert('readiness fails without Bias', !missingBias.ok && missingBias.missing.some((m) => /Bias/i.test(m)), missingBias.missing.join(','));
 
-  // Stage without master dark matches → MISSING_FRAMES
-  const noDark = await stageSirilTree({
+  // Masters requested but none match → fall back to session darks (do not block Import).
+  const noMasterFallback = await stageSirilTree({
     projectDir: QA_ROOT,
     sessionPath,
     nightDate: NIGHT,
-    shootFolder: '260725_Ha_missing_dark',
+    shootFolder: '260725_Ha_session_dark_fallback',
     filters: ['Ha'],
     useMasterDarks: true,
     darkMatchesByFilter: {},
     force: true,
   });
   assert(
-    'stage without master darks → MISSING_FRAMES',
-    noDark.ok === false && noDark.code === 'MISSING_FRAMES',
-    `${noDark.code}: ${noDark.error}`,
+    'stage without master darks falls back to session',
+    noMasterFallback.ok === true,
+    `${noMasterFallback.code}: ${noMasterFallback.error}`,
+  );
+  if (noMasterFallback.ok) {
+    assert(
+      'fallback used session darks',
+      /session/i.test(String(noMasterFallback.meta && noMasterFallback.meta.darkSource || '')),
+      noMasterFallback.meta && noMasterFallback.meta.darkSource,
+    );
+  }
+
+  // No masters and no usable session darks → still MISSING_FRAMES
+  const noDarkAtAll = evaluateIngestFrameReadiness({
+    lights: haLights,
+    flats: haFlats,
+    biases: scan.biases || [],
+    sessionDarks: [],
+    useMasterDarks: true,
+    darkMatchesByFilter: {},
+    filters: ['Ha'],
+  });
+  assert(
+    'readiness fails with neither session nor master darks',
+    !noDarkAtAll.ok && noDarkAtAll.missing.some((m) => /Dark/i.test(m)),
+    noDarkAtAll.missing && noDarkAtAll.missing.join(','),
   );
 
   // Stage Ha only first

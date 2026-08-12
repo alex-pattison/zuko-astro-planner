@@ -549,6 +549,28 @@
     color: var(--yellow);
     line-height: 1.5;
   }
+  .compat-banner.open { display: block; }
+  .siril-script-banner {
+    display: none;
+    background: color-mix(in srgb, var(--yellow) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--yellow) 35%, transparent);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+  .siril-script-banner.open { display: block; }
+  .siril-script-banner strong { color: var(--yellow); }
+  .siril-script-banner .siril-script-banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .siril-script-banner .siril-script-banner-actions .mini-btn { margin-top: 0; }
   .ingest-overlay {
     display: none;
     position: fixed;
@@ -4284,6 +4306,13 @@
   </header>
 
   <div id="compat-banner" class="compat-banner"></div>
+  <div id="siril-script-banner" class="siril-script-banner" role="status" hidden>
+    <div id="siril-script-banner-text"></div>
+    <div class="siril-script-banner-actions">
+      <button type="button" class="mini-btn" data-testid="siril-script-dismiss" onclick="dismissSirilScriptWarn()">Don't warn me again</button>
+      <button type="button" class="mini-btn" data-testid="siril-script-dismiss-once" onclick="hideSirilScriptWarn()">Dismiss</button>
+    </div>
+  </div>
 
   <!-- Browser-only fallback sync (hidden when Electron) -->
   <div class="sync-bar" id="sync-bar-fallback" aria-hidden="true"></div>
@@ -5170,7 +5199,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 16, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 17, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -5720,6 +5749,67 @@ function showCompatBanner(msg) {
   el.classList.add('open');
 }
 
+let _sirilScriptWarnCtx = null;
+
+function hideSirilScriptWarn() {
+  const el = document.getElementById('siril-script-banner');
+  if (!el) return;
+  el.classList.remove('open');
+  el.hidden = true;
+}
+
+function dismissSirilScriptWarn() {
+  const fp = _sirilScriptWarnCtx && _sirilScriptWarnCtx.fingerprint;
+  if (fp && data) {
+    data.sirilMonoScriptWarnDismissedFingerprint = String(fp);
+    save();
+  }
+  hideSirilScriptWarn();
+}
+
+function showSirilScriptWarn(status) {
+  const el = document.getElementById('siril-script-banner');
+  const text = document.getElementById('siril-script-banner-text');
+  if (!el || !text || !status || !status.changed) {
+    hideSirilScriptWarn();
+    return;
+  }
+  const inst = status.installed || {};
+  const ref = status.reference || {};
+  _sirilScriptWarnCtx = { fingerprint: inst.fingerprint || null };
+  text.innerHTML =
+    `<strong>Siril Mono_Preprocessing changed</strong> · installed ` +
+    `<code>v${escapeHtml(inst.scriptVersion || '?')}</code>` +
+    (inst.sirilLabel ? ` (Siril ${escapeHtml(inst.sirilLabel)})` : '') +
+    ` · Zuko reference <code>v${escapeHtml(ref.scriptVersion || '?')}</code>. ` +
+    `Zuko generates its own calibrate/stack scripts from Mono 1.4 settings — review ` +
+    `<code>src/siril/preprocess.js</code> if Siril’s stock script behavior changed.`;
+  el.hidden = false;
+  el.classList.add('open');
+}
+
+async function checkSirilMonoScriptOnBoot() {
+  if (!window.zukoSiril || typeof window.zukoSiril.monoScriptStatus !== 'function') return;
+  try {
+    const status = await window.zukoSiril.monoScriptStatus();
+    if (!status || !status.ok || !status.changed) {
+      hideSirilScriptWarn();
+      return;
+    }
+    const fp = status.installed && status.installed.fingerprint;
+    const dismissed = data && data.sirilMonoScriptWarnDismissedFingerprint
+      ? String(data.sirilMonoScriptWarnDismissedFingerprint)
+      : '';
+    if (fp && dismissed && dismissed === fp) {
+      hideSirilScriptWarn();
+      return;
+    }
+    showSirilScriptWarn(status);
+  } catch (e) {
+    console.warn('Siril script check failed:', e);
+  }
+}
+
 function adoptLoadedData(incoming) {
   if (!incoming || typeof incoming !== 'object') return;
   data = incoming;
@@ -5736,6 +5826,9 @@ function adoptLoadedData(incoming) {
   if (!data.uiSections || typeof data.uiSections !== 'object') data.uiSections = {};
   if (data.asiairSourcePath == null) data.asiairSourcePath = '';
   else data.asiairSourcePath = normalizeWinPath(data.asiairSourcePath) || '';
+  if (data.sirilMonoScriptWarnDismissedFingerprint == null) {
+    data.sirilMonoScriptWarnDismissedFingerprint = '';
+  }
   initSectionCollapseControls();
   const saved = data.appMeta || {};
   const savedBuild = Number(saved.build) || 0;
@@ -9733,6 +9826,7 @@ function closeIngestModal() {
   const el = document.getElementById('ingest-overlay');
   if (el) el.classList.remove('open');
   ingestCtx = { pi: null, si: null, scan: null, sessions: [], darkMatchesByFilter: {} };
+  if (typeof renderProjects === 'function') renderProjects();
 }
 
 function closeIngestFilesPopup() {
@@ -11670,12 +11764,10 @@ function evaluateIngestFrameReadinessUi(opts = {}) {
   const masterN = Number(opts.masterDarkCount) || 0;
   const hasSessionDarks = sessionDarks.length > 0;
   const hasMasterDarks = masterN > 0;
-  // Never stage for Siril without some dark source.
+  // Prefer masters when checked, but fall back to session darks when none match.
   if (!hasSessionDarks && !hasMasterDarks) {
     missing.push('Dark (session or master library)');
-  } else if (useMasterDarks) {
-    if (!hasMasterDarks) missing.push('Dark (master library)');
-  } else if (!hasSessionDarks) {
+  } else if (!useMasterDarks && !hasSessionDarks) {
     missing.push('Dark (session)');
   }
   return {
@@ -11684,6 +11776,7 @@ function evaluateIngestFrameReadinessUi(opts = {}) {
     error: missing.length
       ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias, and Dark before staging.`
       : null,
+    useMasterDarksEffective: !!(useMasterDarks && hasMasterDarks),
   };
 }
 
@@ -14066,7 +14159,7 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     scan,
     shootFolder,
     codeName: shootFolder,
-    masterDarks: useMasterDarks ? darkInfo.matchCount : 0,
+    masterDarks: finalUseMasters ? darkInfo.matchCount : 0,
   };
 }
 
@@ -14526,7 +14619,7 @@ async function stageIngestQueue(queue, force = false) {
   const project = data.projects[pi];
   if (!project.projectDir) return { ok: [], fail: ['No project directory'] };
 
-  const useDarks = !!(document.getElementById('ingest-use-masters') || {}).checked;
+  const useDarksChecked = !!(document.getElementById('ingest-use-masters') || {}).checked;
   const ok = [];
   const fail = [];
 
@@ -14537,8 +14630,14 @@ async function stageIngestQueue(queue, force = false) {
     const code = buildShootCode(sh, ft);
     document.getElementById('ingest-progress').textContent =
       `Importing ${i + 1}/${queue.length} · ${code}`;
+    // Prefer masters when checked, but allow session darks if no library match.
+    const masterN = Array.isArray(ingestCtx && ingestCtx.darkMatchesByFilter && ft
+      && ingestCtx.darkMatchesByFilter[ft.filter])
+      ? ingestCtx.darkMatchesByFilter[ft.filter].length
+      : ((ingestCtx && ingestCtx.masterDarkMatches) || []).length;
+    const useMasterDarks = useDarksChecked && masterN > 0;
     const res = await ingestSingleShootProgrammatic(pi, si, {
-      useMasterDarks: useDarks,
+      useMasterDarks,
       force: !!force,
       minBusyMs: i === 0 ? 1000 : 350,
       busyMessage: `Importing ${i + 1}/${queue.length}: ${code}`,
@@ -14643,25 +14742,31 @@ async function runIngestStageAll(force = false) {
 
   recomputeProjectFilterHours(data.projects[ingestBatch.pi]);
   save();
-  ingestBatch = null;
   const stageBtn = document.getElementById('ingest-stage-btn');
-  if (stageBtn) {
-    stageBtn.textContent = 'Import';
-    stageBtn.disabled = true;
-  }
   const dayBtn = document.getElementById('ingest-stage-day-btn');
-  if (dayBtn) {
-    dayBtn.style.display = 'none';
-    dayBtn.disabled = true;
-  }
   document.getElementById('ingest-progress').textContent =
     (allOk.length ? `Staged ${allOk.length}: ${allOk.join(', ')}` : 'Nothing imported') +
     (allFail.length ? ` · issues: ${allFail.join(' · ')}` : '');
   document.getElementById('ingest-confirm').innerHTML = allOk.length
     ? `<div class="line"><span style="color:var(--green);">Import all complete</span> — ${allOk.length} imported</div>` +
       (allFail.length ? `<div class="line" style="color:var(--yellow);">${escapeHtml(allFail.join(' · '))}</div>` : '')
-    : `<div class="line" style="color:var(--yellow);">Nothing imported${allFail.length ? ' — ' + escapeHtml(allFail.join(' · ')) : ''}</div>`;
-  setTimeout(() => closeIngestModal(), allFail.length ? 2200 : 900);
+    : `<div class="line" style="color:var(--yellow);">Nothing imported${allFail.length ? ' — ' + escapeHtml(allFail.join(' · ')) : ' — no ready shoots (check flats/darks; uncheck master darks if you only have session darks)'}</div>`;
+  // Keep the modal open on a total miss so the message is readable; close after success.
+  if (allOk.length) {
+    ingestBatch = null;
+    if (stageBtn) {
+      stageBtn.textContent = 'Import';
+      stageBtn.disabled = true;
+    }
+    if (dayBtn) {
+      dayBtn.style.display = 'none';
+      dayBtn.disabled = true;
+    }
+    setTimeout(() => closeIngestModal(), allFail.length ? 2200 : 900);
+  } else if (stageBtn) {
+    stageBtn.textContent = 'Import all';
+    stageBtn.disabled = false;
+  }
 }
 
 async function runIngestStage(force = false) {
@@ -14677,7 +14782,16 @@ async function runIngestStage(force = false) {
   const night = shootNightYmd(sh);
   if (!project.projectDir || !night) return;
 
-  const useDarks = !!(document.getElementById('ingest-use-masters') || {}).checked;
+  const useDarksChecked = !!(document.getElementById('ingest-use-masters') || {}).checked;
+  const masterNForShoot = (() => {
+    const ftLocal = project.filterTargets[sh.filterIndex];
+    const filter = ftLocal && ftLocal.filter;
+    if (filter && Array.isArray(darkMatchesByFilter && darkMatchesByFilter[filter])) {
+      return darkMatchesByFilter[filter].length;
+    }
+    return ((ingestCtx && ingestCtx.masterDarkMatches) || []).length;
+  })();
+  const useDarks = useDarksChecked && masterNForShoot > 0;
   document.getElementById('ingest-progress').textContent = 'Importing…';
 
   const targetHint = projectTargetHint(project);
@@ -15642,6 +15756,7 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     dismissBootSplash();
     // Weather / moon after first paint — don't block the UI
     refreshHeaderSky();
+    checkSirilMonoScriptOnBoot();
   } catch (e) {
     console.error('Boot failed:', e);
     setBootStatus('Something went wrong — check DevTools console');

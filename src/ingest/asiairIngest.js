@@ -2052,11 +2052,11 @@ function evaluateIngestFrameReadiness(opts = {}) {
   masterCount = Number(masterCount) || 0;
   const hasSessionDarks = sessionDarks.length > 0;
   const hasMasterDarks = masterCount > 0;
+  // Prefer masters when requested, but fall back to session darks when none match
+  // so Import isn't blocked with usable Dark/ frames present.
   if (!hasSessionDarks && !hasMasterDarks) {
     missing.push('Dark (session or master library)');
-  } else if (useMasterDarks) {
-    if (!hasMasterDarks) missing.push('Dark (master library)');
-  } else if (!hasSessionDarks) {
+  } else if (!useMasterDarks && !hasSessionDarks) {
     missing.push('Dark (session)');
   }
 
@@ -2068,6 +2068,7 @@ function evaluateIngestFrameReadiness(opts = {}) {
       ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias (matching flats + light temp), and Dark before staging.`
       : null,
     lightTempC,
+    useMasterDarksEffective: !!(useMasterDarks && hasMasterDarks),
   };
 }
 
@@ -2089,7 +2090,8 @@ async function stageSirilTree(opts = {}) {
   const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
   const force = opts.force === true;
 
-  const useMasterDarks = opts.useMasterDarks === true;
+  const useMasterDarksRequested = opts.useMasterDarks === true;
+  let useMasterDarks = useMasterDarksRequested;
   const darkMatchesByFilter = opts.darkMatchesByFilter || {};
   const targetHint = opts.targetHint || null;
   const filtersFilter = opts.filters && opts.filters.length
@@ -2240,6 +2242,18 @@ async function stageSirilTree(opts = {}) {
   const readinessFilters = shootFilter
     ? [shootFilter]
     : (filtersFilter ? [...filtersFilter] : filters);
+  // If masters were requested but none match this profile, fall back to session darks.
+  if (useMasterDarks) {
+    let masterCount = 0;
+    for (const f of readinessFilters) {
+      const m = darkMatchesByFilter[f] || [];
+      if (m.length > masterCount) masterCount = m.length;
+    }
+    const star = darkMatchesByFilter['*'] || [];
+    if (star.length > masterCount) masterCount = star.length;
+    if (!masterCount) useMasterDarks = false;
+  }
+
   const readiness = evaluateIngestFrameReadiness({
     lights,
     flats,

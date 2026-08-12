@@ -902,6 +902,15 @@ ipcMain.handle('zuko-siril-clean-project', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-siril-mono-script-status', async (_event, payload = {}) => {
+  try {
+    const { inspectMonoPreprocessingScript } = loadSirilPreprocess();
+    return await inspectMonoPreprocessingScript(payload || {});
+  } catch (e) {
+    return { ok: false, code: 'EXCEPTION', error: String(e && e.message ? e.message : e) };
+  }
+});
+
 app.whenReady().then(() => {
   if (!gotSingleInstanceLock) return;
   // Distinct AppUserModelIDs so Windows taskbar pins Beta vs Dev separately with their icons.

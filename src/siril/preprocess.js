@@ -8,6 +8,7 @@
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 
 const DEFAULT_SIRIL_CLI = path.join(
@@ -16,6 +17,18 @@ const DEFAULT_SIRIL_CLI = path.join(
   'bin',
   'siril-cli.exe'
 );
+
+const DEFAULT_MONO_SCRIPT = path.join(
+  process.env['ProgramFiles'] || 'C:\\Program Files',
+  'Siril',
+  'scripts',
+  'Mono_Preprocessing.ssf'
+);
+
+/** Bundled baseline (copied from Siril install when we last verified Zuko templates). */
+function resolveReferenceMonoScript() {
+  return path.join(__dirname, '..', '..', 'reference', 'siril', 'scripts', 'Mono_Preprocessing.ssf');
+}
 
 const INPUT_DIRS = ['biases', 'darks', 'flats', 'lights'];
 
@@ -1047,6 +1060,87 @@ async function cleanProjectIntermediates({ projectDir, shootDirs = [], filters =
   };
 }
 
+/**
+ * Parse Mono_Preprocessing.ssf header fields used for change detection.
+ * Example header line: `# Mono_Preprocessing v1.4`
+ */
+function parseMonoScriptMeta(text) {
+  const raw = String(text || '');
+  const scriptVersion = (raw.match(/Mono_Preprocessing\s+v([\d.]+)/i) || [])[1] || null;
+  const sirilLabel = (raw.match(/Script for Siril\s+([\d.]+)/i) || [])[1] || null;
+  const requires = (raw.match(/^\s*requires\s+([\d.]+)\s*$/im) || [])[1] || null;
+  const hash = crypto.createHash('sha256').update(raw).digest('hex').slice(0, 12);
+  const fingerprint = `${scriptVersion || 'unknown'}@${hash}`;
+  return { scriptVersion, sirilLabel, requires, hash, fingerprint };
+}
+
+async function readMonoScriptFile(filePath) {
+  const p = filePath && String(filePath).trim();
+  if (!p) return { ok: false, error: 'path required' };
+  try {
+    const text = await fsp.readFile(p, 'utf8');
+    return { ok: true, path: p, text, ...parseMonoScriptMeta(text) };
+  } catch (e) {
+    return {
+      ok: false,
+      path: p,
+      error: String(e && e.message ? e.message : e),
+    };
+  }
+}
+
+/**
+ * Compare installed Siril Mono_Preprocessing.ssf to the repo reference copy.
+ * Zuko does not execute the stock script, but its header/version is the signal
+ * that Siril updated and our generated calibrate/stack templates may need review.
+ */
+async function inspectMonoPreprocessingScript(opts = {}) {
+  const installedPath = (opts.installedPath && String(opts.installedPath).trim())
+    || DEFAULT_MONO_SCRIPT;
+  const referencePath = (opts.referencePath && String(opts.referencePath).trim())
+    || resolveReferenceMonoScript();
+
+  const [installed, reference] = await Promise.all([
+    readMonoScriptFile(installedPath),
+    readMonoScriptFile(referencePath),
+  ]);
+
+  const changed = !!(
+    installed.ok
+    && reference.ok
+    && installed.fingerprint
+    && reference.fingerprint
+    && installed.fingerprint !== reference.fingerprint
+  );
+
+  return {
+    ok: true,
+    changed,
+    missingInstalled: !installed.ok,
+    missingReference: !reference.ok,
+    installed: installed.ok
+      ? {
+          path: installed.path,
+          scriptVersion: installed.scriptVersion,
+          sirilLabel: installed.sirilLabel,
+          requires: installed.requires,
+          hash: installed.hash,
+          fingerprint: installed.fingerprint,
+        }
+      : { path: installedPath, error: installed.error },
+    reference: reference.ok
+      ? {
+          path: reference.path,
+          scriptVersion: reference.scriptVersion,
+          sirilLabel: reference.sirilLabel,
+          requires: reference.requires,
+          hash: reference.hash,
+          fingerprint: reference.fingerprint,
+        }
+      : { path: referencePath, error: reference.error },
+  };
+}
+
 module.exports = {
   resolveSirilCli,
   calibrateShoot,
@@ -1063,5 +1157,8 @@ module.exports = {
   inspectShootDisk,
   cleanShootIntermediates,
   cleanProjectIntermediates,
+  inspectMonoPreprocessingScript,
+  parseMonoScriptMeta,
   DEFAULT_SIRIL_CLI,
+  DEFAULT_MONO_SCRIPT,
 };

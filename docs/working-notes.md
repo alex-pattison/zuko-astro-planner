@@ -22,6 +22,12 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-11 — build 17 — Import master-dark fallback + Siril script warn
+- Import all / stage: if “Use matching master darks” is on but no library match, fall back to session darks instead of staging nothing.
+- Banner when installed Siril `Mono_Preprocessing.ssf` differs from bundled reference (version header + hash); dismiss stores fingerprint.
+- Volume-test helpers: `scripts/seed-veil-volume.js`, `scripts/seed-veil-import-source.js` (Dev only).
+- `npm run dist:win:beta` for build 17 installer.
+
 ### 2026-08-11 — build 16 — Cleanup + source review polish
 - Night **Cleanup** + project **Cleanup project** remove Siril intermediates (`masters`/`process`/`scripts`; project also `Aggregate`/`_stack`); keeps lights and `working/` results. In-app confirm modal (not Windows `confirm`).
 - Night detail shows Folder size + Intermediates size; Copy Working Path; Source review shows ASIAIR path with Browse/Rescan.
