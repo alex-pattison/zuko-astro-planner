@@ -17,9 +17,19 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Backlog
 
+Canonical list: **[`docs/backlog.md`](backlog.md)** (0.2 polish vs 0.3 planning, best-practice app items, competitive notes).
+
+Scratch items still land here until promoted:
+
 - **Filter Wheel: add/edit filters** — Filter Target dropdown is fed from the hard-coded EFW slots; make the wheel section editable and the source of truth for available filters.
 
 ## Log
+
+### 2026-08-16 — build 23 — Project reorder / dates / imaging config + ASIAIR filename parse
+- Drag-reorder projects; shoot start/end from shot log (manual override); imaging config FOV in meta + framer; Set center unlocked.
+- ASIAIR filenames: `294MM` / `gainN` / `NNNdeg` parse (header still wins when present).
+- Idea catalog: `docs/backlog.md`.
+- `npm run dist:win:beta` for build 23 installer.
 
 ### 2026-08-16 — build 22 — Moon altitude on Sky Forecast hours
 - Hourly night tables: **Moon** column (after Seeing) shows `↑ nn°` / `↓` from local `_ASTRO.moonAltitude` — no Astrospheric credits.
