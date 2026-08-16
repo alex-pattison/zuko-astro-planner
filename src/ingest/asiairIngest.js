@@ -1522,7 +1522,15 @@ function collectUsableDarkflats(biases = [], flats = [], opts = {}) {
   };
 }
 
-/** True when frame temp is within ±TEMP_TOLERANCE_C of light temp. */
+/** True when darkflats cover every flat param set, or (when selected) count ≥ flats. */
+function darkflatsCoverFlats(biases, flats, opts = {}) {
+  const usable = collectUsableDarkflats(biases || [], flats || [], opts);
+  if (usable.matches.length > 0 && usable.uncovered.length === 0) return true;
+  if (opts.allowBiasCountCover && (flats || []).length > 0 && (biases || []).length >= flats.length) {
+    return true;
+  }
+  return false;
+}
 function tempMatchesLight(frameTempC, lightTempC) {
   if (lightTempC == null || !Number.isFinite(Number(lightTempC))) return true;
   if (frameTempC == null || !Number.isFinite(Number(frameTempC))) return false;
@@ -2163,20 +2171,26 @@ function evaluateIngestFrameReadiness(opts = {}) {
     for (const f of filterList) {
       const flatsF = flats.filter((x) => (normalizeFilter(x.filter) || 'Unknown') === f);
       const flatsTemp = partitionByLightTemp(flatsF, lightTempC);
-      if (!flatsTemp.inRange.length) missing.push(`Flat (${f})`);
-      else {
-        const usable = collectUsableDarkflats(biases, flatsTemp.inRange, { lightTempC });
-        if (!usable.matches.length) missing.push(`Bias matching Flat (${f})`);
+      const useFlats = opts.flatsPrefiltered ? flatsF : flatsTemp.inRange;
+      if (!useFlats.length) missing.push(`Flat (${f})`);
+      else if (!darkflatsCoverFlats(biases, useFlats, {
+        lightTempC,
+        allowBiasCountCover: !!opts.allowBiasCountCover,
+      })) {
+        missing.push(`Bias matching Flat (${f})`);
       }
     }
   } else if (!flats.length) {
     missing.push('Flat');
   } else {
     const flatsTemp = partitionByLightTemp(flats, lightTempC);
-    if (!flatsTemp.inRange.length) missing.push('Flat');
-    else {
-      const usable = collectUsableDarkflats(biases, flatsTemp.inRange, { lightTempC });
-      if (!usable.matches.length) missing.push('Bias matching Flat');
+    const useFlats = opts.flatsPrefiltered ? flats : flatsTemp.inRange;
+    if (!useFlats.length) missing.push('Flat');
+    else if (!darkflatsCoverFlats(biases, useFlats, {
+      lightTempC,
+      allowBiasCountCover: !!opts.allowBiasCountCover,
+    })) {
+      missing.push('Bias matching Flat');
     }
   }
 
@@ -2407,6 +2421,8 @@ async function stageSirilTree(opts = {}) {
     darkMatchesByFilter,
     filters: readinessFilters,
     lightTempC,
+    flatsPrefiltered: true,
+    allowBiasCountCover: true,
   });
   if (!readiness.ok) {
     return {
@@ -3024,6 +3040,7 @@ module.exports = {
   matchSessionDarkflats,
   matchCalibrationLibrary,
   collectUsableDarkflats,
+  darkflatsCoverFlats,
   uniqueFlatParamSets,
   frameObsMs,
   darkflatTimeVsFlats,

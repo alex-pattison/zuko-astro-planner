@@ -169,6 +169,36 @@ async function main() {
     wrongFilterReady.missing
   );
 
+  const includedOor = evaluateIngestFrameReadiness({
+    lights: [{ filter: 'SII', exposureSec: 180, tempC: -10 }],
+    flats: [{ filter: 'SII', exposureSec: 0.5, gain: 120, tempC: 8, bin: 2, date: '20260726', time: '060000' }],
+    biases: [{ filter: 'SII', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2, date: '20260720', time: '120000' }],
+    sessionDarks: [],
+    useMasterDarks: true,
+    masterDarkCount: 1,
+    filters: ['SII'],
+    lightTempC: -10,
+    flatsPrefiltered: true,
+    allowBiasCountCover: true,
+  });
+  assert(includedOor.ok === true, 'included out-of-range flats + selected biases are ready', includedOor.missing);
+
+  const stillBlocked = evaluateIngestFrameReadiness({
+    lights: [{ filter: 'SII', exposureSec: 180, tempC: -10 }],
+    flats: [{ filter: 'SII', exposureSec: 0.5, gain: 120, tempC: 8, bin: 2 }],
+    biases: [{ filter: 'SII', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 }],
+    sessionDarks: [],
+    useMasterDarks: true,
+    masterDarkCount: 1,
+    filters: ['SII'],
+    lightTempC: -10,
+  });
+  assert(
+    !stillBlocked.ok && stillBlocked.missing.some((m) => /Flat/i.test(m)),
+    'without include, out-of-range flats still block',
+    stillBlocked.missing
+  );
+
   const masterBiasIgnored = evaluateIngestFrameReadiness({
     lights: [{ filter: 'Ha' }],
     flats: [{ filter: 'Ha' }],

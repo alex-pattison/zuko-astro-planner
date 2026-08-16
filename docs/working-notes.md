@@ -21,6 +21,10 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-16 — build 21 — Import gate honors included flats/bias
+- Included out-of-range flats and Bias count toward Import readiness (chip 30/30 no longer leaves Import disabled).
+- `npm run dist:win:beta` for build 21 installer.
+
 ### 2026-08-16 — build 20 — Reimport wipe + remove-night delete
 - Overwrite & import again deletes that night’s staged folder and the filter’s `Aggregate/` + `_stack/` (Calibrate / Register / Cull / Stack), then recopies.
 - Remove night can also delete imported files + that filter’s downstream pipeline folders (`working/` stacks kept).

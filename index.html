@@ -5367,7 +5367,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 20, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 21, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -11824,7 +11824,7 @@ async function runIngestScan(opts = {}) {
     const flatsForRow = flatsForRowAll.filter((f) =>
       tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
     );
-    const rowBiasOk = biasesMatchFlatsUi(biasMatched.length ? biasMatched : biases, flatsForRow, lightTempC);
+    const rowBiasOk = biasesCoverFlatsUi(biasMatched.length ? biasMatched : biases, flatsForRow, lightTempC);
     const missingForRow = [];
     if (isMatch && inLog) {
       if (!lightsN) missingForRow.push('Light');
@@ -11923,9 +11923,17 @@ function ingestNearlyEqual(a, b, eps) {
 }
 
 /** True when session darkflats cover every unique flat filter/exp/gain/bin group at light temp. */
+/** True when session darkflats cover every unique flat group, or selected count ≥ flats. */
+function biasesCoverFlatsUi(biases, flats, lightTempC) {
+  const flatList = flats || [];
+  if (!flatList.length) return false;
+  const usable = collectUsableDarkflatsUi(biases || [], flatList, { lightTempC });
+  if (usable.matches.length > 0 && usable.uncovered.length === 0) return true;
+  return (biases || []).length >= flatList.length;
+}
+
 function biasesMatchFlatsUi(biases, flats, lightTempC) {
-  const usable = collectUsableDarkflatsUi(biases || [], flats || [], { lightTempC });
-  return usable.matches.length > 0 && usable.uncovered.length === 0;
+  return biasesCoverFlatsUi(biases, flats, lightTempC);
 }
 
 function ingestDarkflatTimeVsFlats(bias, flats) {
@@ -12055,11 +12063,11 @@ function evaluateIngestFrameReadinessUi(opts = {}) {
     for (const f of filters) {
       const flatsF = flats.filter((x) => (normalizeFilterClient(x.filter) || x.filter) === f);
       if (!flatsF.length) missing.push(`Flat (${f})`);
-      else if (!biasesMatchFlatsUi(biases, flatsF, lightTempC)) missing.push(`Bias matching Flat (${f})`);
+      else if (!biasesCoverFlatsUi(biases, flatsF, lightTempC)) missing.push(`Bias matching Flat (${f})`);
     }
   } else if (!flats.length) {
     missing.push('Flat');
-  } else if (!biasesMatchFlatsUi(biases, flats, lightTempC)) {
+  } else if (!biasesCoverFlatsUi(biases, flats, lightTempC)) {
     missing.push('Bias matching Flat');
   }
   const masterN = Number(opts.masterDarkCount) || 0;
