@@ -21,7 +21,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 0.25,
+          "loggedHrs": 1,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null,
@@ -149,6 +149,49 @@
           "ingestPath": null,
           "ingestMeta": null,
           "preprocessMeta": null
+        },
+        {
+          "date": "260815",
+          "filterIndex": 0,
+          "hours": 0.75,
+          "complete": true,
+          "creditedHours": 0.75,
+          "sourcePath": "F:\\ASIAIRDUMP_260816",
+          "ingestPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260815_Ha_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20260815",
+            "shootFolder": "260815_Ha_B9_Home",
+            "filters": [
+              "Ha"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260815_Ha_B9_Home"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260815",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 30,
+              "darksAfter": 1
+            },
+            "filesStaged": 76,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 15,
+              "flat": 30,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 15,
+            "frameCount": 15,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -9.39999961853027,
+            "stagedAt": "2026-08-16T16:23:50.461Z"
+          },
+          "preprocessMeta": null
         }
       ],
       "astrobinLinks": [],
@@ -274,6 +317,131 @@
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
       "asiairIgnoredSources": []
+    },
+    {
+      "name": "[TEST] Rosette Nebula — Ingest QA",
+      "target": "Rosette Nebula (NGC 2237 / NGC 2238 / NGC 2244) — synthetic ASIAIR dump for ingest testing",
+      "frameMode": "Reducer, 280mm f/3.9 — TEST project (synthetic FITS, not real data)",
+      "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-test-rosette",
+      "centerCoords": "RA 6h31m55s  Dec +4°56'34\"",
+      "anchorStar": "HD 46150 (mag ~6.8) — open cluster NGC 2244 core",
+      "rotation": "0° (test)",
+      "status": "active",
+      "notes": "TEST PROJECT — real target (Rosette), synthetic FITS under staging/asiair-test-rosette. Autorun+Plan merged. Ha 260728 = happy path (+ orphan OIII lights → no shot log). OIII 260729 = missing flats (blocked). SII 260730 = Stage OK. Ha 260731 @45s = missing darks. See staging/asiair-test-rosette/README.md. Rebuild: node scripts/build-ingest-test-fixture.js",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.18,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.1,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.5,
+          "loggedHrs": 0.1,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        }
+      ],
+      "checklist": [
+        {
+          "id": "test-rosette-happy",
+          "text": "TEST: Ha 260728 → Stage OK; orphan OIII row = no shot log (red)",
+          "done": false
+        },
+        {
+          "id": "test-rosette-noflat",
+          "text": "TEST: OIII 260729 → missing flats (red row), Stage blocked",
+          "done": false
+        },
+        {
+          "id": "test-rosette-cross",
+          "text": "TEST: SII 260730 → Stage succeeds (Bias from Autorun)",
+          "done": false
+        },
+        {
+          "id": "test-rosette-nodark",
+          "text": "TEST: Ha 260731 @45s → missing darks, Stage blocked",
+          "done": false
+        }
+      ],
+      "shoots": [
+        {
+          "date": "260728",
+          "filterIndex": 0,
+          "hours": 0.15,
+          "complete": true,
+          "creditedHours": 0.15,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260729",
+          "filterIndex": 1,
+          "hours": 0.1,
+          "complete": true,
+          "creditedHours": 0.1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260730",
+          "filterIndex": 2,
+          "hours": 0.1,
+          "complete": true,
+          "creditedHours": 0.1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        },
+        {
+          "date": "260731",
+          "filterIndex": 0,
+          "hours": 0.025,
+          "complete": true,
+          "creditedHours": 0.03,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
+          "preprocessMeta": null
+        }
+      ],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "Rosette Nebula (NGC 2237)",
+        "ra": 97.9791667,
+        "dec": 4.9427778
+      },
+      "framerMode": "reducer",
+      "framerRotation": 0,
+      "processStatus": "planning",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": []
     }
   ],
   "notes": [
@@ -833,10 +1001,10 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 18,
-    "savedAt": "2026-08-12T16:30:33.852Z"
+    "build": 19,
+    "savedAt": "2026-08-16T16:23:50.461Z"
   },
-  "uiTheme": "dark",
+  "uiTheme": "light",
   "homeSite": {
     "zip": "10002",
     "name": "NYC",
@@ -3313,5 +3481,6 @@
     "filter-wheel": false,
     "imaging-configs": false
   },
-  "asiairSourcePath": "C:\\Users\\alexp\\OneDrive\\Desktop\\asiaIRDUMP"
+  "asiairSourcePath": "F:\\ASIAIRDUMP_260816",
+  "sirilMonoScriptWarnDismissedFingerprint": ""
 }

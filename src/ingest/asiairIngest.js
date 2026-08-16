@@ -9,8 +9,8 @@
  * Source ASIAIR folders are never modified.
  * - Lights/flats: copied directly into the Siril tree.
  * - Biases (ASIAIR Bias = darkflats): from the session with flats, only frames
- *   matching flat exp/gain/temp/bin — copy into _calibration/darkflats/<night>/
- *   then symlink into biases/ (per channel).
+ *   matching flat filter/exp/gain/temp/bin and DATE-OBS within ±12h of those flats
+ *   — copy into _calibration/darkflats/<night>/ then symlink into biases/ (per channel).
  * - Darks: master Dark Library symlink into darks/, or session → _calibration/darks.
  * ShootName comes from the shoot log code (e.g. 260725_SII_B9_NYCRoof).
  */
@@ -50,6 +50,8 @@ const HEADER_KEYS = [
 ];
 const SIX_MONTHS_MS = 1000 * 60 * 60 * 24 * 183;
 const TEMP_TOLERANCE_C = 3;
+/** Bias (darkflats) default-include only if DATE-OBS is within this of a matching-filter flat. */
+const DARKFLAT_FLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
 /** Median angular separation (deg) at or below this → auto-include ASIAIR Light folder. */
 const TARGET_MATCH_AUTO_DEG = 0.75;
 /** Above auto and at or below this → pre-ingest confirm; farther → other target. */
@@ -161,6 +163,36 @@ function parseDateObs(raw) {
     date: `${m[1]}${m[2]}${m[3]}`,
     time: m[4] != null ? `${m[4]}${m[5]}${m[6]}` : null,
   };
+}
+
+/** Epoch ms from frame.date (YYYYMMDD) + frame.time (HHMMSS). */
+function frameObsMs(f) {
+  if (!f || f.date == null) return null;
+  const d = String(f.date).replace(/[^0-9]/g, '');
+  if (d.length < 8) return null;
+  const t = f.time != null ? String(f.time).replace(/[^0-9]/g, '') : '';
+  const hh = t.length >= 2 ? t.slice(0, 2) : '00';
+  const mm = t.length >= 4 ? t.slice(2, 4) : '00';
+  const ss = t.length >= 6 ? t.slice(4, 6) : '00';
+  const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${hh}:${mm}:${ss}`;
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function darkflatRejectIncludable(reason) {
+  return !/filter mismatch|filter missing/i.test(String(reason || ''));
+}
+
+/**
+ * null = skip (no timestamps on flats). Otherwise a reject reason or null if in window.
+ */
+function darkflatTimeVsFlats(bias, flats, windowMs = DARKFLAT_FLAT_WINDOW_MS) {
+  const times = (flats || []).map(frameObsMs).filter((t) => t != null);
+  if (!times.length) return null;
+  const bms = frameObsMs(bias);
+  if (bms == null) return 'time missing vs flats';
+  if (times.some((t) => Math.abs(bms - t) <= windowMs)) return null;
+  return 'outside ±12h of flats';
 }
 
 function parseAsiairFilename(fileName) {
@@ -1324,11 +1356,18 @@ function matchCalibrationLibrary(opts = {}) {
         continue;
       }
     }
-    if (filter && d.filter) {
-      const df = normalizeFilter(d.filter);
-      if (df && df !== filter) {
-        rejected.push({ ...d, reason: 'filter mismatch' });
-        continue;
+    if (filter) {
+      if (d.filter == null || String(d.filter).trim() === '') {
+        if (strict) {
+          rejected.push({ ...d, reason: 'filter missing' });
+          continue;
+        }
+      } else {
+        const df = normalizeFilter(d.filter);
+        if (df && df !== filter) {
+          rejected.push({ ...d, reason: 'filter mismatch' });
+          continue;
+        }
       }
     }
     matches.push({
@@ -1366,25 +1405,27 @@ function matchMasterDarks(opts = {}) {
 
 /**
  * Match session ASIAIR Bias (darkflats) to flat settings.
- * Darkflats must share the flats' exposure, gain, temp (±3°C), and bin.
+ * Darkflats must share the flats' filter, exposure, gain, temp (±3°C), and bin.
+ * Time vs flats (±12h) is applied in collectUsableDarkflats, not here.
  */
 function matchSessionDarkflats(opts = {}) {
   return matchCalibrationLibrary({
     ...opts,
-    filter: null,
     preferMaster: false,
     strict: opts.strict !== false,
   });
 }
 
-/** Unique flat exposure/gain/temp/bin groups (darkflats must cover each). */
+/** Unique flat filter/exposure/gain/temp/bin groups (darkflats must cover each). */
 function uniqueFlatParamSets(flats = []) {
   const map = new Map();
   for (const F of flats) {
     if (!F) continue;
-    const key = [F.exposureSec, F.gain, F.tempC, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
+    const filter = F.filter != null ? normalizeFilter(F.filter) : null;
+    const key = [filter, F.exposureSec, F.gain, F.tempC, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
     if (!map.has(key)) {
       map.set(key, {
+        filter,
         exposureSec: F.exposureSec != null ? Number(F.exposureSec) : null,
         gain: F.gain != null ? Number(F.gain) : null,
         tempC: F.tempC != null ? Number(F.tempC) : null,
@@ -1395,57 +1436,80 @@ function uniqueFlatParamSets(flats = []) {
   return [...map.values()];
 }
 
+function flatsMatchingParamSet(flats, params) {
+  return (flats || []).filter((F) => {
+    if (!F) return false;
+    const ff = F.filter != null ? normalizeFilter(F.filter) : null;
+    if (params.filter && ff && ff !== params.filter) return false;
+    if (params.exposureSec != null && F.exposureSec != null
+      && !nearlyEqual(F.exposureSec, params.exposureSec, 0.05)) return false;
+    if (params.gain != null && F.gain != null && !nearlyEqual(F.gain, params.gain, 0.5)) return false;
+    if (params.bin != null && F.bin != null && !nearlyEqual(F.bin, params.bin, 0.5)) return false;
+    return true;
+  });
+}
+
 /**
- * Collect darkflats that match flat exp/gain/bin and light temperature.
- * Lights are the source of truth for temp (± TEMP_TOLERANCE_C).
- * @param {object[]} biases
- * @param {object[]} flats
- * @param {{ lightTempC?: number|null }} [opts]
+ * Collect darkflats that match flat filter/exp/gain/bin, light temperature,
+ * and DATE-OBS within ±12h of those flats (skipped when flats have no timestamps).
+ * Filter mismatch is never includable; time/temp/exp mismatches are.
  */
 function collectUsableDarkflats(biases = [], flats = [], opts = {}) {
   const lightTempC = opts.lightTempC != null && Number.isFinite(Number(opts.lightTempC))
     ? Number(opts.lightTempC)
     : null;
   const paramSets = uniqueFlatParamSets(flats).map((p) => ({
+    filter: p.filter,
     exposureSec: p.exposureSec,
     gain: p.gain,
     bin: p.bin,
-    // Temp always from lights when known — not from flats.
     tempC: lightTempC != null ? lightTempC : p.tempC,
   }));
   const matchKeys = new Set();
   const matches = [];
   const uncovered = [];
+  const rejectedByKey = new Map();
+
+  function biasKey(b, i) {
+    return b.filePath || b.fileName || `anon:${i}`;
+  }
+
   for (const params of paramSets) {
+    const groupFlats = flatsMatchingParamSet(flats, params);
     const r = matchSessionDarkflats({ index: biases, ...params });
-    if (!r.matches.length) uncovered.push(params);
+    let covered = false;
     for (const m of r.matches) {
-      const k = m.filePath || m.fileName || `anon:${matches.length}`;
+      const timeReason = darkflatTimeVsFlats(m, groupFlats);
+      const k = biasKey(m, matches.length);
+      if (timeReason) {
+        if (!rejectedByKey.has(k)) {
+          rejectedByKey.set(k, { ...m, reason: timeReason, includable: true });
+        }
+        continue;
+      }
+      covered = true;
       if (matchKeys.has(k)) continue;
       matchKeys.add(k);
       matches.push(m);
     }
+    if (!covered) uncovered.push(params);
   }
+
   const rejected = [];
   for (let i = 0; i < biases.length; i += 1) {
     const b = biases[i];
-    const matched = matches.some((m) => {
-      const mk = m.filePath || m.fileName;
-      if (mk && (b.filePath || b.fileName)) return mk === (b.filePath || b.fileName);
-      return m === b || (
-        m.exposureSec === b.exposureSec
-        && m.gain === b.gain
-        && m.tempC === b.tempC
-        && m.bin === b.bin
-      );
-    });
-    if (matched) continue;
-    let reason = 'does not match flat exp/gain/bin + light temp';
+    const k = biasKey(b, i);
+    if (matchKeys.has(k)) continue;
+    if (rejectedByKey.has(k)) {
+      rejected.push(rejectedByKey.get(k));
+      continue;
+    }
+    let reason = 'does not match flat filter/exp/gain/bin + light temp';
     if (paramSets[0]) {
       const r = matchSessionDarkflats({ index: [b], ...paramSets[0] });
       if (r.rejected[0] && r.rejected[0].reason) reason = r.rejected[0].reason;
     }
-    rejected.push({ ...b, reason });
+    rejected.push({ ...b, reason, includable: darkflatRejectIncludable(reason) });
   }
   return {
     ok: uncovered.length === 0 && (paramSets.length === 0 ? biases.length > 0 : matches.length > 0),
@@ -1985,9 +2049,9 @@ async function ensureLink(src, dest) {
 }
 
 /**
- * Require Light, Flat, Bias (session darkflats matching flat settings + light temp), and Dark before staging.
+ * Require Light, Flat, Bias (session darkflats matching flat filter/settings + light temp), and Dark before staging.
  * Dark = matching master-library darks when useMasterDarks, else session Dark folder.
- * Bias = session ASIAIR Bias frames matching flat exp/gain/bin and light temp — no Bias Library.
+ * Bias = session ASIAIR Bias frames matching flat filter/exp/gain/bin and light temp — no Bias Library.
  * opts.lightTempC — lights are source of truth for temperature (±3°C).
  */
 function evaluateIngestFrameReadiness(opts = {}) {
@@ -2065,7 +2129,7 @@ function evaluateIngestFrameReadiness(opts = {}) {
     missing,
     code: missing.length ? 'MISSING_FRAMES' : null,
     error: missing.length
-      ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias (matching flats + light temp), and Dark before staging.`
+      ? `Missing required frames: ${missing.join(', ')}. Need Light, Flat, Bias (matching flat filter/exp/gain/bin + light temp), and Dark before staging.`
       : null,
     lightTempC,
     useMasterDarksEffective: !!(useMasterDarks && hasMasterDarks),
@@ -2175,7 +2239,7 @@ async function stageSirilTree(opts = {}) {
     }
   }
 
-  // Darkflats: flat exp/gain/bin + light temp. Overrides can force-include.
+  // Darkflats: flat filter/exp/gain/bin + light temp. Overrides can force-include.
   const usableBiasesByFilter = {};
   const usableBiasByName = new Map();
   const biasByKey = new Map();
@@ -2188,6 +2252,8 @@ async function stageSirilTree(opts = {}) {
     const usable = collectUsableDarkflats(sessionBiases, flatsF, { lightTempC });
     const matched = usable.matches.slice();
     for (const b of sessionBiases) {
+      const bf = normalizeFilter(b.filter);
+      if (bf && bf !== filter) continue; // never stage other-filter darkflats
       if (isIncluded('biases', b) && !matched.some((m) => frameKey(m) === frameKey(b))) {
         matched.push(b);
       }
@@ -2460,7 +2526,7 @@ async function stageSirilTree(opts = {}) {
       }
     }
 
-    // Only link darkflats that match this filter's flat settings (not every night bias).
+    // Only link darkflats that match this filter (and flat exp/gain/bin + light temp).
     const filterBiasNames = new Set(
       (usableBiasesByFilter[filter] || []).map((b) => path.basename(b.filePath || b.fileName || ''))
     );
@@ -2864,6 +2930,10 @@ module.exports = {
   matchCalibrationLibrary,
   collectUsableDarkflats,
   uniqueFlatParamSets,
+  frameObsMs,
+  darkflatTimeVsFlats,
+  darkflatRejectIncludable,
+  DARKFLAT_FLAT_WINDOW_MS,
   tempMatchesLight,
   partitionByLightTemp,
   modeTempC,

@@ -940,7 +940,7 @@
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 12px;
-    width: min(920px, 96vw);
+    width: min(1440px, 98vw);
     max-height: 88vh;
     display: flex;
     flex-direction: column;
@@ -975,7 +975,8 @@
   .ingest-files-table td.include-cell { text-align: center; width: 72px; }
   .ingest-files-table td.include-cell input { cursor: pointer; }
   .ingest-files-scroll {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     flex: 1;
     min-height: 120px;
     border: 1px solid var(--border);
@@ -983,8 +984,19 @@
   }
   .ingest-files-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: 11px;
+  }
+  .ingest-files-table th:nth-child(2),
+  .ingest-files-table td:nth-child(2) {
+    width: 28%;
+    word-break: break-all;
+  }
+  .ingest-files-table th:nth-child(3),
+  .ingest-files-table td:nth-child(3) {
+    width: 22%;
+    word-break: break-all;
   }
   .ingest-files-table th, .ingest-files-table td {
     text-align: left;
@@ -5355,7 +5367,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 18, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 19, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -10004,6 +10016,24 @@ function ingestFrameKey(f) {
 }
 
 const INGEST_TEMP_TOLERANCE_C = 3;
+const INGEST_DARKFLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
+
+function ingestFrameObsMs(f) {
+  if (!f || f.date == null) return null;
+  const d = String(f.date).replace(/[^0-9]/g, '');
+  if (d.length < 8) return null;
+  const t = f.time != null ? String(f.time).replace(/[^0-9]/g, '') : '';
+  const hh = t.length >= 2 ? t.slice(0, 2) : '00';
+  const mm = t.length >= 4 ? t.slice(2, 4) : '00';
+  const ss = t.length >= 6 ? t.slice(4, 6) : '00';
+  const ms = Date.parse(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}T${hh}:${mm}:${ss}`);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function ingestFormatTempC(tempC) {
+  if (tempC == null || !Number.isFinite(Number(tempC))) return '—';
+  return Number(tempC).toFixed(1) + '°C';
+}
 
 function ensureIngestCalibOverrides() {
   if (!ingestCtx) return null;
@@ -10233,22 +10263,16 @@ function openIngestFilesPopup(kind) {
       ? new Set(ingestCtx.multiFilters)
       : null;
     const rejectByPath = new Map((ingestCtx.flatRejected || []).map((d) => [ingestFrameKey(d), d.reason || 'temp out of ±3°C vs lights']));
-    frames = (scan.flats || []).map((f) => {
-      const otherFilter = allow
-        ? !allow.has(f.filter)
-        : !!(shootFilter && f.filter && f.filter !== shootFilter);
+    frames = (scan.flats || []).filter((f) => {
+      const ff = f.filter != null ? (normalizeFilterClient(f.filter) || f.filter) : null;
+      if (allow) return allow.has(ff);
+      if (shootFilter) return !ff || ff === shootFilter;
+      return true;
+    }).map((f) => {
       const key = ingestFrameKey(f);
       const tempReason = rejectByPath.get(key);
-      let reason = '';
-      let canInclude = false;
-      if (otherFilter) {
-        reason = allow
-          ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
-          : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : '');
-      } else if (tempReason) {
-        reason = tempReason;
-        canInclude = true;
-      }
+      const reason = tempReason || '';
+      const canInclude = !!tempReason;
       const includedOverride = canInclude && ingestIsPathIncluded('flats', key);
       return {
         ...f,
@@ -10266,25 +10290,35 @@ function openIngestFilesPopup(kind) {
       : `All flats match light temp ${lightTempC != null ? lightTempC + '°C' : '—'} (±${INGEST_TEMP_TOLERANCE_C}°C).`;
   } else if (kind === 'biases') {
     const rejected = ingestCtx.biasRejected || [];
-    const rejectByPath = new Map(rejected.map((d) => [d.filePath || d.fileName, d.reason || 'excluded']));
+    const rejectByPath = new Map(rejected.map((d) => [ingestFrameKey(d), d]));
     title = 'Bias (dark flats)';
-    frames = (scan.biases || []).map((d) => {
+    const allow = ingestCtx.multiFilters ? new Set(ingestCtx.multiFilters) : null;
+    frames = (scan.biases || []).filter((d) => {
+      const bf = d.filter != null ? (normalizeFilterClient(d.filter) || d.filter) : null;
+      if (allow) return allow.has(bf);
+      if (shootFilter) return !bf || bf === shootFilter;
+      const rej = rejectByPath.get(ingestFrameKey(d));
+      return !(rej && rej.includable === false);
+    }).map((d) => {
       const key = ingestFrameKey(d);
-      const reason = rejectByPath.get(key);
-      const includedOverride = !!reason && ingestIsPathIncluded('biases', key);
+      const rej = rejectByPath.get(key);
+      const reason = rej ? (rej.reason || 'excluded') : '';
+      const canInclude = !!(reason && rej && rej.includable !== false);
+      const includedOverride = canInclude && ingestIsPathIncluded('biases', key);
       return {
         ...d,
-        reason: reason || '',
+        reason,
         excluded: !!reason && !includedOverride,
         includedOverride,
-        canInclude: !!reason,
+        canInclude,
       };
     });
-    showReason = rejected.length > 0;
-    showInclude = rejected.length > 0;
-    sub = rejected.length
-      ? `${rejected.length} darkflat(s) do not match flat exp/gain/bin + light temp — include individually or Include all.`
-      : 'All session darkflats match flat exp/gain/bin and light temp (±3°C).';
+    showReason = frames.some((f) => f.reason);
+    showInclude = frames.some((f) => f.canInclude);
+    const nSoft = frames.filter((f) => f.canInclude).length;
+    sub = nSoft
+      ? `${nSoft} same-filter darkflat(s) out of range (±12h of flats / temp / exp) — include individually or Include all.`
+      : 'All listed darkflats match this filter’s flats (filter/exp/gain/bin, light temp, ±12h).';
   } else {
     return;
   }
@@ -10303,7 +10337,9 @@ function openIngestFilesPopup(kind) {
       ovrBar.hidden = false;
       const st = ingestOverrideState(kind);
       const nOor = frames.filter((f) => f.canInclude).length;
-      ovrMeta.innerHTML = `Light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ${nOor} out of range`;
+      ovrMeta.innerHTML = kind === 'biases'
+        ? `Same-filter only · light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ±12h of flats · ${nOor} out of range`
+        : `Light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ${nOor} out of range`;
       ovrBtn.textContent = st.includeAll ? 'Clear include-all' : 'Include all out of range';
       ovrBtn.classList.toggle('primary', !!st.includeAll);
     } else {
@@ -10358,7 +10394,7 @@ function openIngestFilesPopup(kind) {
         <td class="mono">${escapeHtml(date)}</td>
         <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
         <td>${f.gain != null ? f.gain : '—'}</td>
-        <td>${f.tempC != null ? f.tempC + '°C' : '—'}</td>
+        <td>${ingestFormatTempC(f.tempC)}</td>
         ${showReason ? `<td class="reason-cell">${escapeHtml(note)}</td>` : ''}
         ${includeCell}
       </tr>`;
@@ -10378,7 +10414,10 @@ function toggleIngestFilesIncludeAll() {
     const rejected = kind === 'flats'
       ? (ingestCtx.flatRejected || [])
       : (kind === 'darks' ? (ingestCtx.darkRejected || []) : (ingestCtx.biasRejected || []));
-    o[kind].paths = rejected.map(ingestFrameKey).filter(Boolean);
+    o[kind].paths = rejected
+      .filter((f) => kind !== 'biases' || f.includable !== false)
+      .map(ingestFrameKey)
+      .filter(Boolean);
   }
   refreshIngestCalibFromOverrides();
   openIngestFilesPopup(kind);
@@ -11592,10 +11631,11 @@ async function runIngestScan(opts = {}) {
   ingestCtx.darkMatched = darkMatched;
   ingestCtx.darkRejected = darkRejected;
 
-  // Darkflats: flat exp/gain/bin + light temp; overrides can include.
+  // Darkflats: same filter as lights/flats, plus flat exp/gain/bin + light temp; overrides can include.
   const biasUsable = collectUsableDarkflatsUi(biases, flatsForShoot, { lightTempC });
   let biasMatched = biasUsable.matches.slice();
-  const biasRejected = biasUsable.rejected;
+  const biasRejectedAll = biasUsable.rejected;
+  const biasRejected = biasRejectedAll.filter((b) => b.includable !== false);
   for (const b of biasRejected) {
     if (ingestIsPathIncluded('biases', ingestFrameKey(b))
       && !biasMatched.some((m) => ingestFrameKey(m) === ingestFrameKey(b))) {
@@ -11604,6 +11644,9 @@ async function runIngestScan(opts = {}) {
   }
   ingestCtx.biasMatched = biasMatched;
   ingestCtx.biasRejected = biasRejected;
+
+  const flatsN = flatsForShoot.length;
+  const biasEnough = flatsN > 0 && biasMatched.length >= flatsN;
 
   const lightBreakdown = multi
     ? (ingestBatch.filters || []).map((f) => {
@@ -11636,19 +11679,23 @@ async function runIngestScan(opts = {}) {
     ? (biases.length ? 'warn' : 'warn')
     : (!biasMatched.length
       ? (biases.length ? 'err' : 'warn')
-      : (biasRejected.length ? 'warn' : 'ok'));
-  const biasLabel = biases.length
-    ? `Bias (dark flats) ${biasMatched.length}/${biases.length}`
-    : 'Bias (dark flats)';
+      : (biasEnough ? 'ok' : 'warn'));
+  const biasLabel = flatsN
+    ? `Bias (dark flats) ${biasMatched.length}/${flatsN}`
+    : (biases.length
+      ? `Bias (dark flats) ${biasMatched.length}`
+      : 'Bias (dark flats)');
   const biasTitle = !biases.length
     ? 'No session darkflats found'
     : (!lightsForShoot.length
       ? `${biases.length} darkflat(s) present, but no lights for this shoot — nothing to match against`
       : (!biasMatched.length
-        ? `${biasRejected.length || biases.length} darkflat(s) — none match flat exp/gain/bin + light temp`
-        : (biasRejected.length
-          ? `${biasRejected.length} darkflat(s) out of range — click to review / include`
-          : 'Show darkflats matching flats + light temp')));
+        ? 'No darkflats match this filter’s flats (exp/gain/bin + light temp + ±12h)'
+        : (biasEnough
+          ? (biasRejected.length
+            ? `${biasMatched.length} matching flats · ${biasRejected.length} extra same-filter not used (optional)`
+            : 'Darkflat count matches flats')
+          : `${biasMatched.length} matching / ${flatsN} flats — need more or include out-of-range`)));
 
   const flatTone = !lightsForShoot.length
     ? (flatsForShootAll.length ? 'warn' : 'warn')
@@ -11784,7 +11831,7 @@ async function runIngestScan(opts = {}) {
       (plannedHrs ? ` · target ${plannedHrs}h` : '') +
       (darkRejected.length ? ` · <span style="color:var(--yellow);">${darkRejected.length} session dark(s) out of range</span>` : '') +
       (flatPart.outOfRange.length ? ` · <span style="color:var(--yellow);">${flatPart.outOfRange.length} flat(s) out of light temp</span>` : '') +
-      (biasRejected.length ? ` · <span style="color:var(--yellow);">${biasRejected.length} darkflat(s) out of range</span>` : '') +
+      (biasRejected.length && !biasEnough ? ` · <span style="color:var(--yellow);">${biasRejected.length} darkflat(s) out of range</span>` : '') +
       `</div>`;
   } else {
     confirmEl.innerHTML =
@@ -11813,14 +11860,23 @@ function ingestNearlyEqual(a, b, eps) {
   return Math.abs(Number(a) - Number(b)) <= (eps != null ? eps : 1e-3);
 }
 
-/** True when session darkflats cover every unique flat exp/gain/bin group at light temp. */
+/** True when session darkflats cover every unique flat filter/exp/gain/bin group at light temp. */
 function biasesMatchFlatsUi(biases, flats, lightTempC) {
   const usable = collectUsableDarkflatsUi(biases || [], flats || [], { lightTempC });
   return usable.matches.length > 0 && usable.uncovered.length === 0;
 }
 
+function ingestDarkflatTimeVsFlats(bias, flats) {
+  const times = (flats || []).map(ingestFrameObsMs).filter((t) => t != null);
+  if (!times.length) return null;
+  const bms = ingestFrameObsMs(bias);
+  if (bms == null) return 'time missing vs flats';
+  if (times.some((t) => Math.abs(bms - t) <= INGEST_DARKFLAT_WINDOW_MS)) return null;
+  return 'outside ±12h of flats';
+}
+
 /**
- * Mirror of asiairIngest.collectUsableDarkflats — flat exp/gain/bin + light temp.
+ * Mirror of asiairIngest.collectUsableDarkflats — same filter + flat exp/gain/bin + light temp + ±12h.
  */
 function collectUsableDarkflatsUi(biases, flats, opts = {}) {
   const list = biases || [];
@@ -11830,9 +11886,11 @@ function collectUsableDarkflatsUi(biases, flats, opts = {}) {
     : null;
   const paramMap = new Map();
   for (const F of flatList) {
-    const key = [F.exposureSec, F.gain, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
+    const filter = F.filter != null ? (normalizeFilterClient(F.filter) || F.filter) : null;
+    const key = [filter, F.exposureSec, F.gain, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
     if (!paramMap.has(key)) {
       paramMap.set(key, {
+        filter,
         exposureSec: F.exposureSec != null ? Number(F.exposureSec) : null,
         gain: F.gain != null ? Number(F.gain) : null,
         tempC: lightTempC,
@@ -11844,8 +11902,14 @@ function collectUsableDarkflatsUi(biases, flats, opts = {}) {
   const matchKeys = new Set();
   const matches = [];
   const uncovered = [];
+  const timeRejected = new Map();
 
   function localMatch(b, params) {
+    if (params.filter) {
+      const bf = b.filter != null ? (normalizeFilterClient(b.filter) || b.filter) : null;
+      if (!bf) return 'filter missing';
+      if (bf !== params.filter) return 'filter mismatch';
+    }
     if (params.exposureSec != null) {
       if (b.exposureSec == null) return 'exposure missing';
       if (!ingestNearlyEqual(b.exposureSec, params.exposureSec, 0.05)) return 'exposure mismatch';
@@ -11865,13 +11929,31 @@ function collectUsableDarkflatsUi(biases, flats, opts = {}) {
     return null;
   }
 
+  function flatsForParams(params) {
+    return flatList.filter((F) => {
+      const ff = F.filter != null ? (normalizeFilterClient(F.filter) || F.filter) : null;
+      if (params.filter && ff && ff !== params.filter) return false;
+      if (params.exposureSec != null && F.exposureSec != null
+        && !ingestNearlyEqual(F.exposureSec, params.exposureSec, 0.05)) return false;
+      if (params.gain != null && F.gain != null && !ingestNearlyEqual(F.gain, params.gain, 0.5)) return false;
+      if (params.bin != null && F.bin != null && !ingestNearlyEqual(F.bin, params.bin, 0.5)) return false;
+      return true;
+    });
+  }
+
   for (const params of paramSets) {
+    const groupFlats = flatsForParams(params);
     let covered = false;
     for (const b of list) {
       const reason = localMatch(b, params);
       if (reason) continue;
-      covered = true;
       const k = b.filePath || b.fileName || `anon:${matches.length}`;
+      const timeReason = ingestDarkflatTimeVsFlats(b, groupFlats);
+      if (timeReason) {
+        if (!timeRejected.has(k)) timeRejected.set(k, { ...b, reason: timeReason, includable: true });
+        continue;
+      }
+      covered = true;
       if (!matchKeys.has(k)) {
         matchKeys.add(k);
         matches.push(b);
@@ -11883,15 +11965,15 @@ function collectUsableDarkflatsUi(biases, flats, opts = {}) {
   for (let i = 0; i < list.length; i += 1) {
     const b = list[i];
     const k = b.filePath || b.fileName;
-    const matched = matches.some((m) => {
-      const mk = m.filePath || m.fileName;
-      if (mk && k) return mk === k;
-      return m === b;
-    });
-    if (matched) continue;
-    let reason = 'does not match flat exp/gain/bin + light temp';
+    if (k && matchKeys.has(k)) continue;
+    if (k && timeRejected.has(k)) {
+      rejected.push(timeRejected.get(k));
+      continue;
+    }
+    let reason = 'does not match flat filter/exp/gain/bin + light temp';
     if (paramSets[0]) reason = localMatch(b, paramSets[0]) || reason;
-    rejected.push({ ...b, reason });
+    const includable = !/filter mismatch|filter missing/i.test(String(reason || ''));
+    rejected.push({ ...b, reason, includable });
   }
   return { matches, rejected, uncovered, paramSets };
 }
@@ -11909,7 +11991,7 @@ function evaluateIngestFrameReadinessUi(opts = {}) {
   if (!lights.length) missing.push('Light');
   if (filters.length) {
     for (const f of filters) {
-      const flatsF = flats.filter((x) => x.filter === f);
+      const flatsF = flats.filter((x) => (normalizeFilterClient(x.filter) || x.filter) === f);
       if (!flatsF.length) missing.push(`Flat (${f})`);
       else if (!biasesMatchFlatsUi(biases, flatsF, lightTempC)) missing.push(`Bias matching Flat (${f})`);
     }

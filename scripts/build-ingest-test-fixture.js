@@ -4,7 +4,7 @@
  * Fixture: staging/asiair-test-rosette/
  *   Autorun/  — complete Ha night (Light/Flat/Bias/Dark) → Stage should succeed
  *   Plan/     — error / cross-session nights (Autorun+Plan are merged as one source):
- *               OIII missing Flat; SII complete via shared Bias from Autorun;
+ *               OIII missing Flat; SII complete via shared SII Bias from Autorun;
  *               Ha@45s missing Dark match
  *
  * Usage: node scripts/build-ingest-test-fixture.js
@@ -98,9 +98,9 @@ function flatName(expSec, filterLetter, ymd, hms, seq) {
   return `Flat_${exp}_Bin2_${filterLetter}_${stamp(ymd, hms)}_${TEMP.toFixed(1)}C_${String(seq).padStart(4, '0')}.fit`;
 }
 
-function biasName(ymd, hms, seq) {
+function biasName(letter, ymd, hms, seq) {
   const exp = EXP_BIAS < 1 ? `${(EXP_BIAS * 1000).toFixed(1)}ms` : `${EXP_BIAS}.0s`;
-  return `Bias_${exp}_Bin2_H_${stamp(ymd, hms)}_${TEMP.toFixed(1)}C_${String(seq).padStart(4, '0')}.fit`;
+  return `Bias_${exp}_Bin2_${letter}_${stamp(ymd, hms)}_${TEMP.toFixed(1)}C_${String(seq).padStart(4, '0')}.fit`;
 }
 
 function darkName(expSec, ymd, hms, seq) {
@@ -146,13 +146,13 @@ async function writeFlats(dir, { filter, letter, ymd, count, startHms }) {
   }
 }
 
-async function writeBiases(dir, { ymd, count, startHms }) {
+async function writeBiases(dir, { filter, letter, ymd, count, startHms }) {
   const base = parseInt(startHms, 10);
   for (let i = 0; i < count; i++) {
     const hms = String(base + i).padStart(6, '0');
-    const name = biasName(ymd, hms, i + 1);
+    const name = biasName(letter || 'H', ymd, hms, i + 1);
     await writeFit(path.join(dir, name), headerBase({
-      filter: 'Ha', ymd, hms, exptime: EXP_BIAS, imagetyp: 'Bias', object: 'Bias',
+      filter: filter || 'Ha', ymd, hms, exptime: EXP_BIAS, imagetyp: 'Bias', object: 'Bias',
     }));
   }
 }
@@ -188,10 +188,12 @@ async function buildFixture() {
   await writeFlats(autoFlat, {
     filter: 'Ha', letter: 'H', ymd: '20260729', count: 2, startHms: '060100',
   });
-  await writeBiases(autoBias, { ymd: '20260727', count: 3, startHms: '120000' });
+  await writeBiases(autoBias, { filter: 'Ha', letter: 'H', ymd: '20260729', count: 3, startHms: '060200' });
+  // SII darkflats in Autorun, timestamped with Plan SII flats (±12h pairing)
+  await writeBiases(autoBias, { filter: 'SII', letter: 'S', ymd: '20260731', count: 3, startHms: '061100' });
   await writeDarks(autoDark, { ymd: '20260727', count: 2, expSec: EXP_LIGHT, startHms: '140000' });
 
-  // --- Plan: error-case nights (no Bias folder on purpose) ---
+  // --- Plan: mixed nights (SII Bias lives in Autorun with matching DATE-OBS) ---
   const planLight = path.join(FIXTURE, 'Plan', 'Light', TARGET);
   const planFlat = path.join(FIXTURE, 'Plan', 'Flat');
   const planDark = path.join(FIXTURE, 'Plan', 'Dark');
@@ -209,13 +211,15 @@ async function buildFixture() {
     filter: 'SII', letter: 'S', ymd: '20260731', count: 2, startHms: '061000',
   });
 
-  // Ha 20260731 @ 45s — flats present, no Bias, no matching master/session dark → Missing Bias + Dark
+  // Ha 20260731 @ 45s — flats + paired Bias; no matching 45s dark
   await writeLights(planLight, {
     filter: 'Ha', letter: 'H', ymd: '20260731', count: 2, expSec: 45, startHms: '230000',
   });
+  const planBias = path.join(FIXTURE, 'Plan', 'Bias');
   await writeFlats(planFlat, {
     filter: 'Ha', letter: 'H', ymd: '20260801', count: 2, startHms: '062000',
   });
+  await writeBiases(planBias, { filter: 'Ha', letter: 'H', ymd: '20260801', count: 2, startHms: '062100' });
 
   // Session darks only for 180s (won't match 45s Ha)
   await writeDarks(planDark, { ymd: '20260729', count: 2, expSec: EXP_LIGHT, startHms: '150000' });
@@ -233,7 +237,7 @@ Status column: **match** / **already staged** / **in log** / red **no shot log**
 ### Autorun — happy path + orphan
 Night **20260728** Ha: Light + Flat + Bias + Dark (180s / gain 120 / −10°C).
 → Ingest Ha shoot \`260728\` → Stage should succeed (master darks also match).
-Bias here is also reused for Plan nights.
+Bias here is reused for Plan SII 260730 (same filter; DATE-OBS within ±12h of those flats).
 
 Also on **20260728**: orphan **OIII** lights (no OIII shoot that night) → Status **no shot log** (red).
 

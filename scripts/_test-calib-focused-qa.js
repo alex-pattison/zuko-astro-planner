@@ -114,15 +114,59 @@ async function main() {
 
   const mixed = collectUsableDarkflats(
     [
-      { fileName: 'a.fit', exposureSec: 2, gain: 100, tempC: -10, bin: 1 },
-      { fileName: 'b.fit', exposureSec: 5, gain: 100, tempC: -10, bin: 1 },
-      { fileName: 'c.fit', exposureSec: 2, gain: 100, tempC: 10, bin: 1 },
+      { fileName: 'a.fit', filter: 'Ha', exposureSec: 2, gain: 100, tempC: -10, bin: 1 },
+      { fileName: 'b.fit', filter: 'Ha', exposureSec: 5, gain: 100, tempC: -10, bin: 1 },
+      { fileName: 'c.fit', filter: 'Ha', exposureSec: 2, gain: 100, tempC: 10, bin: 1 },
     ],
-    [{ exposureSec: 2, gain: 100, tempC: -10, bin: 1 }],
+    [{ filter: 'Ha', exposureSec: 2, gain: 100, tempC: -10, bin: 1 }],
     { lightTempC: -10 }
   );
   assert(mixed.matches.length === 1 && mixed.matches[0].fileName === 'a.fit', 'collectUsableDarkflats keeps matching exp + light temp');
   assert(mixed.rejected.length === 2, 'rejects wrong exp and wrong light temp', mixed.rejected);
+
+  const crossFilter = collectUsableDarkflats(
+    [
+      { fileName: 'ha.fit', filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 },
+      { fileName: 'o3.fit', filter: 'OIII', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 },
+      { fileName: 's2.fit', filter: 'SII', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 },
+    ],
+    [{ filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 }],
+    { lightTempC: -10 }
+  );
+  assert(crossFilter.matches.length === 1 && crossFilter.matches[0].fileName === 'ha.fit', 'darkflats must match light/flat filter');
+  assert(crossFilter.rejected.length === 2, 'rejects other-filter darkflats', crossFilter.rejected);
+  assert(
+    crossFilter.rejected.every((r) => r.includable === false),
+    'other-filter darkflats are not includable',
+    crossFilter.rejected.map((r) => r.includable),
+  );
+
+  const timed = collectUsableDarkflats(
+    [
+      { fileName: 'near.fit', filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2, date: '20260816', time: '003000' },
+      { fileName: 'far.fit', filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2, date: '20260814', time: '003000' },
+    ],
+    [{ filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2, date: '20260816', time: '010000' }],
+    { lightTempC: -10 }
+  );
+  assert(timed.matches.length === 1 && timed.matches[0].fileName === 'near.fit', 'darkflats within ±12h of flats are default');
+  assert(timed.rejected.length === 1 && /12h/i.test(timed.rejected[0].reason || ''), 'older same-filter darkflats rejected for time', timed.rejected);
+  assert(timed.rejected[0].includable === true, 'time-oor darkflats remain includable');
+
+  const wrongFilterReady = evaluateIngestFrameReadiness({
+    lights: [{ filter: 'Ha', exposureSec: 180, tempC: -10 }],
+    flats: [{ filter: 'Ha', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 }],
+    biases: [{ filter: 'OIII', exposureSec: 0.5, gain: 120, tempC: -10, bin: 2 }],
+    sessionDarks: [{ exposureSec: 180, gain: 120, tempC: -10 }],
+    useMasterDarks: false,
+    filters: ['Ha'],
+    lightTempC: -10,
+  });
+  assert(
+    !wrongFilterReady.ok && wrongFilterReady.missing.some((m) => /Bias matching Flat/i.test(m)),
+    'fails when darkflats are a different filter',
+    wrongFilterReady.missing
+  );
 
   const masterBiasIgnored = evaluateIngestFrameReadiness({
     lights: [{ filter: 'Ha' }],

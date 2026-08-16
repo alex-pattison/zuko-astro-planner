@@ -21,6 +21,12 @@ Keep dated notes terse. Use the template below when useful.
 
 ## Log
 
+### 2026-08-16 — build 19 — Darkflat filter + ±12h pairing
+- Session Bias (darkflats) must match flats’ **filter**, exp/gain/bin, light temp, and DATE-OBS within **±12h**. Other-filter Bias/Flats are omitted from the Import file lists.
+- Bias chip is green when matching Bias count ≥ flat count. Same-filter frames outside ±12h stay optional via Include.
+- Darks still ignore filter. QA: calib focused + `qa-asiair-ingest` (live last-night dump 30/30 Ha).
+- `npm run dist:win:beta` for build 19 installer.
+
 ### 2026-08-12 — build 18 — Register → Cull → Stack (Siril .seq cull)
 - Pipeline trunk: **Register** (aggregate nights into `Filter/Aggregate/` + Siril register → `r_pp_light_*`) → **Cull** (scan Siril `.seq`, write `culled.txt`) → **Stack** (optional re-register checkbox, default off).
 - Cull popup lists included/excluded frames; Plot works on registered sequence. Aggregate folder keeps both `pp_light_*` and `r_pp_light_*`.

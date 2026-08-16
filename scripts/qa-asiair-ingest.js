@@ -1375,6 +1375,53 @@ async function testLiveDesktopDump() {
   }
 }
 
+async function testLiveLastNightDump() {
+  console.log('\n== Live F:\\ASIAIRDUMP_260816 (darkflat filter + ±12h) ==');
+  const dumpRoot = process.env.ASIAIR_LASTNIGHT_DUMP || 'F:\\ASIAIRDUMP_260816';
+  if (!fs.existsSync(path.join(dumpRoot, 'Autorun'))) {
+    console.log('  skip — dump not present:', dumpRoot);
+    return;
+  }
+  const scan = await scanSession({ projectDir: dumpRoot, nightDate: '20260816', skipTargetHint: true });
+  assert('last-night dump scan ok', !!(scan && scan.ok), scan && scan.error);
+  const lightsHa = (scan.lights || []).filter((l) => normalizeFilter(l.filter) === 'Ha');
+  const flatsHa = (scan.flats || []).filter((f) => normalizeFilter(f.filter) === 'Ha');
+  const biases = scan.biases || [];
+  assert('last-night Ha lights', lightsHa.length > 0, `n=${lightsHa.length}`);
+  assert('last-night Ha flats', flatsHa.length > 0, `n=${flatsHa.length}`);
+  const lightTempC = modeTempC(lightsHa);
+  const usable = collectUsableDarkflats(biases, flatsHa, { lightTempC });
+  const matchFilters = [...new Set(usable.matches.map((b) => normalizeFilter(b.filter)))];
+  assert(
+    'last-night Ha darkflats are Ha only',
+    usable.matches.length > 0 && matchFilters.length === 1 && matchFilters[0] === 'Ha',
+    `n=${usable.matches.length} filters=${matchFilters.join(',')}`,
+  );
+  assert(
+    'last-night default Ha darkflats are the paired set (~30), not all Ha Bias',
+    usable.matches.length <= 40,
+    `n=${usable.matches.length}`,
+  );
+  const otherBias = biases.filter((b) => normalizeFilter(b.filter) && normalizeFilter(b.filter) !== 'Ha');
+  const otherRejected = usable.rejected.filter((r) => otherBias.some((b) => (b.filePath || b.fileName) === (r.filePath || r.fileName)));
+  assert(
+    'last-night other-filter bias rejected for Ha',
+    otherBias.length > 0 && otherRejected.length === otherBias.length,
+    `other=${otherBias.length} rejected=${usable.rejected.length}`,
+  );
+  assert(
+    'last-night other-filter bias not includable',
+    otherRejected.every((r) => r.includable === false),
+    otherRejected.map((r) => r.includable).join(','),
+  );
+  const timeRej = usable.rejected.filter((r) => /12h|time missing/i.test(r.reason || ''));
+  assert(
+    'last-night older same-filter bias is includable',
+    timeRej.length === 0 || timeRej.every((r) => r.includable === true),
+    `timeRej=${timeRej.length}`,
+  );
+}
+
 async function main() {
   console.log('Zuko ASIAIR QA');
   console.log('QA root:', QA_ROOT);
@@ -1391,6 +1438,7 @@ async function main() {
   await testTargetMatchCoords();
   await testDashboardConsistency();
   await testLiveDesktopDump();
+  await testLiveLastNightDump();
 
   const failed = results.filter((r) => !r.ok);
   const passed = results.filter((r) => r.ok);
