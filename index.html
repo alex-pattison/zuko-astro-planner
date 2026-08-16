@@ -4139,13 +4139,18 @@
     text-overflow: ellipsis;
     vertical-align: middle;
   }
-  .skyfx-table col.c-local { width: 16%; }
-  .skyfx-table col.c-rag { width: 10%; }
-  .skyfx-table col.c-cloud { width: 12%; }
-  .skyfx-table col.c-trans { width: 20%; }
-  .skyfx-table col.c-seeing { width: 18%; }
-  .skyfx-table col.c-temp { width: 12%; }
-  .skyfx-table col.c-precip { width: 12%; }
+  .skyfx-table col.c-local { width: 14%; }
+  .skyfx-table col.c-rag { width: 9%; }
+  .skyfx-table col.c-cloud { width: 11%; }
+  .skyfx-table col.c-trans { width: 18%; }
+  .skyfx-table col.c-seeing { width: 16%; }
+  .skyfx-table col.c-moon { width: 10%; }
+  .skyfx-table col.c-temp { width: 11%; }
+  .skyfx-table col.c-precip { width: 11%; }
+  .skyfx-table td.skyfx-moon-cell {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
   .skyfx-table tr.astro-dark td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
   .skyfx-table tr.rag-green td.rag-cell { color: var(--green); }
   .skyfx-table tr.rag-amber td.rag-cell { color: var(--yellow); }
@@ -5367,7 +5372,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 21, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 22, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -6221,6 +6226,57 @@ const _ASTRO = (() => {
 
   return { getTimes, getMoonTimes, moonAltitude, sunAltitude };
 })();
+
+/**
+ * Moon altitude at a forecast hour (local math — no API).
+ * @returns {{ up: boolean, altDeg: number|null, altRad: number|null }}
+ */
+function moonHourStatus(when, lat, lon) {
+  if (when == null || lat == null || lon == null) {
+    return { up: false, altDeg: null, altRad: null };
+  }
+  const d = when instanceof Date ? when : new Date(when);
+  if (Number.isNaN(d.getTime())) return { up: false, altDeg: null, altRad: null };
+  const la = Number(lat);
+  const lo = Number(lon);
+  if (!Number.isFinite(la) || !Number.isFinite(lo)) {
+    return { up: false, altDeg: null, altRad: null };
+  }
+  const altRad = _ASTRO.moonAltitude(d, la, lo);
+  if (altRad == null || !Number.isFinite(altRad)) {
+    return { up: false, altDeg: null, altRad: null };
+  }
+  const altDeg = altRad * (180 / Math.PI);
+  return {
+    up: altDeg > 0,
+    altDeg,
+    altRad,
+  };
+}
+
+/** Short rise/set tip for a moon hour cell (local math). */
+function moonHourTip(when, lat, lon) {
+  const d = when instanceof Date ? when : new Date(when);
+  if (Number.isNaN(d.getTime())) return '';
+  const times = _ASTRO.getMoonTimes(d, Number(lat), Number(lon));
+  const bits = [];
+  if (times && times.rise) bits.push('Rise ' + fmtSkyTime(times.rise));
+  if (times && times.set) bits.push('Set ' + fmtSkyTime(times.set));
+  return bits.length ? bits.join(' · ') : 'Local moon altitude';
+}
+
+/** HTML for Sky Forecast Moon column cell. */
+function moonHourCellHtml(status, tip) {
+  const title = tip ? ' title="' + escapeAttr(tip) + '"' : '';
+  if (!status || status.altDeg == null || !Number.isFinite(status.altDeg)) {
+    return '<td class="skyfx-moon-cell meta-muted"' + title + '>—</td>';
+  }
+  if (!status.up) {
+    return '<td class="skyfx-moon-cell meta-muted"' + title + '>↓</td>';
+  }
+  const deg = Math.round(status.altDeg);
+  return '<td class="skyfx-moon-cell"' + title + '>↑ ' + deg + '°</td>';
+}
 
 function moonPhaseInfo(date = new Date()) {
   const synodic = 29.530588853;
@@ -7870,6 +7926,9 @@ async function refreshSkyForecastPanel(forceRefresh) {
             minute: '2-digit',
           });
           const hrRag = isFallback ? null : (h.rag || null);
+          const moonSt = moonHourStatus(h.iso, lat, lon);
+          const moonTip = moonHourTip(h.iso, lat, lon);
+          const moonCell = moonHourCellHtml(moonSt, moonTip);
           const cloudCell = h.cloud != null ? skyfxSwatch(h.cloudColor) + h.cloud + '%' : '—';
           const transCell = isFallback
             ? '<span class="meta-muted">—</span>'
@@ -7894,6 +7953,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
             '<td>' + cloudCell + '</td>' +
             '<td class="' + (isFallback ? 'meta-muted' : '') + '">' + transCell + '</td>' +
             '<td class="' + (isFallback ? 'meta-muted' : '') + '">' + seeCell + '</td>' +
+            moonCell +
             '<td>' + escapeHtml(tempCell) + '</td>' +
             '<td>' + escapeHtml(precipCell) + '</td>' +
             '</tr>';
@@ -7905,16 +7965,17 @@ async function refreshSkyForecastPanel(forceRefresh) {
             '<table class="skyfx-table">' +
               '<colgroup>' +
                 '<col class="c-local"><col class="c-rag"><col class="c-cloud">' +
-                '<col class="c-trans"><col class="c-seeing"><col class="c-temp"><col class="c-precip">' +
+                '<col class="c-trans"><col class="c-seeing"><col class="c-moon"><col class="c-temp"><col class="c-precip">' +
               '</colgroup>' +
               '<thead><tr>' +
                 '<th>Local</th><th>RAG</th><th>Cloud</th>' +
                 '<th title="Transparency 0–27+ (lower better)">Trans</th>' +
                 '<th title="Seeing 0–5 (higher better)">Seeing</th>' +
+                '<th title="Moon altitude above horizon (local math)">Moon</th>' +
                 '<th>Temp</th>' +
                 '<th>Precip</th>' +
               '</tr></thead>' +
-              '<tbody>' + (rows || '<tr><td colspan="7">No hourly rows</td></tr>') + '</tbody>' +
+              '<tbody>' + (rows || '<tr><td colspan="8">No hourly rows</td></tr>') + '</tbody>' +
             '</table>' +
           '</div>' +
         '</details>';

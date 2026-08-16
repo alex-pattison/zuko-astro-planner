@@ -11,6 +11,7 @@ API keys: `ASTROSPHERIC_API_KEY` in `.env` (see `.env.example`). Never commit `.
 | Source | Endpoint | Auth / cost | Fields used | UI | Cache |
 |--------|----------|-------------|-------------|----|-------|
 | **Astrospheric** (primary) | `POST https://v2-api-public.astrospheric.com/api/GetForecastData` | Pro API key · ~65 credits/pull (`Cloud` + `Transparency` + `Seeing`) | Hourly cloud %, transparency (0–27+), seeing (0–5), plus derived shoot RAG | Header chip · Sky Forecast metrics · hourly night tables · RAG status (GO / OK / NO) | ~**4 hours** on disk (`astrospheric-v2-cache-*.json`) |
+| **Local math** (no network) | Renderer `_ASTRO.moonAltitude` | — | Per-hour moon altitude | **Moon** column on hourly night tables (`↑ nn°` / `↓`) | — |
 | **Open-Meteo** (fallback) | `GET https://api.open-meteo.com/v1/forecast` | Free | `cloud_cover`, `temperature_2m`, `precipitation_probability` (hourly) | Same panels when Astrospheric is missing/offline — **no** transparency, seeing, or shoot RAG | Short-lived / as returned; used when primary fails |
 | **Clear Outside** (visual) | `https://clearoutside.com/forecast_image_large/{lat}/{lon}/forecast.png` | Free image | Forecast strip image | Optional graphic under Sky Forecast | Browser image cache only |
 | **Astrospheric site** | Link only | — | — | “Open Astrospheric ↗” | — |

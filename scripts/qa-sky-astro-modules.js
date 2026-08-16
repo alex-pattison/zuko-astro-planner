@@ -35,6 +35,7 @@ function loadRendererAstro() {
   const helpers = [];
   const names = [
     'moonPhaseInfo',
+    'moonHourStatus',
     'fmtSkyTime',
     'twilightPctInWindow',
     'twilightSeg',
@@ -212,6 +213,38 @@ async function main() {
   ok('Aug 2026 full ~bright', fullish.illum >= 95, fullish.name + ' ' + fullish.illum + '%');
   const newish = A.moonPhaseInfo(new Date('2026-08-12T21:37:00Z'));
   ok('Aug 2026 new ~dark', newish.illum <= 5, newish.name + ' ' + newish.illum + '%');
+
+  // Hourly moon altitude vs rise/set (local math)
+  console.log('\nMoon hour altitude vs rise/set');
+  const probeDays = [
+    new Date('2026-08-16T12:00:00Z'),
+    new Date('2026-01-15T12:00:00Z'),
+    new Date('2026-06-15T12:00:00Z'),
+  ];
+  for (const day of probeDays) {
+    const times = A._ASTRO.getMoonTimes(day, LAT, LON);
+    const label = day.toISOString().slice(0, 10);
+    if (times && times.rise && times.set && +times.rise < +times.set) {
+      const mid = new Date((+times.rise + +times.set) / 2);
+      const stMid = A.moonHourStatus(mid, LAT, LON);
+      ok(label + ' mid-window moon up', stMid.up === true && stMid.altDeg > 0, 'alt=' + (stMid.altDeg != null ? stMid.altDeg.toFixed(1) : 'null'));
+      const before = new Date(+times.rise - 90 * 60000);
+      const stBefore = A.moonHourStatus(before, LAT, LON);
+      ok(label + ' 90m before rise moon down', stBefore.up === false, 'alt=' + (stBefore.altDeg != null ? stBefore.altDeg.toFixed(1) : 'null'));
+      const after = new Date(+times.set + 90 * 60000);
+      const stAfter = A.moonHourStatus(after, LAT, LON);
+      ok(label + ' 90m after set moon down', stAfter.up === false, 'alt=' + (stAfter.altDeg != null ? stAfter.altDeg.toFixed(1) : 'null'));
+    } else if (times && times.rise && times.set && +times.set < +times.rise) {
+      // Moon up across midnight: mid between set-of-prev and rise is awkward; check just after rise
+      const afterRise = new Date(+times.rise + 60 * 60000);
+      const st = A.moonHourStatus(afterRise, LAT, LON);
+      ok(label + ' 1h after rise moon up (overnight)', st.up === true, 'alt=' + (st.altDeg != null ? st.altDeg.toFixed(1) : 'null'));
+    } else {
+      ok(label + ' moon rise/set available', false, JSON.stringify(times));
+    }
+  }
+  const bad = A.moonHourStatus('not-a-date', LAT, LON);
+  ok('moonHourStatus bad date → null alt', bad.altDeg == null && bad.up === false);
 
   // NASA frame URL stability
   console.log('\nNASA moon image mapping');

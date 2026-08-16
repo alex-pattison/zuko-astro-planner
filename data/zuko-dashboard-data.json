@@ -274,131 +274,6 @@
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
       "asiairIgnoredSources": []
-    },
-    {
-      "name": "[TEST] Rosette Nebula — Ingest QA",
-      "target": "Rosette Nebula (NGC 2237 / NGC 2238 / NGC 2244) — synthetic ASIAIR dump for ingest testing",
-      "frameMode": "Reducer, 280mm f/3.9 — TEST project (synthetic FITS, not real data)",
-      "projectDir": "C:\\Users\\alexp\\Projects\\zuko-astro-planner\\staging\\asiair-test-rosette",
-      "centerCoords": "RA 6h31m55s  Dec +4°56'34\"",
-      "anchorStar": "HD 46150 (mag ~6.8) — open cluster NGC 2244 core",
-      "rotation": "0° (test)",
-      "status": "active",
-      "notes": "TEST PROJECT — real target (Rosette), synthetic FITS under staging/asiair-test-rosette. Autorun+Plan merged. Ha 260728 = happy path (+ orphan OIII lights → no shot log). OIII 260729 = missing flats (blocked). SII 260730 = Stage OK. Ha 260731 @45s = missing darks. See staging/asiair-test-rosette/README.md. Rebuild: node scripts/build-ingest-test-fixture.js",
-      "filterTargets": [
-        {
-          "filter": "Ha",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.18,
-          "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null,
-          "registerMeta": null
-        },
-        {
-          "filter": "OIII",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.1,
-          "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null,
-          "registerMeta": null
-        },
-        {
-          "filter": "SII",
-          "location": "Home",
-          "bortle": "9",
-          "targetHrs": 0.5,
-          "loggedHrs": 0.1,
-          "stackMeta": null,
-          "cullMeta": null,
-          "aggregateMeta": null,
-          "registerMeta": null
-        }
-      ],
-      "checklist": [
-        {
-          "id": "test-rosette-happy",
-          "text": "TEST: Ha 260728 → Stage OK; orphan OIII row = no shot log (red)",
-          "done": false
-        },
-        {
-          "id": "test-rosette-noflat",
-          "text": "TEST: OIII 260729 → missing flats (red row), Stage blocked",
-          "done": false
-        },
-        {
-          "id": "test-rosette-cross",
-          "text": "TEST: SII 260730 → Stage succeeds (Bias from Autorun)",
-          "done": false
-        },
-        {
-          "id": "test-rosette-nodark",
-          "text": "TEST: Ha 260731 @45s → missing darks, Stage blocked",
-          "done": false
-        }
-      ],
-      "shoots": [
-        {
-          "date": "260728",
-          "filterIndex": 0,
-          "hours": 0.15,
-          "complete": true,
-          "creditedHours": 0.15,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260729",
-          "filterIndex": 1,
-          "hours": 0.1,
-          "complete": true,
-          "creditedHours": 0.1,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260730",
-          "filterIndex": 2,
-          "hours": 0.1,
-          "complete": true,
-          "creditedHours": 0.1,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260731",
-          "filterIndex": 0,
-          "hours": 0.025,
-          "complete": true,
-          "creditedHours": 0.03,
-          "sourcePath": null,
-          "ingestPath": null,
-          "ingestMeta": null,
-          "preprocessMeta": null
-        }
-      ],
-      "astrobinLinks": [],
-      "savedTarget": {
-        "name": "Rosette Nebula (NGC 2237)",
-        "ra": 97.9791667,
-        "dec": 4.9427778
-      },
-      "framerMode": "reducer",
-      "framerRotation": 0,
-      "processStatus": "planning",
-      "ignoredAsiairFolders": [],
-      "asiairBoundFolders": []
     }
   ],
   "notes": [
@@ -958,10 +833,10 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 21,
-    "savedAt": "2026-08-16T18:34:57.846Z"
+    "build": 22,
+    "savedAt": "2026-08-16T21:43:58.962Z"
   },
-  "uiTheme": "light",
+  "uiTheme": "dark",
   "homeSite": {
     "zip": "10002",
     "name": "NYC",
