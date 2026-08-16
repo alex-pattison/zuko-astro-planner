@@ -5367,7 +5367,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.2.0', build: 19, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.2.0', build: 20, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -8983,15 +8983,77 @@ function editShoot(pi, si) {
   });
 }
 
-function removeShoot(pi, si) {
+function clearFilterDownstreamMeta(project, filterName) {
+  const want = filterName != null ? (normalizeFilterClient(filterName) || filterName) : null;
+  if (!want) return;
+  (project.filterTargets || []).forEach((f) => {
+    if (!f) return;
+    const n = f.filter != null ? (normalizeFilterClient(f.filter) || f.filter) : null;
+    if (n !== want) return;
+    f.aggregateMeta = null;
+    f.registerMeta = null;
+    f.cullMeta = null;
+    f.stackMeta = null;
+  });
+}
+
+async function runRemoveShoot(pi, si, opts = {}) {
   const project = data.projects[pi];
-  const sh = project.shoots[si];
-  const label = sh && sh.date ? String(sh.date) : 'this night';
-  if (!confirm(`Remove night ${label} from the Imaging Pipeline?`)) return;
+  if (!project || !project.shoots || !project.shoots[si]) return;
+  if (opts.deleteData) {
+    if (!window.zukoIngest || typeof window.zukoIngest.wipeShoot !== 'function') {
+      alert('Deleting files needs the Electron desktop app (npm start).');
+      return;
+    }
+    if (!opts.projectDir || !opts.shootFolder || !opts.filterName) {
+      alert('Could not resolve the imported folder to delete.');
+      return;
+    }
+    const wiped = await window.zukoIngest.wipeShoot({
+      projectDir: opts.projectDir,
+      shootFolder: opts.shootFolder,
+      filter: opts.filterName,
+      wipeChannelPipeline: true,
+    });
+    if (!wiped || !wiped.ok) {
+      alert((wiped && wiped.error) || 'Could not delete imported files.');
+      return;
+    }
+    clearFilterDownstreamMeta(project, opts.filterName);
+  }
   project.shoots.splice(si, 1);
   nightPipelineDetailOpen.delete(`${pi}:${si}`);
   recomputeProjectFilterHours(project);
   save();
+  renderProjects();
+}
+
+function removeShoot(pi, si) {
+  const project = data.projects[pi];
+  const sh = project.shoots[si];
+  if (!project || !sh) return;
+  const ft = project.filterTargets[sh.filterIndex];
+  const code = buildShootCode(sh, ft);
+  const shootDir = resolveShootCalibrateDir(project, sh);
+  const filterName = ft ? ft.filter : '';
+  const label = sh.date ? String(sh.date) : 'this night';
+  const bodyHtml = `<div class="pipeline-job-grid">
+    ${pipelineJobRow('Night', escapeHtml(label))}
+    ${pipelineJobRow('Shoot', escapeHtml(code))}
+    ${pipelineJobRow('Folder', shootDir ? `<code style="word-break:break-all;">${escapeHtml(shootDir)}</code>` : '— (not imported)')}
+  </div>`;
+  openPipelineJobConfirm({
+    title: 'Remove night',
+    sub: 'Remove this night from the Imaging Pipeline log.',
+    bodyHtml,
+    notesHtml:
+      `<label style="display:flex;gap:8px;align-items:flex-start;margin:8px 0 0;font-size:13px;">` +
+      `<input type="checkbox" id="remove-night-delete-cb" style="margin-top:2px;">` +
+      `<span>Also <strong>delete imported files</strong> for this night, plus this filter’s <code>Aggregate/</code> and <code>_stack/</code> (Calibrate / Register / Cull / Stack). Other nights stay on disk. Does not delete <code>working/</code> stacks.</span>` +
+      `</label>`,
+    startLabel: 'Remove',
+    pending: { kind: 'remove-shoot', pi, si, shootDir, filterName, shootFolder: code, projectDir: project.projectDir },
+  });
 }
 
 function toggleShootComplete(pi, si) {
@@ -13421,6 +13483,10 @@ function confirmPipelineJobStart() {
     const cb = document.getElementById('stack-reregister-cb');
     stackReregister = !!(cb && cb.checked);
   }
+  if (pending && pending.kind === 'remove-shoot') {
+    const cb = document.getElementById('remove-night-delete-cb');
+    pending.deleteData = !!(cb && cb.checked);
+  }
   closePipelineJobConfirm();
   if (!pending) return;
   if (pending.kind === 'calibrate') {
@@ -13441,6 +13507,16 @@ function confirmPipelineJobStart() {
   }
   if (pending.kind === 'cleanup-project') {
     runCleanupProjectIntermediates(pending.pi, pending.shootDirs, pending.filters);
+    return;
+  }
+  if (pending.kind === 'remove-shoot') {
+    runRemoveShoot(pending.pi, pending.si, {
+      deleteData: pending.deleteData,
+      shootDir: pending.shootDir,
+      filterName: pending.filterName,
+      shootFolder: pending.shootFolder,
+      projectDir: pending.projectDir,
+    });
   }
 }
 
@@ -14408,6 +14484,8 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
   const lightRow = (scan.filters || []).find((r) => ft && r.filter === ft.filter);
   sh.sourcePath = session.path;
   sh.ingestPath = (meta.destRoots && meta.destRoots[0]) || project.projectDir;
+  sh.preprocessMeta = null;
+  if (ft && ft.filter) clearFilterDownstreamMeta(project, ft.filter);
   sh.ingestMeta = {
     nightDate: meta.nightDate,
     shootFolder: meta.shootFolder || shootFolder,
@@ -15225,7 +15303,7 @@ async function runIngestStage(force = false) {
       };
       const root = (ingestCtx.pendingRestage.roots[0]) || '';
       document.getElementById('ingest-restage-sub').textContent =
-        'This shoot folder already has imported FITS. Open it, or overwrite and import again.';
+        'This shoot folder already has imported FITS. Overwrite deletes this night’s import and this filter’s Calibrate / Register / Cull / Stack products (Aggregate/_stack), then imports again.';
       document.getElementById('ingest-restage-path').textContent = root;
       document.getElementById('ingest-restage-overlay').classList.add('open');
       document.getElementById('ingest-progress').textContent = 'Import blocked — folder already exists.';

@@ -1961,6 +1961,84 @@ async function importCalibrationLibraryBundle(opts = {}) {
   };
 }
 
+function isPathInsideRoot(root, target) {
+  const r = path.resolve(String(root || '')) + path.sep;
+  const t = path.resolve(String(target || '')) + path.sep;
+  return t.toLowerCase().startsWith(r.toLowerCase());
+}
+
+function assertSafePathSegment(name, label) {
+  const s = sanitizeFolderName(name);
+  if (!s || s === '.' || s === '..' || /[\\/]/.test(s)) {
+    throw new Error(`Unsafe ${label || 'path'}: ${name}`);
+  }
+  return s;
+}
+
+/**
+ * Delete a staged night folder. Optionally wipe that filter's Aggregate/ and _stack/
+ * (Register / Cull / Stack products). Does not delete other nights or working/.
+ */
+async function wipeStagedShoot(opts = {}) {
+  const projectDir = opts.projectDir && String(opts.projectDir).trim();
+  if (!projectDir) return { ok: false, error: 'projectDir is required' };
+  let shootFolder = null;
+  let filter = null;
+  try {
+    shootFolder = opts.shootFolder ? assertSafePathSegment(opts.shootFolder, 'shootFolder') : null;
+    const filterRaw = opts.filter || opts.shootFilter;
+    filter = filterRaw ? assertSafePathSegment(normalizeFilter(filterRaw) || filterRaw, 'filter') : null;
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+  const wipeChannelPipeline = opts.wipeChannelPipeline !== false;
+  if (!projectDir) return { ok: false, error: 'projectDir is required' };
+  if (!shootFolder && !filter) return { ok: false, error: 'shootFolder or filter is required' };
+  if (!fs.existsSync(projectDir)) return { ok: false, error: `Project folder not found: ${projectDir}` };
+
+  const removed = [];
+  const missing = [];
+  const failed = [];
+
+  async function rmSafe(dir) {
+    const abs = path.resolve(dir);
+    if (!isPathInsideRoot(projectDir, abs)) {
+      failed.push({ path: abs, error: 'refuses to delete outside projectDir' });
+      return;
+    }
+    if (path.resolve(abs).toLowerCase() === path.resolve(projectDir).toLowerCase()) {
+      failed.push({ path: abs, error: 'refuses to delete projectDir' });
+      return;
+    }
+    if (!fs.existsSync(abs)) {
+      missing.push(abs);
+      return;
+    }
+    try {
+      await fsp.rm(abs, { recursive: true, force: true });
+      removed.push(abs);
+    } catch (e) {
+      failed.push({ path: abs, error: String(e && e.message ? e.message : e) });
+    }
+  }
+
+  if (filter && shootFolder) {
+    await rmSafe(path.join(projectDir, filter, shootFolder));
+  }
+  if (wipeChannelPipeline && filter) {
+    await rmSafe(path.join(projectDir, filter, 'Aggregate'));
+    await rmSafe(path.join(projectDir, filter, '_stack'));
+  }
+
+  return {
+    ok: failed.length === 0,
+    removed,
+    missing,
+    failed,
+    error: failed.length ? failed.map((f) => `${f.path}: ${f.error}`).join('; ') : undefined,
+  };
+}
+
 async function ensureCopied(src, dest) {
   await fsp.mkdir(path.dirname(dest), { recursive: true });
   let destPresent = false;
@@ -2369,6 +2447,23 @@ async function stageSirilTree(opts = {}) {
       };
     }
   }
+
+  // Force reimport: wipe this night's staged folder + filter Aggregate/_stack so
+  // Calibrate / Register / Cull / Stack cannot keep stale products.
+  if (force) {
+    for (const f of filters) {
+      const wiped = await wipeStagedShoot({
+        projectDir,
+        shootFolder,
+        filter: f,
+        wipeChannelPipeline: true,
+      });
+      if (!wiped.ok) {
+        return { ok: false, code: 'WIPE_FAILED', error: wiped.error || 'Failed to clear existing import', wipe: wiped };
+      }
+    }
+  }
+
   const biasLibDir = path.join(projectDir, '_calibration', 'darkflats', nightDate);
   const darkLibDir = path.join(projectDir, '_calibration', 'darks', nightDate);
   await fsp.mkdir(biasLibDir, { recursive: true });
@@ -2953,6 +3048,7 @@ module.exports = {
   isLibraryMasterFitName,
   evaluateIngestFrameReadiness,
   stageSirilTree,
+  wipeStagedShoot,
   masterDarkSourceSetDir,
   ensureLink,
   isUsableLinkedFile,

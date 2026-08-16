@@ -741,6 +741,15 @@ ipcMain.handle('zuko-ingest-stage', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-ingest-wipe-shoot', async (_event, payload = {}) => {
+  try {
+    const { wipeStagedShoot } = loadAsiairIngest();
+    return await wipeStagedShoot(payload || {});
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err) };
+  }
+});
+
 ipcMain.handle('zuko-ingest-scan', async (_event, payload = {}) => {
   try {
     const { scanAsiairSource } = loadAsiairIngest();

@@ -21,7 +21,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 4,
-          "loggedHrs": 1,
+          "loggedHrs": 0.25,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null,
@@ -148,49 +148,6 @@
           "sourcePath": null,
           "ingestPath": null,
           "ingestMeta": null,
-          "preprocessMeta": null
-        },
-        {
-          "date": "260815",
-          "filterIndex": 0,
-          "hours": 0.75,
-          "complete": true,
-          "creditedHours": 0.75,
-          "sourcePath": "F:\\ASIAIRDUMP_260816",
-          "ingestPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260815_Ha_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260815",
-            "shootFolder": "260815_Ha_B9_Home",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\260815_Ha_B9_Home"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260815",
-              "biasesPreexisting": 0,
-              "darksPreexisting": 0,
-              "biasesAfter": 30,
-              "darksAfter": 1
-            },
-            "filesStaged": 76,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 15,
-              "flat": 30,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 15,
-            "frameCount": 15,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -9.39999961853027,
-            "stagedAt": "2026-08-16T16:23:50.461Z"
-          },
           "preprocessMeta": null
         }
       ],
@@ -1001,8 +958,8 @@
   ],
   "appMeta": {
     "version": "0.2.0",
-    "build": 19,
-    "savedAt": "2026-08-16T16:23:50.461Z"
+    "build": 20,
+    "savedAt": "2026-08-16T18:34:57.846Z"
   },
   "uiTheme": "light",
   "homeSite": {

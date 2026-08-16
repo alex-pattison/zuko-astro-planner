@@ -17,6 +17,7 @@ const {
   indexDarkLibrary,
   evaluateIngestFrameReadiness,
   scanCalibrationLibraryImport,
+  wipeStagedShoot,
 } = require('../src/ingest/asiairIngest');
 
 let failed = 0;
@@ -220,6 +221,40 @@ async function main() {
       removedDarkSets: ['Darks_180s_Bin2_-10c'],
     });
     assert(scan.ok && scan.sets.length === 0, 'empty source scan ok');
+  });
+
+  console.log('\n== wipe staged shoot ==');
+  await withTemp(async (root) => {
+    const night = path.join(root, 'SII', '260725_SII_B9_Home');
+    const agg = path.join(root, 'SII', 'Aggregate');
+    const stack = path.join(root, 'SII', '_stack');
+    const other = path.join(root, 'SII', '260720_SII_B9_Home', 'lights');
+    await fsp.mkdir(path.join(night, 'lights'), { recursive: true });
+    await fsp.mkdir(path.join(night, 'process'), { recursive: true });
+    await fsp.mkdir(agg, { recursive: true });
+    await fsp.mkdir(stack, { recursive: true });
+    await fsp.mkdir(other, { recursive: true });
+    await fsp.writeFile(path.join(night, 'lights', 'a.fit'), Buffer.alloc(4));
+    await fsp.writeFile(path.join(agg, 'pp_light_0001.fit'), Buffer.alloc(4));
+    await fsp.writeFile(path.join(other, 'keep.fit'), Buffer.alloc(4));
+    const wiped = await wipeStagedShoot({
+      projectDir: root,
+      shootFolder: '260725_SII_B9_Home',
+      filter: 'SII',
+      wipeChannelPipeline: true,
+    });
+    assert(wiped.ok, 'wipe staged shoot ok', wiped.error);
+    assert(!fs.existsSync(night), 'night folder removed');
+    assert(!fs.existsSync(agg), 'Aggregate removed');
+    assert(!fs.existsSync(stack), '_stack removed');
+    assert(fs.existsSync(path.join(other, 'keep.fit')), 'other night kept');
+    const refuse = await wipeStagedShoot({
+      projectDir: root,
+      shootFolder: '..',
+      filter: 'SII',
+    });
+    assert(!refuse.ok, 'unsafe shootFolder rejected', refuse.error);
+    assert(fs.existsSync(root), 'projectDir still exists');
   });
 
   console.log('\n== Live Dark Library (F:) ==');

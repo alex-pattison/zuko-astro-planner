@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   removeLibrarySubs: (opts) => ipcRenderer.invoke('zuko-ingest-remove-library-subs', opts || {}),
   librarySize: (dirPath) => ipcRenderer.invoke('zuko-ingest-library-size', { path: dirPath }),
   stage: (opts) => ipcRenderer.invoke('zuko-ingest-stage', opts || {}),
+  wipeShoot: (opts) => ipcRenderer.invoke('zuko-ingest-wipe-shoot', opts || {}),
   scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
   open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),

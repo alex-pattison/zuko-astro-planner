@@ -643,7 +643,7 @@ async function testPipeline() {
       darkMatchesByFilter: { Ha: match.matches },
       force: true,
     });
-    assert('force restage ok', forced.ok, forced.error);
+    assert('force restage ok (wipes night + filter Aggregate/_stack then recopies)', forced.ok, forced.error);
   }
 
   // Stage OIII — should reuse biases from _calibration
