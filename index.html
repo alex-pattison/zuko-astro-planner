@@ -3174,7 +3174,53 @@
     border-radius: 8px;
     margin-bottom: 12px;
     overflow: hidden;
+    position: relative;
+    will-change: transform;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   }
+  .project-card-placeholder {
+    border: 1.5px dashed color-mix(in srgb, var(--accent2) 55%, var(--border));
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: color-mix(in srgb, var(--accent2) 10%, transparent);
+    box-sizing: border-box;
+    transition: height 0.18s ease;
+  }
+  .project-card.project-card-lifted {
+    position: fixed;
+    z-index: 1200;
+    margin: 0;
+    overflow: visible;
+    opacity: 1;
+    pointer-events: none;
+    transform: scale(1.035) rotate(0.6deg);
+    box-shadow:
+      0 4px 10px rgba(0, 0, 0, 0.18),
+      0 22px 48px rgba(0, 0, 0, 0.42);
+    border-color: color-mix(in srgb, var(--accent2) 55%, var(--border));
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .projects-container.is-reordering {
+    min-height: 40px;
+  }
+  .projects-container.is-reordering .project-card:not(.project-card-lifted) {
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .project-drag-handle {
+    flex: 0 0 auto;
+    cursor: grab;
+    color: var(--gray);
+    font-size: 14px;
+    line-height: 1;
+    padding: 4px 2px;
+    border-radius: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+    letter-spacing: -0.12em;
+    touch-action: none;
+  }
+  .project-drag-handle:hover { color: var(--text); background: color-mix(in srgb, var(--text) 8%, transparent); }
+  .project-drag-handle:active { cursor: grabbing; }
   .project-header {
     display: flex;
     align-items: center;
@@ -3184,6 +3230,55 @@
     background: var(--bg3);
     border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
+  }
+  .project-progress {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gray);
+    white-space: nowrap;
+  }
+  .project-meta-sep {
+    margin: 0 0.45em;
+    opacity: 0.5;
+    user-select: none;
+  }
+  .project-dates {
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    white-space: nowrap;
+  }
+  .project-dates.is-empty,
+  .project-dates-sep.is-empty { display: none; }
+  .project-date-sep {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+  }
+  .project-date-input {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] .project-date-input,
+  html[data-theme="light"] .project-date-input {
+    color-scheme: light;
+  }
+  .project-date-input:focus {
+    outline: none;
+    border-color: var(--accent2);
   }
   .project-status {
     font-family: var(--mono);
@@ -3213,7 +3308,6 @@
   .status-processing { color: #c084fc; border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.1); }
   .status-complete { color: var(--green); border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.1); }
   .project-name { font-weight: 600; font-size: 14px; flex: 1; }
-  .project-progress { font-family: var(--mono); font-size: 11px; color: var(--gray); white-space: nowrap; }
   .project-chevron {
     display: inline-block;
     color: var(--gray);
@@ -3232,22 +3326,77 @@
 
   .project-meta-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 10px 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px 18px;
     margin-bottom: 14px;
+    align-items: start;
   }
-  .project-meta-grid > div { min-width: 0; }
-  .pm-label { font-family: var(--mono); font-size: 9px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .project-meta-grid > .pm-field { min-width: 0; }
+  .pm-field.pm-span-2 { grid-column: span 2; }
+  .pm-field.pm-span-4 { grid-column: 1 / -1; }
+  .pm-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+  .project-imaging-select {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: var(--text2);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+  }
+  .project-imaging-select:focus {
+    outline: none;
+    border-color: var(--accent2);
+  }
+  .modal-field-note {
+    margin: 10px 0 0;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text2);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
   .pm-val {
     font-size: 12px;
     color: var(--text2);
+    line-height: 1.45;
+    min-height: 1.45em;
     overflow: hidden;
+  }
+  .pm-val.pm-clip {
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .pm-val.pm-wrap {
+    white-space: normal;
+    overflow: visible;
+  }
+  .pm-val.pm-mono {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
   }
   .pm-val.pm-path {
     font-family: var(--mono);
     font-size: 11px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    word-break: break-all;
+    line-height: 1.45;
+    padding: 8px 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
   }
   .project-notes-text {
     font-size: 12px; color: var(--text2); line-height: 1.7;
@@ -4215,6 +4364,25 @@
     padding: 5px 12px;
     letter-spacing: 0.03em;
   }
+  .framer-dirty-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--yellow);
+    margin-right: 4px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--yellow) 25%, transparent);
+  }
+  #framer-lock-prompt-overlay .modal {
+    width: min(420px, 94vw);
+  }
+  #framer-lock-prompt-overlay .framer-lock-prompt-body {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
 
   .table-scroll {
     overflow-x: auto;
@@ -4284,8 +4452,10 @@
   }
 
   @media (max-width: 900px) {
-    /* Tablet: slightly tighter grids, tables scroll as a single unit so columns stay aligned */
-    .project-meta-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    /* Tablet: 2-column project meta */
+    .project-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pm-field.pm-span-2 { grid-column: span 2; }
+    .pm-field.pm-span-4 { grid-column: 1 / -1; }
     .table-scroll .filter-target-table:not(.shoot-log-table) { min-width: 560px; }
   }
 
@@ -4311,7 +4481,9 @@
     .project-name { font-size: 13px; flex-basis: 100%; order: -1; }
     .project-progress { font-size: 10px; }
     .project-body { padding: 12px; }
-    .project-meta-grid { grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+    .project-meta-grid { grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+    .pm-field.pm-span-2,
+    .pm-field.pm-span-4 { grid-column: 1 / -1; }
 
     /* Framer: shorter viewer, full-width controls */
     [id^="aladin-framer-"] { height: 260px !important; }
@@ -4905,39 +5077,7 @@
           <th>Best For</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>Reducer + Bin2</td>
-          <td><span class="mono">280mm f/3.9</span></td>
-          <td><span class="mono">~524mm</span></td>
-          <td><span class="mono">3.91°×2.66° (234'×160')</span></td>
-          <td><span class="mono">3.41″/px</span></td>
-          <td>Default under city LP — wide FOV, fast f-ratio, forgiving sampling for mediocre seeing (e.g. Veil-scale targets from NYC)</td>
-        </tr>
-        <tr>
-          <td>Reducer + Bin1</td>
-          <td><span class="mono">280mm f/3.9</span></td>
-          <td><span class="mono">~524mm</span></td>
-          <td><span class="mono">3.91°×2.66° (234'×160')</span></td>
-          <td><span class="mono">1.71″/px</span></td>
-          <td>Same wide field as above with finer sampling — only when seeing supports ~1.7″/px; heavier files vs Bin2</td>
-        </tr>
-        <tr>
-          <td>Native + Bin2</td>
-          <td><span class="mono">400mm f/5.6</span></td>
-          <td><span class="mono">~749mm</span></td>
-          <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
-          <td><span class="mono">2.39″/px</span></td>
-          <td>Workhorse at a dark site — mid-size targets / narrowband; scale matches typical 2–3″ seeing well</td>
-        </tr>
-        <tr>
-          <td>Native + Bin1</td>
-          <td><span class="mono">400mm f/5.6</span></td>
-          <td><span class="mono">~749mm</span></td>
-          <td><span class="mono">2.74°×1.86° (164'×112')</span></td>
-          <td><span class="mono">1.19″/px</span></td>
-          <td>Highest resolution — galaxies / small targets on excellent seeing nights only; oversamples average seeing</td>
-        </tr>
+      <tbody id="imaging-configs-body">
       </tbody>
     </table>
   </div>
@@ -5065,6 +5205,18 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn" data-testid="settings-cancel" onclick="closeSettings()">Cancel</button>
       <button type="button" class="modal-btn primary" data-testid="settings-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="framer-lock-prompt-overlay" data-testid="framer-lock-prompt-overlay" onclick="if(event.target===this)cancelFramerLockPrompt()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="framer-lock-prompt-title">
+    <h3 id="framer-lock-prompt-title">Save framer changes?</h3>
+    <p class="framer-lock-prompt-body" id="framer-lock-prompt-body">Center, rotation, or optical mode changed since unlock.</p>
+    <div class="modal-actions" style="justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+      <button type="button" class="modal-btn" data-testid="framer-lock-cancel" onclick="cancelFramerLockPrompt()">Cancel</button>
+      <button type="button" class="modal-btn" data-testid="framer-lock-revert" onclick="decideFramerLockPrompt('revert')">Revert &amp; lock</button>
+      <button type="button" class="modal-btn primary" data-testid="framer-lock-save" onclick="decideFramerLockPrompt('save')">Save &amp; lock</button>
     </div>
   </div>
 </div>
@@ -5383,6 +5535,114 @@ const HOME_SITE = {
   bortle: '9'
 };
 
+/** Canonical imaging modes — keep in sync with the Imaging Configurations table. */
+const IMAGING_CONFIGS = [
+  {
+    id: 'reducer-bin2',
+    label: 'Reducer + Bin2',
+    fl: '280mm f/3.9',
+    effectiveFl: '~524mm',
+    fov: '3.91°×2.66° (234′×160′)',
+    scale: '3.41″/px',
+    bestFor: 'Default under city LP — wide FOV, fast f-ratio, forgiving sampling for mediocre seeing (e.g. Veil-scale targets from NYC)',
+    framerMode: 'reducer',
+    bin: 2,
+  },
+  {
+    id: 'reducer-bin1',
+    label: 'Reducer + Bin1',
+    fl: '280mm f/3.9',
+    effectiveFl: '~524mm',
+    fov: '3.91°×2.66° (234′×160′)',
+    scale: '1.71″/px',
+    bestFor: 'Same wide field as above with finer sampling — only when seeing supports ~1.7″/px; heavier files vs Bin2',
+    framerMode: 'reducer',
+    bin: 1,
+  },
+  {
+    id: 'native-bin2',
+    label: 'Native + Bin2',
+    fl: '400mm f/5.6',
+    effectiveFl: '~749mm',
+    fov: '2.74°×1.86° (164′×112′)',
+    scale: '2.39″/px',
+    bestFor: 'Workhorse at a dark site — mid-size targets / narrowband; scale matches typical 2–3″ seeing well',
+    framerMode: 'native',
+    bin: 2,
+  },
+  {
+    id: 'native-bin1',
+    label: 'Native + Bin1',
+    fl: '400mm f/5.6',
+    effectiveFl: '~749mm',
+    fov: '2.74°×1.86° (164′×112′)',
+    scale: '1.19″/px',
+    bestFor: 'Highest resolution — galaxies / small targets on excellent seeing nights only; oversamples average seeing',
+    framerMode: 'native',
+    bin: 1,
+  },
+];
+
+function getImagingConfig(id) {
+  return IMAGING_CONFIGS.find((c) => c.id === id) || null;
+}
+
+function formatImagingConfigSummary(cfg) {
+  if (!cfg) return '';
+  return `${cfg.label} · ${cfg.fl}`;
+}
+
+/** Submenu line: Reducer/Native · BinN · mm · f/N · FOV */
+function formatImagingConfigDetail(cfg) {
+  if (!cfg) return '—';
+  const optic = cfg.framerMode === 'native' ? 'Native' : 'Reducer';
+  const flMatch = String(cfg.fl || '').match(/^([\d.]+mm)\s+(f\/[\d.]+)/i);
+  const mm = flMatch ? flMatch[1] : '';
+  const fnum = flMatch ? flMatch[2] : '';
+  const fovShort = String(cfg.fov || '').split('(')[0].trim();
+  return [optic, `Bin${cfg.bin}`, mm, fnum, fovShort].filter(Boolean).join(' · ');
+}
+
+function inferImagingConfigId(frameMode, framerMode) {
+  const s = String(frameMode || '').toLowerCase();
+  const explicit = IMAGING_CONFIGS.find((c) => c.id === frameMode || c.label.toLowerCase() === s);
+  if (explicit) return explicit.id;
+  const native = framerMode === 'native' || /\bnative\b/.test(s) || /\b400\s*mm\b/.test(s);
+  const bin1 = /\bbin\s*1\b/.test(s);
+  if (native) return bin1 ? 'native-bin1' : 'native-bin2';
+  return bin1 ? 'reducer-bin1' : 'reducer-bin2';
+}
+
+function applyImagingConfigToProject(project, configId) {
+  const cfg = getImagingConfig(configId) || IMAGING_CONFIGS[0];
+  project.imagingConfig = cfg.id;
+  project.frameMode = formatImagingConfigSummary(cfg);
+  project.framerMode = cfg.framerMode;
+  return cfg;
+}
+
+function imagingConfigSelectHtml(selectedId) {
+  const sel = selectedId || 'reducer-bin2';
+  return IMAGING_CONFIGS.map((c) =>
+    `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${escapeHtml(formatImagingConfigSummary(c))}</option>`
+  ).join('');
+}
+
+function renderImagingConfigsTable() {
+  const body = document.getElementById('imaging-configs-body');
+  if (!body) return;
+  body.innerHTML = IMAGING_CONFIGS.map((c) => `
+    <tr>
+      <td>${escapeHtml(c.label)}</td>
+      <td><span class="mono">${escapeHtml(c.fl)}</span></td>
+      <td><span class="mono">${escapeHtml(c.effectiveFl)}</span></td>
+      <td><span class="mono">${escapeHtml(c.fov)}</span></td>
+      <td><span class="mono">${escapeHtml(c.scale)}</span></td>
+      <td>${escapeHtml(c.bestFor)}</td>
+    </tr>
+  `).join('');
+}
+
 const defaultData = {
   rigName: 'Zuko',
   homeSite: { ...HOME_SITE },
@@ -5400,11 +5660,13 @@ const defaultData = {
     {
       name: 'Veil Nebula — Full Complex',
       status: 'planning',
+      startDate: '',
+      endDate: '',
       target: 'Cygnus Loop — NGC 6960 (Western Veil) + Pickering\'s Triangle + NGC 6992/6995 (Eastern Veil)',
-      frameMode: 'Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)',
+      frameMode: 'Reducer + Bin2 · 280mm f/3.9',
+      imagingConfig: 'reducer-bin2',
       centerCoords: 'RA 20h51m27s  Dec +31°07\'28"',
-      anchorStar: 'HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54\'45"',
-      rotation: 'TBD — verify on first test frame; align complex\'s ~3° long axis with sensor\'s 3.93° axis',
+      rotation: '0°',
       notes: 'Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site. Re-shoot flats if rotation changes.',
       filterTargets: [
         { filter: 'Ha', location: 'NYCRoof', bortle: '9', targetHrs: 4, loggedHrs: 0 },
@@ -8037,6 +8299,7 @@ function renderUnsafe() {
     const name = (data.rigName && String(data.rigName).trim()) || 'Zuko';
     rigEl.textContent = name + ' Astrophotography Dashboard';
   }
+  renderImagingConfigsTable();
 
   renderProjects();
   renderForecastFrame();
@@ -8076,6 +8339,331 @@ const nightPipelineDetailOpen = new Set();
 const shootLogSort = {};
 /** Per-filter channel night sort: key `${pi}:${tone}` → { key, dir }. */
 const pipelineChannelSort = {};
+
+/** FLIP rects keyed by project name (set before reorder re-render). */
+let pendingProjectFlip = null;
+/** Active pointer-lift reorder: { from, card, placeholder, grabX, grabY, pointerId } */
+let projectLift = null;
+
+function shootDateToISO(raw) {
+  const n = String(raw || '').replace(/\D/g, '');
+  if (n.length === 8) {
+    return `${n.slice(0, 4)}-${n.slice(4, 6)}-${n.slice(6, 8)}`;
+  }
+  if (n.length === 6) {
+    const yy = parseInt(n.slice(0, 2), 10);
+    if (!Number.isFinite(yy)) return '';
+    const year = 2000 + yy;
+    return `${year}-${n.slice(2, 4)}-${n.slice(4, 6)}`;
+  }
+  return '';
+}
+
+function projectShootISOBounds(project) {
+  const isos = [];
+  for (const sh of (project && project.shoots) || []) {
+    const iso = shootDateToISO(sh && sh.date);
+    if (iso) isos.push(iso);
+  }
+  if (!isos.length) return { first: '', last: '' };
+  isos.sort();
+  return { first: isos[0], last: isos[isos.length - 1] };
+}
+
+/**
+ * Shoot-window dates from the shot log (unless manually overridden).
+ * - Start: earliest shoot date
+ * - End: cleared while Imaging/planning; set to latest shoot when leaving Imaging → Processing/complete
+ */
+function syncProjectShootDates(project, opts = {}) {
+  if (!project) return;
+  if (project.startDateManual == null) project.startDateManual = false;
+  if (project.endDateManual == null) project.endDateManual = false;
+  const { first, last } = projectShootISOBounds(project);
+  const prevStatus = opts.prevStatus;
+  const nextStatus = opts.nextStatus != null ? opts.nextStatus : project.status;
+  const imagingLike = nextStatus === 'active' || nextStatus === 'planning';
+  const wasImagingLike = prevStatus === 'active' || prevStatus === 'planning';
+
+  if (!project.startDateManual) {
+    project.startDate = first || '';
+  }
+
+  if (!project.endDateManual) {
+    if (imagingLike) {
+      project.endDate = '';
+    } else if (prevStatus != null && wasImagingLike && !imagingLike) {
+      project.endDate = last || '';
+    } else if (!project.endDate) {
+      project.endDate = last || '';
+    }
+  }
+}
+
+function remapIndexAfterMove(from, to, index) {
+  if (index === from) return to;
+  if (from < to) {
+    if (index > from && index <= to) return index - 1;
+  } else if (from > to) {
+    if (index >= to && index < from) return index + 1;
+  }
+  return index;
+}
+
+function remapIndexSet(set, from, to) {
+  const next = new Set();
+  for (const i of set) next.add(remapIndexAfterMove(from, to, Number(i)));
+  return next;
+}
+
+function remapPiPrefixedKeys(collection, from, to) {
+  const isSet = collection instanceof Set;
+  const entries = isSet
+    ? [...collection].map((k) => [k, true])
+    : Object.entries(collection);
+  if (isSet) collection.clear();
+  else Object.keys(collection).forEach((k) => { delete collection[k]; });
+  entries.forEach(([key, val]) => {
+    const parts = String(key).split(':');
+    const ni = remapIndexAfterMove(from, to, Number(parts[0]));
+    const nextKey = [ni, ...parts.slice(1)].join(':');
+    if (isSet) collection.add(nextKey);
+    else collection[nextKey] = val;
+  });
+}
+
+function remapIndexKeyedObject(obj, from, to) {
+  const old = { ...obj };
+  Object.keys(obj).forEach((k) => { delete obj[k]; });
+  Object.keys(old).forEach((k) => {
+    obj[remapIndexAfterMove(from, to, Number(k))] = old[k];
+  });
+}
+
+function formatProjectDateShort(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(String(iso))) return '';
+  const dt = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(dt.getTime())) return '';
+  const opts = { month: 'short', day: 'numeric' };
+  if (dt.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+  return dt.toLocaleDateString(undefined, opts);
+}
+
+/** Compact header range: omit when empty; same day → one date; arrow for open-ended. */
+function formatProjectDateRange(start, end) {
+  const s = formatProjectDateShort(start);
+  const e = formatProjectDateShort(end);
+  if (!s && !e) return '';
+  if (s && e) {
+    if (String(start) === String(end)) return s;
+    return `${s} – ${e}`;
+  }
+  if (s) return `${s} →`;
+  return `→ ${e}`;
+}
+
+function projectDatesTitle(start, end) {
+  const s = formatProjectDateShort(start);
+  const e = formatProjectDateShort(end);
+  if (!s && !e) return 'No dates set';
+  if (s && e) {
+    if (String(start) === String(end)) return s;
+    return `Start ${s} · End ${e}`;
+  }
+  if (s) return `Started ${s} (ongoing)`;
+  return `Ends ${e}`;
+}
+
+function clearProjectDragIndicators() {
+  document.querySelectorAll('.project-card.project-card-lifted')
+    .forEach((el) => {
+      el.classList.remove('project-card-lifted');
+      el.style.left = '';
+      el.style.top = '';
+      el.style.width = '';
+      el.style.transform = '';
+      el.style.zIndex = '';
+      el.style.pointerEvents = '';
+      el.style.margin = '';
+      el.style.position = '';
+    });
+  document.querySelectorAll('.project-card-placeholder').forEach((el) => el.remove());
+  const container = document.getElementById('projects-container');
+  if (container) container.classList.remove('is-reordering');
+}
+
+function onProjectHandlePointerDown(e, pi) {
+  if (e.button != null && e.button !== 0) return;
+  if (projectLift) return;
+  const handle = e.currentTarget;
+  const card = handle.closest('.project-card');
+  const container = document.getElementById('projects-container');
+  if (!card || !container) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  const rect = card.getBoundingClientRect();
+  const placeholder = document.createElement('div');
+  placeholder.className = 'project-card-placeholder';
+  placeholder.style.height = `${rect.height}px`;
+  container.insertBefore(placeholder, card);
+
+  card.classList.add('project-card-lifted');
+  card.style.width = `${rect.width}px`;
+  card.style.left = `${rect.left}px`;
+  card.style.top = `${rect.top}px`;
+  document.body.appendChild(card);
+  container.classList.add('is-reordering');
+
+  projectLift = {
+    from: pi,
+    card,
+    placeholder,
+    grabX: e.clientX - rect.left,
+    grabY: e.clientY - rect.top,
+    pointerId: e.pointerId,
+  };
+
+  try { handle.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+  window.addEventListener('pointermove', onProjectLiftMove);
+  window.addEventListener('pointerup', onProjectLiftEnd);
+  window.addEventListener('pointercancel', onProjectLiftEnd);
+}
+
+function onProjectLiftMove(e) {
+  if (!projectLift) return;
+  const { card, placeholder, grabX, grabY } = projectLift;
+  card.style.left = `${e.clientX - grabX}px`;
+  card.style.top = `${e.clientY - grabY}px`;
+
+  const container = document.getElementById('projects-container');
+  if (!container) return;
+  const others = Array.from(container.querySelectorAll('.project-card:not(.project-card-lifted)'));
+  let placed = false;
+  for (const other of others) {
+    const r = other.getBoundingClientRect();
+    if (e.clientY < r.top + r.height / 2) {
+      if (placeholder.nextSibling !== other) container.insertBefore(placeholder, other);
+      placed = true;
+      break;
+    }
+  }
+  if (!placed && placeholder.parentNode === container) {
+    container.appendChild(placeholder);
+  }
+}
+
+function projectLiftDropIndex() {
+  if (!projectLift) return null;
+  const { placeholder, from } = projectLift;
+  const container = document.getElementById('projects-container');
+  if (!container || !placeholder.parentNode) return from;
+  let to = 0;
+  for (const el of container.children) {
+    if (el === placeholder) break;
+    if (el.classList.contains('project-card')) to += 1;
+  }
+  return to;
+}
+
+function onProjectLiftEnd() {
+  if (!projectLift) return;
+  const { from, card, placeholder, pointerId } = projectLift;
+  const to = projectLiftDropIndex();
+  window.removeEventListener('pointermove', onProjectLiftMove);
+  window.removeEventListener('pointerup', onProjectLiftEnd);
+  window.removeEventListener('pointercancel', onProjectLiftEnd);
+  try {
+    const handle = card.querySelector('.project-drag-handle');
+    if (handle && pointerId != null) handle.releasePointerCapture(pointerId);
+  } catch (_) { /* ignore */ }
+
+  projectLift = null;
+  if (placeholder && placeholder.parentNode) placeholder.remove();
+  if (card && card.parentNode) card.remove();
+  const container = document.getElementById('projects-container');
+  if (container) container.classList.remove('is-reordering');
+  // Lifted card (and its Aladin host) was detached — drop stale viewer refs before re-render.
+  Object.keys(framerInstances).forEach((key) => {
+    const pi = Number(key);
+    const host = document.getElementById(`aladin-framer-${pi}`);
+    if (!host || !host.isConnected) delete framerInstances[pi];
+  });
+
+  if (to == null || to === from) {
+    save();
+    return;
+  }
+  moveProject(from, to);
+}
+
+function captureProjectFlip() {
+  const map = new Map();
+  document.querySelectorAll('#projects-container .project-card').forEach((card) => {
+    const name = card.getAttribute('data-project-name');
+    if (name != null) map.set(name, card.getBoundingClientRect());
+  });
+  pendingProjectFlip = map;
+}
+
+function playProjectFlip() {
+  if (!pendingProjectFlip || !pendingProjectFlip.size) {
+    pendingProjectFlip = null;
+    return;
+  }
+  const first = pendingProjectFlip;
+  pendingProjectFlip = null;
+  const cards = Array.from(document.querySelectorAll('#projects-container .project-card'));
+  cards.forEach((card) => {
+    const name = card.getAttribute('data-project-name');
+    const f = first.get(name);
+    if (!f) return;
+    const last = card.getBoundingClientRect();
+    const dy = f.top - last.top;
+    if (Math.abs(dy) < 0.5) return;
+    card.style.transition = 'none';
+    card.style.transform = `translateY(${dy}px)`;
+  });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      cards.forEach((card) => {
+        card.style.transition = 'transform 320ms cubic-bezier(0.22, 1, 0.36, 1)';
+        card.style.transform = '';
+      });
+      setTimeout(() => {
+        cards.forEach((card) => {
+          card.style.transition = '';
+          card.style.transform = '';
+        });
+      }, 360);
+    });
+  });
+}
+
+function moveProject(from, to) {
+  if (from === to || from < 0 || to < 0 || from >= data.projects.length || to >= data.projects.length) return;
+  captureProjectFlip();
+  const [project] = data.projects.splice(from, 1);
+  data.projects.splice(to, 0, project);
+  openProjects = remapIndexSet(openProjects, from, to);
+  const nextShootLog = remapIndexSet(shootLogCollapsed, from, to);
+  shootLogCollapsed.clear();
+  nextShootLog.forEach((i) => shootLogCollapsed.add(i));
+  const nextClosed = remapIndexSet(closedFramers, from, to);
+  closedFramers.clear();
+  nextClosed.forEach((i) => closedFramers.add(i));
+  const nextUnlocked = remapIndexSet(unlockedFramers, from, to);
+  unlockedFramers.clear();
+  nextUnlocked.forEach((i) => unlockedFramers.add(i));
+  remapIndexKeyedObject(framerInstances, from, to);
+  remapIndexKeyedObject(framerBaselines, from, to);
+  remapPiPrefixedKeys(nightPipelineDetailOpen, from, to);
+  remapPiPrefixedKeys(pipelineChannelSort, from, to);
+  if (shootLogSort && typeof shootLogSort === 'object') {
+    remapIndexKeyedObject(shootLogSort, from, to);
+  }
+  save();
+}
 
 function toggleShootLog(pi) {
   if (shootLogCollapsed.has(pi)) shootLogCollapsed.delete(pi);
@@ -8375,6 +8963,7 @@ function restoreLiveFramers(bag) {
       const btn = document.getElementById(`framer-lock-btn-${pi}`);
       if (overlay) overlay.style.display = unlockedFramers.has(pi) ? 'none' : 'flex';
       if (btn) btn.textContent = unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked';
+      syncFramerRotationControls(pi);
     } else {
       delete framerInstances[pi];
     }
@@ -8399,9 +8988,22 @@ function renderProjects() {
     if (p.savedTarget === undefined) p.savedTarget = null;
     if (p.framerMode === undefined) p.framerMode = 'reducer';
     if (p.framerRotation === undefined) p.framerRotation = 0;
+    if (!p.imagingConfig || !getImagingConfig(p.imagingConfig)) {
+      applyImagingConfigToProject(p, inferImagingConfigId(p.frameMode, p.framerMode));
+    } else {
+      p.frameMode = formatImagingConfigSummary(getImagingConfig(p.imagingConfig));
+    }
     if (!Array.isArray(p.ignoredAsiairFolders)) p.ignoredAsiairFolders = [];
     if (!Array.isArray(p.asiairBoundFolders)) p.asiairBoundFolders = [];
     if (p.projectDir === undefined) p.projectDir = '';
+    if (p.startDate === undefined || p.startDate == null) p.startDate = '';
+    if (p.endDate === undefined || p.endDate == null) p.endDate = '';
+    if (p.startDateManual == null) p.startDateManual = false;
+    if (p.endDateManual == null) p.endDateManual = false;
+    if (p.framerRotation == null || p.framerRotation === '') p.framerRotation = 0;
+    p.rotation = `${Number(p.framerRotation) || 0}°`;
+    if (Object.prototype.hasOwnProperty.call(p, 'anchorStar')) delete p.anchorStar;
+    syncProjectShootDates(p);
     p.filterTargets.forEach(f => {
       if (f.bortle === undefined) f.bortle = '';
       if (f.stackMeta === undefined) f.stackMeta = null;
@@ -8428,9 +9030,13 @@ function renderProjects() {
     const totalPending = p.shoots.filter(sh => !sh.complete).reduce((s, sh) => s + (sh.hours || 0), 0);
     const doneSteps = p.checklist.filter(s => s.done).length;
     const isOpen = openProjects.has(pi);
+    const dateRange = formatProjectDateRange(p.startDate, p.endDate);
     return `
     <div class="project-card ${isOpen ? 'open' : ''}" data-idx="${pi}" data-testid="project-card" data-project-name="${escapeAttr(p.name || '')}">
       <div class="project-header" onclick="toggleProjectCard(this, ${pi})">
+        <span class="project-drag-handle" title="Drag to reorder"
+          onclick="event.stopPropagation()"
+          onpointerdown="onProjectHandlePointerDown(event, ${pi})">⠿</span>
         <select class="project-status-select status-${p.status}" onclick="event.stopPropagation()" onchange="updateProjectStatus(${pi}, this.value)">
           <option value="planning" ${p.status === 'planning' ? 'selected' : ''}>planning</option>
           <option value="active" ${p.status === 'active' ? 'selected' : ''}>Imaging</option>
@@ -8438,19 +9044,50 @@ function renderProjects() {
           <option value="complete" ${p.status === 'complete' ? 'selected' : ''}>complete</option>
         </select>
         <span class="project-name" title="Click to expand / collapse">${p.name}</span>
-        <span class="project-progress">${totalLogged.toFixed(1)}h / ${totalTarget.toFixed(1)}h · ${doneSteps}/${p.checklist.length} steps</span>
+        <span class="project-progress">
+          <span class="project-dates ${dateRange ? '' : 'is-empty'}" id="project-dates-label-${pi}" title="${escapeAttr(projectDatesTitle(p.startDate, p.endDate))}">${dateRange}</span>
+          <span class="project-meta-sep project-dates-sep ${dateRange ? '' : 'is-empty'}" aria-hidden="true">·</span>
+          <span>${totalLogged.toFixed(1)}h / ${totalTarget.toFixed(1)}h</span>
+          <span class="project-meta-sep" aria-hidden="true">·</span>
+          <span>${doneSteps}/${p.checklist.length} checklist</span>
+        </span>
         <span class="project-chevron" data-testid="project-expand">▶</span>
         <button class="project-remove" onclick="event.stopPropagation(); removeProject(${pi})" title="Remove project">✕</button>
       </div>
       <div class="project-body">
         <div class="project-meta-grid">
-          <div><div class="pm-label">Target</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.target}</div></div>
-          <div><div class="pm-label">Frame / Mode</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.frameMode}</div></div>
-          <div><div class="pm-label">Center Coords</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.centerCoords}</div></div>
-          <div><div class="pm-label">Anchor Star</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.anchorStar}</div></div>
-          <div><div class="pm-label">Rotation</div><div class="pm-val editable" onclick="editProjectMeta(${pi})">${p.rotation}</div></div>
-          <div><div class="pm-label">Project directory</div><div class="pm-val pm-path editable" onclick="editProjectMeta(${pi})" title="${p.projectDir ? escapeAttr(p.projectDir) : 'ASIAIR Autorun/Plan parent folder'}">${p.projectDir ? escapeHtml(shortPath(p.projectDir)) : '<span style="color:var(--yellow);">Not set — edit project</span>'}</div></div>
-          <div><div class="pm-label">Total Integration</div><div class="pm-val"><span class="mono">${totalLogged.toFixed(1)}h</span> completed${totalPending > 0 ? ` · <span class="mono" style="color:var(--yellow);">${totalPending.toFixed(1)}h</span> scheduled` : ''} · <span class="mono">${totalTarget.toFixed(1)}h</span> target</div></div>
+          <div class="pm-field pm-span-2">
+            <div class="pm-label">Target</div>
+            <div class="pm-val pm-wrap editable" onclick="editProjectMeta(${pi})">${p.target || '—'}</div>
+          </div>
+          <div class="pm-field">
+            <div class="pm-label">Center</div>
+            <div class="pm-val pm-mono pm-wrap editable" id="project-center-coords-${pi}" onclick="editProjectMeta(${pi})">${p.centerCoords || '—'}</div>
+          </div>
+          <div class="pm-field">
+            <div class="pm-label">Rotation</div>
+            <div class="pm-val pm-mono" id="project-rotation-${pi}">${Number(p.framerRotation) || 0}°</div>
+          </div>
+          <div class="pm-field pm-span-2">
+            <div class="pm-label">Imaging configuration</div>
+            <div class="pm-val pm-mono pm-wrap editable" id="project-imaging-config-${pi}" onclick="editProjectMeta(${pi})" title="Click to edit imaging configuration">${escapeHtml(formatImagingConfigDetail(getImagingConfig(p.imagingConfig)))}</div>
+          </div>
+          <div class="pm-field">
+            <div class="pm-label">Shoot start${p.startDateManual ? ' · manual' : ''}</div>
+            <div class="pm-val"><input type="date" class="project-date-input" value="${escapeAttr(p.startDate || '')}" onchange="updateProjectDate(${pi}, 'startDate', this.value)" aria-label="Start date" title="Auto from first shot log — edit to override; clear to resume auto"></div>
+          </div>
+          <div class="pm-field">
+            <div class="pm-label">Shoot end${p.endDateManual ? ' · manual' : ''}</div>
+            <div class="pm-val"><input type="date" class="project-date-input" value="${escapeAttr(p.endDate || '')}" onchange="updateProjectDate(${pi}, 'endDate', this.value)" aria-label="End date" title="Set from last shot when leaving Imaging — edit to override; clear to resume auto"></div>
+          </div>
+          <div class="pm-field pm-span-4">
+            <div class="pm-label">Integration</div>
+            <div class="pm-val pm-wrap"><span class="mono">${totalLogged.toFixed(1)}h</span> completed${totalPending > 0 ? ` · <span class="mono" style="color:var(--yellow);">${totalPending.toFixed(1)}h</span> scheduled` : ''} · <span class="mono">${totalTarget.toFixed(1)}h</span> target</div>
+          </div>
+          <div class="pm-field pm-span-4">
+            <div class="pm-label">Project directory</div>
+            <div class="pm-val pm-path editable" onclick="editProjectMeta(${pi})" title="${p.projectDir ? escapeAttr(p.projectDir) : 'ASIAIR Autorun/Plan parent folder'}">${p.projectDir ? escapeHtml(p.projectDir) : '<span style="color:var(--yellow);">Not set — edit project</span>'}</div>
+          </div>
         </div>
         ${p.notes ? `<div class="project-notes-text editable" onclick="editProjectMeta(${pi})" title="Click to edit">${p.notes}</div>` : ''}
 
@@ -8473,16 +9110,22 @@ function renderProjects() {
           <summary><span class="sec-chevron">▶</span> Target Framer — ${p.savedTarget.name}</summary>
           <div style="padding: 4px 16px 16px;">
             <div class="gaia-inputs" style="align-items:center;">
-              <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'framerMode', this.value)" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;">
-                <option value="reducer" ${(p.framerMode || 'reducer') === 'reducer' ? 'selected' : ''}>Reducer 280mm — 3.91°×2.66°</option>
-                <option value="native" ${p.framerMode === 'native' ? 'selected' : ''}>Native 400mm — 2.74°×1.86°</option>
+              <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'imagingConfig', this.value)"
+                ${unlockedFramers.has(pi) ? '' : 'disabled'}
+                title="${unlockedFramers.has(pi) ? 'Imaging configuration' : 'Unlock the framer to change configuration'}"
+                style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;max-width:min(100%,280px);${!unlockedFramers.has(pi) ? 'opacity:0.45;' : ''}">
+                ${IMAGING_CONFIGS.map((c) => `<option value="${c.id}" ${(p.imagingConfig || 'reducer-bin2') === c.id ? 'selected' : ''}>${escapeAttr(formatImagingConfigSummary(c))} · ${escapeAttr(c.fov)}</option>`).join('')}
               </select>
               <label style="font-family:var(--mono);font-size:10px;color:var(--gray);">Rotation: <span id="framer-rot-val-${pi}">${p.framerRotation || 0}</span>°</label>
-              <input type="range" min="0" max="180" step="1" value="${p.framerRotation || 0}"
+              <input type="range" id="framer-rot-slider-${pi}" min="0" max="180" step="1" value="${p.framerRotation || 0}"
+                ${unlockedFramers.has(pi) ? '' : 'disabled'}
+                title="${unlockedFramers.has(pi) ? 'Camera rotation' : 'Unlock the framer to change rotation'}"
+                style="width:160px;${!unlockedFramers.has(pi) ? 'opacity:0.45;pointer-events:none;' : ''}"
                 oninput="document.getElementById('framer-rot-val-${pi}').textContent = this.value; liveRotateFramer(${pi}, this.value)"
-                onchange="updateFramerSetting(${pi}, 'framerRotation', parseInt(this.value, 10))" style="width:160px;">
+                onchange="updateFramerSetting(${pi}, 'framerRotation', parseInt(this.value, 10))">
               <button class="mini-btn" id="framer-lock-btn-${pi}" style="margin-top:0" onclick="toggleFramerLock(${pi})">${unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked'}</button>
-              <button class="mini-btn" style="margin-top:0" onclick="moveFramerToView(${pi})" title="Pan the sky view where you want, then click — footprint and project center coords move there">📍 Set center to current view</button>
+              <button class="mini-btn" id="framer-revert-btn-${pi}" style="margin-top:0" onclick="revertFramerChanges(${pi})" title="Revert center / rotation / mode to last saved" disabled>Revert</button>
+              <button class="mini-btn" id="framer-center-btn-${pi}" style="margin-top:0" onclick="moveFramerToView(${pi})" title="Pan the sky view where you want, then click — footprint and project center coords move there">📍 Set center to current view</button>
               <button class="mini-btn" style="margin-top:0" onclick="clearProjectTarget(${pi})">Clear saved target</button>
             </div>
             <div style="position:relative;">
@@ -8497,7 +9140,7 @@ function renderProjects() {
         ) : ''}
 
         <div class="shoot-box">
-          <div class="pm-label">Steps</div>
+          <div class="pm-label">Checklist</div>
           <div class="proj-checklist">
             ${p.checklist.map((s, si) => `
               <div class="proj-step ${s.done ? 'done' : ''}" onclick="toggleProjectStep(${pi},${si})">
@@ -8506,7 +9149,7 @@ function renderProjects() {
                 <button class="proj-step-remove" onclick="event.stopPropagation(); removeProjectStep(${pi},${si})">✕</button>
               </div>`).join('')}
           </div>
-          <button class="mini-btn" onclick="addProjectStep(${pi})">+ Add Step</button>
+          <button class="mini-btn" onclick="addProjectStep(${pi})">+ Add checklist item</button>
         </div>
 
         <div class="shoot-box">
@@ -8582,20 +9225,118 @@ function renderProjects() {
   setTimeout(() => {
     data.projects.forEach((p, pi) => {
       if (!openProjects.has(pi) || !p.savedTarget || closedFramers.has(pi)) return;
-      if (framerInstances[pi]) return;
+      if (framerInstances[pi]) {
+        try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+        syncFramerRotationControls(pi);
+        return;
+      }
       initFramer(pi);
     });
   }, 50);
+  playProjectFlip();
 }
 
 // ============ TARGET FRAMER (Aladin Lite + FOV footprint) ============
 const framerInstances = {};
 const closedFramers = new Set();
 const unlockedFramers = new Set(); // framer interaction defaults to locked
-function toggleFramerLock(pi) {
+/** Last committed framer state per project index (center / rotation / mode). */
+const framerBaselines = {};
+let framerLockPromptPi = null;
+
+function getFramerEditableState(pi) {
+  const p = data.projects[pi];
+  if (!p || !p.savedTarget) return null;
+  return {
+    ra: Number(p.savedTarget.ra),
+    dec: Number(p.savedTarget.dec),
+    centerCoords: p.centerCoords || '',
+    framerRotation: Number(p.framerRotation) || 0,
+    framerMode: p.framerMode || 'reducer',
+    imagingConfig: p.imagingConfig || '',
+    frameMode: p.frameMode || '',
+  };
+}
+
+function captureFramerBaseline(pi) {
+  const state = getFramerEditableState(pi);
+  if (state) framerBaselines[pi] = state;
+}
+
+function framerStateDirty(pi) {
+  const base = framerBaselines[pi];
+  const cur = getFramerEditableState(pi);
+  if (!base || !cur) return false;
+  const near = (a, b) => Math.abs(Number(a) - Number(b)) < 1e-6;
+  return !(
+    near(base.ra, cur.ra)
+    && near(base.dec, cur.dec)
+    && base.centerCoords === cur.centerCoords
+    && base.framerRotation === cur.framerRotation
+    && base.framerMode === cur.framerMode
+    && base.imagingConfig === cur.imagingConfig
+  );
+}
+
+function applyFramerEditableState(pi, state) {
+  const p = data.projects[pi];
+  if (!p || !state || !p.savedTarget) return;
+  p.savedTarget.ra = state.ra;
+  p.savedTarget.dec = state.dec;
+  p.centerCoords = state.centerCoords;
+  p.framerRotation = state.framerRotation;
+  p.rotation = `${state.framerRotation}°`;
+  if (state.imagingConfig && getImagingConfig(state.imagingConfig)) {
+    applyImagingConfigToProject(p, state.imagingConfig);
+  } else {
+    p.framerMode = state.framerMode || 'reducer';
+    p.frameMode = state.frameMode || p.frameMode;
+  }
+  const inst = framerInstances[pi];
+  if (inst) {
+    delete inst.liveRotation;
+    try {
+      if (inst.aladin && typeof inst.aladin.gotoRaDec === 'function') {
+        inst.aladin.gotoRaDec(state.ra, state.dec);
+      }
+    } catch (e) { /* ignore */ }
+    try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+    syncFramerViewZoom(pi);
+  }
+  const rotVal = document.getElementById(`framer-rot-val-${pi}`);
+  if (rotVal) rotVal.textContent = String(state.framerRotation);
+  const slider = document.getElementById(`framer-rot-slider-${pi}`);
+  if (slider) slider.value = String(state.framerRotation);
+  const modeEl = document.getElementById(`framer-mode-${pi}`);
+  if (modeEl) modeEl.value = p.imagingConfig || 'reducer-bin2';
+  const rotEl = document.getElementById(`project-rotation-${pi}`);
+  if (rotEl) rotEl.textContent = `${state.framerRotation}°`;
+  const centerEl = document.getElementById(`project-center-coords-${pi}`);
+  if (centerEl) centerEl.textContent = p.centerCoords;
+  syncProjectImagingConfigDisplay(pi);
+}
+
+function syncFramerDirtyUi(pi) {
+  const dirty = unlockedFramers.has(pi) && framerStateDirty(pi);
+  const revertBtn = document.getElementById(`framer-revert-btn-${pi}`);
+  if (revertBtn) {
+    revertBtn.disabled = !dirty;
+    revertBtn.title = dirty
+      ? 'Revert center / rotation / mode to last saved'
+      : 'No unsaved framer changes';
+  }
+  const lockBtn = document.getElementById(`framer-lock-btn-${pi}`);
+  if (lockBtn && unlockedFramers.has(pi)) {
+    lockBtn.innerHTML = dirty
+      ? '<span class="framer-dirty-dot" aria-hidden="true"></span>🔓 Interactive'
+      : '🔓 Interactive';
+  }
+}
+
+function setFramerLocked(pi, locked) {
   const overlay = document.getElementById(`framer-lock-overlay-${pi}`);
   const btn = document.getElementById(`framer-lock-btn-${pi}`);
-  if (unlockedFramers.has(pi)) {
+  if (locked) {
     unlockedFramers.delete(pi);
     if (overlay) overlay.style.display = 'flex';
     if (btn) btn.textContent = '🔒 Locked';
@@ -8604,6 +9345,93 @@ function toggleFramerLock(pi) {
     if (overlay) overlay.style.display = 'none';
     if (btn) btn.textContent = '🔓 Interactive';
   }
+  syncFramerRotationControls(pi);
+  syncFramerDirtyUi(pi);
+}
+
+function toggleFramerLock(pi) {
+  if (unlockedFramers.has(pi)) {
+    // Locking — prompt if the edit session has unsaved deltas vs baseline.
+    if (framerStateDirty(pi)) {
+      openFramerLockPrompt(pi);
+      return;
+    }
+    captureFramerBaseline(pi);
+    setFramerLocked(pi, true);
+    return;
+  }
+  captureFramerBaseline(pi);
+  setFramerLocked(pi, false);
+}
+
+function openFramerLockPrompt(pi) {
+  framerLockPromptPi = pi;
+  const body = document.getElementById('framer-lock-prompt-body');
+  if (body) {
+    body.textContent = 'Center, rotation, or optical mode changed since unlock. Save to keep them, or revert to the previous framing.';
+  }
+  const el = document.getElementById('framer-lock-prompt-overlay');
+  if (el) el.classList.add('open');
+  syncBodyScrollLock();
+}
+
+function cancelFramerLockPrompt() {
+  framerLockPromptPi = null;
+  const el = document.getElementById('framer-lock-prompt-overlay');
+  if (el) el.classList.remove('open');
+  syncBodyScrollLock();
+}
+
+function decideFramerLockPrompt(action) {
+  const pi = framerLockPromptPi;
+  cancelFramerLockPrompt();
+  if (pi == null || !data.projects[pi]) return;
+  if (action === 'revert') {
+    if (framerBaselines[pi]) applyFramerEditableState(pi, framerBaselines[pi]);
+    persistData();
+  } else if (action === 'save') {
+    captureFramerBaseline(pi);
+    persistData();
+  }
+  setFramerLocked(pi, true);
+}
+
+function revertFramerChanges(pi) {
+  if (!unlockedFramers.has(pi)) return;
+  if (!framerBaselines[pi]) captureFramerBaseline(pi);
+  if (!framerStateDirty(pi)) {
+    syncFramerDirtyUi(pi);
+    return;
+  }
+  applyFramerEditableState(pi, framerBaselines[pi]);
+  persistData();
+  syncFramerDirtyUi(pi);
+}
+
+function syncFramerRotationControls(pi) {
+  const locked = !unlockedFramers.has(pi);
+  const slider = document.getElementById(`framer-rot-slider-${pi}`);
+  if (slider) {
+    slider.disabled = locked;
+    slider.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    slider.style.opacity = locked ? '0.45' : '';
+    slider.style.pointerEvents = locked ? 'none' : '';
+    slider.title = locked ? 'Unlock the framer to change rotation' : 'Camera rotation';
+  }
+  const modeEl = document.getElementById(`framer-mode-${pi}`);
+  if (modeEl) {
+    modeEl.disabled = locked;
+    modeEl.style.opacity = locked ? '0.45' : '';
+    modeEl.title = locked ? 'Unlock the framer to change configuration' : 'Imaging configuration';
+  }
+  // Set center stays enabled when locked — pan + click without unlocking Interactive.
+  const centerBtn = document.getElementById(`framer-center-btn-${pi}`);
+  if (centerBtn) {
+    centerBtn.disabled = false;
+    centerBtn.removeAttribute('disabled');
+    centerBtn.title = 'Pan the sky view where you want, then click — footprint and project center coords move there';
+  }
+  syncFramerDirtyUi(pi);
 }
 const FOV_MODES = {
   reducer: { w: 3.91, h: 2.66, label: 'Reducer 280mm' },
@@ -8682,7 +9510,7 @@ function drawFramerFootprint(pi) {
   }
 
   if (typeof overlay.reportChange === 'function') overlay.reportChange();
-  else if (inst.aladin.view && typeof inst.aladin.view.requestRedraw === 'function') {
+  if (inst.aladin.view && typeof inst.aladin.view.requestRedraw === 'function') {
     inst.aladin.view.requestRedraw();
   }
 }
@@ -8808,6 +9636,7 @@ function initFramer(pi) {
     framerInstances[pi] = { aladin, overlay };
     drawFramerFootprint(pi);
     syncFramerViewZoom(pi);
+    syncFramerRotationControls(pi);
   }).catch((err) => {
     console.error('Aladin load failed:', err);
     const host = document.getElementById(`aladin-framer-${pi}`);
@@ -8834,37 +9663,94 @@ function persistData() {
 }
 
 function liveRotateFramer(pi, deg) {
-  const rot = parseInt(deg, 10);
-  if (data.projects[pi]) data.projects[pi].framerRotation = rot;
+  if (!unlockedFramers.has(pi)) return;
+  const rot = parseInt(deg, 10) || 0;
+  if (data.projects[pi]) {
+    data.projects[pi].framerRotation = rot;
+    data.projects[pi].rotation = `${rot}°`;
+  }
   const inst = framerInstances[pi];
   if (!inst) return;
   inst.liveRotation = rot;
   drawFramerFootprint(pi);
+  const rotEl = document.getElementById(`project-rotation-${pi}`);
+  if (rotEl) rotEl.textContent = `${rot}°`;
+  syncFramerDirtyUi(pi);
   // Keep view FOV fixed while dragging so the rectangle/arrow clearly rotate in place.
+}
+
+function syncProjectImagingConfigDisplay(pi) {
+  const p = data.projects[pi];
+  const el = document.getElementById(`project-imaging-config-${pi}`);
+  if (!el || !p) return;
+  el.textContent = formatImagingConfigDetail(getImagingConfig(p.imagingConfig));
 }
 
 function moveFramerToView(pi) {
   const inst = framerInstances[pi];
   if (!inst || !inst.aladin) return;
-  const [ra, dec] = inst.aladin.getRaDec();
   const p = data.projects[pi];
+  if (!p || !p.savedTarget) return;
+  // Ensure a baseline exists so center moves count as dirty while Interactive.
+  if (unlockedFramers.has(pi) && !framerBaselines[pi]) captureFramerBaseline(pi);
+  const [ra, dec] = inst.aladin.getRaDec();
   p.savedTarget.ra = ra;
   p.savedTarget.dec = dec;
   p.centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
+  try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
+  const centerEl = document.getElementById(`project-center-coords-${pi}`);
+  if (centerEl) centerEl.textContent = p.centerCoords;
+  // Persist without tearing down Aladin (full save skipped footprint redraw for live viewers).
+  persistData();
+  if (unlockedFramers.has(pi)) syncFramerDirtyUi(pi);
+  else captureFramerBaseline(pi);
+}
+
+function updateProjectImagingConfig(pi, configId) {
+  const p = data.projects[pi];
+  if (!p) return;
+  const cfg = applyImagingConfigToProject(p, configId);
+  syncProjectImagingConfigDisplay(pi);
+  const inst = framerInstances[pi];
+  if (inst) {
+    delete inst.liveRotation;
+    drawFramerFootprint(pi);
+    syncFramerViewZoom(pi);
+    const modeEl = document.getElementById(`framer-mode-${pi}`);
+    if (modeEl) modeEl.value = cfg.id;
+    persistData();
+    syncFramerDirtyUi(pi);
+    return;
+  }
   save();
 }
 
 function updateFramerSetting(pi, key, value) {
-  data.projects[pi][key] = value;
+  if (key === 'framerRotation' && !unlockedFramers.has(pi)) return;
+  if ((key === 'framerMode' || key === 'imagingConfig') && !unlockedFramers.has(pi)) return;
+  const p = data.projects[pi];
+  if (!p) return;
   if (key === 'framerRotation') {
-    data.projects[pi].rotation = `${value}° (set via framer)`;
-  }
-  if (key === 'framerMode') {
-    const labels = {
-      reducer: 'Reducer 280mm f/3.9 — 3.91°×2.66° (set via framer)',
-      native: 'Native 400mm f/5.6 — 2.74°×1.86° (set via framer)'
-    };
-    data.projects[pi].frameMode = labels[value] || value;
+    p.framerRotation = value;
+    p.rotation = `${value}°`;
+    const rotEl = document.getElementById(`project-rotation-${pi}`);
+    if (rotEl) rotEl.textContent = `${value}°`;
+  } else if (key === 'imagingConfig') {
+    applyImagingConfigToProject(p, value);
+    syncProjectImagingConfigDisplay(pi);
+  } else if (key === 'framerMode') {
+    // Legacy: reducer/native only — preserve bin from current imaging config.
+    const cur = getImagingConfig(p.imagingConfig);
+    const bin = cur ? cur.bin : 2;
+    const next = IMAGING_CONFIGS.find((c) => c.framerMode === value && c.bin === bin)
+      || IMAGING_CONFIGS.find((c) => c.framerMode === value)
+      || IMAGING_CONFIGS[0];
+    applyImagingConfigToProject(p, next.id);
+    syncProjectImagingConfigDisplay(pi);
+    const modeEl = document.getElementById(`framer-mode-${pi}`);
+    if (modeEl) modeEl.value = next.id;
+  } else {
+    p[key] = value;
   }
   const inst = framerInstances[pi];
   if (inst) {
@@ -8873,6 +9759,7 @@ function updateFramerSetting(pi, key, value) {
     syncFramerViewZoom(pi);
     // Persist without full render — re-render tears down Aladin and loses live updates.
     persistData();
+    syncFramerDirtyUi(pi);
     return;
   }
   save();
@@ -8898,8 +9785,63 @@ function toggleProjectCard(headerEl, pi) {
 }
 
 function updateProjectStatus(pi, status) {
-  data.projects[pi].status = status;
+  const p = data.projects[pi];
+  if (!p) return;
+  const prev = p.status;
+  p.status = status;
+  syncProjectShootDates(p, { prevStatus: prev, nextStatus: status });
   save();
+}
+
+function updateProjectDate(pi, field, value) {
+  const p = data.projects[pi];
+  if (!p || (field !== 'startDate' && field !== 'endDate')) return;
+  const next = value || '';
+  if (field === 'startDate') {
+    if (!next) {
+      p.startDateManual = false;
+      p.startDate = '';
+      syncProjectShootDates(p);
+    } else {
+      p.startDateManual = true;
+      p.startDate = next;
+    }
+  } else if (field === 'endDate') {
+    if (!next) {
+      p.endDateManual = false;
+      p.endDate = '';
+      syncProjectShootDates(p);
+    } else {
+      p.endDateManual = true;
+      p.endDate = next;
+    }
+  }
+  saveQuiet();
+  const label = document.getElementById(`project-dates-label-${pi}`);
+  if (label) {
+    const text = formatProjectDateRange(p.startDate, p.endDate);
+    label.textContent = text;
+    label.title = projectDatesTitle(p.startDate, p.endDate);
+    label.classList.toggle('is-empty', !text);
+    const sep = label.parentElement && label.parentElement.querySelector('.project-dates-sep');
+    if (sep) sep.classList.toggle('is-empty', !text);
+  }
+  document.querySelectorAll(`#projects-container .project-card[data-idx="${pi}"] .project-date-input`).forEach((input) => {
+    const isStart = (input.getAttribute('aria-label') || '').toLowerCase().includes('start');
+    if ((field === 'startDate' && isStart) || (field === 'endDate' && !isStart)) {
+      if (input.value !== (p[field] || '')) input.value = p[field] || '';
+    }
+  });
+  // Refresh · manual labels without full re-render
+  const card = document.querySelector(`#projects-container .project-card[data-idx="${pi}"]`);
+  if (card) {
+    const labels = card.querySelectorAll('.pm-field .pm-label');
+    labels.forEach((el) => {
+      const t = el.textContent || '';
+      if (/^Shoot start/i.test(t)) el.textContent = `Shoot start${p.startDateManual ? ' · manual' : ''}`;
+      if (/^Shoot end/i.test(t)) el.textContent = `Shoot end${p.endDateManual ? ' · manual' : ''}`;
+    });
+  }
 }
 
 function removeProject(pi) {
@@ -9085,6 +10027,7 @@ async function runRemoveShoot(pi, si, opts = {}) {
   project.shoots.splice(si, 1);
   nightPipelineDetailOpen.delete(`${pi}:${si}`);
   recomputeProjectFilterHours(project);
+  syncProjectShootDates(project);
   save();
   renderProjects();
 }
@@ -14578,7 +15521,13 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
   if ((!sh.hours || sh.hours === 0) && lightRow && lightRow.lights && lightRow.exposureSec) {
     sh.hours = Math.round((lightRow.lights * lightRow.exposureSec / 3600) * 100) / 100;
   }
-  if (project.status === 'planning') project.status = 'active';
+  if (project.status === 'planning') {
+    const prev = project.status;
+    project.status = 'active';
+    syncProjectShootDates(project, { prevStatus: prev, nextStatus: 'active' });
+  } else {
+    syncProjectShootDates(project);
+  }
   if (!project.processStatus || project.processStatus === 'none') project.processStatus = 'ingested';
 }
 
@@ -15488,10 +16437,16 @@ function removeAstrobinLink(pi, ai) {
 function editProjectMeta(pi) {
   editIndex = pi;
   const p = data.projects[pi];
+  const cfgField = modalConfigs.project.fields.find((f) => f.id === 'f-imagingConfig');
+  if (cfgField) {
+    cfgField.options = IMAGING_CONFIGS.map((c) => c.id);
+    cfgField.optionLabels = IMAGING_CONFIGS.map((c) => formatImagingConfigSummary(c));
+  }
   const prefill = {
-    'f-name': p.name, 'f-target': p.target, 'f-frameMode': p.frameMode,
+    'f-name': p.name, 'f-target': p.target,
+    'f-imagingConfig': p.imagingConfig || inferImagingConfigId(p.frameMode, p.framerMode),
     'f-projectDir': p.projectDir || '',
-    'f-centerCoords': p.centerCoords, 'f-anchorStar': p.anchorStar, 'f-rotation': p.rotation,
+    'f-centerCoords': p.centerCoords,
     'f-status': p.status, 'f-notes': p.notes
   };
   openModal('project', prefill);
@@ -15573,7 +16528,6 @@ function renderTargetResult(pi, resultsEl, r) {
       <span class="mono">${r.name}</span>${r.type ? ' · ' + r.type : ''} — RA ${raHms} Dec ${decDms} <span style="color:var(--gray)">(via ${r.source})</span>
       <button class="mini-btn" style="margin-top:0" onclick="setProjectTarget(${pi}, '${safeName}', ${r.ra}, ${r.dec})">⭐ Set as project target</button>
       <button class="mini-btn" style="margin-top:0" onclick="useResolvedCoords(${pi}, ${r.ra}, ${r.dec})">Use as center only</button>
-      <button class="mini-btn" style="margin-top:0" onclick="useResolvedAsAnchor(${pi}, '${safeName}', ${r.ra}, ${r.dec})">Use as anchor star</button>
     </div>
     <div id="target-info-${pi}" style="margin-top:6px;font-size:12px;color:var(--text2);line-height:1.6;">Loading object details…</div>`;
   loadGeneralInfo(pi, r.name, r.queryName);
@@ -15626,10 +16580,6 @@ function useResolvedCoords(pi, ra, dec) {
   data.projects[pi].centerCoords = `RA ${toHMS(ra)}  Dec ${toDMS(dec)}`;
   save();
 }
-function useResolvedAsAnchor(pi, name, ra, dec) {
-  data.projects[pi].anchorStar = `${name} — RA ${toHMS(ra)} Dec ${toDMS(dec)}`;
-  save();
-}
 
 
 // ============ ACTIONS ============
@@ -15679,11 +16629,9 @@ const modalConfigs = {
     fields: [
       { id: 'f-name', label: 'Project Name', type: 'text', placeholder: 'e.g. Veil Nebula — Full Complex' },
       { id: 'f-target', label: 'Target', type: 'text', placeholder: 'e.g. NGC 6960 / 6992 / 6995' },
-      { id: 'f-frameMode', label: 'Frame / Mode', type: 'text', placeholder: 'e.g. Reducer 280mm f/3.9 — single frame' },
+      { id: 'f-imagingConfig', label: 'Imaging configuration', type: 'select', options: [], optionLabels: [] },
       { id: 'f-projectDir', label: 'Project directory (Siril import destination)', type: 'path', placeholder: 'e.g. H:\\…\\Zuko\\NGC6960_Q326' },
       { id: 'f-centerCoords', label: 'Center Coordinates', type: 'text', placeholder: 'RA 20h51m27s  Dec +31°07\'28"' },
-      { id: 'f-anchorStar', label: 'Anchor Star', type: 'text', placeholder: 'e.g. HD 198626' },
-      { id: 'f-rotation', label: 'Rotation Notes', type: 'text', placeholder: 'TBD / degrees' },
       { id: 'f-status', label: 'Status', type: 'select', options: ['planning', 'active', 'processing', 'complete'], optionLabels: ['planning', 'Imaging', 'Processing', 'complete'] },
       { id: 'f-notes', label: 'Notes', type: 'textarea', placeholder: 'Free-form project notes' }
     ]
@@ -15698,9 +16646,9 @@ const modalConfigs = {
     ]
   },
   checkstep: {
-    title: 'Add Checklist Step',
+    title: 'Add checklist item',
     fields: [
-      { id: 'f-stepText', label: 'Step', type: 'text', placeholder: 'What needs doing?' }
+      { id: 'f-stepText', label: 'Item', type: 'text', placeholder: 'What needs doing?' }
     ]
   },
   shoot: {
@@ -15725,9 +16673,21 @@ function openModal(type, prefill) {
   modalType = type;
   const cfg = modalConfigs[type];
   const editing = editIndex !== null;
+  if (type === 'project') {
+    const cfgField = cfg.fields.find((f) => f.id === 'f-imagingConfig');
+    if (cfgField) {
+      cfgField.options = IMAGING_CONFIGS.map((c) => c.id);
+      cfgField.optionLabels = IMAGING_CONFIGS.map((c) => formatImagingConfigSummary(c));
+    }
+    if (!editing) {
+      prefill = Object.assign({}, prefill || {}, {
+        'f-imagingConfig': (prefill && prefill['f-imagingConfig']) || 'reducer-bin2',
+      });
+    }
+  }
   document.getElementById('modal-title').textContent = editing ? cfg.title.replace('Add', 'Edit') : cfg.title;
   document.querySelector('.modal-btn.primary').textContent = editing ? 'Save' : 'Add';
-  document.getElementById('modal-fields').innerHTML = cfg.fields.map(f => {
+  let fieldsHtml = cfg.fields.map(f => {
     const val = prefill && prefill[f.id] !== undefined ? String(prefill[f.id]) : '';
     const escaped = val.replace(/"/g, '&quot;');
     if (f.type === 'textarea') {
@@ -15750,6 +16710,10 @@ function openModal(type, prefill) {
       <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder || ''}" value="${escaped}">
       ${f.quickFill ? `<div style="display:flex;gap:6px;margin-top:6px;">${f.quickFill.map(q => `<button type="button" class="mini-btn" style="margin-top:0;" onclick="document.getElementById('${f.id}').value='${q.value}'">${q.label}</button>`).join('')}</div>` : ''}`;
   }).join('');
+  if (type === 'project' && !editing) {
+    fieldsHtml += '<p class="modal-field-note">Mosaics are not supported yet — use a single framing per project.</p>';
+  }
+  document.getElementById('modal-fields').innerHTML = fieldsHtml;
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => { const el = document.getElementById(cfg.fields[0].id); if (el) el.focus(); }, 50);
 }
@@ -15849,23 +16813,40 @@ function saveModal() {
     editing ? data.assets[editIndex] = item : data.assets.push(item);
   } else if (modalType === 'project') {
     if (!v('f-name')) return;
+    const prev = editing ? data.projects[editIndex] : null;
+    const nextStatus = v('f-status') || 'planning';
     const item = {
-      name: v('f-name'), target: v('f-target'), frameMode: v('f-frameMode'),
+      ...(prev || {}),
+      name: v('f-name'), target: v('f-target'),
       projectDir: v('f-projectDir') || '',
-      centerCoords: v('f-centerCoords'), anchorStar: v('f-anchorStar'), rotation: v('f-rotation'),
-      status: v('f-status') || 'planning', notes: v('f-notes'),
+      centerCoords: v('f-centerCoords'),
+      status: nextStatus, notes: v('f-notes'),
       filterTargets: editing ? data.projects[editIndex].filterTargets : [],
       checklist: editing ? data.projects[editIndex].checklist : [],
       shoots: editing ? data.projects[editIndex].shoots : [],
       astrobinLinks: editing ? data.projects[editIndex].astrobinLinks : [],
       savedTarget: editing ? data.projects[editIndex].savedTarget : null,
       framerMode: editing ? data.projects[editIndex].framerMode : 'reducer',
-      framerRotation: editing ? data.projects[editIndex].framerRotation : 0,
+      framerRotation: editing ? (data.projects[editIndex].framerRotation || 0) : 0,
+      rotation: editing
+        ? (`${data.projects[editIndex].framerRotation || 0}°`)
+        : '0°',
+      startDate: editing ? (prev.startDate || '') : '',
+      endDate: editing ? (prev.endDate || '') : '',
+      startDateManual: editing ? !!prev.startDateManual : false,
+      endDateManual: editing ? !!prev.endDateManual : false,
       ignoredAsiairFolders: editing ? (data.projects[editIndex].ignoredAsiairFolders || []) : [],
       asiairBoundFolders: editing ? (data.projects[editIndex].asiairBoundFolders || []) : [],
     };
-    editing ? data.projects[editIndex] = item : data.projects.push(item);
-    if (!editing) openProjects.add(data.projects.length - 1);
+    applyImagingConfigToProject(item, v('f-imagingConfig') || 'reducer-bin2');
+    delete item.anchorStar;
+    if (editing) {
+      syncProjectShootDates(item, { prevStatus: prev.status, nextStatus });
+      data.projects[editIndex] = item;
+    } else {
+      data.projects.push(item);
+      openProjects.add(data.projects.length - 1);
+    }
   } else if (modalType === 'filterrow') {
     if (!v('f-filter') || modalProjectIndex === null) return;
     const row = { filter: v('f-filter'), location: v('f-location') || '—', bortle: v('f-bortle') || '', targetHrs: parseFloat(v('f-targetHrs')) || 0 };
@@ -15914,6 +16895,7 @@ function saveModal() {
       });
     }
     recomputeProjectFilterHours(project);
+    syncProjectShootDates(project);
   } else if (modalType === 'astrobinlink') {
     if (!v('f-abUrl') || modalProjectIndex === null) return;
     data.projects[modalProjectIndex].astrobinLinks.push({ label: v('f-abLabel'), url: v('f-abUrl'), imgUrl: v('f-abImgUrl') });

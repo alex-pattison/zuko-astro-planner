@@ -204,10 +204,12 @@ function parseAsiairFilename(fileName) {
     target: null,
     exposureSec: null,
     bin: null,
+    camera: null,
     filter: null,
     gain: null,
     date: null,
     time: null,
+    rotatorDeg: null,
     tempC: null,
     sequence: null,
     matched: false,
@@ -228,6 +230,11 @@ function parseAsiairFilename(fileName) {
   let target = null;
   let idx = 0;
   const isExp = (p) => /^[\d.]+(ms|s)$/i.test(p);
+  const isCamera = (p) => /^(?:ASI)?\d{2,4}MM$/i.test(p);
+  const isGain = (p) => /^gain[\d.]+$/i.test(p);
+  const isStamp = (p) => /^\d{8}-\d{6}/.test(p);
+  const isRot = (p) => /^-?[\d.]+deg$/i.test(p);
+  const isTemp = (p) => /^-?[\d.]+C$/i.test(p);
   if (parts.length && !isExp(parts[0])) {
     const targetParts = [];
     while (idx < parts.length && !isExp(parts[idx]) && !/^Bin\d+/i.test(parts[idx])) {
@@ -249,29 +256,49 @@ function parseAsiairFilename(fileName) {
     idx += 1;
   }
 
+  // Optional camera tag inserted before filter (e.g. 294MM / ASI294MM).
+  let camera = null;
+  if (idx < parts.length && isCamera(parts[idx])) {
+    camera = String(parts[idx]).replace(/^ASI/i, '');
+    idx += 1;
+  }
+
   let filter = null;
-  if (idx < parts.length && !/^gain/i.test(parts[idx]) && !/^\d{8}-/.test(parts[idx])) {
+  if (
+    idx < parts.length
+    && !isGain(parts[idx])
+    && !isStamp(parts[idx])
+    && !isRot(parts[idx])
+    && !isTemp(parts[idx])
+    && !/^\d+$/.test(parts[idx])
+  ) {
     filter = normalizeFilter(parts[idx]);
     idx += 1;
   }
 
   let gain = null;
-  if (idx < parts.length && /^gain([\d.]+)$/i.test(parts[idx])) {
+  if (idx < parts.length && isGain(parts[idx])) {
     gain = parseFloat(parts[idx].replace(/^gain/i, ''));
     idx += 1;
   }
 
   let date = null;
   let time = null;
-  if (idx < parts.length && /^\d{8}-\d{6}/.test(parts[idx])) {
+  if (idx < parts.length && isStamp(parts[idx])) {
     const [d, t] = parts[idx].split('-');
     date = d;
     time = t ? t.slice(0, 6) : null;
     idx += 1;
   }
 
+  let rotatorDeg = null;
+  if (idx < parts.length && isRot(parts[idx])) {
+    rotatorDeg = parseFloat(parts[idx].replace(/deg$/i, ''));
+    idx += 1;
+  }
+
   let tempC = null;
-  if (idx < parts.length && /^-?[\d.]+C$/i.test(parts[idx])) {
+  if (idx < parts.length && isTemp(parts[idx])) {
     tempC = parseFloat(parts[idx].replace(/c$/i, ''));
     idx += 1;
   }
@@ -288,10 +315,12 @@ function parseAsiairFilename(fileName) {
     target,
     exposureSec,
     bin,
+    camera,
     filter,
     gain,
     date,
     time,
+    rotatorDeg,
     tempC,
     sequence,
     matched,
