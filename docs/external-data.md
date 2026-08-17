@@ -28,7 +28,7 @@ Temperature on Astrospheric rows is merged from Open-Meteo when available (Astro
 |--------|----------|-------------|-------------|----|-------|
 | **Astrospheric Moon** | `POST https://v2-api-public.astrospheric.com/api/Moon` | Pro API key · **10 credits**/call (same monthly pool as forecast) | Illumination %, phase angle, next major phases (alt/az still returned but not shown) | Moon metrics when fetch &lt; ~24h old; next-new-moon prefers API phases | ~**24 hours** (`astrospheric-moon-*.json`). Updates `astrospheric-credits.json` remaining balance; does **not** change the forecast “cost per pull” used for requests-remaining math. |
 | **Open-Meteo astronomy** | `GET https://api.open-meteo.com/v1/forecast` · `daily=sunrise,sunset,moonrise,moonset,moon_phase` · `forecast_days=16` · `timezone=auto` | Free | Daily rise/set calendar | Moon rise/set · optional sun rise/set overlay | ~**12 hours** (`open-meteo-astro-*.json`) |
-| **NASA SVS via moon-cycle CDN** | `https://cdn.jsdelivr.net/gh/acamarata/moon-cycle@main/mm-256-75/{001–708}.webp` | Free CDN | 708 synodic-month stills (NASA public-domain frames) | Moon photo disc | Browser/CDN cache |
+| **NASA SVS stills (local)** | Bundled `vendor/moon-cycle/mm-256-75/{001–708}.webp` | NASA public domain via moon-cycle | 708 synodic-month frames | Moon photo disc | On disk (no network). jsdelivr CDN 403s these in Electron — do not use it. |
 | **Local math** (no network) | Renderer `_ASTRO` + `moonPhaseInfo` | — | Twilight elevations, solar noon→noon bar, moon phase name/%, next new moon (offline) | Sun twilight bar + boxes · moon phase fallback | — |
 
 Code: `src/weather/skyAstronomy.js` · IPC `zuko-sky-astronomy` · moon/sun UI in `index.html`.
@@ -69,7 +69,7 @@ Credit snapshot (remaining monthly pool) is written to `astrospheric-credits.jso
 
 - Forecast: serve last Astrospheric cache if fresh enough; else Open-Meteo if online; else offline placeholders.
 - Moon/Sun: local twilight + phase always work; rise/set prefer Open-Meteo cache; Astrospheric moon fields only if cache &lt; ~24h.
-- Maps / Clear Outside / fonts need network when those surfaces are shown.
+- Maps / fonts need network when those surfaces are shown. Moon disc stills are local.
 
 ---
 

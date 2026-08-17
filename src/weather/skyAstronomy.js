@@ -7,7 +7,7 @@
  *   Cached ~24 hours — phase/illumination don't need sub-daily refreshes.
  * - Open-Meteo daily: sunrise/sunset/moonrise/moonset/moon_phase (free, 16 days).
  * - Local SunCalc-style math lives in the renderer for offline times/timeline.
- * - Visual: NASA SVS frames via moon-cycle CDN mapping (renderer).
+ * - Visual: NASA SVS frames bundled under vendor/moon-cycle (renderer).
  */
 
 const fs = require('fs');

@@ -1,7 +1,7 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.3.0",
-  "zukoBuild": 27,
+  "zukoBuild": 28,
   "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
   "main": "main.js",
   "author": "Alexandra Pattison",
@@ -22,7 +22,8 @@
     "dist:win:beta": "node scripts/dist-win-beta.js",
     "dist:win:beta:build-only": "node scripts/dist-win-beta.js --build-only",
     "dist:mac": "electron-builder --mac",
-    "dist:linux": "electron-builder --linux"
+    "dist:linux": "electron-builder --linux",
+    "vendor:moon": "node scripts/vendor-moon-cycle.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",

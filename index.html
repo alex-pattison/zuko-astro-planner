@@ -5524,7 +5524,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.3.0', build: 27, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.3.0', build: 28, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -7467,12 +7467,13 @@ function nextMajorMoonPhases(now = new Date()) {
 }
 
 function nasaMoonImageUrlFromFraction(phaseFraction) {
-  // moon-cycle: 708 NASA SVS frames spanning one synodic month (001=new … ~354=full … 708)
+  // Local NASA SVS stills (vendor/moon-cycle): 708 frames, 001=new … ~354=full … 708.
+  // jsdelivr 403s these from Electron; do not use the CDN.
   const MONTH_IMAGES = 708;
   const p = ((Number(phaseFraction) % 1) + 1) % 1;
   const index = Math.min(MONTH_IMAGES, Math.floor(p * MONTH_IMAGES) + 1);
   const file = String(index).padStart(3, '0') + '.webp';
-  return 'https://cdn.jsdelivr.net/gh/acamarata/moon-cycle@main/mm-256-75/' + file;
+  return 'vendor/moon-cycle/mm-256-75/' + file;
 }
 
 function nasaMoonImageUrl(date = new Date()) {
@@ -7866,6 +7867,7 @@ function renderMoonTrackCard(lat, lon, astronomy) {
       '<div class="skyfx-moon-head">' +
         '<div class="skyfx-moon-disc-wrap">' +
           '<img class="skyfx-moon-photo" alt="' + escapeAttr(phaseName) + '" src="' + escapeAttr(photoUrl) + '" ' +
+            'referrerpolicy="no-referrer" ' +
             'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
           '<div style="display:none">' + fallbackSvg + '</div>' +
         '</div>' +

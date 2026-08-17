@@ -25,6 +25,11 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-17 — build 28 — Local NASA moon stills
+- **Seen:** Moon card was a black disc on Dev and Beta (not a new moon).
+- **Cause:** jsdelivr 403s `moon-cycle` webps from Electron; img never paints.
+- **Fix:** Bundle 708 frames in `vendor/moon-cycle/mm-256-75/`. `npm run dist:win:beta`. Merged `debug/framer-rotation-asiair`.
+
 ### 2026-08-17 — build 27 — Moon cycle day (not the waning twin)
 - **Seen:** Beta showed **day 24** for a 26% waxing crescent (should be **day 5**).
 - **Cause:** Astrospheric phase angle has two roots at the same illumination; a float compare picked the waning twin.

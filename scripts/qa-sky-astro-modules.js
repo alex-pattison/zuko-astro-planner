@@ -251,8 +251,10 @@ async function main() {
   console.log('\nNASA moon image mapping');
   const urlA = A.nasaMoonImageUrl(new Date('2026-08-12T21:37:00Z'));
   const urlB = A.nasaMoonImageUrl(new Date('2026-08-28T04:18:00Z'));
-  ok('nasa url format', /mm-256-75\/\d{3}\.webp$/.test(urlA), urlA);
+  ok('nasa url format', /vendor\/moon-cycle\/mm-256-75\/\d{3}\.webp$/.test(urlA), urlA);
   ok('new vs full different frames', urlA !== urlB, urlA.split('/').pop() + ' vs ' + urlB.split('/').pop());
+  const frameFile = path.join(ROOT, 'vendor', 'moon-cycle', 'mm-256-75', urlA.split('/').pop());
+  ok('local moon frame exists', fs.existsSync(frameFile), frameFile);
 
   console.log('\nAstrospheric cycle day (no waning twin)');
   const synodic = 29.530588853;
