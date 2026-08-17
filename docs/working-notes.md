@@ -25,6 +25,10 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-16 — build 25 — Dev bump; Beta dist installs on promote
+- `zukoBuild` **25** (0.3.0). `npm run dist:win:beta` now builds **and** silent-installs + refreshes Desktop shortcut.
+- If Desktop Beta still shows an old version, fully quit Beta and relaunch the Desktop icon (do not leave an old window open across install).
+
 ### 2026-08-16 — build 24 — Open 0.3.0 line
 - **0.2.0 locked** (through build 23). Version bumped to **0.3.0**.
 - Active 0.3.0 scope: backlog #1, #2, #3, #4, #6, #8, #11 (see `docs/backlog.md`). Starting with #1 editable filter wheel.
