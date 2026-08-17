@@ -12,13 +12,11 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 
 ## 0.3.0 (active)
 
-### 1. Editable filter wheel
+### 1. Editable filter wheel — *on `feat/editable-filter-wheel`*
 
 Capture Plan filter dropdowns use a hard-coded EFW list. Settings should own add/rename/reorder and feed those dropdowns.
 
 **Why:** First wheel change makes the UI lie.
-
-*(Paused — framer/ASIAIR rotation debug first.)*
 
 ---
 
@@ -54,9 +52,9 @@ New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Sh
 
 ---
 
-### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *on `debug/framer-rotation-asiair`*
+### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–28)*
 
-One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Soft warn / confirm when project CAA ≠ dump lights. Require CAA match when pairing lights ↔ flats. Dark flats: soft flag only.
+One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Require CAA match when pairing lights ↔ flats. Dark flats: soft flag only. Camera-up marker matches this train; NASA moon stills local.
 
 **Why:** Same dial value for framing, shooting, and ingest checks (target + flats).
 
