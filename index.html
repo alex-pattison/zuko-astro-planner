@@ -5524,7 +5524,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.3.0', build: 25, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.3.0', build: 26, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -8643,6 +8643,8 @@ function playProjectFlip() {
 function moveProject(from, to) {
   if (from === to || from < 0 || to < 0 || from >= data.projects.length || to >= data.projects.length) return;
   captureProjectFlip();
+  // Detach live Aladin chrome *before* index remap — DOM ids still match old indices.
+  const liveBag = detachLiveFramers();
   const [project] = data.projects.splice(from, 1);
   data.projects.splice(to, 0, project);
   openProjects = remapIndexSet(openProjects, from, to);
@@ -8657,6 +8659,7 @@ function moveProject(from, to) {
   nextUnlocked.forEach((i) => unlockedFramers.add(i));
   remapIndexKeyedObject(framerInstances, from, to);
   remapIndexKeyedObject(framerBaselines, from, to);
+  pendingFramerRestore = remapFramerBag(liveBag, from, to);
   remapPiPrefixedKeys(nightPipelineDetailOpen, from, to);
   remapPiPrefixedKeys(pipelineChannelSort, from, to);
   if (shootLogSort && typeof shootLogSort === 'object') {
@@ -8946,14 +8949,23 @@ function detachLiveFramers() {
   return bag;
 }
 
+/** Remap a pi-keyed bag through moveProject index shifts. */
+function remapFramerBag(bag, from, to) {
+  const next = {};
+  Object.keys(bag || {}).forEach((key) => {
+    next[remapIndexAfterMove(from, to, Number(key))] = bag[key];
+  });
+  return next;
+}
+
 function restoreLiveFramers(bag) {
-  Object.keys(bag).forEach((key) => {
+  Object.keys(bag || {}).forEach((key) => {
     const pi = Number(key);
     const live = bag[pi];
-    const slot = document.getElementById(`framer-slot-${pi}`);
     const p = data.projects[pi];
-    if (slot && live && p && p.savedTarget && openProjects.has(pi)) {
-      slot.replaceWith(live);
+    const fresh = document.getElementById(`framer-details-${pi}`);
+    if (live && fresh && p && p.savedTarget) {
+      fresh.replaceWith(live);
       live.id = `framer-details-${pi}`;
       // Keep open/closed in sync without firing a real user toggle side-effect.
       if (closedFramers.has(pi)) live.removeAttribute('open');
@@ -8964,15 +8976,63 @@ function restoreLiveFramers(bag) {
       if (overlay) overlay.style.display = unlockedFramers.has(pi) ? 'none' : 'flex';
       if (btn) btn.textContent = unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked';
       syncFramerRotationControls(pi);
-    } else {
-      delete framerInstances[pi];
+      return;
     }
+    // Live viewer could not be reattached — drop stale instance so initFramer can rebuild.
+    delete framerInstances[pi];
   });
+}
+
+/** CAA degrees 0–359 — same dial value as ASIAIR (stored as ROTATOR / NNNdeg). */
+function normalizeFramerRotationDeg(raw) {
+  let n = Number(raw);
+  if (!Number.isFinite(n)) n = 0;
+  n = ((Math.round(n) % 360) + 360) % 360;
+  return n;
+}
+
+function framerDetailsHtml(pi, p) {
+  const rot = normalizeFramerRotationDeg(p.framerRotation);
+  return `
+        <details class="sub-details" id="framer-details-${pi}" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
+          <summary><span class="sec-chevron">▶</span> Target Framer — ${escapeHtml(p.savedTarget.name)}</summary>
+          <div style="padding: 4px 16px 16px;">
+            <div class="gaia-inputs" style="align-items:center;">
+              <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'imagingConfig', this.value)"
+                ${unlockedFramers.has(pi) ? '' : 'disabled'}
+                title="${unlockedFramers.has(pi) ? 'Imaging configuration' : 'Unlock the framer to change configuration'}"
+                style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;max-width:min(100%,280px);${!unlockedFramers.has(pi) ? 'opacity:0.45;' : ''}">
+                ${IMAGING_CONFIGS.map((c) => `<option value="${c.id}" ${(p.imagingConfig || 'reducer-bin2') === c.id ? 'selected' : ''}>${escapeAttr(formatImagingConfigSummary(c))} · ${escapeAttr(c.fov)}</option>`).join('')}
+              </select>
+              <label style="font-family:var(--mono);font-size:10px;color:var(--gray);" title="CAA (0–359°) — dial this same value in ASIAIR when shooting">CAA: <span id="framer-rot-val-${pi}">${rot}</span>°</label>
+              <input type="range" id="framer-rot-slider-${pi}" min="0" max="359" step="1" value="${rot}"
+                ${unlockedFramers.has(pi) ? '' : 'disabled'}
+                title="${unlockedFramers.has(pi) ? 'CAA (0–359°) — match ASIAIR dial' : 'Unlock the framer to change CAA'}"
+                style="width:180px;${!unlockedFramers.has(pi) ? 'opacity:0.45;pointer-events:none;' : ''}"
+                oninput="document.getElementById('framer-rot-val-${pi}').textContent = this.value; liveRotateFramer(${pi}, this.value)"
+                onchange="updateFramerSetting(${pi}, 'framerRotation', parseInt(this.value, 10))">
+              <button class="mini-btn" id="framer-lock-btn-${pi}" style="margin-top:0" onclick="toggleFramerLock(${pi})">${unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked'}</button>
+              <button class="mini-btn" id="framer-revert-btn-${pi}" style="margin-top:0" onclick="revertFramerChanges(${pi})" title="Revert center / CAA / mode to last saved" disabled>Revert</button>
+              <button class="mini-btn" id="framer-center-btn-${pi}" style="margin-top:0" onclick="moveFramerToView(${pi})" title="Pan the sky view where you want, then click — footprint and project center coords move there">📍 Set center to current view</button>
+              <button class="mini-btn" style="margin-top:0" onclick="clearProjectTarget(${pi})">Clear saved target</button>
+            </div>
+            <div class="gaia-note" style="margin-top:6px;">Set this CAA in ASIAIR to shoot. Ingest reads <span class="mono">ROTATOR</span> / <span class="mono">NNNdeg</span> to confirm the target and that flats match lights. Last Veil night: <span class="mono">211°</span>.</div>
+            <div style="position:relative;">
+              <div id="aladin-framer-${pi}" style="width:100%;height:380px;border:1px solid var(--border);border-radius:8px;"></div>
+              <div id="framer-lock-overlay-${pi}" class="framer-lock-overlay" style="display:${unlockedFramers.has(pi) ? 'none' : 'flex'};" onclick="toggleFramerLock(${pi})">
+                <span class="framer-lock-hint">🔒 View locked for scrolling — tap to interact</span>
+              </div>
+            </div>
+          </div>
+        </details>`;
 }
 
 function clearAllFramerInstances() {
   Object.keys(framerInstances).forEach((k) => { delete framerInstances[k]; });
 }
+
+/** Pending live framer nodes keyed by *new* project index (set across moveProject → render). */
+let pendingFramerRestore = null;
 
 function renderProjects() {
   const el = document.getElementById('projects-container');
@@ -9001,7 +9061,8 @@ function renderProjects() {
     if (p.startDateManual == null) p.startDateManual = false;
     if (p.endDateManual == null) p.endDateManual = false;
     if (p.framerRotation == null || p.framerRotation === '') p.framerRotation = 0;
-    p.rotation = `${Number(p.framerRotation) || 0}°`;
+    p.framerRotation = normalizeFramerRotationDeg(p.framerRotation);
+    p.rotation = `${p.framerRotation}°`;
     if (Object.prototype.hasOwnProperty.call(p, 'anchorStar')) delete p.anchorStar;
     syncProjectShootDates(p);
     p.filterTargets.forEach(f => {
@@ -9023,7 +9084,8 @@ function renderProjects() {
   });
   // Keep live Aladin canvases across the projects rebuild — full re-init is expensive and jarring.
   window._suppressFramerToggle = true;
-  const liveFramers = detachLiveFramers();
+  const liveFramers = pendingFramerRestore || detachLiveFramers();
+  pendingFramerRestore = null;
   el.innerHTML = data.projects.map((p, pi) => {
     const totalTarget = p.filterTargets.reduce((s,f) => s + f.targetHrs, 0);
     const totalLogged = p.filterTargets.reduce((s,f) => s + f.loggedHrs, 0);
@@ -9065,7 +9127,7 @@ function renderProjects() {
             <div class="pm-val pm-mono pm-wrap editable" id="project-center-coords-${pi}" onclick="editProjectMeta(${pi})">${p.centerCoords || '—'}</div>
           </div>
           <div class="pm-field">
-            <div class="pm-label">Rotation</div>
+            <div class="pm-label">CAA</div>
             <div class="pm-val pm-mono" id="project-rotation-${pi}">${Number(p.framerRotation) || 0}°</div>
           </div>
           <div class="pm-field pm-span-2">
@@ -9102,42 +9164,7 @@ function renderProjects() {
           <div class="gaia-note">Resolves a name to coordinates via public astronomy catalogs (CDS Sesame, then MAST as a fallback). Setting a target replaces this with the Target Framer.</div>
         </div>` : ''}
 
-        ${p.savedTarget ? (
-          liveFramers[pi]
-            ? `<div id="framer-slot-${pi}"></div>`
-            : `<div id="framer-slot-${pi}">
-        <details class="sub-details" id="framer-details-${pi}" ${closedFramers.has(pi) ? '' : 'open'} ontoggle="onFramerToggle(${pi}, this.open)">
-          <summary><span class="sec-chevron">▶</span> Target Framer — ${p.savedTarget.name}</summary>
-          <div style="padding: 4px 16px 16px;">
-            <div class="gaia-inputs" style="align-items:center;">
-              <select id="framer-mode-${pi}" onchange="updateFramerSetting(${pi}, 'imagingConfig', this.value)"
-                ${unlockedFramers.has(pi) ? '' : 'disabled'}
-                title="${unlockedFramers.has(pi) ? 'Imaging configuration' : 'Unlock the framer to change configuration'}"
-                style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:11px;max-width:min(100%,280px);${!unlockedFramers.has(pi) ? 'opacity:0.45;' : ''}">
-                ${IMAGING_CONFIGS.map((c) => `<option value="${c.id}" ${(p.imagingConfig || 'reducer-bin2') === c.id ? 'selected' : ''}>${escapeAttr(formatImagingConfigSummary(c))} · ${escapeAttr(c.fov)}</option>`).join('')}
-              </select>
-              <label style="font-family:var(--mono);font-size:10px;color:var(--gray);">Rotation: <span id="framer-rot-val-${pi}">${p.framerRotation || 0}</span>°</label>
-              <input type="range" id="framer-rot-slider-${pi}" min="0" max="180" step="1" value="${p.framerRotation || 0}"
-                ${unlockedFramers.has(pi) ? '' : 'disabled'}
-                title="${unlockedFramers.has(pi) ? 'Camera rotation' : 'Unlock the framer to change rotation'}"
-                style="width:160px;${!unlockedFramers.has(pi) ? 'opacity:0.45;pointer-events:none;' : ''}"
-                oninput="document.getElementById('framer-rot-val-${pi}').textContent = this.value; liveRotateFramer(${pi}, this.value)"
-                onchange="updateFramerSetting(${pi}, 'framerRotation', parseInt(this.value, 10))">
-              <button class="mini-btn" id="framer-lock-btn-${pi}" style="margin-top:0" onclick="toggleFramerLock(${pi})">${unlockedFramers.has(pi) ? '🔓 Interactive' : '🔒 Locked'}</button>
-              <button class="mini-btn" id="framer-revert-btn-${pi}" style="margin-top:0" onclick="revertFramerChanges(${pi})" title="Revert center / rotation / mode to last saved" disabled>Revert</button>
-              <button class="mini-btn" id="framer-center-btn-${pi}" style="margin-top:0" onclick="moveFramerToView(${pi})" title="Pan the sky view where you want, then click — footprint and project center coords move there">📍 Set center to current view</button>
-              <button class="mini-btn" style="margin-top:0" onclick="clearProjectTarget(${pi})">Clear saved target</button>
-            </div>
-            <div style="position:relative;">
-              <div id="aladin-framer-${pi}" style="width:100%;height:380px;border:1px solid var(--border);border-radius:8px;"></div>
-              <div id="framer-lock-overlay-${pi}" class="framer-lock-overlay" style="display:${unlockedFramers.has(pi) ? 'none' : 'flex'};" onclick="toggleFramerLock(${pi})">
-                <span class="framer-lock-hint">🔒 View locked for scrolling — tap to interact</span>
-              </div>
-            </div>
-          </div>
-        </details>
-        </div>`
-        ) : ''}
+        ${p.savedTarget ? framerDetailsHtml(pi, p) : ''}
 
         <div class="shoot-box">
           <div class="pm-label">Checklist</div>
@@ -9284,8 +9311,8 @@ function applyFramerEditableState(pi, state) {
   p.savedTarget.ra = state.ra;
   p.savedTarget.dec = state.dec;
   p.centerCoords = state.centerCoords;
-  p.framerRotation = state.framerRotation;
-  p.rotation = `${state.framerRotation}°`;
+  p.framerRotation = normalizeFramerRotationDeg(state.framerRotation);
+  p.rotation = `${p.framerRotation}°`;
   if (state.imagingConfig && getImagingConfig(state.imagingConfig)) {
     applyImagingConfigToProject(p, state.imagingConfig);
   } else {
@@ -9304,13 +9331,13 @@ function applyFramerEditableState(pi, state) {
     syncFramerViewZoom(pi);
   }
   const rotVal = document.getElementById(`framer-rot-val-${pi}`);
-  if (rotVal) rotVal.textContent = String(state.framerRotation);
+  if (rotVal) rotVal.textContent = String(p.framerRotation);
   const slider = document.getElementById(`framer-rot-slider-${pi}`);
-  if (slider) slider.value = String(state.framerRotation);
+  if (slider) slider.value = String(p.framerRotation);
   const modeEl = document.getElementById(`framer-mode-${pi}`);
   if (modeEl) modeEl.value = p.imagingConfig || 'reducer-bin2';
   const rotEl = document.getElementById(`project-rotation-${pi}`);
-  if (rotEl) rotEl.textContent = `${state.framerRotation}°`;
+  if (rotEl) rotEl.textContent = `${p.framerRotation}°`;
   const centerEl = document.getElementById(`project-center-coords-${pi}`);
   if (centerEl) centerEl.textContent = p.centerCoords;
   syncProjectImagingConfigDisplay(pi);
@@ -9416,7 +9443,7 @@ function syncFramerRotationControls(pi) {
     slider.setAttribute('aria-disabled', locked ? 'true' : 'false');
     slider.style.opacity = locked ? '0.45' : '';
     slider.style.pointerEvents = locked ? 'none' : '';
-    slider.title = locked ? 'Unlock the framer to change rotation' : 'Camera rotation';
+    slider.title = locked ? 'Unlock the framer to change CAA' : 'CAA (0–359°) — match ASIAIR dial';
   }
   const modeEl = document.getElementById(`framer-mode-${pi}`);
   if (modeEl) {
@@ -9500,9 +9527,9 @@ function drawFramerFootprint(pi) {
   const overlay = inst.overlay;
   overlay.add(A.polygon(corners, { color: '#eab308', lineWidth: 2 }), false);
 
-  // Camera-up arrow (top edge mid) so rotation is unambiguous
-  const tip = fovLocalToSky(ra, dec, 0, dims.h / 2, rot);
-  const base = fovLocalToSky(ra, dec, 0, dims.h * 0.12, rot);
+  // Camera-up arrow — local −Y is ASIAIR CAA “up” for this train (old +Y was upside-down).
+  const tip = fovLocalToSky(ra, dec, 0, -dims.h / 2, rot);
+  const base = fovLocalToSky(ra, dec, 0, -dims.h * 0.12, rot);
   if (typeof A.vector === 'function') {
     overlay.add(A.vector(base[0], base[1], tip[0], tip[1], { color: '#eab308', lineWidth: 2 }), false);
   } else {
@@ -9664,7 +9691,7 @@ function persistData() {
 
 function liveRotateFramer(pi, deg) {
   if (!unlockedFramers.has(pi)) return;
-  const rot = parseInt(deg, 10) || 0;
+  const rot = normalizeFramerRotationDeg(deg);
   if (data.projects[pi]) {
     data.projects[pi].framerRotation = rot;
     data.projects[pi].rotation = `${rot}°`;
@@ -9731,10 +9758,15 @@ function updateFramerSetting(pi, key, value) {
   const p = data.projects[pi];
   if (!p) return;
   if (key === 'framerRotation') {
-    p.framerRotation = value;
-    p.rotation = `${value}°`;
+    const rot = normalizeFramerRotationDeg(value);
+    p.framerRotation = rot;
+    p.rotation = `${rot}°`;
     const rotEl = document.getElementById(`project-rotation-${pi}`);
-    if (rotEl) rotEl.textContent = `${value}°`;
+    if (rotEl) rotEl.textContent = `${rot}°`;
+    const rotVal = document.getElementById(`framer-rot-val-${pi}`);
+    if (rotVal) rotVal.textContent = String(rot);
+    const slider = document.getElementById(`framer-rot-slider-${pi}`);
+    if (slider) slider.value = String(rot);
   } else if (key === 'imagingConfig') {
     applyImagingConfigToProject(p, value);
     syncProjectImagingConfigDisplay(pi);
@@ -9772,6 +9804,12 @@ function toggleProjectCard(headerEl, pi) {
     openProjects.add(pi);
     if (data.projects[pi] && data.projects[pi].savedTarget && !closedFramers.has(pi)) {
       setTimeout(() => {
+        // Recover from empty-slot / lost chrome after reorder or failed live restore.
+        if (!document.getElementById(`framer-details-${pi}`) || !document.getElementById(`aladin-framer-${pi}`)) {
+          delete framerInstances[pi];
+          renderProjects();
+          return;
+        }
         if (framerInstances[pi]) {
           try { drawFramerFootprint(pi); } catch (e) { /* ignore */ }
           return;
@@ -11519,6 +11557,14 @@ function projectTargetCoords(project) {
   return { ra, dec, name: t.name || null };
 }
 
+/** Planner CAA (0–359) — same dial value dialed in ASIAIR / checked on ingest. */
+function projectFramerCaa(project) {
+  if (!project) return null;
+  const n = Number(project.framerRotation);
+  if (!Number.isFinite(n)) return null;
+  return normalizeFramerRotationDeg(n);
+}
+
 function formatCoordPair(ra, dec) {
   if (ra == null || dec == null || !Number.isFinite(Number(ra)) || !Number.isFinite(Number(dec))) return '—';
   return `${Number(ra).toFixed(4)}°, ${Number(dec).toFixed(4)}°`;
@@ -11545,6 +11591,11 @@ function buildTargetConfirmQueue(targets, match) {
   };
   if (reason === 'multiple_auto') {
     autos.forEach(push);
+    return queue;
+  }
+  if (reason === 'caa_mismatch') {
+    list.filter((t) => t.caaMatch === false).forEach(push);
+    if (!queue.length) autos.forEach(push);
     return queue;
   }
   // No confident auto — ask about every non-excluded candidate.
@@ -11768,8 +11819,8 @@ function drawAladinFovBox(aladin, ra, dec, project, color, rotationDeg) {
   const overlay = A.graphicOverlay({ color: color || '#eab308', lineWidth: 2 });
   aladin.addOverlay(overlay);
   overlay.add(A.polygon(corners, { color: color || '#eab308', lineWidth: 2 }), false);
-  const tip = fovLocalToSky(Number(ra), Number(dec), 0, dims.h / 2, rot);
-  const base = fovLocalToSky(Number(ra), Number(dec), 0, dims.h * 0.12, rot);
+  const tip = fovLocalToSky(Number(ra), Number(dec), 0, -dims.h / 2, rot);
+  const base = fovLocalToSky(Number(ra), Number(dec), 0, -dims.h * 0.12, rot);
   if (typeof A.vector === 'function') {
     overlay.add(A.vector(base[0], base[1], tip[0], tip[1], { color: color || '#eab308', lineWidth: 2 }), false);
   } else {
@@ -11838,11 +11889,14 @@ function promptIngestTargetConfirm(project, folderRow, opts = {}) {
   const folderName = (folderRow && (folderRow.name || folderRow.folder)) || 'Unknown';
   const sep = folderRow && folderRow.separationDeg;
   const band = (folderRow && folderRow.band) || '—';
-  const plannerRot = (project && project.framerRotation) || 0;
-  // ASIAIR writes ROTATOR = camera angle (degrees). Median per Light/<folder>.
+  const plannerRot = projectFramerCaa(project) != null ? projectFramerCaa(project) : 0;
+  // ASIAIR writes ROTATOR = CAA dial (degrees). Median per Light/<folder>.
   const asiairRot = folderRow && folderRow.medianRotatorDeg != null && Number.isFinite(Number(folderRow.medianRotatorDeg))
     ? Number(folderRow.medianRotatorDeg)
     : null;
+  const caaDiff = folderRow && folderRow.caaDiffDeg != null && Number.isFinite(Number(folderRow.caaDiffDeg))
+    ? Number(folderRow.caaDiffDeg)
+    : (asiairRot != null ? Math.min(Math.abs(asiairRot - plannerRot), 360 - Math.abs(asiairRot - plannerRot)) : null);
   const mode = (project && project.framerMode) || 'reducer';
   const dims = FOV_MODES[mode] || FOV_MODES.reducer;
 
@@ -11851,19 +11905,24 @@ function promptIngestTargetConfirm(project, folderRow, opts = {}) {
     ? 'Target match'
     : `Confirm target${queueTotal > 1 ? ` (${queueIndex + 1}/${queueTotal})` : ''}`;
   document.getElementById('ingest-target-confirm-sub').textContent =
-    `${plannerName}  vs  ASIAIR “${folderName}” · sep ${formatSepDeg(sep)} · band ${band}`;
+    `${plannerName}  vs  ASIAIR “${folderName}” · sep ${formatSepDeg(sep)} · band ${band}`
+    + (caaDiff != null && caaDiff > 2 ? ` · CAA Δ ${caaDiff.toFixed(0)}°` : '');
 
   document.getElementById('ingest-target-confirm-left-label').innerHTML =
-    `<strong>Planner</strong> — ${escapeHtml(plannerName)} · FOV ${dims.w}°×${dims.h}° · framer ${plannerRot}°`;
+    `<strong>Planner</strong> — ${escapeHtml(plannerName)} · FOV ${dims.w}°×${dims.h}° · CAA ${plannerRot}°`;
   document.getElementById('ingest-target-confirm-right-label').innerHTML =
-    `<strong>ASIAIR</strong> — ${escapeHtml(folderName)} · ${(folderRow && folderRow.lightCount) || 0} lights · ROTATOR ${asiairRot != null ? asiairRot.toFixed(0) + '°' : '(none — using framer ' + plannerRot + '°)'}`;
+    `<strong>ASIAIR</strong> — ${escapeHtml(folderName)} · ${(folderRow && folderRow.lightCount) || 0} lights · CAA ${asiairRot != null ? asiairRot.toFixed(0) + '°' : '(none — using planner ' + plannerRot + '°)'}`;
 
   const metaLines = [
-    `Planner: ${formatCoordPair(plannerRa, plannerDec)} · framer rotation ${plannerRot}°`,
-    `ASIAIR median: ${formatCoordPair(folderRow && folderRow.medianRa, folderRow && folderRow.medianDec)} · ROTATOR (camera angle) ${asiairRot != null ? asiairRot.toFixed(1) + '°' : '—'}`,
-    `Separation: ${formatSepDeg(sep)}  ·  Band: ${band}`,
+    `Planner: ${formatCoordPair(plannerRa, plannerDec)} · CAA ${plannerRot}°`,
+    `ASIAIR median: ${formatCoordPair(folderRow && folderRow.medianRa, folderRow && folderRow.medianDec)} · CAA (ROTATOR) ${asiairRot != null ? asiairRot.toFixed(1) + '°' : '—'}`,
+    `Separation: ${formatSepDeg(sep)}  ·  Band: ${band}`
+      + (caaDiff != null ? `  ·  CAA Δ: ${caaDiff.toFixed(1)}°` : ''),
     `FOV: ${dims.label || mode} ${dims.w}°×${dims.h}°`,
   ];
+  if (folderRow && folderRow.caaMatch === false) {
+    metaLines.push('⚠ CAA mismatch — dial in Target Framer should match what you set in ASIAIR.');
+  }
   if (opts.night) metaLines.push(`Night: ${opts.night}`);
   document.getElementById('ingest-target-confirm-meta').textContent = metaLines.join('\n');
 
@@ -11975,6 +12034,7 @@ async function resolveTargetIncludesForNight(project, night, opts = {}) {
     projectDir: sourceDir,
     nightDate: night,
     targetCoords: coords || undefined,
+    refCaaDeg: projectFramerCaa(project) ?? undefined,
     skipTargetHint: true,
     // Don't pass shootFilter to scan — we need all folders for the night, then
     // narrow by filter below so target bands stay accurate.
@@ -12179,9 +12239,12 @@ async function reopenIngestTargetMatchSummary() {
 function ingestTargetStageOpts(project) {
   const coords = projectTargetCoords(project);
   const includes = ingestCtx && ingestCtx.includeTargets;
+  const caa = projectFramerCaa(project);
   return {
     includeTargets: includes && includes.length ? includes : null,
     targetCoords: coords || null,
+    refCaaDeg: caa,
+    framerRotation: caa,
     skipTargetHint: !!(includes && includes.length) || !!coords,
   };
 }
@@ -12265,6 +12328,7 @@ async function openSourceReview(pi) {
   const scan = await window.zukoIngest.scanSession({
     projectDir: sourceDir,
     targetCoords: coords || undefined,
+    refCaaDeg: projectFramerCaa(project) ?? undefined,
     skipTargetHint: true,
   });
   if (!scan || !scan.ok) {
@@ -12618,6 +12682,8 @@ async function runIngestScan(opts = {}) {
       shootFilter: multi ? null : (ft ? ft.filter : null),
       includeTargets: targetOpts.includeTargets,
       targetCoords: targetOpts.targetCoords,
+      refCaaDeg: targetOpts.refCaaDeg,
+      framerRotation: targetOpts.framerRotation,
       skipTargetHint: targetOpts.skipTargetHint,
     });
   }
@@ -15517,6 +15583,8 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
     gain: (lightRow && lightRow.gain != null) ? lightRow.gain : (scan.summary && scan.summary.gain),
     tempC: (lightRow && lightRow.tempC != null) ? lightRow.tempC : (scan.summary && scan.summary.tempC),
     stagedAt: meta.stagedAt,
+    softWarnings: result.softWarnings || meta.softWarnings || [],
+    lightCaaDeg: meta.lightCaaDeg != null ? meta.lightCaaDeg : null,
   };
   if ((!sh.hours || sh.hours === 0) && lightRow && lightRow.lights && lightRow.exposureSec) {
     sh.hours = Math.round((lightRow.lights * lightRow.exposureSec / 3600) * 100) / 100;
@@ -15595,6 +15663,8 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     shootFilter: ft ? ft.filter : null,
     includeTargets: targetOpts.includeTargets,
     targetCoords: targetOpts.targetCoords,
+    refCaaDeg: targetOpts.refCaaDeg,
+    framerRotation: targetOpts.framerRotation,
     skipTargetHint: targetOpts.skipTargetHint,
   });
   if (!scan || !scan.ok) return { ok: false, error: (scan && scan.error) || 'Scan failed', scan };
@@ -15624,6 +15694,8 @@ async function ingestSingleShootProgrammatic(pi, si, opts = {}) {
     darkMatchesByFilter: finalUseMasters ? darkInfo.darkMatchesByFilter : {},
     includeTargets: targetOpts.includeTargets,
     targetCoords: targetOpts.targetCoords,
+    refCaaDeg: targetOpts.refCaaDeg,
+    framerRotation: targetOpts.framerRotation,
     skipTargetHint: targetOpts.skipTargetHint,
     ...ingestCalibOverridePayload(),
   });
@@ -15799,6 +15871,7 @@ async function assessAllIngestNightsReadiness() {
       projectDir: resolveAsiairSourceDir(project),
       nightDate: night,
       targetCoords: coords || undefined,
+      refCaaDeg: projectFramerCaa(project) ?? undefined,
       skipTargetHint: true,
       includeTargets: includes && includes.length ? includes : undefined,
     });
@@ -16309,6 +16382,8 @@ async function runIngestStage(force = false) {
       darkMatchesByFilter: useDarks ? darkMatchesByFilter : {},
       includeTargets: targetOpts.includeTargets,
       targetCoords: targetOpts.targetCoords,
+      refCaaDeg: targetOpts.refCaaDeg,
+      framerRotation: targetOpts.framerRotation,
       skipTargetHint: targetOpts.skipTargetHint,
       ...ingestCalibOverridePayload(),
     }), { minMs: 2000 });
@@ -16348,7 +16423,10 @@ async function runIngestStage(force = false) {
     ? ` · reused calib (B${reuse.biasesPreexisting}/D${reuse.darksPreexisting})`
     : '';
   document.getElementById('ingest-progress').textContent =
-    `Imported ${meta.filesStaged || 0} files → ${shortPath((meta.destRoots && meta.destRoots[0]) || '')} · L${by.light || 0} F${by.flat || 0} D${by.dark || 0}${reuseNote}`;
+    `Imported ${meta.filesStaged || 0} files → ${shortPath((meta.destRoots && meta.destRoots[0]) || '')} · L${by.light || 0} F${by.flat || 0} D${by.dark || 0}${reuseNote}`
+    + (((result.softWarnings || meta.softWarnings || []).length)
+      ? ` · CAA: ${(result.softWarnings || meta.softWarnings).join(' · ')}`
+      : '');
   setTimeout(() => closeIngestModal(), 700);
 }
 

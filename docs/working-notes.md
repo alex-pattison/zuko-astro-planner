@@ -25,6 +25,18 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-16 — build 26 — CAA pipeline + camera-up flip
+- Framer label **CAA** (0–359) = ASIAIR dial = `ROTATOR`/`NNNdeg`.
+- Ingest: CAA mismatch forces target confirm; flats must match light CAA (±2°); darkflats soft-flag only.
+- Camera-up marker inverted (local −Y) so ~211° reads upright for this train.
+- Branch `debug/framer-rotation-asiair` kept open. `npm run dist:win:beta` for build 26.
+
+### 2026-08-16 — debug/framer-rotation-asiair
+- Branch renamed from `feat/editable-filter-wheel` (not started).
+- **Bug:** Target Framer could vanish after reorder/re-render (empty placeholder slot; expand never rebuilt chrome). Fixed: always render framer details; detach before index remap; recover on expand.
+- **Product:** Framer rotation slider is **0–359° ASIAIR CAA/ROTATOR** (was 0–180 planning angle). Label clarifies capture angle.
+- **Data:** Dev Veil still **27°**; Beta Veil **40°** (separate JSON pools — not from FIT `211°`). Shots use ROTATOR **211°**.
+
 ### 2026-08-16 — build 25 — Dev bump; Beta dist installs on promote
 - `zukoBuild` **25** (0.3.0). `npm run dist:win:beta` now builds **and** silent-installs + refreshes Desktop shortcut.
 - If Desktop Beta still shows an old version, fully quit Beta and relaunch the Desktop icon (do not leave an old window open across install).

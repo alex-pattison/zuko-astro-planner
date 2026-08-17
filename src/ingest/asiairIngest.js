@@ -56,6 +56,8 @@ const DARKFLAT_FLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
 const TARGET_MATCH_AUTO_DEG = 0.75;
 /** Above auto and at or below this → pre-ingest confirm; farther → other target. */
 const TARGET_MATCH_CONFIRM_DEG = 2.5;
+/** CAA / ROTATOR circular tolerance (planner ↔ lights ↔ flats). */
+const CAA_MATCH_TOL_DEG = 2;
 
 function sanitizeFolderName(name) {
   return String(name || '')
@@ -462,11 +464,76 @@ function median(nums) {
   return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
 }
 
+/** Shortest circular difference between two CAA / ROTATOR angles (0–180). */
+function caaAngleDiffDeg(a, b) {
+  if (a == null || b == null || !Number.isFinite(Number(a)) || !Number.isFinite(Number(b))) return null;
+  let d = Math.abs(((Number(a) - Number(b)) % 360 + 360) % 360);
+  if (d > 180) d = 360 - d;
+  return d;
+}
+
+function caaMatches(a, b, tol = CAA_MATCH_TOL_DEG) {
+  const d = caaAngleDiffDeg(a, b);
+  if (d == null) return true;
+  return d <= tol;
+}
+
 /**
- * Group lights by Light/<folder>, score vs optional reference coords.
- * band: auto | confirm | other | no_coords
+ * Flat/darkflat vs light CAA. Missing frame CAA → soft-include (true).
+ * Wrong CAA when both present → false.
  */
-function buildTargetFolders(lights, refCoords = null) {
+function caaMatchesLight(frameRotDeg, lightRotDeg, tol = CAA_MATCH_TOL_DEG) {
+  if (lightRotDeg == null || !Number.isFinite(Number(lightRotDeg))) return true;
+  if (frameRotDeg == null || !Number.isFinite(Number(frameRotDeg))) return true;
+  return caaMatches(frameRotDeg, lightRotDeg, tol);
+}
+
+function partitionByLightCaa(frames = [], lightCaaDeg, tol = CAA_MATCH_TOL_DEG) {
+  const inRange = [];
+  const outOfRange = [];
+  const missingCaa = [];
+  for (const f of frames) {
+    const rot = f && f.rotatorDeg;
+    if (lightCaaDeg == null || !Number.isFinite(Number(lightCaaDeg))) {
+      inRange.push(f);
+      continue;
+    }
+    if (rot == null || !Number.isFinite(Number(rot))) {
+      missingCaa.push(f);
+      inRange.push(f); // soft-include
+      continue;
+    }
+    if (caaMatches(rot, lightCaaDeg, tol)) inRange.push(f);
+    else outOfRange.push({ ...f, reason: `CAA ${Math.round(Number(rot))}° vs lights ${Math.round(Number(lightCaaDeg))}°` });
+  }
+  return { inRange, outOfRange, missingCaa, lightCaaDeg };
+}
+
+/** Mode CAA / ROTATOR from a frame list (lights preferred). */
+function modeRotatorDeg(frames = []) {
+  const counts = new Map();
+  for (const f of frames) {
+    if (f == null || f.rotatorDeg == null || !Number.isFinite(Number(f.rotatorDeg))) continue;
+    const r = Math.round(Number(f.rotatorDeg));
+    counts.set(r, (counts.get(r) || 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [r, n] of counts) {
+    if (n > bestN) {
+      best = r;
+      bestN = n;
+    }
+  }
+  return best;
+}
+
+/**
+ * Group lights by Light/<folder>, score vs optional reference coords + CAA.
+ * band: auto | confirm | other | no_coords
+ * caaMatch: true | false | null (unknown / missing)
+ */
+function buildTargetFolders(lights, refCoords = null, opts = {}) {
   const byFolder = new Map();
   for (const L of lights || []) {
     const folder = L.targetFolder || L.target || 'Unknown';
@@ -486,6 +553,11 @@ function buildTargetFolders(lights, refCoords = null) {
   const refDec = refCoords && refCoords.dec;
   const hasRef = refRa != null && refDec != null
     && Number.isFinite(Number(refRa)) && Number.isFinite(Number(refDec));
+  const refCaaRaw = opts.refCaaDeg != null ? opts.refCaaDeg
+    : (refCoords && refCoords.caaDeg != null ? refCoords.caaDeg : null);
+  const refCaa = refCaaRaw != null && Number.isFinite(Number(refCaaRaw))
+    ? ((Math.round(Number(refCaaRaw)) % 360) + 360) % 360
+    : null;
 
   return [...byFolder.values()].map((row) => {
     const medianRa = median(row.ras);
@@ -502,6 +574,10 @@ function buildTargetFolders(lights, refCoords = null) {
     } else if (!hasRef) {
       band = 'no_coords';
     }
+    const caaDiffDeg = (medianRotatorDeg != null && refCaa != null)
+      ? caaAngleDiffDeg(medianRotatorDeg, refCaa)
+      : null;
+    const caaMatch = caaDiffDeg == null ? null : caaDiffDeg <= CAA_MATCH_TOL_DEG;
     return {
       folder: row.folder,
       name: row.name,
@@ -509,6 +585,8 @@ function buildTargetFolders(lights, refCoords = null) {
       medianRa,
       medianDec,
       medianRotatorDeg,
+      caaDiffDeg,
+      caaMatch,
       separationDeg,
       band,
     };
@@ -526,9 +604,11 @@ function targetMatchNeedsConfirm(targets, opts = {}) {
     return { needsConfirm: true, reason: 'no_saved_target_multi_folder' };
   }
 
-  // One confident auto match → use it; uncertain/far/no-coords siblings stay excluded
-  // without a popup (same policy as silent `other` exclusion).
+  // One confident auto match → use it unless CAA disagrees with planner.
   if (autos.length === 1) {
+    if (autos[0].caaMatch === false) {
+      return { needsConfirm: true, reason: 'caa_mismatch' };
+    }
     return { needsConfirm: false, reason: 'confident' };
   }
   if (autos.length > 1) {
@@ -895,6 +975,11 @@ async function scanSession(opts = {}) {
     ? opts.includeTargets.map(String)
     : null;
   const targetCoords = opts.targetCoords || null;
+  const refCaaDeg = opts.refCaaDeg != null && Number.isFinite(Number(opts.refCaaDeg))
+    ? Number(opts.refCaaDeg)
+    : (opts.framerRotation != null && Number.isFinite(Number(opts.framerRotation))
+      ? Number(opts.framerRotation)
+      : null);
 
   let sessions = [];
   let projectDir = opts.projectDir || null;
@@ -969,8 +1054,18 @@ async function scanSession(opts = {}) {
   }
 
   // Target folders scored on full night lights (before shootFilter / auto trim).
-  const allTargets = buildTargetFolders(lights, targetCoords);
-  const matchGate = targetMatchNeedsConfirm(allTargets, { refCoords: targetCoords });
+  const allTargets = buildTargetFolders(lights, targetCoords, { refCaaDeg });
+  const matchGate = targetMatchNeedsConfirm(allTargets, { refCoords: targetCoords, refCaaDeg });
+  const softWarnings = [];
+  if (refCaaDeg != null) {
+    for (const t of allTargets) {
+      if (t.caaMatch === false) {
+        softWarnings.push(
+          `CAA mismatch: planner ${Math.round(refCaaDeg)}° vs “${t.folder}” lights ${t.medianRotatorDeg != null ? Math.round(t.medianRotatorDeg) : '—'}° (Δ ${t.caaDiffDeg != null ? t.caaDiffDeg.toFixed(1) : '—'}°)`
+        );
+      }
+    }
+  }
 
   // includeTargets already applied in scanSingleSession when provided.
   // When coords are confident, record the auto folder as the default include set
@@ -1073,6 +1168,7 @@ async function scanSession(opts = {}) {
     targetNames,
     targetMatch: matchGate,
     includeTargets: effectiveIncludes,
+    softWarnings,
     lights: filteredLights,
     flats,
     biases,
@@ -2305,6 +2401,8 @@ async function stageSirilTree(opts = {}) {
     targetHint,
     includeTargets: opts.includeTargets || null,
     targetCoords: opts.targetCoords || null,
+    refCaaDeg: opts.refCaaDeg != null ? opts.refCaaDeg : opts.framerRotation,
+    framerRotation: opts.framerRotation,
     skipTargetHint: opts.skipTargetHint === true,
   });
   if (!scan.ok) return scan;
@@ -2339,9 +2437,50 @@ async function stageSirilTree(opts = {}) {
   }
 
   const lightTempC = modeTempC(lights);
+  const lightCaaDeg = modeRotatorDeg(lights);
+  const softWarnings = [
+    ...(Array.isArray(scan.softWarnings) ? scan.softWarnings : []),
+    ...(Array.isArray(opts.softWarnings) ? opts.softWarnings : []),
+  ];
 
   // Flats must match light temp (±3°C) unless override includes them.
   flats = flats.filter((F) => tempMatchesLight(F.tempC, lightTempC) || isIncluded('flats', F));
+
+  // Flats with known CAA must match light CAA (±2°) unless override includes them.
+  // Missing CAA → soft-include (older dumps) + warn.
+  {
+    const kept = [];
+    let rejectedCaa = 0;
+    let missingCaa = 0;
+    for (const F of flats) {
+      if (isIncluded('flats', F)) {
+        kept.push(F);
+        continue;
+      }
+      const rot = F.rotatorDeg;
+      if (lightCaaDeg != null && (rot == null || !Number.isFinite(Number(rot)))) {
+        missingCaa += 1;
+        kept.push(F);
+        continue;
+      }
+      if (lightCaaDeg != null && !caaMatches(rot, lightCaaDeg)) {
+        rejectedCaa += 1;
+        continue;
+      }
+      kept.push(F);
+    }
+    flats = kept;
+    if (rejectedCaa) {
+      softWarnings.push(
+        `Excluded ${rejectedCaa} flat(s) with CAA ≠ lights (${lightCaaDeg}° ±${CAA_MATCH_TOL_DEG}°)`
+      );
+    }
+    if (missingCaa) {
+      softWarnings.push(
+        `${missingCaa} flat(s) have no ROTATOR/CAA — soft-included vs lights ${lightCaaDeg}°`
+      );
+    }
+  }
 
   const filters = [...new Set([
     ...lights.map((f) => normalizeFilter(f.filter) || 'Unknown'),
@@ -2380,9 +2519,20 @@ async function stageSirilTree(opts = {}) {
       }
     }
     usableBiasesByFilter[filter] = matched;
+    let darkflatCaaSoft = 0;
     for (const b of matched) {
       const name = path.basename(b.filePath || b.fileName || '');
       if (name && b.filePath && !usableBiasByName.has(name)) usableBiasByName.set(name, b);
+      // Soft flag only: darkflat CAA ≠ light CAA (still staged).
+      if (lightCaaDeg != null && b.rotatorDeg != null && Number.isFinite(Number(b.rotatorDeg))
+          && !caaMatches(b.rotatorDeg, lightCaaDeg)) {
+        darkflatCaaSoft += 1;
+      }
+    }
+    if (darkflatCaaSoft) {
+      softWarnings.push(
+        `${darkflatCaaSoft} darkflat(s) CAA ≠ lights ${lightCaaDeg}° (${filter}) — soft flag only`
+      );
     }
   }
   const usableBiases = [...usableBiasByName.values()];
@@ -2762,9 +2912,12 @@ async function stageSirilTree(opts = {}) {
       },
       status: scan.status,
       filterRows: scan.filters,
+      lightCaaDeg,
+      softWarnings,
       stagedAt: new Date().toISOString(),
       errors,
     },
+    softWarnings,
     staged,
     copiedBiases,
     copiedDarks,
@@ -3041,6 +3194,7 @@ module.exports = {
   SIX_MONTHS_MS,
   TARGET_MATCH_AUTO_DEG,
   TARGET_MATCH_CONFIRM_DEG,
+  CAA_MATCH_TOL_DEG,
   parseAsiairFilename,
   parseExposureToSeconds,
   normalizeFilter,
@@ -3051,6 +3205,11 @@ module.exports = {
   readFitsHeaderKeywords,
   parseFitsAngleDegrees,
   angularSeparationDeg,
+  caaAngleDiffDeg,
+  caaMatches,
+  caaMatchesLight,
+  partitionByLightCaa,
+  modeRotatorDeg,
   buildTargetFolders,
   targetMatchNeedsConfirm,
   scanAsiairSource,
