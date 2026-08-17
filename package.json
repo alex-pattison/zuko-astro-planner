@@ -19,7 +19,8 @@
     "test:inventory": "node scripts/inventory-ui-controls.js",
     "seed:beta": "node scripts/seed-beta-dashboard.js",
     "dist:win": "electron-builder --win",
-    "dist:win:beta": "electron-builder --win",
+    "dist:win:beta": "node scripts/dist-win-beta.js",
+    "dist:win:beta:build-only": "node scripts/dist-win-beta.js --build-only",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux"
   },

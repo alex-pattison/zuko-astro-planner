@@ -23,14 +23,15 @@ Two side-by-side channels with **separate data pools** (they never sync):
 | Channel | How you run it | App / dashboard JSON | Imaging files |
 |---|---|---|---|
 | **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` |
-| **Beta** | NSIS installer (`npm run dist:win:beta`) | `H:\Photography\Astrophotography\Dashboard` | `H:\Photography\Astrophotography\Zuko\…` |
+| **Beta** | `npm run dist:win:beta` (build **and** install) | `H:\Photography\Astrophotography\Dashboard` | `H:\Photography\Astrophotography\Zuko\…` |
 
 **One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\zuko_dev` is Dev FITS / synthetic data only.
 
 - Window title shows **Dev** or **Beta** so you know which pool is open.
 - Override either pool with `ZUKO_DATA_DIR` (used by Playwright / QA).
 - Force channel with `ZUKO_CHANNEL=dev` or `ZUKO_CHANNEL=beta`.
-- Promote builds: merge `main` → `beta-release`, then `npm run dist:win:beta`.
+- Promote builds: merge `main` → `beta-release`, then `npm run dist:win:beta` (builds the NSIS Setup, silent-installs over `AppData\Local\Programs\zuko-astro-planner`, refreshes the Desktop Beta shortcut). Use `npm run dist:win:beta:build-only` if you only want the exe in `dist\`.
+- After a Beta promote, launch **Zuko Astro Planner Beta** from the Desktop icon — you should see the new version/build in the header.
 
 **One-time Beta seed** (copies the freshest H: or repo JSON into the Beta folder, then writes `.beta-seeded`; re-runs are no-ops):
 
