@@ -1,14 +1,18 @@
-# Zuko idea catalog
+# Zuko backlog
 
-Prune freely. Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
+Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
 
-**Status key:** keep · later · park · integrated (don’t ship alone)
+| Line | Status |
+|------|--------|
+| **0.2.0** | **Locked** — shipped through build 23 (project reorder, imaging config, ASIAIR filename parse, moon altitude, pipeline). |
+| **0.3.0** | Active — items below. |
+| **Backlog** | Everything else. |
 
 ---
 
-## Keep
+## 0.3.0 (active)
 
-### 1. Editable filter wheel
+### 1. Editable filter wheel ← *current*
 
 Capture Plan filter dropdowns use a hard-coded EFW list. Settings should own add/rename/reorder and feed those dropdowns.
 
@@ -40,51 +44,19 @@ Spinner/skeleton while disk reconcile + first render finish.
 
 ---
 
-### 5. ASIAIR Plan CSV / coords export from Target Framer
-
-Export RA/Dec/rotation (later mosaic panels) in the CSV shape ASIAIR Plan can import.
-
-**Why:** Pad setup without re-framing; same pattern CN users use with Telescopius → ASIAIR.
-
----
-
 ### 6. Surface gain / camera / rotator on nights & shoots
 
 New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Show them in the shoot/night UI.
 
-**Notes (Alex):** Filename vs metadata as source of truth?
-
-**Decision / best practice:** Prefer **FITS header when present**; use **filename as fallback** (and optionally flag mismatches). Ingest already merges that way (`mergeHeaderIntoParsed`). UI should display the merged values, not re-parse the name alone. A small “filename ≠ header” chip is a nice validation extra later.
-
----
-
-### 7. Ingest move (or move-then-symlink)
-
-Stop always leaving a full second copy of lights after import. Move claimed frames out of the dump once import is verified (or move + symlink).
-
-**Why:** Dump + project tree doubles disk. Don’t delete until import OK.
+**Source of truth:** Prefer **FITS header when present**; **filename as fallback** (optionally flag mismatches). Ingest already merges that way. UI should display merged values.
 
 ---
 
 ### 8. Rotation alignment: lights ↔ flats (+ soft darkflat flag)
 
-Soft warn when saved framer / project rotation ≠ recent dump `ROTATOR`. Going forward, treat **matching rotation as a requirement when pairing lights and flats** (re-shoot flats if rotation changed). Dark flats: optional soft flag only (less critical).
+Soft warn when saved framer / project rotation ≠ recent dump `ROTATOR`. Treat **matching rotation as a requirement when pairing lights and flats** (re-shoot flats if rotation changed). Dark flats: optional soft flag only.
 
-**Why:** Flats/stacks assume rotation; already in project notes.
-
----
-
-### 9. Signed Windows Beta builds
-
-Code-sign the installer so SmartScreen stops blocking.
-
----
-
-### 10. Beta auto-update
-
-Check GitHub Releases (or similar) and offer restart-to-update (`electron-updater`).
-
-**Depends on:** #9 is nicer first; optional if manual install is fine.
+**Why:** Flats/stacks assume rotation.
 
 ---
 
@@ -94,191 +66,109 @@ Write last N main/renderer errors to a zipable folder. No cloud required.
 
 ---
 
-### 12. First-run / empty-state guide
+## Backlog
 
-New install: walk “set ASIAIR dump + dark library” instead of empty projects.
+### ASIAIR / ingest / framer
 
-**Why:** Clean machine / shared Beta. Lower priority for solo daily use.
+#### 5. ASIAIR Plan CSV / coords export from Target Framer
 
----
+Export RA/Dec/rotation (later mosaic panels) in the CSV shape ASIAIR Plan can import.
 
-### 13. In-app culling UI **(with FITS thumb / HFR preview)**
+#### 7. Ingest move (or move-then-symlink)
 
-Cull inside Zuko (frame list + quality), write cull lists — beyond “scan Siril `.seq` + mark Cull done.”
+Move claimed frames out of the dump once import is verified (stop doubling disk).
 
-**Requirement (Alex):** FITS thumbs and/or simple HFR (or similar) preview are **part of this feature**, not a follow-up. Without preview, don’t bother.
+#### 9. Signed Windows Beta builds
 
----
+Code-sign the installer so SmartScreen stops blocking.
 
-### 14. Imaging windows (alt + night + moon-by-filter)
+#### 10. Beta auto-update
 
-Per project: when the target is high enough *and* moon is far enough for Ha vs OIII vs SII (Telescopius-style opportunity blocks).
+`electron-updater` + GitHub Releases; nicer after #9.
 
-**Notes (Alex):** Really cool — strong keep.
+#### 12. First-run / empty-state guide
 
-**Why:** Bortle 9 + narrowband priority.
+Walk “set ASIAIR dump + dark library” on clean install.
 
----
+#### 17. Mosaic panels
 
-### 15. Forecast ↔ project “best next N nights”
+Multi-panel grid with overlap % and per-panel centers.
 
-Sky Forecast ranks nights for *this* project/filter (e.g. Rosette Ha), not only generic weather.
+#### 18. Mosaic → ASIAIR Plan CSV export
 
-**Depends on / pairs with:** #14.
-
----
-
-### 16. Site horizon profile
-
-Draw NYC roof / Queechy tree line so “visible” isn’t a flat altitude cut.
-
-**Notes (Alex):** Same idea as Stellarium horizon — needed for home pier reality.
-
-**Depends on:** After #14 is more useful.
+Depends on #17; extension of #5.
 
 ---
 
-### 17. Mosaic panels
+### Planning / discovery
 
-Multi-panel grid with overlap % and per-panel centers (UI already says mosaics aren’t supported).
+#### 14. Imaging windows (alt + night + moon-by-filter)
 
-**When:** Only when a target won’t fit one reducer frame.
+Per project: high enough *and* moon far enough for Ha vs OIII vs SII.
 
----
+#### 15. Forecast ↔ project “best next N nights”
 
-### 18. Mosaic → ASIAIR Plan CSV export
+Rank nights for *this* project/filter. Pairs with #14.
 
-Export mosaic panel centers into ASIAIR Plan import CSV.
+#### 16. Site horizon profile
 
-**Depends on:** #17. Little value alone. Natural extension of #5.
+NYC roof / Queechy tree line (Stellarium-style). More useful after #14.
 
----
+#### 19. Optional Telescopius API target search
 
-### 19. Optional Telescopius API target search
+Respect ToS / non-commercial. Sesame/MAST already covers lookup.
 
-Search/highlights via Telescopius API (respect ToS / non-commercial).
+#### 20. “Highlights for my FOV + Bortle”
 
-**Why:** Richer discovery than name→coords. Sesame/MAST already covers lookup — keep optional.
+Seasonal targets that fit FOV from city LP. Needs catalog and/or #14.
 
----
+#### 21. AstroBin deeper pull
 
-### 20. “Highlights for my FOV + Bortle”
+Fetch public integration / plate-solve if API allows. Links may be enough.
 
-“These targets fit ~3.9°×2.7° and work from Bortle 9 this month.”
+#### Channel balance advisor *(integrated)*
 
-**Depends on:** Catalog and/or #14.
+Fold into #14 / #15 / project UX — not a standalone feature.
 
----
+#### AI target composition & filter-hour estimates
 
-### 21. AstroBin deeper pull
-
-Beyond storing a link — fetch public integration / plate-solve if API allows.
-
-**Rec:** Low — links may be enough.
+Suggest framing + hours per filter for rig + site. Spike first — wrong-advice risk.
 
 ---
 
-### 22. Session quality history chart
+### Processing / quality
 
-HFR / star count over nights — spot focus/seeing trends.
+#### 13. In-app culling UI **(requires FITS thumb / HFR preview)**
 
-**Notes (Alex):** Interesting.
+Cull in Zuko with thumbs/metrics. Without preview, don’t bother.
 
-**Depends on:** A metric source (in-app cull #13, or Siril/export later).
+#### 22. Session quality history chart
 
----
-
-## Integrated (don’t ship as standalone)
-
-### Channel balance advisor
-
-“You’re short SII; moon is up → prefer SII tonight.”
-
-**Notes (Alex):** Fold into #14 / #15 / project UX — not a separate product.
+HFR / star count over nights. Needs a metric source (#13 or export).
 
 ---
 
-## New from notes
+### Platform / later
 
-### AI target composition & filter-hour estimates
+#### Mobile viewing / companion
 
-Built-in help that suggests composition framing and hours per filter (Ha/OIII/SII/…) for a target given rig + site (Bortle, FOV).
+Forecast / projects / “go image” on phone; later push notifications.
 
-**Notes (Alex):** Explicit project idea. Treat as research/spike before committing — data quality and “wrong advice” risk matter more than a chatbot wrapper.
+#### Cloud sync
 
-**Pairs with:** #14–15, Capture Plan targets.
+Across machines. Needs auth, conflicts, and backup (#2) first.
 
----
+#### Weather alerts / “go image”
 
-### Mobile viewing / companion
+Park until imaging windows exist; revisit with mobile push. Astrospheric credits matter.
 
-View forecast, projects, “go image” status on phone; later push notifications.
+#### Export night plan → NINA sequencer
 
-**Notes (Alex):** Wanted. Weather alerts (# below) become push on mobile.
-
-**Status:** Later platform — not near-term Electron work.
+Park — no plan to use NINA soon.
 
 ---
 
-### Cloud sync
+### Explicitly not doing (for now)
 
-Sync dashboard / settings across machines (or Dev↔laptop).
-
-**Notes (Alex):** Wanted eventually. Was listed out-of-scope; moved here as aspirational.
-
-**Status:** Later. Needs auth, conflict rules, and backup story (#2) first.
-
----
-
-## Park / very low
-
-### Export night plan → NINA sequencer
-
-**Notes (Alex):** Low low priority — no plan to use NINA soon.
-
----
-
-### Weather alerts / “go image” (desktop)
-
-Notify when seeing/clouds/moon look good.
-
-**Notes (Alex):** Fun; eventually mobile push. Astrospheric credits matter on desktop pulls.
-
-**Status:** Park until #14–15 exist; revisit with mobile.
-
----
-
-## Explicitly not doing (for now)
-
-- Replacing ASIAIR / NINA as the **capture** controller  
-- Full planetarium (Aladin framer is enough)  
-
-~~Cloud sync~~ → moved to **New from notes**  
-~~Mobile companion~~ → moved to **New from notes**
-
----
-
-## Removed in this cleanup
-
-Dropped (empty sections / no keep signal): night summary strip, Dev vs Beta path labels, framer e2e-only item, per-filter hardlink bias edge case, deeper multi-site travel mode, plate-solve vs framer verify, import HFR from capture apps, cross-project aggregates, OpenAstronomyLog export.
-
----
-
-## Sorting scratchpad
-
-```text
-## 0.2.x
--
-
-## 0.3.x
--
-
-## Later
-- Mobile viewing / companion
-- Cloud sync
-- Weather alerts (with mobile)
-- AI composition & filter hours (spike first)
-
-## Park
-- NINA sequencer export
-```
+- Replacing ASIAIR / NINA as the **capture** controller
+- Full planetarium (Aladin framer is enough)

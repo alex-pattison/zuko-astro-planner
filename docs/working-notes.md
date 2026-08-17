@@ -25,6 +25,11 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-16 — build 24 — Open 0.3.0 line
+- **0.2.0 locked** (through build 23). Version bumped to **0.3.0**.
+- Active 0.3.0 scope: backlog #1, #2, #3, #4, #6, #8, #11 (see `docs/backlog.md`). Starting with #1 editable filter wheel.
+- `npm run dist:win:beta` for build 24 installer.
+
 ### 2026-08-16 — build 23 — Project reorder / dates / imaging config + ASIAIR filename parse
 - Drag-reorder projects; shoot start/end from shot log (manual override); imaging config FOV in meta + framer; Set center unlocked.
 - ASIAIR filenames: `294MM` / `gainN` / `NNNdeg` parse (header still wins when present).
