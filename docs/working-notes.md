@@ -25,6 +25,11 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-17 — build 27 — Moon cycle day (not the waning twin)
+- **Seen:** Beta showed **day 24** for a 26% waxing crescent (should be **day 5**).
+- **Cause:** Astrospheric phase angle has two roots at the same illumination; a float compare picked the waning twin.
+- **Fix:** Drop that flip; prefer Open-Meteo `moon_phase` (0=new); use next-phase list for waxing/waning. `npm run dist:win:beta`.
+
 ### 2026-08-16 — build 26 — CAA pipeline + camera-up flip
 - Framer label **CAA** (0–359) = ASIAIR dial = `ROTATOR`/`NNNdeg`.
 - Ingest: CAA mismatch forces target confirm; flats must match light CAA (±2°); darkflats soft-flag only.

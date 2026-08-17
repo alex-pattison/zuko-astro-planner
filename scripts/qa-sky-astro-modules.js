@@ -49,6 +49,7 @@ function loadRendererAstro() {
     'nasaMoonImageUrl',
     'phaseNameFromFraction',
     'phaseFractionFromAstrospheric',
+    'waxingHintFromNextPhases',
     'parseOmLocal',
   ];
   for (const name of names) {
@@ -252,6 +253,22 @@ async function main() {
   const urlB = A.nasaMoonImageUrl(new Date('2026-08-28T04:18:00Z'));
   ok('nasa url format', /mm-256-75\/\d{3}\.webp$/.test(urlA), urlA);
   ok('new vs full different frames', urlA !== urlB, urlA.split('/').pop() + ' vs ' + urlB.split('/').pop());
+
+  console.log('\nAstrospheric cycle day (no waning twin)');
+  const synodic = 29.530588853;
+  const cycleDay = (frac) => Math.round((((Number(frac) % 1) + 1) % 1) * synodic);
+  // Live Beta cache 2026-08-17: 26% lit, φ=118.6°, next = First Quarter.
+  const betaFrac = A.phaseFractionFromAstrospheric(118.6234, 26.047, 0.145);
+  ok('waxing crescent is day ~5 not 24', cycleDay(betaFrac) === 5, 'day ' + cycleDay(betaFrac) + ' frac=' + betaFrac.toFixed(4));
+  const waneHint = A.phaseFractionFromAstrospheric(118.6234, 26.047, 0.75);
+  ok('waning hint stays waning', cycleDay(waneHint) === 24, 'day ' + cycleDay(waneHint));
+  const nextQ = A.waxingHintFromNextPhases(
+    [{ phase: 'First Quarter', timeUtc: '2026-08-20T02:46:58Z' }],
+    new Date('2026-08-17T14:00:00Z')
+  );
+  ok('next first-quarter ⇒ waxing', nextQ === true);
+  const omDay = cycleDay(0.173);
+  ok('Open-Meteo 0.173 ⇒ day 5', omDay === 5, 'day ' + omDay);
 
   // --- Seasonal twilight ---
   console.log('\nSeasonal twilight windows (noon→noon)');

@@ -5524,7 +5524,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.3.0', build: 26, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.3.0', build: 27, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -7480,6 +7480,19 @@ function nasaMoonImageUrl(date = new Date()) {
   return nasaMoonImageUrlFromFraction(moonPhaseInfo(date).phase);
 }
 
+/** Next major phase implies waxing (first/full) vs waning (last/new). */
+function waxingHintFromNextPhases(nextPhases, now = new Date()) {
+  const upcoming = (nextPhases || [])
+    .map((p) => ({ phase: p && p.phase, t: p && p.timeUtc ? Date.parse(p.timeUtc) : NaN }))
+    .filter((p) => p.phase && Number.isFinite(p.t) && p.t > +now)
+    .sort((a, b) => a.t - b.t);
+  if (!upcoming.length) return null;
+  const n = String(upcoming[0].phase).toLowerCase();
+  if (/first/.test(n) || (/full/.test(n) && !/new/.test(n))) return true;
+  if (/last|third/.test(n) || /new/.test(n)) return false;
+  return null;
+}
+
 /** Map Astrospheric phase angle (deg) → synodic fraction 0=new … 0.5=full … 1=new. */
 function phaseFractionFromAstrospheric(phaseAngleDeg, illuminationPercent, localPhase) {
   if (phaseAngleDeg == null || !Number.isFinite(Number(phaseAngleDeg))) return localPhase;
@@ -7487,19 +7500,11 @@ function phaseFractionFromAstrospheric(phaseAngleDeg, illuminationPercent, local
   const phi = Math.abs(((Number(phaseAngleDeg) % 360) + 360) % 360);
   const phiFold = phi > 180 ? 360 - phi : phi; // 0..180
   const fromFull = phiFold / 360; // 0 at full → 0.5 at new
-  // Pick waxing vs waning side using local phase (or illum slope via local).
+  // Waxing vs waning: illumination matches both roots — never flip on a float tie.
   const local = ((Number(localPhase) % 1) + 1) % 1;
-  const waxing = local < 0.5;
-  let t = waxing ? (0.5 - fromFull) : (0.5 + fromFull);
-  t = ((t % 1) + 1) % 1;
-  // Sanity: if API illum is present, prefer the root that matches it.
-  if (illuminationPercent != null && Number.isFinite(Number(illuminationPercent))) {
-    const k = Math.max(0, Math.min(1, Number(illuminationPercent) / 100));
-    const illumOf = (frac) => (1 - Math.cos(2 * Math.PI * frac)) / 2;
-    const tAlt = ((1 - t) % 1 + 1) % 1;
-    if (Math.abs(illumOf(tAlt) - k) < Math.abs(illumOf(t) - k)) t = tAlt;
-  }
-  return t;
+  const waxing = Number.isFinite(local) ? local < 0.5 : true;
+  const t = waxing ? (0.5 - fromFull) : (0.5 + fromFull);
+  return ((t % 1) + 1) % 1;
 }
 
 function phaseNameFromFraction(t) {
@@ -7800,21 +7805,30 @@ function renderMoonTrackCard(lat, lon, astronomy) {
   const om = astronomy && astronomy.openMeteo && astronomy.openMeteo.ok ? astronomy.openMeteo : null;
   const dayIdx = omDayIndex(om && om.daily, now);
 
-  // Photo / SVG / % illuminated must share one phase. Prefer Astrospheric when fresh (24h),
-  // then lock visuals to the displayed illumination so they never disagree.
+  // Photo / SVG / % illuminated / cycle day must share one synodic fraction.
+  // Open-Meteo moon_phase is 0=new … 0.5=full (unambiguous waxing vs waning).
+  // Astrospheric phase angle has two roots at the same illumination — a 1e-16
+  // compare used to pick the waning twin (day 24 instead of day 5).
   const MOON_FRESH_MS = 24 * 3600 * 1000;
   const apiFetchedMs = moonApi && moonApi.fetchedAt ? Date.parse(moonApi.fetchedAt) : NaN;
   const apiFresh = Number.isFinite(apiFetchedMs) && (Date.now() - apiFetchedMs) < MOON_FRESH_MS;
+  const omPhaseRaw = (om && om.daily && dayIdx >= 0 && om.daily.moon_phase)
+    ? Number(om.daily.moon_phase[dayIdx])
+    : NaN;
   let phaseFrac = local.phase;
-  if (apiFresh && moonApi) {
+  if (Number.isFinite(omPhaseRaw)) {
+    phaseFrac = ((omPhaseRaw % 1) + 1) % 1;
+  } else if (apiFresh && moonApi) {
+    const waxingHint = waxingHintFromNextPhases(moonApi.nextPhases, now);
+    const preferPhase = waxingHint == null ? local.phase : (waxingHint ? 0.25 : 0.75);
     if (moonApi.phaseAngle != null && Number.isFinite(Number(moonApi.phaseAngle))) {
       phaseFrac = phaseFractionFromAstrospheric(
         moonApi.phaseAngle,
         moonApi.illuminationPercent,
-        local.phase
+        preferPhase
       );
     } else if (moonApi.illuminationPercent != null) {
-      phaseFrac = phaseFractionMatchingIllum(moonApi.illuminationPercent, local.phase);
+      phaseFrac = phaseFractionMatchingIllum(moonApi.illuminationPercent, preferPhase);
     }
   }
   const illum = Math.round(((1 - Math.cos(2 * Math.PI * phaseFrac)) / 2) * 100);
