@@ -2,6 +2,8 @@
 
 Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
 
+**On every build or version ship:** update this file *and* the [0.3.0 planning canvas](C:/Users/alexp/.cursor/projects/c-Users-alexp-Projects-zuko-astro-planner/canvases/zuko-backlog-02-vs-03.canvas.tsx) (current `version` / `zukoBuild`, shipped items, next headline).
+
 | Line | Status |
 |------|--------|
 | **0.2.0** | **Locked** — shipped through build 23 (project reorder, imaging config, ASIAIR filename parse, moon altitude, pipeline). |
@@ -15,6 +17,18 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 ### 1. Editable filter wheel — *shipped build 29*
 
 Filters section is the source of truth (add/edit/remove, slot, color). Capture Plan dropdowns read `data.filters`.
+
+---
+
+### 23. Filter mount + size (before go-live)
+
+Today the catalog is only names and slot numbers. Spell the hardware so it isn’t implied EFW 8×31.
+
+- **Mount:** integrated filter, filter drawer, or filter wheel. If a wheel: which one and how many slots.
+- **Slot numbers:** only when the mount is a wheel (the numbers already on each filter). Hidden/omitted for integrated and drawer.
+- **Size:** a size field on each filter (e.g. 31mm unmounted / 2").
+
+**Why:** Next wheel or drawer change would make the UI lie again.
 
 ---
 

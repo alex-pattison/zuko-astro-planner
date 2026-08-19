@@ -1,0 +1,18 @@
+---
+description: Refresh the backlog canvas whenever zukoBuild or version ships
+alwaysApply: true
+---
+
+# Update backlog canvas on every ship
+
+Whenever `package.json` **`zukoBuild`** and/or **`version`** is bumped, or a ship is merged/pushed (`main` / `beta-release`, `npm run dist:win:beta`):
+
+1. Mark shipped items in `docs/backlog.md`.
+2. Log the build in `docs/working-notes.md`.
+3. **Update the planning canvas** so it matches that ship — current version, current build, completed vs next items, and the “shipped since” callout.
+
+Canvas file (open beside chat):
+
+`C:\Users\alexp\.cursor\projects\c-Users-alexp-Projects-zuko-astro-planner\canvases\zuko-backlog-02-vs-03.canvas.tsx`
+
+Canonical list stays `docs/backlog.md`. The canvas is the visual snapshot; do not leave it a build behind.

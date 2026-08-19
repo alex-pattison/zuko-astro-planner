@@ -11,13 +11,14 @@ Keep dated notes terse. Use the template below when useful.
 - **Seen:** …
 - **Cause:** … (if known)
 - **Fix / next:** …
+- **Canvas:** sync `zuko-backlog-02-vs-03` to this `zukoBuild` / version (shipped items + next headline).
 ```
 
 ---
 
 ## Backlog
 
-Canonical list: **[`docs/backlog.md`](backlog.md)** (0.2 polish vs 0.3 planning, best-practice app items, competitive notes).
+Canonical list: **[`docs/backlog.md`](backlog.md)**. Visual snapshot: [0.3.0 planning canvas](C:/Users/alexp/.cursor/projects/c-Users-alexp-Projects-zuko-astro-planner/canvases/zuko-backlog-02-vs-03.canvas.tsx) — refresh it on every `zukoBuild` / version ship.
 
 Scratch items still land here until promoted:
 
@@ -29,6 +30,7 @@ Scratch items still land here until promoted:
 - **Seen:** Capture Plan dropdowns were a hard-coded EFW list; Filter Wheel header was hardware copy.
 - **Fix:** Filters section CRUD (slot, color presets + picker). In-app confirm/alert. Capture Plan + pipeline follow catalog names/colors. `npm run dist:win:beta`.
 - Branch `feat/editable-filter-wheel`.
+- **Canvas:** backlog snapshot updated to 0.3.0 / build 29 (#1 complete; #23 next on filters).
 
 ### 2026-08-17 — build 28 — Local NASA moon stills
 - **Seen:** Moon card was a black disc on Dev and Beta (not a new moon).
