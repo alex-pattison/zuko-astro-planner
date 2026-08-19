@@ -8,6 +8,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const scripts = [
   'scripts/qa-project-framer-fov.js',
+  'scripts/qa-filters.js',
   'scripts/qa-asiair-filename.js',
   'scripts/_test-calib-focused-qa.js',
   'scripts/qa-asiair-ingest.js',

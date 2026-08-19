@@ -12,11 +12,9 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 
 ## 0.3.0 (active)
 
-### 1. Editable filter wheel — *on `feat/editable-filter-wheel`*
+### 1. Editable filter wheel — *shipped build 29*
 
-Capture Plan filter dropdowns use a hard-coded EFW list. Settings should own add/rename/reorder and feed those dropdowns.
-
-**Why:** First wheel change makes the UI lie.
+Filters section is the source of truth (add/edit/remove, slot, color). Capture Plan dropdowns read `data.filters`.
 
 ---
 

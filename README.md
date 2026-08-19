@@ -97,7 +97,7 @@ Live Wi‑Fi auto-watch of a connected ASIAIR is still deferred — use Browse t
 
 ## External weather & astronomy data
 
-Sky Forecast, Moon, and Sun cards pull from Astrospheric, Open-Meteo, NASA moon frames (CDN), and a few location/map helpers. Full inventory (endpoints, fields, cache, credits):
+Sky Forecast, Moon, and Sun cards pull from Astrospheric, Open-Meteo, bundled NASA SVS moon stills (`vendor/moon-cycle/`), and a few location/map helpers. Full inventory (endpoints, fields, cache, credits):
 
 → **[docs/external-data.md](docs/external-data.md)**
 

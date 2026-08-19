@@ -21,9 +21,14 @@ Canonical list: **[`docs/backlog.md`](backlog.md)** (0.2 polish vs 0.3 planning,
 
 Scratch items still land here until promoted:
 
-- **Filter Wheel: add/edit filters** — Filter Target dropdown is fed from the hard-coded EFW slots; make the wheel section editable and the source of truth for available filters.
+---
 
 ## Log
+
+### 2026-08-18 — build 29 — Editable Filters
+- **Seen:** Capture Plan dropdowns were a hard-coded EFW list; Filter Wheel header was hardware copy.
+- **Fix:** Filters section CRUD (slot, color presets + picker). In-app confirm/alert. Capture Plan + pipeline follow catalog names/colors. `npm run dist:win:beta`.
+- Branch `feat/editable-filter-wheel`.
 
 ### 2026-08-17 — build 28 — Local NASA moon stills
 - **Seen:** Moon card was a black disc on Dev and Beta (not a new moon).

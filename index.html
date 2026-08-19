@@ -2744,18 +2744,41 @@
   .spec-val { color: var(--text2); font-family: var(--mono); text-align: right; }
 
   /* Filters */
-  .filter-slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .filter-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 8px; }
   .filter-slot {
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px 8px;
     text-align: center;
+    position: relative;
+    cursor: pointer;
   }
+  .filter-slot:hover { background: var(--bg3); }
   .slot-number { font-family: var(--mono); font-size: 10px; color: var(--gray); margin-bottom: 6px; }
   .slot-name { font-family: var(--mono); font-size: 11px; font-weight: 700; margin-bottom: 4px; }
   .slot-brand { font-size: 10px; color: var(--gray); }
   .slot-bw { font-family: var(--mono); font-size: 10px; color: var(--text2); margin-top: 4px; }
+  .filter-color-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .filter-color-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-color-swatch {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid transparent;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.35);
+    padding: 0; cursor: pointer;
+  }
+  .filter-color-swatch.selected {
+    border-color: var(--text);
+    box-shadow: 0 0 0 1px var(--bg), inset 0 0 0 1px rgba(0,0,0,0.35);
+  }
+  .filter-color-custom {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--gray); cursor: pointer;
+  }
+  .filter-color-custom input[type="color"] {
+    width: 28px; height: 28px; padding: 0; border: 1px solid var(--border);
+    border-radius: 6px; background: transparent; cursor: pointer;
+  }
 
   .filter-ha { color: #f87171; border-color: #7f1d1d; }
   .filter-oiii { color: #67e8f9; border-color: #164e63; }
@@ -2765,6 +2788,8 @@
   .filter-r { color: #fca5a5; border-color: #7f1d1d; }
   .filter-g { color: #86efac; border-color: #14532d; }
   .filter-b { color: #93c5fd; border-color: #1e3a5f; }
+  .filter-rgb { color: #fca5a5; border-color: #7f1d1d; }
+  .filter-other { color: #94a3b8; border-color: #475569; }
   html[data-theme="red"] .filter-ha,
   html[data-theme="red"] .filter-r { color: #ff1a1a; border-color: #7a0000; }
   html[data-theme="red"] .filter-oiii { color: #e05050; border-color: #5a0000; }
@@ -2773,6 +2798,8 @@
   html[data-theme="red"] .filter-l { color: #ff9999; border-color: #661111; }
   html[data-theme="red"] .filter-g { color: #dd5555; border-color: #550000; }
   html[data-theme="red"] .filter-b { color: #bb4444; border-color: #440000; }
+  html[data-theme="red"] .filter-rgb { color: #ff2a2a; border-color: #7a0000; }
+  html[data-theme="red"] .filter-other { color: #992222; border-color: #440000; }
 
   /* Config table */
   .config-table { width: 100%; border-collapse: collapse; }
@@ -3083,6 +3110,22 @@
 
   .modal-overlay.open { display: flex; }
 
+  .app-dialog-overlay { z-index: 13000; }
+  .app-dialog { max-width: 420px; }
+  .app-dialog-body {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.45;
+    white-space: pre-wrap;
+    margin: 0 0 8px;
+  }
+  .modal-btn.primary.danger {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  html[data-theme="red"] .modal-btn.primary.danger { color: #1a0505; }
+
   html.modal-open,
   body.modal-open {
     overflow: hidden !important;
@@ -3140,6 +3183,13 @@
     margin-top: 20px;
     justify-content: flex-end;
   }
+  .modal-actions #modal-remove { margin-right: auto; }
+  .modal-btn.danger {
+    color: var(--red);
+    border-color: var(--red);
+    background: transparent;
+  }
+  .modal-btn.danger:hover { background: color-mix(in srgb, var(--red) 16%, transparent); }
 
   .modal-btn {
     font-family: var(--mono);
@@ -4462,7 +4512,7 @@
   @media (max-width: 640px) {
     body { padding: 12px 10px; }
     h1 { font-size: 20px; }
-    .filter-slots { grid-template-columns: repeat(4, 1fr); }
+    .filter-slots { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
     .delivery-item { grid-template-columns: 20px 1fr auto 24px; }
     .delivery-tracking { display: none; }
 
@@ -5037,24 +5087,17 @@
   <div id="asset-list"></div>
   </details>
 
-  <!-- Filter Wheel -->
+  <!-- Filters -->
   <details class="collapsible" open data-section="filter-wheel">
     <summary class="section-header">
       <span class="sec-chevron">▶</span>
-      <h2>Filter Wheel — EFW 8×31mm</h2>
+      <h2>Filters</h2>
       <div class="section-line"></div>
     </summary>
-
-  <div class="filter-slots">
-    <div class="filter-slot filter-l"><div class="slot-number">01</div><div class="slot-name">L</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Luminance</div></div>
-    <div class="filter-slot filter-r"><div class="slot-number">02</div><div class="slot-name">R</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Red</div></div>
-    <div class="filter-slot filter-g"><div class="slot-number">03</div><div class="slot-name">G</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Green</div></div>
-    <div class="filter-slot filter-b"><div class="slot-number">04</div><div class="slot-name">B</div><div class="slot-brand">Astrodon</div><div class="slot-bw">Blue</div></div>
-    <div class="filter-slot filter-sii"><div class="slot-number">05</div><div class="slot-name">SII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-ha"><div class="slot-number">06</div><div class="slot-name">Hα</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-oiii"><div class="slot-number">07</div><div class="slot-name">OIII</div><div class="slot-brand">Astrodon</div><div class="slot-bw">5nm</div></div>
-    <div class="filter-slot filter-hb"><div class="slot-number">08</div><div class="slot-name">Hβ</div><div class="slot-brand">Baader</div><div class="slot-bw">5nm</div></div>
-  </div>
+    <div class="section-toolbar">
+      <button class="add-btn" data-testid="add-filter" onclick="addWheelFilter()">+ Add Filter</button>
+    </div>
+    <div class="filter-slots" id="filter-slots"></div>
   </details>
 
   <!-- Imaging Configs -->
@@ -5116,8 +5159,20 @@
     <h3 id="modal-title">Add Item</h3>
     <div id="modal-fields"></div>
     <div class="modal-actions">
+      <button class="modal-btn danger" id="modal-remove" data-testid="modal-remove" onclick="removeCurrentWheelFilter()" hidden>Remove filter</button>
       <button class="modal-btn" data-testid="modal-cancel" onclick="closeModal()">Cancel</button>
       <button class="modal-btn primary" data-testid="modal-save" onclick="saveModal()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay app-dialog-overlay" id="app-dialog-overlay" data-testid="app-dialog-overlay" onclick="if(event.target===this)closeAppDialog(false)">
+  <div class="modal app-dialog" role="alertdialog" aria-modal="true" aria-labelledby="app-dialog-title" aria-describedby="app-dialog-body">
+    <h3 id="app-dialog-title">Notice</h3>
+    <p id="app-dialog-body" class="app-dialog-body"></p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" id="app-dialog-cancel" data-testid="app-dialog-cancel" onclick="closeAppDialog(false)">Cancel</button>
+      <button type="button" class="modal-btn primary" id="app-dialog-ok" data-testid="app-dialog-ok" onclick="closeAppDialog(true)">OK</button>
     </div>
   </div>
 </div>
@@ -5524,7 +5579,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.3.0', build: 28, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.3.0', build: 29, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -5643,6 +5698,34 @@ function renderImagingConfigsTable() {
   `).join('');
 }
 
+const FILTER_NAMED_COLOR_KEYS = ['ha', 'oiii', 'sii', 'hb', 'l', 'r', 'g', 'b'];
+const FILTER_COLOR_PRESETS = [
+  { key: 'ha', label: 'Ha', hex: '#f87171' },
+  { key: 'oiii', label: 'OIII', hex: '#67e8f9' },
+  { key: 'sii', label: 'SII', hex: '#fde68a' },
+  { key: 'hb', label: 'Hβ', hex: '#818cf8' },
+  { key: 'l', label: 'L', hex: '#e2e8f0' },
+  { key: 'r', label: 'R', hex: '#fca5a5' },
+  { key: 'g', label: 'G', hex: '#86efac' },
+  { key: 'b', label: 'B', hex: '#93c5fd' },
+];
+const FILTER_EXTRA_COLORS = [
+  { label: 'Magenta', hex: '#e879f9' },
+  { label: 'Orange', hex: '#fb923c' },
+  { label: 'Teal', hex: '#2dd4bf' },
+  { label: 'Pink', hex: '#f472b6' },
+];
+const DEFAULT_FILTERS = [
+  { id: 'l', name: 'L', brand: 'Astrodon', band: 'Luminance', colorKey: 'l', slot: 1 },
+  { id: 'r', name: 'R', brand: 'Astrodon', band: 'Red', colorKey: 'r', slot: 2 },
+  { id: 'g', name: 'G', brand: 'Astrodon', band: 'Green', colorKey: 'g', slot: 3 },
+  { id: 'b', name: 'B', brand: 'Astrodon', band: 'Blue', colorKey: 'b', slot: 4 },
+  { id: 'sii', name: 'SII', brand: 'Astrodon', band: '5nm', colorKey: 'sii', slot: 5 },
+  { id: 'ha', name: 'Ha', brand: 'Astrodon', band: '5nm', colorKey: 'ha', slot: 6 },
+  { id: 'oiii', name: 'OIII', brand: 'Astrodon', band: '5nm', colorKey: 'oiii', slot: 7 },
+  { id: 'hb', name: 'Hb', brand: 'Baader', band: '5nm', colorKey: 'hb', slot: 8 },
+];
+
 const defaultData = {
   rigName: 'Zuko',
   homeSite: { ...HOME_SITE },
@@ -5656,6 +5739,7 @@ const defaultData = {
     indexedAt: null
   },
   asiairSourcePath: '',
+  filters: JSON.parse(JSON.stringify(DEFAULT_FILTERS)),
   projects: [
     {
       name: 'Veil Nebula — Full Complex',
@@ -6134,11 +6218,12 @@ let data = defaultData;
 try {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) adoptLoadedData(JSON.parse(raw));
-  else ensureHomeSite(), ensureAssets();
+  else ensureHomeSite(), ensureAssets(), ensureFilters();
 } catch (e) {
   data = defaultData;
   ensureHomeSite();
   ensureAssets();
+  ensureFilters();
 }
 
 let saveTimer = null;
@@ -6170,6 +6255,102 @@ function ensureHomeSite() {
       lon: data.homeSite.lon,
     };
   }
+}
+
+function normalizeFilterHex(hex, fallback) {
+  const m = String(hex || '').trim().match(/^#?([0-9a-fA-F]{6})$/);
+  if (!m) return fallback || '';
+  return '#' + m[1].toLowerCase();
+}
+
+function normalizeFilterColorKey(key) {
+  const k = String(key || '').toLowerCase();
+  if (FILTER_NAMED_COLOR_KEYS.includes(k)) return k;
+  if (k === 'custom' || k === 'other' || k === 'rgb') return 'custom';
+  return '';
+}
+
+function formatFilterSlot(slot) {
+  const n = Number(slot);
+  if (!Number.isFinite(n) || n < 1) return '—';
+  return String(Math.round(n)).padStart(2, '0');
+}
+
+function nextFilterSlot(exceptIndex) {
+  const used = new Set();
+  (data.filters || []).forEach((f, i) => {
+    if (i === exceptIndex) return;
+    const n = Number(f && f.slot);
+    if (Number.isFinite(n) && n >= 1) used.add(Math.round(n));
+  });
+  let n = 1;
+  while (used.has(n)) n++;
+  return n;
+}
+
+function filterSlotTaken(slot, exceptIndex) {
+  const n = Number(slot);
+  if (!Number.isFinite(n)) return false;
+  return (data.filters || []).some((f, i) => i !== exceptIndex && Number(f.slot) === n);
+}
+
+function uniqueFilterId(name, used) {
+  const ids = used || new Set((data.filters || []).map((f) => f && f.id).filter(Boolean));
+  const base = String(name || 'f').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'f';
+  if (!ids.has(base)) {
+    ids.add(base);
+    return base;
+  }
+  let n = 2;
+  while (ids.has(base + '-' + n)) n++;
+  const id = base + '-' + n;
+  ids.add(id);
+  return id;
+}
+
+function sortFiltersBySlot() {
+  if (!Array.isArray(data.filters)) return;
+  data.filters.sort((a, b) => {
+    const as = Number(a && a.slot) || 0;
+    const bs = Number(b && b.slot) || 0;
+    if (as !== bs) return as - bs;
+    return String((a && a.name) || '').localeCompare(String((b && b.name) || ''));
+  });
+}
+
+function ensureFilters() {
+  if (!Array.isArray(data.filters)) {
+    data.filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS));
+    return;
+  }
+  const seen = new Set();
+  data.filters = data.filters.map((f, i) => {
+    const name = String((f && f.name) || '').trim() || ('F' + (i + 1));
+    let colorKey = normalizeFilterColorKey(f && (f.colorKey || f.tone));
+    let color = normalizeFilterHex(f && f.color);
+    if (!colorKey) colorKey = filterToneKeyHeuristic(name);
+    if (!FILTER_NAMED_COLOR_KEYS.includes(colorKey)) {
+      colorKey = 'custom';
+      if (!color) color = '#94a3b8';
+    } else {
+      color = '';
+    }
+    const slotNum = Number(f && f.slot);
+    const slot = Number.isFinite(slotNum) && slotNum >= 1 ? Math.round(slotNum) : (i + 1);
+    let id = String((f && f.id) || '').trim();
+    if (!id || seen.has(id)) id = uniqueFilterId(name, seen);
+    else seen.add(id);
+    return {
+      id,
+      name,
+      brand: String((f && f.brand) || '').trim(),
+      band: String((f && f.band) || '').trim(),
+      slot,
+      colorKey,
+      color,
+    };
+  });
+  sortFiltersBySlot();
 }
 
 function showCompatBanner(msg) {
@@ -6250,6 +6431,7 @@ function adoptLoadedData(incoming) {
   data = incoming;
   ensureHomeSite();
   ensureAssets();
+  ensureFilters();
   ensureDarkLibrary();
   (data.projects || []).forEach((p) => {
     if (p && p.projectDir) p.projectDir = normalizeWinPath(p.projectDir) || '';
@@ -6905,7 +7087,7 @@ async function writeToFileHandle(obj) {
 
 async function connectDataFile() {
   if (!window.showOpenFilePicker) {
-    alert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
+    appAlert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
     return;
   }
   try {
@@ -6925,13 +7107,13 @@ async function connectDataFile() {
     render();
     refreshHeaderSky();
   } catch (e) {
-    if (e.name !== 'AbortError') alert('Could not open that file: ' + e.message);
+    if (e.name !== 'AbortError') appAlert('Could not open that file: ' + e.message);
   }
 }
 
 async function createNewDataFile() {
   if (!window.showSaveFilePicker) {
-    alert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
+    appAlert('Direct file sync needs Chrome or Edge. In other browsers, use Export JSON / Import JSON to move data between devices.');
     return;
   }
   try {
@@ -6944,7 +7126,7 @@ async function createNewDataFile() {
     await writeToFileHandle(data);
     updateSyncStatus(handle.name, 'connected');
   } catch (e) {
-    if (e.name !== 'AbortError') alert('Could not create that file: ' + e.message);
+    if (e.name !== 'AbortError') appAlert('Could not create that file: ' + e.message);
   }
 }
 
@@ -8342,6 +8524,7 @@ function renderUnsafe() {
   `).join('') : '<div style="color:var(--gray);font-size:12px;">No action items — all clear ✓</div>';
 
   renderAssets();
+  renderFilters();
   renderDarkLibraryPanel();
 }
 
@@ -9899,14 +10082,19 @@ function updateProjectDate(pi, field, value) {
 }
 
 function removeProject(pi) {
-  if (confirm('Remove project "' + data.projects[pi].name + '"?')) {
+  appConfirm('Remove project "' + data.projects[pi].name + '"?', {
+    title: 'Remove project',
+    confirmLabel: 'Remove',
+    danger: true,
+  }).then((ok) => {
+    if (!ok) return;
     data.projects.splice(pi, 1);
     openProjects.clear();
     closedFramers.clear();
     unlockedFramers.clear();
     clearAllFramerInstances();
     save();
-  }
+  });
 }
 
 function toggleProjectStep(pi, si) {
@@ -9943,7 +10131,7 @@ function editFilterTarget(pi, fi) {
   // Keep current value selectable even if not on the wheel yet
   const values = opts.map((o) => o.value);
   const labels = opts.map((o) => o.label);
-  if (f.filter && !values.some((v) => filterToneKey(v) === filterToneKey(f.filter))) {
+  if (f.filter && !values.includes(f.filter)) {
     values.unshift(f.filter);
     labels.unshift(`${f.filter} (current)`);
   }
@@ -9952,18 +10140,115 @@ function editFilterTarget(pi, fi) {
   openModal('filterrow', { 'f-filter': f.filter, 'f-location': f.location, 'f-bortle': f.bortle || '', 'f-targetHrs': f.targetHrs });
 }
 
-/** Filters available from the Filter Wheel section (canonical short names). */
+/** Filters available from the Filters section (canonical short names). */
 function getWheelFilterOptions() {
-  return [
-    { value: 'L', label: 'L' },
-    { value: 'R', label: 'R' },
-    { value: 'G', label: 'G' },
-    { value: 'B', label: 'B' },
-    { value: 'SII', label: 'SII' },
-    { value: 'Ha', label: 'Ha' },
-    { value: 'OIII', label: 'OIII' },
-    { value: 'Hb', label: 'Hb' },
-  ];
+  ensureFilters();
+  return (data.filters || []).map((f) => ({
+    value: f.name,
+    label: formatFilterSlot(f.slot) + '  ' + f.name,
+  }));
+}
+
+function filterCardColor(f) {
+  if (f && f.colorKey === 'custom' && f.color) return themeAdjustFilterHex(f.color);
+  return filterToneHexForKey(f && f.colorKey ? f.colorKey : filterToneKeyHeuristic(f && f.name));
+}
+
+function renderFilters() {
+  ensureFilters();
+  const root = document.getElementById('filter-slots');
+  if (!root) return;
+  const filters = data.filters || [];
+  if (!filters.length) {
+    root.innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:12px;padding:8px 0;">No filters yet — add the set you use in Capture Plan.</div>';
+    return;
+  }
+  root.innerHTML = filters.map((f, i) => {
+    const hex = filterCardColor(f);
+    return `<div class="filter-slot" style="color:${hex};border-color:${hex}" onclick="editWheelFilter(${i})" title="Edit filter">
+      <div class="slot-number">${formatFilterSlot(f.slot)}</div>
+      <div class="slot-name">${escapeHtml(f.name)}</div>
+      <div class="slot-brand">${escapeHtml(f.brand || '—')}</div>
+      <div class="slot-bw">${escapeHtml(f.band || '—')}</div>
+    </div>`;
+  }).join('');
+}
+
+function addWheelFilter() {
+  editIndex = null;
+  filterColorPickedManually = false;
+  const preset = FILTER_COLOR_PRESETS.find((p) => p.key === 'l') || FILTER_COLOR_PRESETS[0];
+  openModal('wheelfilter', {
+    'f-wf-slot': String(nextFilterSlot(-1)),
+    'f-wf-color-key': preset.key,
+    'f-wf-color-hex': preset.hex,
+  });
+}
+
+function editWheelFilter(i) {
+  const f = data.filters && data.filters[i];
+  if (!f) return;
+  editIndex = i;
+  const named = FILTER_COLOR_PRESETS.find((p) => p.key === f.colorKey);
+  openModal('wheelfilter', {
+    'f-wf-slot': String(f.slot || nextFilterSlot(i)),
+    'f-wf-name': f.name,
+    'f-wf-brand': f.brand || '',
+    'f-wf-band': f.band || '',
+    'f-wf-color-key': named ? named.key : 'custom',
+    'f-wf-color-hex': named ? named.hex : (normalizeFilterHex(f.color, '#94a3b8')),
+  });
+}
+
+function countFilterUsage(name) {
+  let n = 0;
+  (data.projects || []).forEach((p) => {
+    (p.filterTargets || []).forEach((ft) => {
+      if (ft.filter === name) n++;
+    });
+  });
+  return n;
+}
+
+function renameFilterInProjects(oldName, newName) {
+  if (!oldName || oldName === newName) return;
+  (data.projects || []).forEach((p) => {
+    (p.filterTargets || []).forEach((ft) => {
+      if (ft.filter === oldName) ft.filter = newName;
+    });
+  });
+}
+
+function filterNameTaken(name, exceptIndex) {
+  const want = String(name || '').trim().toLowerCase();
+  if (!want) return false;
+  return (data.filters || []).some((f, i) => i !== exceptIndex && String(f.name || '').trim().toLowerCase() === want);
+}
+
+async function removeWheelFilter(i) {
+  const f = data.filters && data.filters[i];
+  if (!f) return false;
+  const used = countFilterUsage(f.name);
+  const msg = used
+    ? `"${f.name}" is used in ${used} capture plan row${used === 1 ? '' : 's'}. Remove it anyway? Capture plan entries will keep the name.`
+    : `Remove "${f.name}"?`;
+  const ok = await appConfirm(msg, {
+    title: 'Remove filter',
+    confirmLabel: 'Remove',
+    danger: true,
+  });
+  if (!ok) return false;
+  data.filters.splice(i, 1);
+  save();
+  return true;
+}
+
+async function removeCurrentWheelFilter() {
+  if (modalType !== 'wheelfilter' || editIndex === null) return;
+  const i = editIndex;
+  const ok = await removeWheelFilter(i);
+  if (!ok) return;
+  closeModal();
 }
 
 function addProjectStep(pi) {
@@ -10001,10 +10286,10 @@ function addShoot(pi) {
 }
 
 /** Plan a new night locked to this filter channel (same filter tone only). */
-function addShootForChannel(pi, tone) {
+function addShootForChannel(pi, nameOrTone) {
   const project = data.projects[pi];
   if (!project) return;
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, nameOrTone);
   if (!group) {
     addShoot(pi);
     return;
@@ -10059,11 +10344,11 @@ async function runRemoveShoot(pi, si, opts = {}) {
   if (!project || !project.shoots || !project.shoots[si]) return;
   if (opts.deleteData) {
     if (!window.zukoIngest || typeof window.zukoIngest.wipeShoot !== 'function') {
-      alert('Deleting files needs the Electron desktop app (npm start).');
+      appAlert('Deleting files needs the Electron desktop app (npm start).');
       return;
     }
     if (!opts.projectDir || !opts.shootFolder || !opts.filterName) {
-      alert('Could not resolve the imported folder to delete.');
+      appAlert('Could not resolve the imported folder to delete.');
       return;
     }
     const wiped = await window.zukoIngest.wipeShoot({
@@ -10073,7 +10358,7 @@ async function runRemoveShoot(pi, si, opts = {}) {
       wipeChannelPipeline: true,
     });
     if (!wiped || !wiped.ok) {
-      alert((wiped && wiped.error) || 'Could not delete imported files.');
+      appAlert((wiped && wiped.error) || 'Could not delete imported files.');
       return;
     }
     clearFilterDownstreamMeta(project, opts.filterName);
@@ -10147,7 +10432,7 @@ function shootObjectName(project) {
 
 async function browsePathField(fieldId) {
   if (!window.zukoIngest) {
-    alert('Folder browse needs the Electron app (npm start).');
+    appAlert('Folder browse needs the Electron app (npm start).');
     return;
   }
   const el = document.getElementById(fieldId);
@@ -10211,7 +10496,7 @@ async function ensureAsiairSourceSelected(project) {
   }
 
   if (!window.zukoIngest || !window.zukoIngest.pickFolder) {
-    alert('Set an ASIAIR source path (Settings → ASIAIR source).');
+    appAlert('Set an ASIAIR source path (Settings → ASIAIR source).');
     return null;
   }
 
@@ -10238,7 +10523,7 @@ function syncIngestSourcePathInput(pathVal) {
 
 async function browseIngestSourcePath() {
   if (!window.zukoIngest) {
-    alert('Folder browse needs the Electron app (npm start).');
+    appAlert('Folder browse needs the Electron app (npm start).');
     return;
   }
   const current = (document.getElementById('ingest-source-path') || {}).value || getAsiairSourcePath();
@@ -10255,7 +10540,7 @@ async function browseIngestSourcePath() {
 
 async function browseSettingsAsiairSource() {
   if (!window.zukoIngest) {
-    alert('Folder browse needs the Electron app (npm start).');
+    appAlert('Folder browse needs the Electron app (npm start).');
     return;
   }
   const el = document.getElementById('settings-asiair-source');
@@ -10632,7 +10917,7 @@ async function reindexCalibrationLibraries(opts = {}) {
 }
 
 async function browseDarkLibraryPath() {
-  if (!window.zukoIngest) return alert('Needs Electron desktop app.');
+  if (!window.zukoIngest) return appAlert('Needs Electron desktop app.');
   ensureDarkLibrary();
   const picked = await window.zukoIngest.pickFolder({
     title: 'Select master dark library',
@@ -10652,7 +10937,7 @@ async function browseSettingsDarkLibraryPath() {
 
 async function reindexDarkLibrary(opts = {}) {
   if (!window.zukoIngest) {
-    if (!opts.quiet) alert('Needs Electron desktop app.');
+    if (!opts.quiet) appAlert('Needs Electron desktop app.');
     return { ok: false, error: 'no electron' };
   }
   ensureDarkLibrary();
@@ -10685,7 +10970,7 @@ async function ensureDarkLibraryIndexed(opts = {}) {
 }
 
 async function openCalibLibraryImportModal() {
-  if (!window.zukoIngest) return alert('Needs Electron desktop app.');
+  if (!window.zukoIngest) return appAlert('Needs Electron desktop app.');
   ensureDarkLibrary();
   calibImportCtx = {
     sourcePath: (data.asiairSourcePath || '').trim() || '',
@@ -10722,7 +11007,7 @@ async function browseCalibImportSource() {
 
 async function rescanCalibImportSource() {
   if (!window.zukoIngest || !window.zukoIngest.scanCalibLibrary) {
-    return alert('Needs Electron desktop app (restart Dev after update).');
+    return appAlert('Needs Electron desktop app (restart Dev after update).');
   }
   const source = (document.getElementById('calib-import-source').value || '').trim();
   if (!source) {
@@ -10830,13 +11115,13 @@ function toggleCalibImportSelectAll(on) {
 
 async function runCalibLibraryImport() {
   if (!window.zukoIngest || !window.zukoIngest.importCalibLibrary) {
-    return alert('Needs Electron desktop app (restart Dev after update).');
+    return appAlert('Needs Electron desktop app (restart Dev after update).');
   }
   ensureDarkLibrary();
   const source = (document.getElementById('calib-import-source').value || '').trim();
-  if (!source) return alert('ASIAIR source required.');
+  if (!source) return appAlert('ASIAIR source required.');
   const setIds = [...document.querySelectorAll('.calib-import-check:checked')].map((el) => el.getAttribute('data-id')).filter(Boolean);
-  if (!setIds.length) return alert('Select at least one set to import.');
+  if (!setIds.length) return appAlert('Select at least one set to import.');
 
   const btn = document.getElementById('calib-import-run-btn');
   if (btn) btn.disabled = true;
@@ -10861,7 +11146,7 @@ async function runCalibLibraryImport() {
   await reindexDarkLibrary({ quiet: true });
   persistData();
   if (btn) btn.disabled = false;
-  alert(msg);
+  appAlert(msg);
   closeCalibLibraryImportModal();
 }
 
@@ -10871,7 +11156,7 @@ let calibBuildMasterCtx = null;
 
 function openCalibSetActionModal(setName) {
   const f = (_calibLibFoldersCache || []).find((x) => x.name === setName);
-  if (!f) return alert('Row not found — try Re-index.');
+  if (!f) return appAlert('Row not found — try Re-index.');
   const items = [{ kind: 'dark', name: f.name, folder: f.folder, subs: f.subCount || 0, hasMaster: !!f.hasMaster }];
   calibSetActionCtx = { setName, items };
   const list = document.getElementById('calib-set-action-list');
@@ -10899,7 +11184,7 @@ async function confirmCalibSetAction(mode) {
   const selected = [...document.querySelectorAll('.calib-set-action-check:checked')]
     .map((el) => calibSetActionCtx.items[Number(el.getAttribute('data-idx'))])
     .filter(Boolean);
-  if (!selected.length) return alert('Select at least one set.');
+  if (!selected.length) return appAlert('Select at least one set.');
 
   const statusEl = document.getElementById('calib-set-action-status');
   if (mode === 'remove') {
@@ -10913,17 +11198,25 @@ async function confirmCalibSetAction(mode) {
 
   if (mode === 'remove-subs') {
     if (!window.zukoIngest || !window.zukoIngest.removeLibrarySubs) {
-      return alert('Needs Electron desktop app (restart Dev after update).');
+      return appAlert('Needs Electron desktop app (restart Dev after update).');
     }
     const withMaster = selected.filter((it) => it.hasMaster);
     if (!withMaster.length) {
-      return alert('Remove subs needs a master.fit — build a master first, or pick Delete.');
+      return appAlert('Remove subs needs a master.fit — build a master first, or pick Delete.');
     }
     const noMaster = selected.filter((it) => !it.hasMaster);
     if (noMaster.length) {
-      if (!confirm(`${noMaster.length} selected set(s) have no master and will be skipped.\nContinue removing subs from ${withMaster.length} set(s)?`)) return;
-    } else if (!confirm(`Delete sub frames from ${withMaster.length} set(s)?\nmaster.fit stays; the row stays.`)) {
-      return;
+      const ok = await appConfirm(
+        `${noMaster.length} selected set(s) have no master and will be skipped.\nContinue removing subs from ${withMaster.length} set(s)?`,
+        { title: 'Remove sub frames', confirmLabel: 'Continue', danger: true }
+      );
+      if (!ok) return;
+    } else {
+      const ok = await appConfirm(
+        `Delete sub frames from ${withMaster.length} set(s)?\nmaster.fit stays; the row stays.`,
+        { title: 'Remove sub frames', confirmLabel: 'Remove subs', danger: true }
+      );
+      if (!ok) return;
     }
     if (statusEl) statusEl.textContent = 'Removing subs…';
     const errors = [];
@@ -10938,15 +11231,19 @@ async function confirmCalibSetAction(mode) {
     persistData();
     closeCalibSetActionModal();
     renderCalibrationLibrariesPanel({ skipAutoIndex: true });
-    if (errors.length) alert('Some remove-subs failed:\n' + errors.join('\n'));
+    if (errors.length) appAlert('Some remove-subs failed:\n' + errors.join('\n'));
     return;
   }
 
   if (mode !== 'delete') return;
   if (!window.zukoIngest || !window.zukoIngest.deleteLibrarySet) {
-    return alert('Needs Electron desktop app (restart Dev after update).');
+    return appAlert('Needs Electron desktop app (restart Dev after update).');
   }
-  if (!confirm(`Permanently delete ${selected.length} set folder(s) from disk?\nThis cannot be undone.`)) return;
+  const wipeOk = await appConfirm(
+    `Permanently delete ${selected.length} set folder(s) from disk?\nThis cannot be undone.`,
+    { title: 'Delete from disk', confirmLabel: 'Delete', danger: true }
+  );
+  if (!wipeOk) return;
 
   if (statusEl) statusEl.textContent = 'Deleting…';
   const errors = [];
@@ -10962,12 +11259,12 @@ async function confirmCalibSetAction(mode) {
   persistData();
   closeCalibSetActionModal();
   renderCalibrationLibrariesPanel({ skipAutoIndex: true });
-  if (errors.length) alert('Some deletes failed:\n' + errors.join('\n'));
+  if (errors.length) appAlert('Some deletes failed:\n' + errors.join('\n'));
 }
 
 function openCalibBuildMasterModal(setFolder, kind) {
   if (!window.zukoSiril || !window.zukoSiril.buildMaster) {
-    return alert('Needs Electron desktop app with Siril.');
+    return appAlert('Needs Electron desktop app with Siril.');
   }
   kind = 'dark';
   calibBuildMasterCtx = { setFolder, kind };
@@ -12282,7 +12579,7 @@ function syncSourceReviewPathInput(pathVal) {
 
 async function browseSourceReviewPath() {
   if (!window.zukoIngest) {
-    alert('Folder browse needs the Electron app (npm start).');
+    appAlert('Folder browse needs the Electron app (npm start).');
     return;
   }
   const pi = sourceReviewCtx && sourceReviewCtx.pi;
@@ -12316,12 +12613,12 @@ async function rescanSourceReview() {
 
 async function openSourceReview(pi) {
   if (!window.zukoIngest) {
-    alert('Source review needs the Electron desktop app (npm start).');
+    appAlert('Source review needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set a Project directory first.');
+    appAlert('Set a Project directory first.');
     return;
   }
   const inputVal = String((document.getElementById('source-review-path-input') || {}).value || '').trim();
@@ -12543,23 +12840,23 @@ function unignoreSourceReviewRow(rowIdx) {
 
 async function openIngestModal(pi, si) {
   if (!window.zukoIngest) {
-    alert('ASIAIR import needs the Electron desktop app (npm start).');
+    appAlert('ASIAIR import needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   const sh = project.shoots[si];
   if (!sh.complete) {
-    alert('Mark this shoot as Captured before importing.');
+    appAlert('Mark this shoot as Captured before importing.');
     return;
   }
   if (!project.projectDir) {
-    alert('Set a Project directory first (edit project → Project directory).');
+    appAlert('Set a Project directory first (edit project → Project directory).');
     editProjectMeta(pi);
     return;
   }
   const night = shootNightYmd(sh);
   if (!night) {
-    alert('Shoot needs a YYMMDD / YYYYMMDD date.');
+    appAlert('Shoot needs a YYMMDD / YYYYMMDD date.');
     return;
   }
 
@@ -12579,7 +12876,7 @@ async function openIngestModal(pi, si) {
       await openSourceReview(pi);
       return;
     }
-    alert(resolved.error || 'Could not resolve ASIAIR target folders.');
+    appAlert(resolved.error || 'Could not resolve ASIAIR target folders.');
     return;
   }
 
@@ -13553,7 +13850,7 @@ function pipelineStepHtml(label, state, opts = {}) {
   else if (state === 'stub') parts.push('stub');
   if (opts.clickable) parts.push('clickable');
   if (opts.locked) parts.push('locked');
-  const onclick = opts.onclick ? ` onclick="${opts.onclick}"` : '';
+  const onclick = opts.onclick ? ` onclick="${escapeAttr(opts.onclick)}"` : '';
   const idAttr = opts.id ? ` id="${escapeAttr(opts.id)}"` : '';
   const title = opts.title || label;
   let port = '';
@@ -13569,14 +13866,15 @@ function listPipelineFilterGroups(project) {
   const seen = new Map();
   (project.filterTargets || []).forEach((f, fi) => {
     if (!f || !f.filter) return;
-    const tone = filterToneKey(f.filter);
-    if (seen.has(tone)) {
-      seen.get(tone).fis.push(fi);
+    const name = String(f.filter);
+    const tone = filterToneKey(name);
+    if (seen.has(name)) {
+      seen.get(name).fis.push(fi);
       return;
     }
-    seen.set(tone, {
+    seen.set(name, {
       tone,
-      name: f.filter,
+      name,
       fis: [fi],
       primaryFi: fi,
     });
@@ -13584,21 +13882,30 @@ function listPipelineFilterGroups(project) {
   return Array.from(seen.values());
 }
 
-function getShootsForFilterTone(project, tone) {
+function findPipelineGroup(project, nameOrTone) {
+  const groups = listPipelineFilterGroups(project);
+  if (nameOrTone == null || nameOrTone === '') return null;
+  return groups.find((g) => g.name === nameOrTone) || groups.find((g) => g.tone === nameOrTone) || null;
+}
+
+function getShootsForFilterTone(project, tone, filterName) {
+  const wantName = filterName != null && String(filterName) !== '' ? String(filterName) : '';
   return (project.shoots || []).filter((sh) => {
     const ft = project.filterTargets[sh.filterIndex];
-    return ft && filterToneKey(ft.filter) === tone;
+    if (!ft || !ft.filter) return false;
+    if (wantName) return ft.filter === wantName;
+    return filterToneKey(ft.filter) === tone;
   });
 }
 
-function getFilterIngestedShootsByTone(project, tone) {
-  return getShootsForFilterTone(project, tone).filter(isShootIngested);
+function getFilterIngestedShootsByTone(project, tone, filterName) {
+  return getShootsForFilterTone(project, tone, filterName).filter(isShootIngested);
 }
 
-function getFilterCalibrationProgress(project, tone) {
-  const ingested = getFilterIngestedShootsByTone(project, tone);
+function getFilterCalibrationProgress(project, tone, filterName) {
+  const ingested = getFilterIngestedShootsByTone(project, tone, filterName);
   const calibrated = ingested.filter(isShootCalibrated);
-  const allShoots = getShootsForFilterTone(project, tone);
+  const allShoots = getShootsForFilterTone(project, tone, filterName);
   return {
     ingestedCount: ingested.length,
     calibratedCount: calibrated.length,
@@ -13639,14 +13946,14 @@ function resolveFilterAggregateDir(project, group) {
 }
 
 /** Register may run on any calibrated subset — not every night must be done. */
-function isFilterReadyToRegister(project, tone) {
-  return getFilterCalibrationProgress(project, tone).hasCalibrated;
+function isFilterReadyToRegister(project, tone, filterName) {
+  return getFilterCalibrationProgress(project, tone, filterName).hasCalibrated;
 }
 
 function isFilterReadyToCull(project, group) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f) return false;
-  return isFilterReadyToRegister(project, group.tone) && isFilterRegisterComplete(f);
+  return isFilterReadyToRegister(project, group.tone, group.name) && isFilterRegisterComplete(f);
 }
 
 function isFilterReadyToStack(project, group) {
@@ -13757,20 +14064,20 @@ function mirrorCullMeta(project, group, cullMeta) {
 async function openCullModal(pi, tone) {
   const project = data.projects[pi];
   if (!project) return;
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, tone);
   if (!group) return;
   const f = getPrimaryFilterTarget(project, group);
-  const cal = getFilterCalibrationProgress(project, tone);
+  const cal = getFilterCalibrationProgress(project, tone, group.name);
   if (!isFilterRegisterComplete(f)) {
-    alert('Run Register for this filter first (aggregates nights and creates r_pp_light), then cull in Siril on Aggregate/.');
+    appAlert('Run Register for this filter first (aggregates nights and creates r_pp_light), then cull in Siril on Aggregate/.');
     return;
   }
   if (!cal.hasCalibrated) {
-    alert('Calibrate at least one imported night of this filter before culling.');
+    appAlert('Calibrate at least one imported night of this filter before culling.');
     return;
   }
   if (!window.zukoSiril || typeof window.zukoSiril.scanCull !== 'function') {
-    alert('Cull scan needs the Electron desktop app (npm start).');
+    appAlert('Cull scan needs the Electron desktop app (npm start).');
     return;
   }
   const aggregateDir = resolveFilterAggregateDir(project, group);
@@ -13810,7 +14117,7 @@ async function runCullScan(silent) {
   }
   if (scanBtn) scanBtn.classList.remove('is-loading');
   if (!scan || !scan.ok) {
-    if (!silent) alert('Cull scan failed: ' + String((scan && scan.error) || 'unknown'));
+    if (!silent) appAlert('Cull scan failed: ' + String((scan && scan.error) || 'unknown'));
     return;
   }
   _cullScanResult = scan;
@@ -13831,11 +14138,11 @@ async function runCullScan(silent) {
 
 async function applyCullFromModal() {
   if (!_cullModalCtx || !_cullScanResult || !_cullScanResult.seqPath) {
-    alert('Scan the Siril sequence first.');
+    appAlert('Scan the Siril sequence first.');
     return;
   }
   if (!window.zukoSiril || typeof window.zukoSiril.applyCull !== 'function') {
-    alert('Cull apply needs the Electron desktop app (npm start).');
+    appAlert('Cull apply needs the Electron desktop app (npm start).');
     return;
   }
   const applyBtn = document.getElementById('cull-apply-btn');
@@ -13848,11 +14155,11 @@ async function applyCullFromModal() {
   }
   if (applyBtn) applyBtn.classList.remove('is-loading');
   if (!result || !result.ok) {
-    alert('Could not apply cull: ' + String((result && result.error) || 'unknown'));
+    appAlert('Could not apply cull: ' + String((result && result.error) || 'unknown'));
     return;
   }
   const project = data.projects[_cullModalCtx.pi];
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === _cullModalCtx.tone);
+  const group = findPipelineGroup(project, _cullModalCtx.tone);
   const f = getPrimaryFilterTarget(project, group);
   const cullMeta = buildCullMetaFromScan(_cullScanResult, result);
   f.cullMeta = cullMeta;
@@ -13899,7 +14206,7 @@ function shootNightStats(sh) {
 }
 
 function channelRollupText(project, group) {
-  const shoots = getShootsForFilterTone(project, group.tone);
+  const shoots = getShootsForFilterTone(project, group.tone, group.name);
   const nights = shoots.length;
   let captured = 0;
   let planned = 0;
@@ -13985,12 +14292,12 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   const f = getPrimaryFilterTarget(project, group);
   if (!f || !group) return null;
   const tone = group.tone;
-  const cal = getFilterCalibrationProgress(project, tone);
+  const cal = getFilterCalibrationProgress(project, tone, group.name);
   const regDone = isFilterRegisterComplete(f);
   const cullDone = regDone && isFilterCullComplete(f);
   const stackDone = isFilterStackComplete(f);
   const hasProjectDir = !!(project.projectDir && String(project.projectDir).trim());
-  const nightCount = getShootsForFilterTone(project, tone).length;
+  const nightCount = getShootsForFilterTone(project, tone, group.name).length;
   const locNote = group.fis.length > 1
     ? ` · ${group.fis.length} location targets combined`
     : '';
@@ -14009,7 +14316,7 @@ function channelCullRegParts(project, pi, group, opts = {}) {
     regOpts = {
       clickable: true,
       id: `reg-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},'${tone}')`,
+      onclick: `event.stopPropagation(); openRegisterConfirm(${pi},${JSON.stringify(group.name)})`,
       title: regDone
         ? `Review & re-register ${group.name} (re-aggregates nights → Aggregate/)${locNote}${nightsNote}`
         : `Aggregate + register calibrated nights into ${group.name}/Aggregate/${locNote}${nightsNote}`,
@@ -14026,7 +14333,7 @@ function channelCullRegParts(project, pi, group, opts = {}) {
   } else {
     cullOpts = {
       clickable: true,
-      onclick: `event.stopPropagation(); openCullModal(${pi},'${tone}')`,
+      onclick: `event.stopPropagation(); openCullModal(${pi},${JSON.stringify(group.name)})`,
       title: cullDone
         ? 'Cull saved — click to review or re-scan Siril sequence'
         : `Cull r_pp_light in Siril on Aggregate/, then scan & apply${aggDir ? ` · ${aggDir}` : ''}`,
@@ -14044,14 +14351,14 @@ function channelCullRegParts(project, pi, group, opts = {}) {
     stackOpts = {
       clickable: true,
       id: `stack-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openStackConfirm(${pi},'${tone}')`,
+      onclick: `event.stopPropagation(); openStackConfirm(${pi},${JSON.stringify(group.name)})`,
       title: `Review & re-run stack for ${group.name}${locNote}${nightsNote}`,
     };
   } else {
     stackOpts = {
       clickable: true,
       id: `stack-step-${pi}-${tone}`,
-      onclick: `event.stopPropagation(); openStackConfirm(${pi},'${tone}')`,
+      onclick: `event.stopPropagation(); openStackConfirm(${pi},${JSON.stringify(group.name)})`,
       title: `Review & start stack for ${group.name}${locNote}${nightsNote}`,
     };
   }
@@ -14188,7 +14495,7 @@ function renderFilterPipelineBar(project, pi, group) {
   if (!f || !group) return '';
   const tone = group.tone;
   const sortState = getPipelineChannelSort(pi, tone);
-  const shootEntries = getShootsForFilterTone(project, tone)
+  const shootEntries = getShootsForFilterTone(project, tone, group.name)
     .map((sh) => ({ sh, si: project.shoots.indexOf(sh) }))
     .filter((e) => e.si >= 0)
     .sort((a, b) => {
@@ -14200,10 +14507,10 @@ function renderFilterPipelineBar(project, pi, group) {
       return (Number(a.sh.filterIndex) || 0) - (Number(b.sh.filterIndex) || 0);
     });
 
-  const addBtn = `<button type="button" class="pipeline-channel-add" title="Plan a ${escapeAttr(group.name)} night" onclick="event.stopPropagation(); addShootForChannel(${pi},'${tone}')">+</button>`;
+  const addBtn = `<button type="button" class="pipeline-channel-add" title="Plan a ${escapeAttr(group.name)} night" onclick="event.stopPropagation(); addShootForChannel(${pi},${escapeAttr(JSON.stringify(group.name))})">+</button>`;
   const header = `<div class="pipeline-channel-header">
       <div class="pipeline-channel-header-left">
-        <div class="pipeline-channel-title">${escapeHtml(group.name)}</div>
+        <div class="pipeline-channel-title" style="color:${filterToneColor(group.name)}">${escapeHtml(group.name)}</div>
         ${addBtn}
       </div>
       <div class="pipeline-channel-rollup">${escapeHtml(channelRollupText(project, group))}</div>
@@ -14218,7 +14525,7 @@ function renderFilterPipelineBar(project, pi, group) {
     });
   }
 
-  return `<div class="pipeline-channel flt-${tone}" data-filter="${escapeAttr(group.name)}" data-testid="pipeline-channel-${tone}">
+  return `<div class="pipeline-channel flt-${tone}" data-filter="${escapeAttr(group.name)}" data-testid="pipeline-channel-${tone}" style="border-left-color:${filterToneColor(group.name)}">
     ${header}
     ${body}
   </div>`;
@@ -14270,7 +14577,7 @@ function renderChannelPipelineSection(project, pi) {
 
   const assigned = new Set();
   groups.forEach((g) => {
-    getShootsForFilterTone(project, g.tone).forEach((sh) => assigned.add(sh));
+    getShootsForFilterTone(project, g.tone, g.name).forEach((sh) => assigned.add(sh));
   });
   const orphans = (project.shoots || [])
     .map((sh, si) => ({ sh, si }))
@@ -14622,7 +14929,7 @@ function pipelineJobRow(k, v) {
 async function openInFileManager(targetPath) {
   if (!targetPath) return;
   if (!window.zukoIngest || typeof window.zukoIngest.open !== 'function') {
-    alert('Open folder needs the Electron desktop app (npm start).');
+    appAlert('Open folder needs the Electron desktop app (npm start).');
     return;
   }
   let p = String(targetPath).trim();
@@ -14634,9 +14941,9 @@ async function openInFileManager(targetPath) {
   }
   try {
     const res = await window.zukoIngest.open(p);
-    if (res && res.ok === false) alert(res.error || 'Could not open folder');
+    if (res && res.ok === false) appAlert(res.error || 'Could not open folder');
   } catch (e) {
-    alert(String(e && e.message ? e.message : e));
+    appAlert(String(e && e.message ? e.message : e));
   }
 }
 
@@ -14656,11 +14963,11 @@ function copyPathToClipboard(path) {
     navigator.clipboard.writeText(p).then(() => {
       /* quiet success */
     }).catch(() => {
-      alert('Could not copy path');
+      appAlert('Could not copy path');
     });
     return;
   }
-  alert('Clipboard not available');
+  appAlert('Clipboard not available');
 }
 
 /** Cache: working/ path → exists on disk (created by Register). */
@@ -14767,7 +15074,7 @@ async function refreshOpenNightDiskInfo() {
 
 async function cleanupShootNight(pi, si) {
   if (!window.zukoSiril || typeof window.zukoSiril.cleanShoot !== 'function') {
-    alert('Cleanup needs the Electron desktop app (npm start).');
+    appAlert('Cleanup needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
@@ -14775,7 +15082,7 @@ async function cleanupShootNight(pi, si) {
   if (!project || !sh) return;
   const shootDir = resolveShootCalibrateDir(project, sh);
   if (!shootDir) {
-    alert('Import this night before cleanup.');
+    appAlert('Import this night before cleanup.');
     return;
   }
   const ft = project.filterTargets[sh.filterIndex];
@@ -14804,7 +15111,7 @@ async function runCleanupShootNight(pi, si, shootDir) {
   if (!project || !sh || !shootDir) return;
   const result = await window.zukoSiril.cleanShoot({ shootDir });
   if (!result || !result.ok) {
-    alert((result && result.error) || 'Cleanup failed');
+    appAlert((result && result.error) || 'Cleanup failed');
     return;
   }
   sh.preprocessMeta = null;
@@ -14814,12 +15121,12 @@ async function runCleanupShootNight(pi, si, shootDir) {
 
 async function cleanupProjectIntermediates(pi) {
   if (!window.zukoSiril || typeof window.zukoSiril.cleanProject !== 'function') {
-    alert('Cleanup needs the Electron desktop app (npm start).');
+    appAlert('Cleanup needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set Project directory first.');
+    appAlert('Set Project directory first.');
     return;
   }
   const shootDirs = (project.shoots || [])
@@ -14857,7 +15164,7 @@ async function runCleanupProjectIntermediates(pi, shootDirs, filters) {
     filters: filters || [],
   });
   if (!result || !result.ok) {
-    alert((result && result.error) || 'Project cleanup failed');
+    appAlert((result && result.error) || 'Project cleanup failed');
   }
   (project.shoots || []).forEach((sh) => {
     sh.preprocessMeta = null;
@@ -14881,21 +15188,21 @@ function copyPathButton(path, label) {
 
 function openCalibrateConfirm(pi, si) {
   if (!window.zukoSiril || typeof window.zukoSiril.calibrate !== 'function') {
-    alert('Calibration needs the Electron desktop app (npm start).');
+    appAlert('Calibration needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   const sh = project && project.shoots && project.shoots[si];
   if (!project || !sh) return;
   if (!isShootIngested(sh)) {
-    alert('Import this shoot from ASIAIR before calibration.');
+    appAlert('Import this shoot from ASIAIR before calibration.');
     return;
   }
   const ft = project.filterTargets[sh.filterIndex];
   const code = buildShootCode(sh, ft);
   const shootDir = resolveShootCalibrateDir(project, sh);
   if (!shootDir) {
-    alert('Could not resolve staged shoot folder.');
+    appAlert('Could not resolve staged shoot folder.');
     return;
   }
   const stats = shootNightStats(sh);
@@ -14903,8 +15210,7 @@ function openCalibrateConfirm(pi, si) {
   const calAt = sh.preprocessMeta && sh.preprocessMeta.calibratedAt
     ? String(sh.preprocessMeta.calibratedAt)
     : '';
-  const tone = ft ? filterToneKey(ft.filter) : null;
-  const group = tone ? listPipelineFilterGroups(project).find((g) => g.tone === tone) : null;
+  const group = ft ? findPipelineGroup(project, ft.filter) : null;
   const primary = group ? getPrimaryFilterTarget(project, group) : ft;
   const cullDone = isFilterCullComplete(primary);
   const regDone = isFilterRegisterComplete(primary);
@@ -14940,24 +15246,24 @@ function openCalibrateConfirm(pi, si) {
 
 function openRegisterConfirm(pi, tone) {
   if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
-    alert('Register needs the Electron desktop app (npm start).');
+    appAlert('Register needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set Project directory first.');
+    appAlert('Set Project directory first.');
     return;
   }
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, tone);
   if (!group || !isFilterReadyToRegister(project, tone)) {
-    alert('Calibrate at least one night of this filter before registering.');
+    appAlert('Calibrate at least one night of this filter before registering.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
   const shoots = getFilterIngestedShootsByTone(project, tone).filter(isShootCalibrated);
   const shootDirs = shoots.map((sh) => resolveShootCalibrateDir(project, sh)).filter(Boolean);
   if (!shootDirs.length) {
-    alert('No calibrated shoot folders found for this filter.');
+    appAlert('No calibrated shoot folders found for this filter.');
     return;
   }
   const filter = String(group.name || '');
@@ -15012,24 +15318,24 @@ function openRegisterConfirm(pi, tone) {
 
 function openStackConfirm(pi, tone) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
-    alert('Stack needs the Electron desktop app (npm start).');
+    appAlert('Stack needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set Project directory first.');
+    appAlert('Set Project directory first.');
     return;
   }
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, tone);
   if (!group || !isFilterReadyToStack(project, group)) {
-    alert('Register, cull, and apply Cull before stacking.');
+    appAlert('Register, cull, and apply Cull before stacking.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
   const filter = String(group.name || '');
   const aggregateDir = resolveFilterAggregateDir(project, group);
   if (!aggregateDir) {
-    alert('Aggregate folder not found — run Register first.');
+    appAlert('Aggregate folder not found — run Register first.');
     return;
   }
   const rerun = isFilterStackComplete(f);
@@ -15068,19 +15374,19 @@ function openStackConfirm(pi, tone) {
 
 async function runPreprocessShoot(pi, si) {
   if (!window.zukoSiril || typeof window.zukoSiril.calibrate !== 'function') {
-    alert('Calibration needs the Electron desktop app (npm start).');
+    appAlert('Calibration needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   const sh = project && project.shoots && project.shoots[si];
   if (!project || !sh) return;
   if (!isShootIngested(sh)) {
-    alert('Import this shoot from ASIAIR before calibration.');
+    appAlert('Import this shoot from ASIAIR before calibration.');
     return;
   }
   const shootDir = resolveShootCalibrateDir(project, sh);
   if (!shootDir) {
-    alert('Could not resolve staged shoot folder.');
+    appAlert('Could not resolve staged shoot folder.');
     return;
   }
   const logPath = pathJoinWin(shootDir, 'scripts', 'calibrate.log');
@@ -15113,12 +15419,12 @@ async function runPreprocessShoot(pi, si) {
     logPath: result.logPath || logPath,
     scriptPath: result.scriptPath,
   };
-  // New calibration invalidates aggregate + cull + registration for that filter tone
+  // New calibration invalidates aggregate + cull + registration for that filter
   const ft = project.filterTargets[sh.filterIndex];
-  const tone = ft ? filterToneKey(ft.filter) : null;
-  if (tone) {
+  const fname = ft && ft.filter ? String(ft.filter) : '';
+  if (fname) {
     listPipelineFilterGroups(project)
-      .filter((g) => g.tone === tone)
+      .filter((g) => g.name === fname)
       .forEach((g) => {
         g.fis.forEach((fi) => {
           if (project.filterTargets[fi]) {
@@ -15151,17 +15457,17 @@ function pathJoinWin(...parts) {
 
 async function runRegisterFilterTone(pi, tone) {
   if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
-    alert('Register needs the Electron desktop app (npm start).');
+    appAlert('Register needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set Project directory first.');
+    appAlert('Set Project directory first.');
     return;
   }
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, tone);
   if (!group || !isFilterReadyToRegister(project, tone)) {
-    alert('Calibrate at least one night of this filter before registering.');
+    appAlert('Calibrate at least one night of this filter before registering.');
     return;
   }
   const shootDirs = getFilterIngestedShootsByTone(project, tone)
@@ -15169,7 +15475,7 @@ async function runRegisterFilterTone(pi, tone) {
     .map((sh) => resolveShootCalibrateDir(project, sh))
     .filter(Boolean);
   if (!shootDirs.length) {
-    alert('No calibrated shoot folders found for this filter.');
+    appAlert('No calibrated shoot folders found for this filter.');
     return;
   }
 
@@ -15249,17 +15555,17 @@ async function runRegisterFilterTone(pi, tone) {
 
 async function runStackFilterTone(pi, tone, opts = {}) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
-    alert('Stack needs the Electron desktop app (npm start).');
+    appAlert('Stack needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project || !project.projectDir) {
-    alert('Set Project directory first.');
+    appAlert('Set Project directory first.');
     return;
   }
-  const group = listPipelineFilterGroups(project).find((g) => g.tone === tone);
+  const group = findPipelineGroup(project, tone);
   if (!group || !isFilterReadyToStack(project, group)) {
-    alert('Register, cull, and apply Cull before stacking.');
+    appAlert('Register, cull, and apply Cull before stacking.');
     return;
   }
 
@@ -15428,25 +15734,29 @@ function ingestStatusColumnHtml(status) {
   return `<span style="color:${color};" title="${escapeAttr(s.title || s.label || '')}">${escapeHtml(s.label || '—')}</span>`;
 }
 
-function filterToneKey(name) {
-  const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (n === 'ha' || n === 'h' || n === 'halpha' || n === 'hα') return 'ha';
-  if (n === 'oiii' || n === 'o3' || n === 'o' || n === 'oiii') return 'oiii';
-  if (n === 'sii' || n === 's2' || n === 's') return 'sii';
-  if (n === 'hb' || n === 'hbeta') return 'hb';
-  if (n === 'l' || n === 'lum' || n === 'luminance') return 'l';
-  if (n === 'r' || n === 'red') return 'r';
-  if (n === 'g' || n === 'green') return 'g';
-  if (n === 'b' || n === 'blue') return 'b';
-  if (n === 'rgb') return 'rgb';
-  return 'other';
+function listedFilterByName(name) {
+  const want = String(name || '').trim();
+  if (!want || !Array.isArray(data && data.filters)) return null;
+  return data.filters.find((f) => f && f.name === want) || null;
 }
 
-function filterToneColor(name) {
-  const key = filterToneKey(name);
+function themeAdjustFilterHex(hex) {
+  const raw = normalizeFilterHex(hex, '#94a3b8');
+  const theme = document.documentElement.getAttribute('data-theme');
+  if (theme !== 'red') return raw;
+  const n = parseInt(raw.slice(1), 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const y = 0.299 * r + 0.587 * g + 0.114 * b;
+  const v = Math.round(90 + y * 0.55);
+  return '#' + [v, Math.round(v * 0.22), Math.round(v * 0.22)].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, '0')).join('');
+}
+
+function filterToneHexForKey(key) {
+  const k = normalizeFilterColorKey(key);
   const theme = document.documentElement.getAttribute('data-theme');
   if (theme === 'red') {
-    // Night-vision: keep filter identity via brightness only (no cyan/yellow/green).
     const map = {
       ha: '#ff1a1a',
       oiii: '#e05050',
@@ -15456,10 +15766,9 @@ function filterToneColor(name) {
       r: '#ff2a2a',
       g: '#dd5555',
       b: '#bb4444',
-      rgb: '#ff2a2a',
-      other: '#992222',
+      custom: '#992222',
     };
-    return map[key] || map.other;
+    return map[k] || map.custom;
   }
   const light = theme === 'light';
   const map = light
@@ -15472,8 +15781,7 @@ function filterToneColor(name) {
         r: '#dc2626',
         g: '#15803d',
         b: '#1d4ed8',
-        rgb: '#dc2626',
-        other: '#64748b',
+        custom: '#64748b',
       }
     : {
         ha: '#f87171',
@@ -15484,10 +15792,36 @@ function filterToneColor(name) {
         r: '#fca5a5',
         g: '#86efac',
         b: '#93c5fd',
-        rgb: '#fca5a5',
-        other: '#94a3b8',
+        custom: '#94a3b8',
       };
-  return map[key] || map.other;
+  return map[k] || map.custom;
+}
+
+function filterToneKeyHeuristic(name) {
+  const n = String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (n === 'ha' || n === 'h' || n === 'halpha' || n === 'hα') return 'ha';
+  if (n === 'oiii' || n === 'o3' || n === 'o') return 'oiii';
+  if (n === 'sii' || n === 's2' || n === 's') return 'sii';
+  if (n === 'hb' || n === 'hbeta') return 'hb';
+  if (n === 'l' || n === 'lum' || n === 'luminance') return 'l';
+  if (n === 'r' || n === 'red') return 'r';
+  if (n === 'g' || n === 'green') return 'g';
+  if (n === 'b' || n === 'blue') return 'b';
+  if (n === 'rgb') return 'r';
+  return 'custom';
+}
+
+function filterToneKey(name) {
+  const listed = listedFilterByName(name);
+  if (listed && FILTER_NAMED_COLOR_KEYS.includes(listed.colorKey)) return listed.colorKey;
+  const guessed = filterToneKeyHeuristic(name);
+  return FILTER_NAMED_COLOR_KEYS.includes(guessed) ? guessed : 'other';
+}
+
+function filterToneColor(name) {
+  const listed = listedFilterByName(name);
+  if (listed && listed.colorKey === 'custom' && listed.color) return themeAdjustFilterHex(listed.color);
+  return filterToneHexForKey(filterToneKey(name));
 }
 
 function filterSwatchHtml(name) {
@@ -15496,7 +15830,7 @@ function filterSwatchHtml(name) {
 
 function filterLabelHtml(name) {
   const key = filterToneKey(name);
-  return `${filterSwatchHtml(name)}<span class="flt-${key}">${escapeHtml(name || '—')}</span>`;
+  return `${filterSwatchHtml(name)}<span class="flt-${key}" style="color:${filterToneColor(name)}">${escapeHtml(name || '—')}</span>`;
 }
 
 function masterDarkSetFolder(filePath, libraryRoot) {
@@ -16057,12 +16391,12 @@ async function selectIngestNightTab(nightYmd) {
 
 async function ingestAllCapturedShoots(pi) {
   if (!window.zukoIngest) {
-    alert('ASIAIR import needs the Electron desktop app (npm start).');
+    appAlert('ASIAIR import needs the Electron desktop app (npm start).');
     return;
   }
   const project = data.projects[pi];
   if (!project.projectDir) {
-    alert('Set a Project directory first (edit project → Project directory).');
+    appAlert('Set a Project directory first (edit project → Project directory).');
     editProjectMeta(pi);
     return;
   }
@@ -16073,7 +16407,7 @@ async function ingestAllCapturedShoots(pi) {
     .map((sh, si) => ({ sh, si }))
     .filter(({ sh }) => isShootNeedingIngest(sh));
   if (!pending.length) {
-    alert('No Captured shoots waiting for import.');
+    appAlert('No Captured shoots waiting for import.');
     return;
   }
 
@@ -16090,7 +16424,7 @@ async function ingestAllCapturedShoots(pi) {
   }
   nightOrder.sort();
   if (!nightOrder.length) {
-    alert('Pending shoots need YYMMDD dates.');
+    appAlert('Pending shoots need YYMMDD dates.');
     return;
   }
 
@@ -16102,7 +16436,7 @@ async function ingestAllCapturedShoots(pi) {
   }
   const nights = Object.keys(built).sort();
   if (!nights.length) {
-    alert('Pending shoots need a capture plan entry.');
+    appAlert('Pending shoots need a capture plan entry.');
     return;
   }
 
@@ -16125,7 +16459,7 @@ async function ingestAllCapturedShoots(pi) {
         await openSourceReview(pi);
         return;
       }
-      alert(`Night ${formatNightTabLabel(night)}: ${resolved.error || 'Could not resolve ASIAIR target folders.'}`);
+      appAlert(`Night ${formatNightTabLabel(night)}: ${resolved.error || 'Could not resolve ASIAIR target folders.'}`);
       return;
     }
     includeTargetsByNight[night] = resolved.includeTargets;
@@ -16680,16 +17014,81 @@ function useResolvedCoords(pi, ra, dec) {
 function removeNote(i) { data.notes.splice(i, 1); save(); }
 function removeAsset(i) {
   const a = data.assets[i];
-  if (confirm('Remove "' + (a && a.name ? a.name : 'asset') + '"?')) {
+  appConfirm('Remove "' + (a && a.name ? a.name : 'asset') + '"?', {
+    title: 'Remove asset',
+    confirmLabel: 'Remove',
+    danger: true,
+  }).then((ok) => {
+    if (!ok) return;
     data.assets.splice(i, 1);
     openAssets.delete(i);
     save();
+  });
+}
+
+// ============ APP DIALOG (in-app alert / confirm) ============
+let _appDialogResolver = null;
+
+function closeAppDialog(result) {
+  const overlay = document.getElementById('app-dialog-overlay');
+  if (overlay) overlay.classList.remove('open');
+  const resolve = _appDialogResolver;
+  _appDialogResolver = null;
+  syncBodyScrollLock();
+  if (typeof resolve === 'function') resolve(!!result);
+}
+
+function appAlert(message, title) {
+  return openAppDialog({
+    title: title || 'Notice',
+    message,
+    mode: 'alert',
+  });
+}
+
+function appConfirm(message, opts) {
+  const o = opts || {};
+  return openAppDialog({
+    title: o.title || 'Confirm',
+    message,
+    mode: 'confirm',
+    confirmLabel: o.confirmLabel || 'OK',
+    danger: !!o.danger,
+  });
+}
+
+function openAppDialog(opts) {
+  const o = opts || {};
+  const overlay = document.getElementById('app-dialog-overlay');
+  const titleEl = document.getElementById('app-dialog-title');
+  const bodyEl = document.getElementById('app-dialog-body');
+  const cancelBtn = document.getElementById('app-dialog-cancel');
+  const okBtn = document.getElementById('app-dialog-ok');
+  if (!overlay || !titleEl || !bodyEl || !okBtn) return Promise.resolve(o.mode !== 'confirm');
+  if (_appDialogResolver) {
+    const prev = _appDialogResolver;
+    _appDialogResolver = null;
+    prev(false);
   }
+  const isConfirm = o.mode === 'confirm';
+  titleEl.textContent = o.title || (isConfirm ? 'Confirm' : 'Notice');
+  bodyEl.textContent = String(o.message == null ? '' : o.message);
+  if (cancelBtn) cancelBtn.hidden = !isConfirm;
+  okBtn.textContent = isConfirm ? (o.confirmLabel || 'OK') : 'OK';
+  okBtn.classList.add('primary');
+  okBtn.classList.toggle('danger', !!(isConfirm && o.danger));
+  return new Promise((resolve) => {
+    _appDialogResolver = resolve;
+    overlay.classList.add('open');
+    syncBodyScrollLock();
+    setTimeout(() => { try { okBtn.focus(); } catch (e) {} }, 30);
+  });
 }
 
 // ============ MODAL ============
 let modalType = null;
 let editIndex = null; // null = adding new, number = editing existing
+let filterColorPickedManually = false;
 
 const modalConfigs = {
   note: {
@@ -16760,8 +17159,61 @@ const modalConfigs = {
       { id: 'f-abUrl', label: 'AstroBin Page URL', type: 'text', placeholder: 'https://www.astrobin.com/...' },
       { id: 'f-abImgUrl', label: 'Direct image URL (optional — from AstroBin Share → BBCode, most reliable)', type: 'text', placeholder: 'paste the [img=...] URL here' }
     ]
+  },
+  wheelfilter: {
+    title: 'Add Filter',
+    fields: [
+      { id: 'f-wf-slot', label: 'Slot', type: 'number', placeholder: '1', min: 1, max: 99 },
+      { id: 'f-wf-name', label: 'Name', type: 'text', placeholder: 'e.g. Ha' },
+      { id: 'f-wf-brand', label: 'Brand', type: 'text', placeholder: 'e.g. Astrodon' },
+      { id: 'f-wf-band', label: 'Band / type', type: 'text', placeholder: 'e.g. 5nm' },
+    ]
   }
 };
+
+function filterColorSwatchHtml(key, hex, label, selectedKey, selectedHex) {
+  const on = key === 'custom'
+    ? (selectedKey === 'custom' && String(selectedHex || '').toLowerCase() === String(hex || '').toLowerCase())
+    : selectedKey === key;
+  return `<button type="button" class="filter-color-swatch${on ? ' selected' : ''}" data-key="${key}" data-hex="${hex}" title="${escapeAttr(label)}" style="background:${hex}" onclick="pickFilterColor('${key}','${hex}')"></button>`;
+}
+
+function renderFilterColorPickerHtml(prefill) {
+  const key = (prefill && prefill['f-wf-color-key']) || 'l';
+  const hex = normalizeFilterHex(prefill && prefill['f-wf-color-hex'], '#e2e8f0');
+  const named = FILTER_COLOR_PRESETS.map((p) => filterColorSwatchHtml(p.key, p.hex, p.label, key, hex)).join('');
+  const extra = FILTER_EXTRA_COLORS.map((p) => filterColorSwatchHtml('custom', p.hex, p.label, key, hex)).join('');
+  return `<label>Color</label>
+    <div class="filter-color-picker">
+      <div class="filter-color-swatches">${named}${extra}</div>
+      <label class="filter-color-custom" title="Pick any color">
+        <input id="f-wf-color-hex" type="color" value="${hex}" oninput="pickFilterColor('custom', this.value)">
+        <span>Custom</span>
+      </label>
+      <input type="hidden" id="f-wf-color-key" value="${escapeAttr(key)}">
+    </div>
+    <p class="modal-field-note">This color follows the filter in Capture Plan, ingest, and the pipeline.</p>`;
+}
+
+function pickFilterColor(key, hex, fromGuess) {
+  if (!fromGuess) filterColorPickedManually = true;
+  const keyEl = document.getElementById('f-wf-color-key');
+  const hexEl = document.getElementById('f-wf-color-hex');
+  if (keyEl) keyEl.value = key;
+  if (hexEl && hex) hexEl.value = hex;
+  document.querySelectorAll('#modal-fields .filter-color-swatch').forEach((b) => {
+    const sameHex = (b.getAttribute('data-hex') || '').toLowerCase() === String(hex || '').toLowerCase();
+    b.classList.toggle('selected', key === 'custom' ? sameHex : b.getAttribute('data-key') === key);
+  });
+}
+
+function guessFilterColorFromName() {
+  if (editIndex !== null || filterColorPickedManually) return;
+  const name = document.getElementById('f-wf-name') && document.getElementById('f-wf-name').value;
+  const guessed = filterToneKeyHeuristic(name);
+  const preset = FILTER_COLOR_PRESETS.find((p) => p.key === guessed);
+  if (preset) pickFilterColor(preset.key, preset.hex, true);
+}
 
 function openModal(type, prefill) {
   modalType = type;
@@ -16780,7 +17232,9 @@ function openModal(type, prefill) {
     }
   }
   document.getElementById('modal-title').textContent = editing ? cfg.title.replace('Add', 'Edit') : cfg.title;
-  document.querySelector('.modal-btn.primary').textContent = editing ? 'Save' : 'Add';
+  document.querySelector('#modal-overlay .modal-btn.primary').textContent = editing ? 'Save' : 'Add';
+  const removeBtn = document.getElementById('modal-remove');
+  if (removeBtn) removeBtn.hidden = !(type === 'wheelfilter' && editing);
   let fieldsHtml = cfg.fields.map(f => {
     const val = prefill && prefill[f.id] !== undefined ? String(prefill[f.id]) : '';
     const escaped = val.replace(/"/g, '&quot;');
@@ -16801,14 +17255,19 @@ function openModal(type, prefill) {
         <select id="${f.id}">${opts}</select>`;
     }
     return `<label for="${f.id}">${f.label}</label>
-      <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder || ''}" value="${escaped}">
+      <input id="${f.id}" type="${f.type}" placeholder="${f.placeholder || ''}" value="${escaped}"${f.min != null ? ` min="${f.min}"` : ''}${f.max != null ? ` max="${f.max}"` : ''}>
       ${f.quickFill ? `<div style="display:flex;gap:6px;margin-top:6px;">${f.quickFill.map(q => `<button type="button" class="mini-btn" style="margin-top:0;" onclick="document.getElementById('${f.id}').value='${q.value}'">${q.label}</button>`).join('')}</div>` : ''}`;
   }).join('');
   if (type === 'project' && !editing) {
     fieldsHtml += '<p class="modal-field-note">Mosaics are not supported yet — use a single framing per project.</p>';
   }
+  if (type === 'wheelfilter') fieldsHtml += renderFilterColorPickerHtml(prefill);
   document.getElementById('modal-fields').innerHTML = fieldsHtml;
   document.getElementById('modal-overlay').classList.add('open');
+  if (type === 'wheelfilter' && !editing) {
+    const nameEl = document.getElementById('f-wf-name');
+    if (nameEl) nameEl.addEventListener('input', guessFilterColorFromName);
+  }
   setTimeout(() => { const el = document.getElementById(cfg.fields[0].id); if (el) el.focus(); }, 50);
 }
 
@@ -16839,6 +17298,8 @@ function editItem(type, i) {
 }
 
 function closeModal() {
+  const removeBtn = document.getElementById('modal-remove');
+  if (removeBtn) removeBtn.hidden = true;
   document.getElementById('modal-overlay').classList.remove('open');
   modalType = null;
   editIndex = null;
@@ -16855,6 +17316,7 @@ const MODAL_OPEN_SELECTOR = [
   '.cull-overlay.open',
   '.siril-progress-overlay.open',
   '.pipeline-job-overlay.open',
+  '.app-dialog-overlay.open',
 ].join(', ');
 
 function syncBodyScrollLock() {
@@ -16866,7 +17328,7 @@ function syncBodyScrollLock() {
 function initModalScrollLock() {
   syncBodyScrollLock();
   const roots = document.querySelectorAll(
-    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay'
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay, .app-dialog-overlay'
   );
   if (!roots.length || typeof MutationObserver !== 'function') return;
   const obs = new MutationObserver(() => syncBodyScrollLock());
@@ -16957,6 +17419,42 @@ function saveModal() {
     } else {
       targets.push({ ...row, loggedHrs: 0, stackMeta: null, cullMeta: null, aggregateMeta: null, registerMeta: null });
     }
+  } else if (modalType === 'wheelfilter') {
+    const name = v('f-wf-name');
+    if (!name) {
+      appAlert('Enter a filter name.');
+      return;
+    }
+    if (filterNameTaken(name, editing ? editIndex : -1)) {
+      appAlert('A filter named "' + name + '" already exists.');
+      return;
+    }
+    const slot = parseInt(v('f-wf-slot'), 10);
+    if (!Number.isFinite(slot) || slot < 1 || slot > 99) {
+      appAlert('Enter a slot number from 1 to 99.');
+      return;
+    }
+    if (filterSlotTaken(slot, editing ? editIndex : -1)) {
+      appAlert('Slot ' + formatFilterSlot(slot) + ' is already assigned.');
+      return;
+    }
+    const brand = v('f-wf-brand');
+    const band = v('f-wf-band');
+    let colorKey = normalizeFilterColorKey(v('f-wf-color-key'));
+    const colorHex = normalizeFilterHex(v('f-wf-color-hex'), '#94a3b8');
+    if (!FILTER_NAMED_COLOR_KEYS.includes(colorKey)) {
+      colorKey = 'custom';
+    }
+    const color = colorKey === 'custom' ? colorHex : '';
+    if (editing) {
+      const prev = data.filters[editIndex];
+      const oldName = prev.name;
+      data.filters[editIndex] = { ...prev, name, brand, band, slot, colorKey, color };
+      if (oldName !== name) renameFilterInProjects(oldName, name);
+    } else {
+      data.filters.push({ id: uniqueFilterId(name), name, brand, band, slot, colorKey, color });
+    }
+    sortFiltersBySlot();
   } else if (modalType === 'checkstep') {
     if (!v('f-stepText') || modalProjectIndex === null) return;
     data.projects[modalProjectIndex].checklist.push({ id: 'step-' + Date.now(), text: v('f-stepText'), done: false });
@@ -17256,7 +17754,12 @@ async function settingsClearApiKey() {
     setSettingsStatus('Desktop app required to clear API key', 'err');
     return;
   }
-  if (!confirm('Clear the Astrospheric API key from local .env?')) return;
+  const ok = await appConfirm('Clear the Astrospheric API key from local .env?', {
+    title: 'Clear API key',
+    confirmLabel: 'Clear key',
+    danger: true,
+  });
+  if (!ok) return;
   try {
     const res = await window.zukoApp.setAstrosphericKey('');
     if (!res || !res.ok) throw new Error((res && res.error) || 'Clear failed');
@@ -17334,6 +17837,12 @@ document.getElementById('settings-overlay').addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  const appDlg = document.getElementById('app-dialog-overlay');
+  if (appDlg && appDlg.classList.contains('open')) {
+    closeAppDialog(false);
+    e.preventDefault();
+    return;
+  }
   const jobOverlay = document.getElementById('pipeline-job-overlay');
   if (jobOverlay && jobOverlay.classList.contains('open')) {
     closePipelineJobConfirm();
