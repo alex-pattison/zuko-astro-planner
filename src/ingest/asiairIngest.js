@@ -56,8 +56,13 @@ const DARKFLAT_FLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
 const TARGET_MATCH_AUTO_DEG = 0.75;
 /** Above auto and at or below this → pre-ingest confirm; farther → other target. */
 const TARGET_MATCH_CONFIRM_DEG = 2.5;
-/** CAA / ROTATOR circular tolerance (planner ↔ lights ↔ flats). */
+/** CAA / ROTATOR circular tolerance (planner ↔ light-folder median for target confirm). */
 const CAA_MATCH_TOL_DEG = 2;
+/**
+ * Per-frame Import gate vs Target Framer CAA.
+ * Passes within ±tol, or within ±tol of the 180° flip (ASIAIR often writes 32 vs 212).
+ */
+const FRAMER_FRAME_CAA_TOL_DEG = 10;
 
 function sanitizeFolderName(name) {
   return String(name || '')
@@ -479,8 +484,22 @@ function caaMatches(a, b, tol = CAA_MATCH_TOL_DEG) {
 }
 
 /**
+ * Per-frame match to Target Framer CAA.
+ * True when within ±tol of framer, or within ±tol of framer+180° (ASIAIR flip).
+ * Missing frame or framer CAA → soft-include (true).
+ */
+function caaMatchesFramer(frameRotDeg, framerCaaDeg, tol = FRAMER_FRAME_CAA_TOL_DEG) {
+  if (framerCaaDeg == null || !Number.isFinite(Number(framerCaaDeg))) return true;
+  if (frameRotDeg == null || !Number.isFinite(Number(frameRotDeg))) return true;
+  const d = caaAngleDiffDeg(frameRotDeg, framerCaaDeg);
+  if (d == null) return true;
+  return d <= tol || d >= (180 - tol);
+}
+
+/**
  * Flat/darkflat vs light CAA. Missing frame CAA → soft-include (true).
  * Wrong CAA when both present → false.
+ * @deprecated Prefer caaMatchesFramer for Import; kept for callers that compare two frames.
  */
 function caaMatchesLight(frameRotDeg, lightRotDeg, tol = CAA_MATCH_TOL_DEG) {
   if (lightRotDeg == null || !Number.isFinite(Number(lightRotDeg))) return true;
@@ -507,6 +526,36 @@ function partitionByLightCaa(frames = [], lightCaaDeg, tol = CAA_MATCH_TOL_DEG) 
     else outOfRange.push({ ...f, reason: `CAA ${Math.round(Number(rot))}° vs lights ${Math.round(Number(lightCaaDeg))}°` });
   }
   return { inRange, outOfRange, missingCaa, lightCaaDeg };
+}
+
+/** Partition frames vs Target Framer CAA (±tol or 180°±tol). */
+function partitionByFramerCaa(frames = [], framerCaaDeg, tol = FRAMER_FRAME_CAA_TOL_DEG) {
+  const inRange = [];
+  const outOfRange = [];
+  const missingCaa = [];
+  const framerLabel = framerCaaDeg != null && Number.isFinite(Number(framerCaaDeg))
+    ? Math.round(Number(framerCaaDeg))
+    : null;
+  for (const f of frames) {
+    const rot = f && f.rotatorDeg;
+    if (framerLabel == null) {
+      inRange.push(f);
+      continue;
+    }
+    if (rot == null || !Number.isFinite(Number(rot))) {
+      missingCaa.push(f);
+      inRange.push(f);
+      continue;
+    }
+    if (caaMatchesFramer(rot, framerLabel, tol)) inRange.push(f);
+    else {
+      outOfRange.push({
+        ...f,
+        reason: `CAA ${Math.round(Number(rot))}° vs framer ${framerLabel}° (±${tol}° or 180°±${tol}°)`,
+      });
+    }
+  }
+  return { inRange, outOfRange, missingCaa, framerCaaDeg: framerLabel };
 }
 
 /** Mode CAA / ROTATOR from a frame list (lights preferred). */
@@ -758,8 +807,9 @@ async function discoverSessions(projectDir) {
   if (!projectDir || !fs.existsSync(projectDir)) {
     return {
       ok: false,
+      code: projectDir ? 'SOURCE_OFFLINE' : null,
       error: projectDir
-        ? `Folder not found: ${projectDir}`
+        ? `ASIAIR source offline (${projectDir}). Remount the unit and try again.`
         : 'Project directory not found',
       sessions: [],
     };
@@ -2366,6 +2416,15 @@ async function stageSirilTree(opts = {}) {
   const nightDate = normalizeNight(opts.nightDate);
   if (!projectDir) return { ok: false, error: 'projectDir is required' };
   if (!nightDate) return { ok: false, error: 'nightDate is required' };
+  if (!sourceDir || !fs.existsSync(sourceDir)) {
+    return {
+      ok: false,
+      code: 'SOURCE_OFFLINE',
+      error: sourceDir
+        ? `ASIAIR source offline (${sourceDir}). Remount the unit and try Import again.`
+        : 'ASIAIR source path is required',
+    };
+  }
 
   const shootFolder = sanitizeFolderName(opts.shootFolder || opts.shootName || nightDate);
   const shootFilter = opts.shootFilter ? normalizeFilter(opts.shootFilter) : null;
@@ -2379,14 +2438,25 @@ async function stageSirilTree(opts = {}) {
     ? new Set(opts.filters.map(normalizeFilter))
     : null;
 
-  // Per-kind include overrides from Import UI (bulk + per-sub).
+  // Per-kind include / reject overrides from Import UI.
   const includeAll = opts.includeAllOutOfRange || {};
   const includePathSets = {
+    lights: new Set(opts.includeLightPaths || []),
     flats: new Set(opts.includeFlatPaths || []),
     darks: new Set(opts.includeDarkPaths || []),
     biases: new Set(opts.includeBiasPaths || []),
   };
+  const rejectPathSets = {
+    lights: new Set(opts.rejectLightPaths || []),
+    flats: new Set(opts.rejectFlatPaths || []),
+    darks: new Set(opts.rejectDarkPaths || []),
+    biases: new Set(opts.rejectBiasPaths || []),
+  };
   const frameKey = (f) => (f && (f.filePath || f.fileName)) || '';
+  const isRejected = (kind, f) => {
+    const k = frameKey(f);
+    return !!(k && rejectPathSets[kind] && rejectPathSets[kind].has(k));
+  };
   const isIncluded = (kind, f) => {
     if (includeAll[kind]) return true;
     const k = frameKey(f);
@@ -2438,16 +2508,43 @@ async function stageSirilTree(opts = {}) {
 
   const lightTempC = modeTempC(lights);
   const lightCaaDeg = modeRotatorDeg(lights);
+  const framerCaaDeg = opts.refCaaDeg != null && Number.isFinite(Number(opts.refCaaDeg))
+    ? Number(opts.refCaaDeg)
+    : (opts.framerRotation != null && Number.isFinite(Number(opts.framerRotation))
+      ? Number(opts.framerRotation)
+      : null);
   const softWarnings = [
     ...(Array.isArray(scan.softWarnings) ? scan.softWarnings : []),
     ...(Array.isArray(opts.softWarnings) ? opts.softWarnings : []),
   ];
 
+  // Manual rejects first (any type).
+  lights = lights.filter((L) => !isRejected('lights', L));
+  flats = flats.filter((F) => !isRejected('flats', F));
+
+  // Lights vs Target Framer CAA (±10° or 180°±10°); include override can restore.
+  {
+    const kept = [];
+    let rejectedCaa = 0;
+    for (const L of lights) {
+      if (caaMatchesFramer(L.rotatorDeg, framerCaaDeg) || isIncluded('lights', L)) {
+        kept.push(L);
+      } else {
+        rejectedCaa += 1;
+      }
+    }
+    lights = kept;
+    if (rejectedCaa) {
+      softWarnings.push(
+        `Excluded ${rejectedCaa} light(s) with CAA ≠ Target Framer ${framerCaaDeg != null ? Math.round(framerCaaDeg) + '°' : '—'} (±${FRAMER_FRAME_CAA_TOL_DEG}° or 180°±${FRAMER_FRAME_CAA_TOL_DEG}°)`
+      );
+    }
+  }
+
   // Flats must match light temp (±3°C) unless override includes them.
   flats = flats.filter((F) => tempMatchesLight(F.tempC, lightTempC) || isIncluded('flats', F));
 
-  // Flats with known CAA must match light CAA (±2°) unless override includes them.
-  // Missing CAA → soft-include (older dumps) + warn.
+  // Flats vs Target Framer CAA (±10° or 180°±10°); missing CAA soft-includes.
   {
     const kept = [];
     let rejectedCaa = 0;
@@ -2458,12 +2555,12 @@ async function stageSirilTree(opts = {}) {
         continue;
       }
       const rot = F.rotatorDeg;
-      if (lightCaaDeg != null && (rot == null || !Number.isFinite(Number(rot)))) {
+      if (framerCaaDeg != null && (rot == null || !Number.isFinite(Number(rot)))) {
         missingCaa += 1;
         kept.push(F);
         continue;
       }
-      if (lightCaaDeg != null && !caaMatches(rot, lightCaaDeg)) {
+      if (framerCaaDeg != null && !caaMatchesFramer(rot, framerCaaDeg)) {
         rejectedCaa += 1;
         continue;
       }
@@ -2472,12 +2569,12 @@ async function stageSirilTree(opts = {}) {
     flats = kept;
     if (rejectedCaa) {
       softWarnings.push(
-        `Excluded ${rejectedCaa} flat(s) with CAA ≠ lights (${lightCaaDeg}° ±${CAA_MATCH_TOL_DEG}°)`
+        `Excluded ${rejectedCaa} flat(s) with CAA ≠ Target Framer ${framerCaaDeg != null ? Math.round(framerCaaDeg) + '°' : '—'} (±${FRAMER_FRAME_CAA_TOL_DEG}° or 180°±${FRAMER_FRAME_CAA_TOL_DEG}°)`
       );
     }
     if (missingCaa) {
       softWarnings.push(
-        `${missingCaa} flat(s) have no ROTATOR/CAA — soft-included vs lights ${lightCaaDeg}°`
+        `${missingCaa} flat(s) have no ROTATOR/CAA — soft-included vs framer ${framerCaaDeg != null ? Math.round(framerCaaDeg) + '°' : '—'}`
       );
     }
   }
@@ -2499,40 +2596,36 @@ async function stageSirilTree(opts = {}) {
     }
   }
 
-  // Darkflats: flat filter/exp/gain/bin + light temp. Overrides can force-include.
+  // Darkflats: flat filter/exp/gain/bin + light temp. Overrides can force-include / reject.
   const usableBiasesByFilter = {};
   const usableBiasByName = new Map();
   const biasByKey = new Map();
   for (const b of sessionBiases) {
+    if (isRejected('biases', b)) continue;
     const k = frameKey(b);
     if (k) biasByKey.set(k, b);
   }
   for (const filter of filters) {
     const flatsF = flats.filter((x) => (normalizeFilter(x.filter) || 'Unknown') === filter);
-    const usable = collectUsableDarkflats(sessionBiases, flatsF, { lightTempC });
+    const usable = collectUsableDarkflats(
+      sessionBiases.filter((b) => !isRejected('biases', b)),
+      flatsF,
+      { lightTempC }
+    );
     const matched = usable.matches.slice();
     for (const b of sessionBiases) {
+      if (isRejected('biases', b)) continue;
       const bf = normalizeFilter(b.filter);
       if (bf && bf !== filter) continue; // never stage other-filter darkflats
       if (isIncluded('biases', b) && !matched.some((m) => frameKey(m) === frameKey(b))) {
         matched.push(b);
       }
     }
+    // CAA does not gate biases/darkflats (or darks) — only lights/flats.
     usableBiasesByFilter[filter] = matched;
-    let darkflatCaaSoft = 0;
     for (const b of matched) {
       const name = path.basename(b.filePath || b.fileName || '');
       if (name && b.filePath && !usableBiasByName.has(name)) usableBiasByName.set(name, b);
-      // Soft flag only: darkflat CAA ≠ light CAA (still staged).
-      if (lightCaaDeg != null && b.rotatorDeg != null && Number.isFinite(Number(b.rotatorDeg))
-          && !caaMatches(b.rotatorDeg, lightCaaDeg)) {
-        darkflatCaaSoft += 1;
-      }
-    }
-    if (darkflatCaaSoft) {
-      softWarnings.push(
-        `${darkflatCaaSoft} darkflat(s) CAA ≠ lights ${lightCaaDeg}° (${filter}) — soft flag only`
-      );
     }
   }
   const usableBiases = [...usableBiasByName.values()];
@@ -2556,12 +2649,13 @@ async function stageSirilTree(opts = {}) {
   for (const filter of (shootFilter ? [shootFilter] : Object.keys(lightParamsByFilter))) {
     const params = lightParamsByFilter[filter] || lightParamsByFilter[Object.keys(lightParamsByFilter)[0]] || {};
     const matched = matchMasterDarks({
-      index: sessionDarkIndex,
+      index: sessionDarkIndex.filter((d) => !isRejected('darks', d)),
       exposureSec: params.exposureSec,
       gain: params.gain,
       tempC: params.tempC != null ? params.tempC : lightTempC,
     }).matches;
     for (const d of matched) {
+      if (isRejected('darks', d)) continue;
       const key = d.filePath || d.fileName;
       if (!key || seenDark.has(key)) continue;
       seenDark.add(key);
@@ -2569,6 +2663,7 @@ async function stageSirilTree(opts = {}) {
     }
   }
   for (const d of sessionDarkIndex) {
+    if (isRejected('darks', d)) continue;
     if (!isIncluded('darks', d)) continue;
     const key = d.filePath || d.fileName;
     if (!key || seenDark.has(key)) continue;
@@ -2604,13 +2699,16 @@ async function stageSirilTree(opts = {}) {
     allowBiasCountCover: true,
   });
   if (!readiness.ok) {
+    const caaHint = softWarnings.find((w) => /CAA ≠ lights/i.test(String(w || '')));
     return {
       ok: false,
       code: readiness.code,
-      error: readiness.error,
+      error: caaHint ? `${readiness.error} (${caaHint})` : readiness.error,
       missing: readiness.missing,
+      softWarnings,
       scan,
       lightTempC,
+      lightCaaDeg,
     };
   }
 
@@ -2679,20 +2777,8 @@ async function stageSirilTree(opts = {}) {
   const staged = [];
   const errors = [];
 
-  // Session biases (darkflats) matching flat settings — copy into _calibration, never move source.
-  const copiedBiases = [];
-  for (const b of usableBiases) {
-    const dest = path.join(biasLibDir, path.basename(b.filePath || b.fileName));
-    try {
-      const result = await ensureCopied(b.filePath, dest);
-      copiedBiases.push({ from: b.filePath, to: dest, action: result.action });
-    } catch (err) {
-      errors.push({ file: b.filePath, error: String(err.message || err) });
-    }
-  }
-
-  // Collect unique darks.
-  // Master library: symlink straight into each channel's darks/ (no _calibration copy).
+  // Collect unique darks before I/O so progress totals are accurate.
+  // Master library: symlink into channel darks/ (no _calibration copy).
   // Session darks: copy into _calibration/darks/<night>/, then symlink into channels.
   const darkByName = new Map();
   if (useMasterDarks) {
@@ -2712,7 +2798,6 @@ async function stageSirilTree(opts = {}) {
         gain: params.gain,
         tempC: params.tempC,
       }).matches;
-      // Do not fall back to unmatched session darks — wrong exp/gain/temp is unusable.
       for (const d of matched) {
         const name = path.basename(d.filePath || d.fileName || '');
         if (name && !darkByName.has(name)) darkByName.set(name, d);
@@ -2750,7 +2835,63 @@ async function stageSirilTree(opts = {}) {
     } else {
       calibDarkFiles = [...darkByName.values()].map((d) => d.filePath).filter(Boolean);
     }
-  } else {
+  }
+
+  let biasLinkN = 0;
+  for (const filter of filters) {
+    biasLinkN += (usableBiasesByFilter[filter] || []).length;
+  }
+  const darkCopyN = useMasterDarks ? 0 : darkByName.size;
+  const darkLinkPerFilter = preStackedDarkMaster
+    ? 1
+    : (useMasterDarks ? calibDarkFiles.length : darkByName.size);
+  const progressTotal =
+    usableBiases.length
+    + darkCopyN
+    + lights.length
+    + flats.length
+    + biasLinkN
+    + (darkLinkPerFilter * filters.length);
+  let progressDone = 0;
+  const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
+  const reportProgress = (label, phase = 'copy') => {
+    if (!onProgress) return;
+    try {
+      onProgress({
+        done: progressDone,
+        total: progressTotal,
+        label: label || 'Importing…',
+        phase,
+      });
+    } catch { /* ignore UI progress errors */ }
+  };
+  const tickProgress = (label) => {
+    progressDone += 1;
+    reportProgress(
+      `${label} · ${Math.min(progressDone, progressTotal)}/${progressTotal || 0}`
+    );
+  };
+  reportProgress(
+    progressTotal
+      ? `Importing 0/${progressTotal} files…`
+      : 'Importing…',
+    'start'
+  );
+
+  // Session biases (darkflats) matching flat settings — copy into _calibration, never move source.
+  const copiedBiases = [];
+  for (const b of usableBiases) {
+    const dest = path.join(biasLibDir, path.basename(b.filePath || b.fileName));
+    try {
+      const result = await ensureCopied(b.filePath, dest);
+      copiedBiases.push({ from: b.filePath, to: dest, action: result.action });
+    } catch (err) {
+      errors.push({ file: b.filePath, error: String(err.message || err) });
+    }
+    tickProgress('Copying biases');
+  }
+
+  if (!useMasterDarks) {
     await fsp.mkdir(darkLibDir, { recursive: true });
     for (const d of darkByName.values()) {
       const dest = path.join(darkLibDir, path.basename(d.filePath || d.fileName));
@@ -2765,6 +2906,7 @@ async function stageSirilTree(opts = {}) {
       } catch (err) {
         errors.push({ file: d.filePath, error: String(err.message || err) });
       }
+      tickProgress('Copying darks');
     }
     try {
       calibDarkFiles = (await fsp.readdir(darkLibDir))
@@ -2804,6 +2946,7 @@ async function stageSirilTree(opts = {}) {
       } catch (err) {
         errors.push({ file: L.filePath, error: String(err.message || err) });
       }
+      tickProgress(`Copying ${filter} lights`);
     }
 
     for (const F of flats.filter((f) => (normalizeFilter(f.filter) || 'Unknown') === filter)) {
@@ -2814,6 +2957,7 @@ async function stageSirilTree(opts = {}) {
       } catch (err) {
         errors.push({ file: F.filePath, error: String(err.message || err) });
       }
+      tickProgress(`Copying ${filter} flats`);
     }
 
     // Only link darkflats that match this filter (and flat exp/gain/bin + light temp).
@@ -2836,6 +2980,7 @@ async function stageSirilTree(opts = {}) {
       } catch (err) {
         errors.push({ file: src, error: String(err.message || err) });
       }
+      tickProgress(`Linking ${filter} biases`);
     }
 
     if (preStackedDarkMaster) {
@@ -2854,6 +2999,7 @@ async function stageSirilTree(opts = {}) {
       } catch (err) {
         errors.push({ file: preStackedDarkMaster, error: String(err.message || err) });
       }
+      tickProgress(`Linking ${filter} dark master`);
     } else {
       for (const src of calibDarkFiles) {
         const dest = path.join(darksDir, path.basename(src));
@@ -2870,9 +3016,16 @@ async function stageSirilTree(opts = {}) {
         } catch (err) {
           errors.push({ file: src, error: String(err.message || err) });
         }
+        tickProgress(`Linking ${filter} darks`);
       }
     }
   }
+  reportProgress(
+    progressTotal
+      ? `Imported ${progressDone}/${progressTotal}`
+      : 'Import complete',
+    'done'
+  );
 
   return {
     ok: errors.length === 0 || staged.length > 0,
@@ -3195,6 +3348,7 @@ module.exports = {
   TARGET_MATCH_AUTO_DEG,
   TARGET_MATCH_CONFIRM_DEG,
   CAA_MATCH_TOL_DEG,
+  FRAMER_FRAME_CAA_TOL_DEG,
   parseAsiairFilename,
   parseExposureToSeconds,
   normalizeFilter,
@@ -3207,8 +3361,10 @@ module.exports = {
   angularSeparationDeg,
   caaAngleDiffDeg,
   caaMatches,
+  caaMatchesFramer,
   caaMatchesLight,
   partitionByLightCaa,
+  partitionByFramerCaa,
   modeRotatorDeg,
   buildTargetFolders,
   targetMatchNeedsConfirm,

@@ -52,6 +52,12 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
   open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),
+  onStageProgress: (handler) => {
+    if (typeof handler !== 'function') return () => {};
+    const listener = (_event, payload) => handler(payload || {});
+    ipcRenderer.on('zuko-ingest-stage-progress', listener);
+    return () => ipcRenderer.removeListener('zuko-ingest-stage-progress', listener);
+  },
 });
 
 contextBridge.exposeInMainWorld('zukoSiril', {

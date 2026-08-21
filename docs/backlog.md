@@ -64,9 +64,9 @@ New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Sh
 
 ---
 
-### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–28)*
+### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–30)*
 
-One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Require CAA match when pairing lights ↔ flats. Dark flats: soft flag only. Camera-up marker matches this train; NASA moon stills local.
+One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Alert when ASIAIR source is offline. Camera-up marker matches this train; NASA moon stills local.
 
 **Why:** Same dial value for framing, shooting, and ingest checks (target + flats).
 
@@ -75,6 +75,19 @@ One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Con
 ### 11. Local crash / error log folder
 
 Write last N main/renderer errors to a zipable folder. No cloud required.
+
+---
+
+### 24. Dark-flat library (like Dark Library)
+
+Reusable master dark flats, not only the ASIAIR Bias folder that rode in with that night’s flats.
+
+- Import / build masters the way Dark Library does (copy from dump → set folders → stack).
+- Match on **filter + exp / gain / temp / bin** (dark flats are per-filter; darks are not).
+- Import checkbox: use matching library dark flats when the session Bias set is missing or you choose library over session.
+- 0.2 removed a **Bias Library** product on purpose (session darkflats only). This is the 0.3 revisit with the right name and match keys — not a revival of offset-bias masters.
+
+**Why:** Same dark flats get reshot every flat set. A library stops duplicating disk and lets a good set cover later nights.
 
 ---
 

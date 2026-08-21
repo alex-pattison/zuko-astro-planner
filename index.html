@@ -974,6 +974,13 @@
   .ingest-files-override .ovr-meta strong { color: var(--text); font-weight: 600; }
   .ingest-files-table td.include-cell { text-align: center; width: 72px; }
   .ingest-files-table td.include-cell input { cursor: pointer; }
+  .ingest-files-table td.caa-cell { font-weight: 600; text-align: right; white-space: nowrap; }
+  .ingest-files-table td.caa-cell.caa-ok { color: var(--green, #4ade80); }
+  .ingest-files-table td.caa-cell.caa-warn { color: var(--yellow, #fbbf24); }
+  .ingest-files-table td.caa-cell.caa-err { color: var(--red, #f87171); }
+  html[data-theme="red"] .ingest-files-table td.caa-cell.caa-ok { color: #ff9999; }
+  html[data-theme="red"] .ingest-files-table td.caa-cell.caa-warn { color: #ff5555; }
+  html[data-theme="red"] .ingest-files-table td.caa-cell.caa-err { color: #ff1a1a; }
   .ingest-files-scroll {
     overflow-x: hidden;
     overflow-y: auto;
@@ -2125,6 +2132,16 @@
     font-size: 10px;
     color: var(--gray);
   }
+  .ingest-busy-pct {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+    min-width: 2.6em;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .ingest-busy-pct:empty,
+  .ingest-busy-pct[hidden] { display: none; }
   .ingest-busy-bar {
     height: 3px;
     border-radius: 2px;
@@ -2138,6 +2155,12 @@
     border-radius: 2px;
     background: color-mix(in srgb, var(--green) 70%, var(--text));
     animation: ingest-indeterminate 1.1s ease-in-out infinite;
+  }
+  .ingest-busy-bar.determinate > span {
+    animation: none;
+    width: 0%;
+    transform: none;
+    transition: width 0.12s ease-out;
   }
   @keyframes ingest-indeterminate {
     0% { transform: translateX(-120%); }
@@ -5395,6 +5418,7 @@
       <div class="ingest-busy-row">
         <div class="ingest-busy-spinner" aria-hidden="true"></div>
         <div class="ingest-busy-msg" id="ingest-busy-msg">Working…</div>
+        <div class="ingest-busy-pct" id="ingest-busy-pct" hidden></div>
         <div class="ingest-busy-elapsed" id="ingest-busy-elapsed">0.0s</div>
       </div>
       <div class="ingest-busy-bar"><span></span></div>
@@ -11331,12 +11355,43 @@ function formatIngestElapsed(ms) {
   return s < 10 ? s.toFixed(1) + 's' : Math.round(s) + 's';
 }
 
+function setIngestBusyProgress(done, total, label) {
+  const msg = document.getElementById('ingest-busy-msg');
+  const pctEl = document.getElementById('ingest-busy-pct');
+  const barWrap = document.querySelector('#ingest-busy .ingest-busy-bar');
+  const bar = barWrap && barWrap.querySelector('span');
+  if (msg && label) msg.textContent = label;
+  const t = Number(total) || 0;
+  const d = Math.max(0, Number(done) || 0);
+  const pct = t > 0 ? Math.max(0, Math.min(100, Math.round((d / t) * 100))) : null;
+  if (pctEl) {
+    if (pct != null) {
+      pctEl.hidden = false;
+      pctEl.textContent = pct + '%';
+    } else {
+      pctEl.hidden = true;
+      pctEl.textContent = '';
+    }
+  }
+  if (!barWrap || !bar) return;
+  if (pct != null) {
+    barWrap.classList.add('determinate');
+    bar.style.width = pct + '%';
+  } else {
+    barWrap.classList.remove('determinate');
+    bar.style.width = '';
+  }
+}
+
 function setIngestBusy(on, message) {
   const el = document.getElementById('ingest-busy');
   const msg = document.getElementById('ingest-busy-msg');
   const elapsed = document.getElementById('ingest-busy-elapsed');
+  const pctEl = document.getElementById('ingest-busy-pct');
   const stageBtn = document.getElementById('ingest-stage-btn');
   const cancelBtn = document.getElementById('ingest-cancel-btn');
+  const barWrap = document.querySelector('#ingest-busy .ingest-busy-bar');
+  const bar = barWrap && barWrap.querySelector('span');
   if (msg && message) msg.textContent = message;
   if (!el) return;
 
@@ -11345,6 +11400,12 @@ function setIngestBusy(on, message) {
     ingestBusyState.startedAt = Date.now();
     el.classList.add('on');
     if (elapsed) elapsed.textContent = '0.0s';
+    if (pctEl) {
+      pctEl.hidden = true;
+      pctEl.textContent = '';
+    }
+    if (barWrap) barWrap.classList.remove('determinate');
+    if (bar) bar.style.width = '';
     if (ingestBusyState.tick) clearInterval(ingestBusyState.tick);
     ingestBusyState.tick = setInterval(() => {
       if (!ingestBusyState.on || !elapsed) return;
@@ -11359,6 +11420,12 @@ function setIngestBusy(on, message) {
       ingestBusyState.tick = null;
     }
     el.classList.remove('on');
+    if (pctEl) {
+      pctEl.hidden = true;
+      pctEl.textContent = '';
+    }
+    if (barWrap) barWrap.classList.remove('determinate');
+    if (bar) bar.style.width = '';
     if (cancelBtn) cancelBtn.disabled = false;
   }
 }
@@ -11369,12 +11436,22 @@ async function withIngestBusy(message, work, opts = {}) {
   const gen = ++ingestBusyState.gen;
   const started = Date.now();
   setIngestBusy(true, message);
+  let unsub = null;
+  if (window.zukoIngest && typeof window.zukoIngest.onStageProgress === 'function') {
+    unsub = window.zukoIngest.onStageProgress((p) => {
+      if (!ingestBusyState.on || ingestBusyState.gen !== gen) return;
+      setIngestBusyProgress(p && p.done, p && p.total, (p && p.label) || message);
+    });
+  }
   try {
     const result = await (typeof work === 'function' ? work() : work);
     const remain = minMs - (Date.now() - started);
     if (remain > 0) await new Promise((r) => setTimeout(r, remain));
     return result;
   } finally {
+    if (typeof unsub === 'function') {
+      try { unsub(); } catch (e) { /* ignore */ }
+    }
     if (ingestBusyState.gen === gen) setIngestBusy(false);
   }
 }
@@ -11433,6 +11510,13 @@ function ingestFrameKey(f) {
 }
 
 const INGEST_TEMP_TOLERANCE_C = 3;
+/**
+ * Per-frame vs Target Framer CAA (±tol, or 180°±tol for ASIAIR flip).
+ * Must match asiairIngest.FRAMER_FRAME_CAA_TOL_DEG.
+ */
+const INGEST_CAA_TOLERANCE_DEG = 10;
+/** Tight match band for CAA column color (green). */
+const INGEST_CAA_GOOD_DEG = 3;
 const INGEST_DARKFLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
 
 function ingestFrameObsMs(f) {
@@ -11456,31 +11540,51 @@ function ensureIngestCalibOverrides() {
   if (!ingestCtx) return null;
   if (!ingestCtx.calibOverrides) {
     ingestCtx.calibOverrides = {
-      flats: { includeAll: false, paths: [] },
-      darks: { includeAll: false, paths: [] },
-      biases: { includeAll: false, paths: [] },
+      lights: { includeAll: false, paths: [], rejectPaths: [] },
+      flats: { includeAll: false, paths: [], rejectPaths: [] },
+      darks: { includeAll: false, paths: [], rejectPaths: [] },
+      biases: { includeAll: false, paths: [], rejectPaths: [] },
     };
+  }
+  for (const kind of ['lights', 'flats', 'darks', 'biases']) {
+    if (!ingestCtx.calibOverrides[kind]) {
+      ingestCtx.calibOverrides[kind] = { includeAll: false, paths: [], rejectPaths: [] };
+    }
+    if (!Array.isArray(ingestCtx.calibOverrides[kind].rejectPaths)) {
+      ingestCtx.calibOverrides[kind].rejectPaths = [];
+    }
+    if (!Array.isArray(ingestCtx.calibOverrides[kind].paths)) {
+      ingestCtx.calibOverrides[kind].paths = [];
+    }
   }
   return ingestCtx.calibOverrides;
 }
 
 function ingestOverrideState(kind) {
   const o = ensureIngestCalibOverrides();
-  return o && o[kind] ? o[kind] : { includeAll: false, paths: [] };
+  return o && o[kind]
+    ? o[kind]
+    : { includeAll: false, paths: [], rejectPaths: [] };
 }
 
-/** Payload fields for stageSirilTree include overrides. */
+/** Payload fields for stageSirilTree include / reject overrides. */
 function ingestCalibOverridePayload() {
   const o = ensureIngestCalibOverrides() || {};
   return {
     includeAllOutOfRange: {
+      lights: !!(o.lights && o.lights.includeAll),
       flats: !!(o.flats && o.flats.includeAll),
       darks: !!(o.darks && o.darks.includeAll),
       biases: !!(o.biases && o.biases.includeAll),
     },
+    includeLightPaths: (o.lights && o.lights.paths) || [],
     includeFlatPaths: (o.flats && o.flats.paths) || [],
     includeDarkPaths: (o.darks && o.darks.paths) || [],
     includeBiasPaths: (o.biases && o.biases.paths) || [],
+    rejectLightPaths: (o.lights && o.lights.rejectPaths) || [],
+    rejectFlatPaths: (o.flats && o.flats.rejectPaths) || [],
+    rejectDarkPaths: (o.darks && o.darks.rejectPaths) || [],
+    rejectBiasPaths: (o.biases && o.biases.rejectPaths) || [],
   };
 }
 
@@ -11488,6 +11592,11 @@ function ingestIsPathIncluded(kind, key) {
   const st = ingestOverrideState(kind);
   if (st.includeAll) return true;
   return !!(key && (st.paths || []).includes(key));
+}
+
+function ingestIsPathRejected(kind, key) {
+  const st = ingestOverrideState(kind);
+  return !!(key && (st.rejectPaths || []).includes(key));
 }
 
 function setIngestPathIncluded(kind, key, on) {
@@ -11498,6 +11607,42 @@ function setIngestPathIncluded(kind, key, on) {
   else set.delete(key);
   o[kind].paths = [...set];
   if (!on) o[kind].includeAll = false;
+  if (on) {
+    // Including implies not rejected.
+    const rej = new Set(o[kind].rejectPaths || []);
+    rej.delete(key);
+    o[kind].rejectPaths = [...rej];
+  }
+}
+
+function setIngestPathRejected(kind, key, on) {
+  const o = ensureIngestCalibOverrides();
+  if (!o || !o[kind] || !key) return;
+  const rej = new Set(o[kind].rejectPaths || []);
+  if (on) rej.add(key);
+  else rej.delete(key);
+  o[kind].rejectPaths = [...rej];
+  if (on) {
+    const set = new Set(o[kind].paths || []);
+    set.delete(key);
+    o[kind].paths = [...set];
+    o[kind].includeAll = false;
+  }
+}
+
+/**
+ * Toggle whether a frame is used on Import.
+ * on=true → use (clear reject; force-include if it failed auto gates).
+ * on=false → reject (and clear include).
+ */
+function setIngestFrameUsed(kind, key, on, autoRejected) {
+  if (on) {
+    setIngestPathRejected(kind, key, false);
+    if (autoRejected) setIngestPathIncluded(kind, key, true);
+  } else {
+    setIngestPathIncluded(kind, key, false);
+    setIngestPathRejected(kind, key, true);
+  }
 }
 
 function modeLightTempC(lights) {
@@ -11515,10 +11660,73 @@ function modeLightTempC(lights) {
   return best;
 }
 
+/** Mode CAA / ROTATOR from lights (same rule as asiairIngest.modeRotatorDeg). */
+function modeLightCaaDeg(lights) {
+  const counts = new Map();
+  for (const f of lights || []) {
+    if (f == null || f.rotatorDeg == null || !Number.isFinite(Number(f.rotatorDeg))) continue;
+    const r = Math.round(Number(f.rotatorDeg));
+    counts.set(r, (counts.get(r) || 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [r, n] of counts) {
+    if (n > bestN) { best = r; bestN = n; }
+  }
+  return best;
+}
+
+function caaAngleDiffUi(a, b) {
+  if (a == null || b == null || !Number.isFinite(Number(a)) || !Number.isFinite(Number(b))) return null;
+  let d = Math.abs(((Number(a) - Number(b)) % 360 + 360) % 360);
+  if (d > 180) d = 360 - d;
+  return d;
+}
+
+/** Missing frame CAA → soft-include (true). Passes ±tol or 180°±tol vs Target Framer. */
+function caaMatchesFramerUi(frameRotDeg, framerCaaDeg) {
+  if (framerCaaDeg == null || !Number.isFinite(Number(framerCaaDeg))) return true;
+  if (frameRotDeg == null || !Number.isFinite(Number(frameRotDeg))) return true;
+  const d = caaAngleDiffUi(frameRotDeg, framerCaaDeg);
+  if (d == null) return true;
+  return d <= INGEST_CAA_TOLERANCE_DEG || d >= (180 - INGEST_CAA_TOLERANCE_DEG);
+}
+
+/** @deprecated alias — Import CAA is vs Target Framer now. */
+function caaMatchesLightUi(frameRotDeg, lightCaaDeg) {
+  return caaMatchesFramerUi(frameRotDeg, lightCaaDeg);
+}
+
 function tempMatchesLightUi(frameTempC, lightTempC) {
   if (lightTempC == null || !Number.isFinite(Number(lightTempC))) return true;
   if (frameTempC == null || !Number.isFinite(Number(frameTempC))) return false;
   return Math.abs(Number(frameTempC) - Number(lightTempC)) <= INGEST_TEMP_TOLERANCE_C;
+}
+
+function formatCaaDegUi(deg) {
+  if (deg == null || !Number.isFinite(Number(deg))) return '—';
+  return Math.round(Number(deg)) + '°';
+}
+
+/**
+ * Shortest distance to framer CAA or its 180° flip (0–90).
+ * Used for Import CAA column color: ≤3 green, ≤10 yellow, else red.
+ */
+function caaEffectiveDeltaUi(frameRotDeg, framerCaaDeg) {
+  if (framerCaaDeg == null || !Number.isFinite(Number(framerCaaDeg))) return null;
+  if (frameRotDeg == null || !Number.isFinite(Number(frameRotDeg))) return null;
+  const d = caaAngleDiffUi(frameRotDeg, framerCaaDeg);
+  if (d == null) return null;
+  return Math.min(d, 180 - d);
+}
+
+/** @returns {'ok'|'warn'|'err'|''} */
+function caaColumnToneUi(frameRotDeg, framerCaaDeg) {
+  const eff = caaEffectiveDeltaUi(frameRotDeg, framerCaaDeg);
+  if (eff == null) return '';
+  if (eff <= INGEST_CAA_GOOD_DEG) return 'ok';
+  if (eff <= INGEST_CAA_TOLERANCE_DEG) return 'warn';
+  return 'err';
 }
 
 /** Apply light-temp + override state to a frame list. */
@@ -11538,6 +11746,70 @@ function partitionCalibVsLightTemp(frames, lightTempC, kind) {
     outOfRange,
     usable: inRange.concat(included),
     excluded: outOfRange.filter((f) => !ingestIsPathIncluded(kind, ingestFrameKey(f))),
+  };
+}
+
+/** Frames vs Target Framer CAA (±10° or 180°±10°). Manual reject applied after. */
+function partitionCalibVsFramerCaa(frames, framerCaaDeg, kind) {
+  const inRange = [];
+  const outOfRange = [];
+  const framerLabel = framerCaaDeg != null && Number.isFinite(Number(framerCaaDeg))
+    ? Math.round(Number(framerCaaDeg))
+    : null;
+  for (const f of frames || []) {
+    if (caaMatchesFramerUi(f.rotatorDeg, framerCaaDeg)) inRange.push(f);
+    else {
+      outOfRange.push({
+        ...f,
+        reason: `CAA ${formatCaaDegUi(f.rotatorDeg)} vs framer ${framerLabel != null ? framerLabel + '°' : '—'} (±${INGEST_CAA_TOLERANCE_DEG}° or 180°±${INGEST_CAA_TOLERANCE_DEG}°)`,
+      });
+    }
+  }
+  const included = [];
+  for (const f of outOfRange) {
+    if (ingestIsPathIncluded(kind, ingestFrameKey(f))) included.push(f);
+  }
+  return {
+    inRange,
+    outOfRange,
+    usable: inRange.concat(included),
+    excluded: outOfRange.filter((f) => !ingestIsPathIncluded(kind, ingestFrameKey(f))),
+    framerCaaDeg: framerLabel,
+  };
+}
+
+/** Drop manually rejected paths from a usable list. */
+function applyIngestRejectPaths(frames, kind) {
+  return (frames || []).filter((f) => !ingestIsPathRejected(kind, ingestFrameKey(f)));
+}
+
+/**
+ * Lights: framer CAA gate + manual reject/include.
+ * @returns {{ usable, outOfRange, caaOut, framerCaaDeg }}
+ */
+function partitionLightsForImportUi(lights, framerCaaDeg) {
+  const caaPart = partitionCalibVsFramerCaa(lights, framerCaaDeg, 'lights');
+  return {
+    usable: applyIngestRejectPaths(caaPart.usable, 'lights'),
+    outOfRange: caaPart.outOfRange,
+    caaOut: caaPart.outOfRange.length,
+    framerCaaDeg: caaPart.framerCaaDeg,
+  };
+}
+
+/**
+ * Temp then framer CAA (same order as staging). Force-includes + rejects apply.
+ * @returns {{ usable, outOfRange, tempOut, caaOut, framerCaaDeg }}
+ */
+function partitionFlatsForImportUi(flats, lightTempC, framerCaaDeg) {
+  const tempPart = partitionCalibVsLightTemp(flats, lightTempC, 'flats');
+  const caaPart = partitionCalibVsFramerCaa(tempPart.usable, framerCaaDeg, 'flats');
+  return {
+    usable: applyIngestRejectPaths(caaPart.usable, 'flats'),
+    outOfRange: tempPart.outOfRange.concat(caaPart.outOfRange),
+    tempOut: tempPart.outOfRange.length,
+    caaOut: caaPart.outOfRange.length,
+    framerCaaDeg: caaPart.framerCaaDeg,
   };
 }
 
@@ -11587,7 +11859,7 @@ function openIngestFilesPopup(kind) {
   let frames = [];
   let sub = 'Folder path copies to clipboard when clicked.';
   let showReason = false;
-  let showInclude = false;
+  let showUse = false;
   const lightTempC = ingestCtx.lightTempC;
 
   if (kind === 'darks') {
@@ -11596,22 +11868,30 @@ function openIngestFilesPopup(kind) {
     title = 'Dark (session)';
     frames = (scan.darks || []).map((d) => {
       const key = ingestFrameKey(d);
-      const reason = rejectByPath.get(key);
-      const excluded = !!reason && !ingestIsPathIncluded('darks', key);
-      const includedOverride = !!reason && ingestIsPathIncluded('darks', key);
+      const autoReason = rejectByPath.get(key) || '';
+      const autoRejected = !!autoReason;
+      const manualReject = ingestIsPathRejected('darks', key);
+      const includedOverride = autoRejected && ingestIsPathIncluded('darks', key);
+      const excluded = manualReject || (autoRejected && !includedOverride);
+      let reason = '';
+      if (manualReject) reason = autoReason ? autoReason + ' · rejected' : 'manually rejected';
+      else if (includedOverride) reason = autoReason ? autoReason + ' · included' : 'included';
+      else if (autoReason) reason = autoReason;
       return {
         ...d,
-        reason: reason || '',
+        reason,
         excluded,
         includedOverride,
-        canInclude: !!reason,
+        autoRejected,
+        canToggle: true,
+        used: !excluded,
       };
     });
-    showReason = rejected.length > 0;
-    showInclude = rejected.length > 0;
+    showReason = frames.some((f) => f.reason);
+    showUse = true;
     sub = rejected.length
-      ? `${rejected.length} out of light exp/gain/temp range — include individually or use Include all.`
-      : 'All session darks match light exp/gain/temp (±3°C).';
+      ? `${rejected.length} out of light exp/gain/temp range — Use checkbox to include or reject.`
+      : 'All session darks match light exp/gain/temp (±3°C). Uncheck Use to reject any.';
   } else if (kind === 'master-darks') {
     title = 'Master dark library (matched sets)';
     const libPath = (data.darkLibrary && data.darkLibrary.path) || '';
@@ -11656,22 +11936,43 @@ function openIngestFilesPopup(kind) {
     const allow = ingestCtx.multiFilters
       ? new Set(ingestCtx.multiFilters)
       : null;
-    frames = (scan.lights || []).map((f) => ({
-      ...f,
-      excluded: allow
+    const rejectByPath = new Map((ingestCtx.lightRejected || []).map((d) => [ingestFrameKey(d), d.reason || 'CAA vs framer']));
+    const framerCaa = ingestCtx.framerCaaDeg;
+    frames = (scan.lights || []).map((f) => {
+      const key = ingestFrameKey(f);
+      const otherFilter = allow
         ? !allow.has(f.filter)
-        : !!(shootFilter && f.filter && f.filter !== shootFilter),
-      reason: allow
-        ? (!allow.has(f.filter) ? ('other filter · ' + f.filter) : '')
-        : ((shootFilter && f.filter && f.filter !== shootFilter) ? ('other filter · ' + f.filter) : ''),
-      canInclude: false,
-    }));
-    showReason = frames.some((f) => f.excluded);
-    sub = allow
-      ? `Pending import filters highlighted; others dimmed. Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} is source of truth.`
-      : (shootFilter
-        ? `Shoot filter ${shootFilter} highlighted. Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} (±${INGEST_TEMP_TOLERANCE_C}°C).`
-        : `Light temp ${lightTempC != null ? lightTempC + '°C' : '—'} is source of truth for flats/darks/biases.`);
+        : !!(shootFilter && f.filter && f.filter !== shootFilter);
+      const caaReason = rejectByPath.get(key) || '';
+      const autoRejected = !otherFilter && !!caaReason;
+      const manualReject = ingestIsPathRejected('lights', key);
+      const includedOverride = autoRejected && ingestIsPathIncluded('lights', key);
+      const excluded = otherFilter || manualReject || (autoRejected && !includedOverride);
+      let reason = '';
+      if (otherFilter) {
+        reason = allow ? ('other filter · ' + f.filter) : ('other filter · ' + f.filter);
+      } else if (manualReject) {
+        reason = caaReason ? caaReason + ' · rejected' : 'manually rejected';
+      } else if (includedOverride) {
+        reason = caaReason ? caaReason + ' · included' : 'included';
+      } else if (caaReason) {
+        reason = caaReason;
+      }
+      return {
+        ...f,
+        reason,
+        excluded,
+        includedOverride,
+        autoRejected,
+        canToggle: !otherFilter,
+        used: !excluded,
+      };
+    });
+    showReason = frames.some((f) => f.reason);
+    showUse = frames.some((f) => f.canToggle);
+    const nCaa = (ingestCtx.lightRejected || []).length;
+    sub = `Framer CAA ${framerCaa != null ? framerCaa + '°' : '—'} (±${INGEST_CAA_TOLERANCE_DEG}° or 180°±${INGEST_CAA_TOLERANCE_DEG}°).`
+      + (nCaa ? ` ${nCaa} auto-rejected — uncheck Use to reject, check to keep.` : ' Uncheck Use to reject any frame.');
   } else if (kind === 'flats') {
     title = 'Flats' + (ingestCtx.multiFilters
       ? ' · ' + ingestCtx.multiFilters.join(', ')
@@ -11679,7 +11980,8 @@ function openIngestFilesPopup(kind) {
     const allow = ingestCtx.multiFilters
       ? new Set(ingestCtx.multiFilters)
       : null;
-    const rejectByPath = new Map((ingestCtx.flatRejected || []).map((d) => [ingestFrameKey(d), d.reason || 'temp out of ±3°C vs lights']));
+    const rejectByPath = new Map((ingestCtx.flatRejected || []).map((d) => [ingestFrameKey(d), d.reason || 'out of range']));
+    const framerCaa = ingestCtx.framerCaaDeg;
     frames = (scan.flats || []).filter((f) => {
       const ff = f.filter != null ? (normalizeFilterClient(f.filter) || f.filter) : null;
       if (allow) return allow.has(ff);
@@ -11687,24 +11989,36 @@ function openIngestFilesPopup(kind) {
       return true;
     }).map((f) => {
       const key = ingestFrameKey(f);
-      const tempReason = rejectByPath.get(key);
-      const reason = tempReason || '';
-      const canInclude = !!tempReason;
-      const includedOverride = canInclude && ingestIsPathIncluded('flats', key);
+      const autoReason = rejectByPath.get(key) || '';
+      const autoRejected = !!autoReason;
+      const manualReject = ingestIsPathRejected('flats', key);
+      const includedOverride = autoRejected && ingestIsPathIncluded('flats', key);
+      const excluded = manualReject || (autoRejected && !includedOverride);
+      let reason = '';
+      if (manualReject) reason = autoReason ? autoReason + ' · rejected' : 'manually rejected';
+      else if (includedOverride) reason = autoReason ? autoReason + ' · included' : 'included';
+      else if (autoReason) reason = autoReason;
       return {
         ...f,
         reason,
-        excluded: !!(reason && !includedOverride),
+        excluded,
         includedOverride,
-        canInclude,
+        autoRejected,
+        canToggle: true,
+        used: !excluded,
       };
     });
     showReason = frames.some((f) => f.reason);
-    showInclude = frames.some((f) => f.canInclude);
+    showUse = true;
     const nOor = (ingestCtx.flatRejected || []).length;
-    sub = nOor
-      ? `${nOor} flat(s) out of light temp range (±${INGEST_TEMP_TOLERANCE_C}°C) — include individually or Include all.`
-      : `All flats match light temp ${lightTempC != null ? lightTempC + '°C' : '—'} (±${INGEST_TEMP_TOLERANCE_C}°C).`;
+    const caaN = (ingestCtx.flatRejected || []).filter((f) => /CAA/i.test(String(f.reason || ''))).length;
+    const tempN = nOor - caaN;
+    sub = [
+      `Framer CAA ${framerCaa != null ? framerCaa + '°' : '—'} · light temp ${lightTempC != null ? lightTempC + '°C' : '—'}`,
+      tempN ? `${tempN} temp` : null,
+      caaN ? `${caaN} CAA` : null,
+      '— Use checkbox to include or reject.',
+    ].filter(Boolean).join(' · ');
   } else if (kind === 'biases') {
     const rejected = ingestCtx.biasRejected || [];
     const rejectByPath = new Map(rejected.map((d) => [ingestFrameKey(d), d]));
@@ -11719,23 +12033,30 @@ function openIngestFilesPopup(kind) {
     }).map((d) => {
       const key = ingestFrameKey(d);
       const rej = rejectByPath.get(key);
-      const reason = rej ? (rej.reason || 'excluded') : '';
-      const canInclude = !!(reason && rej && rej.includable !== false);
-      const includedOverride = canInclude && ingestIsPathIncluded('biases', key);
+      const autoReason = rej ? (rej.reason || 'excluded') : '';
+      const hardBlock = !!(rej && rej.includable === false);
+      const autoRejected = !!autoReason && !hardBlock;
+      const manualReject = ingestIsPathRejected('biases', key);
+      const includedOverride = autoRejected && ingestIsPathIncluded('biases', key);
+      const excluded = hardBlock || manualReject || (autoRejected && !includedOverride);
+      let reason = '';
+      if (hardBlock) reason = autoReason;
+      else if (manualReject) reason = autoReason ? autoReason + ' · rejected' : 'manually rejected';
+      else if (includedOverride) reason = autoReason ? autoReason + ' · included' : 'included';
+      else if (autoReason) reason = autoReason;
       return {
         ...d,
         reason,
-        excluded: !!reason && !includedOverride,
+        excluded,
         includedOverride,
-        canInclude,
+        autoRejected,
+        canToggle: !hardBlock,
+        used: !excluded,
       };
     });
     showReason = frames.some((f) => f.reason);
-    showInclude = frames.some((f) => f.canInclude);
-    const nSoft = frames.filter((f) => f.canInclude).length;
-    sub = nSoft
-      ? `${nSoft} same-filter darkflat(s) out of range (±12h of flats / temp / exp) — include individually or Include all.`
-      : 'All listed darkflats match this filter’s flats (filter/exp/gain/bin, light temp, ±12h).';
+    showUse = frames.some((f) => f.canToggle);
+    sub = 'Match flat filter/exp/gain/bin + light temp + ±12h (CAA does not apply). Use checkbox to include or reject.';
   } else {
     return;
   }
@@ -11750,14 +12071,15 @@ function openIngestFilesPopup(kind) {
   const ovrMeta = document.getElementById('ingest-files-override-meta');
   const ovrBtn = document.getElementById('ingest-files-override-all');
   if (ovrBar && ovrMeta && ovrBtn) {
-    if (showInclude && (kind === 'flats' || kind === 'darks' || kind === 'biases')) {
+    const nAuto = frames.filter((f) => f.autoRejected).length;
+    if (nAuto && (kind === 'flats' || kind === 'darks' || kind === 'biases' || kind === 'lights')) {
       ovrBar.hidden = false;
       const st = ingestOverrideState(kind);
-      const nOor = frames.filter((f) => f.canInclude).length;
-      ovrMeta.innerHTML = kind === 'biases'
-        ? `Same-filter only · light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ±12h of flats · ${nOor} out of range`
-        : `Light temp <strong>${lightTempC != null ? escapeHtml(String(lightTempC)) + '°C' : '—'}</strong> (±${INGEST_TEMP_TOLERANCE_C}°C) · ${nOor} out of range`;
-      ovrBtn.textContent = st.includeAll ? 'Clear include-all' : 'Include all out of range';
+      const framerCaa = ingestCtx.framerCaaDeg;
+      ovrMeta.innerHTML = (kind === 'lights' || kind === 'flats')
+        ? `Framer CAA <strong>${framerCaa != null ? escapeHtml(String(framerCaa)) + '°' : '—'}</strong> (±${INGEST_CAA_TOLERANCE_DEG}° or 180°) · ${nAuto} auto-flagged`
+        : `${nAuto} auto-flagged (temp / match)`;
+      ovrBtn.textContent = st.includeAll ? 'Clear include-all' : 'Include all auto-flagged';
       ovrBtn.classList.toggle('primary', !!st.includeAll);
     } else {
       ovrBar.hidden = true;
@@ -11770,11 +12092,13 @@ function openIngestFilesPopup(kind) {
     frames.length ? sub : 'No files in this list.';
   const body = document.getElementById('ingest-files-body');
   const head = document.querySelector('#ingest-files-overlay thead tr');
-  const colCount = (showReason ? 10 : 9) + (showInclude ? 1 : 0);
+  const showCaa = (kind === 'lights' || kind === 'flats');
+  const colCount = 9 + (showCaa ? 1 : 0) + (showReason ? 1 : 0) + (showUse ? 1 : 0);
   if (head) {
     head.innerHTML = '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Gain</th><th>Temp</th>'
+      + (showCaa ? '<th title="Camera / ASIAIR CAA (ROTATOR)">CAA</th>' : '')
       + (showReason ? '<th>Note</th>' : '')
-      + (showInclude ? '<th>Include</th>' : '');
+      + (showUse ? '<th>Use</th>' : '');
   }
   if (!frames.length) {
     body.innerHTML = `<tr><td colspan="${colCount}" style="color:var(--gray);padding:14px;">None found.</td></tr>`;
@@ -11794,14 +12118,21 @@ function openIngestFilesPopup(kind) {
         ? `<td class="filter-cell">${filterLabelHtml(f.filter)}</td>`
         : `<td>${escapeHtml(f.filter || '—')}</td>`;
       const key = ingestFrameKey(f);
-      const includeCell = showInclude
-        ? (f.canInclude
-          ? `<td class="include-cell"><input type="checkbox" title="Include this sub despite mismatch" ${f.includedOverride || ingestOverrideState(kind).includeAll ? 'checked' : ''} onchange="toggleIngestFileInclude('${kind}', '${encodeURIComponent(key)}', this.checked)"></td>`
+      const useCell = showUse
+        ? (f.canToggle
+          ? `<td class="include-cell"><input type="checkbox" title="Use this frame on Import" ${f.used ? 'checked' : ''} onchange="toggleIngestFileUse('${kind}', '${encodeURIComponent(key)}', this.checked, ${f.autoRejected ? 'true' : 'false'})"></td>`
           : '<td class="include-cell"></td>')
         : '';
-      const note = f.includedOverride
-        ? (f.reason ? f.reason + ' · included' : 'included')
-        : (f.reason || (f.excluded ? 'excluded' : 'OK'));
+      const note = f.reason || (f.excluded ? 'excluded' : 'OK');
+      const caaTone = showCaa ? caaColumnToneUi(f.rotatorDeg, ingestCtx.framerCaaDeg) : '';
+      const caaEff = showCaa ? caaEffectiveDeltaUi(f.rotatorDeg, ingestCtx.framerCaaDeg) : null;
+      const caaCell = showCaa
+        ? `<td class="mono caa-cell${caaTone ? ' caa-' + caaTone : ''}" title="${escapeAttr(
+          caaEff != null
+            ? `Δ ${caaEff.toFixed(1)}° vs framer ${formatCaaDegUi(ingestCtx.framerCaaDeg)} (or 180° flip)`
+            : 'No CAA / no framer reference'
+        )}">${escapeHtml(formatCaaDegUi(f.rotatorDeg))}</td>`
+        : '';
       return `<tr class="${rowCls}">
         <td class="mono">${i + 1}</td>
         <td title="${escapeAttr(f.filePath || '')}">${escapeHtml(name)}</td>
@@ -11812,8 +12143,9 @@ function openIngestFilesPopup(kind) {
         <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
         <td>${f.gain != null ? f.gain : '—'}</td>
         <td>${ingestFormatTempC(f.tempC)}</td>
+        ${caaCell}
         ${showReason ? `<td class="reason-cell">${escapeHtml(note)}</td>` : ''}
-        ${includeCell}
+        ${useCell}
       </tr>`;
     }).join('');
   }
@@ -11822,19 +12154,23 @@ function openIngestFilesPopup(kind) {
 
 function toggleIngestFilesIncludeAll() {
   const kind = ingestCtx && ingestCtx._filesPopupKind;
-  if (kind !== 'flats' && kind !== 'darks' && kind !== 'biases') return;
+  if (kind !== 'flats' && kind !== 'darks' && kind !== 'biases' && kind !== 'lights') return;
   const o = ensureIngestCalibOverrides();
   if (!o || !o[kind]) return;
   o[kind].includeAll = !o[kind].includeAll;
   if (o[kind].includeAll) {
-    // Snapshot all currently rejected keys into paths for staging payload simplicity.
     const rejected = kind === 'flats'
       ? (ingestCtx.flatRejected || [])
-      : (kind === 'darks' ? (ingestCtx.darkRejected || []) : (ingestCtx.biasRejected || []));
+      : (kind === 'darks'
+        ? (ingestCtx.darkRejected || [])
+        : (kind === 'lights'
+          ? (ingestCtx.lightRejected || [])
+          : (ingestCtx.biasRejected || [])));
     o[kind].paths = rejected
       .filter((f) => kind !== 'biases' || f.includable !== false)
       .map(ingestFrameKey)
       .filter(Boolean);
+    o[kind].rejectPaths = [];
   }
   refreshIngestCalibFromOverrides();
   openIngestFilesPopup(kind);
@@ -11844,6 +12180,14 @@ function toggleIngestFileInclude(kind, keyEnc, on) {
   let key = keyEnc;
   try { key = decodeURIComponent(keyEnc); } catch { /* keep */ }
   setIngestPathIncluded(kind, key, !!on);
+  refreshIngestCalibFromOverrides();
+  openIngestFilesPopup(kind);
+}
+
+function toggleIngestFileUse(kind, keyEnc, on, autoRejected) {
+  let key = keyEnc;
+  try { key = decodeURIComponent(keyEnc); } catch { /* keep */ }
+  setIngestFrameUsed(kind, key, !!on, !!autoRejected);
   refreshIngestCalibFromOverrides();
   openIngestFilesPopup(kind);
 }
@@ -13010,7 +13354,7 @@ async function runIngestScan(opts = {}) {
   renderIngestTargetMatchRow();
   const pendingSet = multi ? new Set(ingestBatch.filters || []) : null;
   const shootFilter = ft ? ft.filter : null;
-  const lightsForShoot = (scan.lights || []).filter((f) =>
+  const lightsRaw = (scan.lights || []).filter((f) =>
     multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
   );
   const flatsForShootAll = (scan.flats || []).filter((f) =>
@@ -13019,19 +13363,37 @@ async function runIngestScan(opts = {}) {
   const biases = scan.biases || [];
   const sessionDarks = scan.darks || [];
 
-  const lightTempC = modeLightTempC(lightsForShoot);
-  ingestCtx.lightTempC = lightTempC;
+  const framerCaaDeg = projectFramerCaa(project);
+  const lightPart = partitionLightsForImportUi(lightsRaw, framerCaaDeg);
+  const lightsForShoot = lightPart.usable;
+  ingestCtx.lightRejected = lightPart.outOfRange;
+  ingestCtx.framerCaaDeg = lightPart.framerCaaDeg;
 
-  // Flats vs light temp (±3°C); overrides can include out-of-range.
-  // With no lights there is no temp to match — treat all flats as unusable until lights exist.
+  const lightTempC = modeLightTempC(lightsForShoot);
+  const lightCaaDeg = modeLightCaaDeg(lightsForShoot);
+  ingestCtx.lightTempC = lightTempC;
+  ingestCtx.lightCaaDeg = lightCaaDeg;
+
+  // Flats vs light temp (±3°C) then Target Framer CAA (±10° / 180°±10°).
   let flatPart;
-  if (!lightsForShoot.length) {
+  if (!lightsForShoot.length && !lightsRaw.length) {
     flatPart = {
       usable: [],
       outOfRange: flatsForShootAll.map((f) => ({ ...f, reason: 'no lights to match against' })),
+      tempOut: 0,
+      caaOut: 0,
+      framerCaaDeg: lightPart.framerCaaDeg,
     };
+  } else if (!lightsForShoot.length) {
+    // All lights CAA-rejected — still score flats vs framer so CAA notes are useful.
+    flatPart = partitionFlatsForImportUi(flatsForShootAll, null, framerCaaDeg);
+    flatPart.outOfRange = flatsForShootAll.map((f) => ({
+      ...f,
+      reason: 'no usable lights (CAA/rejected) to match temp against',
+    })).concat(flatPart.outOfRange.filter((f) => /CAA/i.test(String(f.reason || ''))));
+    flatPart.usable = [];
   } else {
-    flatPart = partitionCalibVsLightTemp(flatsForShootAll, lightTempC, 'flats');
+    flatPart = partitionFlatsForImportUi(flatsForShootAll, lightTempC, framerCaaDeg);
   }
   ingestCtx.flatRejected = flatPart.outOfRange;
   const flatsForShoot = flatPart.usable;
@@ -13072,21 +13434,23 @@ async function runIngestScan(opts = {}) {
   for (const d of darkRejected) {
     if (ingestIsPathIncluded('darks', ingestFrameKey(d))) darkIncluded.push(d);
   }
-  darkMatched = darkMatched.concat(darkIncluded);
+  darkMatched = applyIngestRejectPaths(darkMatched.concat(darkIncluded), 'darks');
   ingestCtx.darkMatched = darkMatched;
   ingestCtx.darkRejected = darkRejected;
 
-  // Darkflats: same filter as lights/flats, plus flat exp/gain/bin + light temp; overrides can include.
+  // Darkflats: same filter as lights/flats, plus flat exp/gain/bin + light temp. CAA does not apply.
   const biasUsable = collectUsableDarkflatsUi(biases, flatsForShoot, { lightTempC });
   let biasMatched = biasUsable.matches.slice();
-  const biasRejectedAll = biasUsable.rejected;
-  const biasRejected = biasRejectedAll.filter((b) => b.includable !== false);
-  for (const b of biasRejected) {
+  const biasRejectedAll = biasUsable.rejected.slice();
+  for (const b of biasRejectedAll) {
+    if (b.includable === false) continue;
     if (ingestIsPathIncluded('biases', ingestFrameKey(b))
       && !biasMatched.some((m) => ingestFrameKey(m) === ingestFrameKey(b))) {
       biasMatched.push(b);
     }
   }
+  biasMatched = applyIngestRejectPaths(biasMatched, 'biases');
+  const biasRejected = biasRejectedAll.filter((b) => b.includable !== false);
   ingestCtx.biasMatched = biasMatched;
   ingestCtx.biasRejected = biasRejected;
 
@@ -13153,16 +13517,31 @@ async function runIngestScan(opts = {}) {
   const flatTitle = !flatsForShootAll.length
     ? 'No flats found'
     : (!lightsForShoot.length
-      ? `${flatsForShootAll.length} flat(s) present, but no lights for this shoot — nothing to match against`
+      ? `${flatsForShootAll.length} flat(s) present, but no usable lights for this shoot — nothing to match against`
       : (flatPart.outOfRange.length
-        ? `${flatPart.outOfRange.length} flat(s) out of light temp (±${INGEST_TEMP_TOLERANCE_C}°C) — click to review / include`
-        : 'Show flats matching light temp'));
+        ? [
+            flatPart.tempOut
+              ? `${flatPart.tempOut} out of light temp (±${INGEST_TEMP_TOLERANCE_C}°C)`
+              : null,
+            flatPart.caaOut
+              ? `${flatPart.caaOut} CAA ≠ framer ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'} (±${INGEST_CAA_TOLERANCE_DEG}° or 180°±${INGEST_CAA_TOLERANCE_DEG}°)`
+              : null,
+            'click to review / include',
+          ].filter(Boolean).join(' · ')
+        : `Show flats matching light temp + framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}`));
 
   ingestCtx._chipBase = [
-    chip('lights', 'Light', lightsForShoot.length ? 'ok' : 'err', lightsForShoot.length,
+    chip('lights', lightPart.caaOut
+      ? `Light ${lightsForShoot.length}/${lightsRaw.length}`
+      : 'Light',
+      lightsForShoot.length ? (lightPart.caaOut ? 'warn' : 'ok') : 'err',
+      lightsForShoot.length,
       multi ? `Pending filters: ${ingestBatch.filters.join(', ')}` : (lightsForShoot.length
-        ? `Lights · temp ${lightTempC != null ? lightTempC + '°C' : '—'} (source of truth)`
-        : `No lights for shoot filter ${shootFilter || '—'} on this night`)),
+        ? `Lights · temp ${lightTempC != null ? lightTempC + '°C' : '—'} · framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}`
+          + (lightPart.caaOut ? ` · ${lightPart.caaOut} CAA auto-rejected` : '')
+        : (lightPart.caaOut
+          ? `${lightPart.caaOut} light(s) outside framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'} (±${INGEST_CAA_TOLERANCE_DEG}° or 180°±${INGEST_CAA_TOLERANCE_DEG}°) — click to review`
+          : `No lights for shoot filter ${shootFilter || '—'} on this night`))),
     chip('flats', flatLabel, flatTone, flatsForShoot.length, flatTitle),
     chip('darks', darkLabel, darkTone, darkCount, darkTitle),
     chip('biases', biasLabel, biasTone, biasMatched.length, biasTitle),
@@ -13204,9 +13583,7 @@ async function runIngestScan(opts = {}) {
       : '<span class="shoot-integ-val na">—</span>';
     const tone = filterToneKey(r.filter);
     const flatsForRowAll = (scan.flats || []).filter((x) => x.filter === r.filter);
-    const flatsForRow = flatsForRowAll.filter((f) =>
-      tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
-    );
+    const flatsForRow = partitionFlatsForImportUi(flatsForRowAll, lightTempC, framerCaaDeg).usable;
     const rowBiasOk = biasesCoverFlatsUi(biasMatched.length ? biasMatched : biases, flatsForRow, lightTempC);
     const missingForRow = [];
     if (isMatch && inLog) {
@@ -13275,12 +13652,18 @@ async function runIngestScan(opts = {}) {
       `<div class="line">Actual ${escapeHtml(actualStr)}h (${matchRow.lights}×${matchRow.exposureSec}s)` +
       (plannedHrs ? ` · target ${plannedHrs}h` : '') +
       (darkRejected.length ? ` · <span style="color:var(--yellow);">${darkRejected.length} session dark(s) out of range</span>` : '') +
-      (flatPart.outOfRange.length ? ` · <span style="color:var(--yellow);">${flatPart.outOfRange.length} flat(s) out of light temp</span>` : '') +
+      (lightPart.caaOut ? ` · <span style="color:var(--yellow);">${lightPart.caaOut} light(s) CAA ≠ framer ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}</span>` : '') +
+      (flatPart.tempOut ? ` · <span style="color:var(--yellow);">${flatPart.tempOut} flat(s) out of light temp</span>` : '') +
+      (flatPart.caaOut ? ` · <span style="color:var(--yellow);">${flatPart.caaOut} flat(s) CAA ≠ framer ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}</span>` : '') +
       (biasRejected.length && !biasEnough ? ` · <span style="color:var(--yellow);">${biasRejected.length} darkflat(s) out of range</span>` : '') +
       `</div>`;
   } else {
     confirmEl.innerHTML =
-      `<div class="line" style="color:var(--yellow);">Shoot filter <strong>${escapeHtml(shootFilterName || '—')}</strong> not found in lights for this night.</div>`;
+      `<div class="line" style="color:var(--yellow);">Shoot filter <strong>${escapeHtml(shootFilterName || '—')}</strong> not found in lights for this night.`
+      + (lightPart.caaOut
+        ? ` (${lightPart.caaOut} light(s) outside framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'})`
+        : '')
+      + `</div>`;
   }
 
   ingestCtx._stageGate = {
@@ -13294,6 +13677,8 @@ async function runIngestScan(opts = {}) {
     night,
     totalLights,
     lightTempC,
+    lightCaaDeg,
+    framerCaaDeg,
   };
   renderIngestTargetMatchRow();
   await refreshIngestDarkMatches();
@@ -16120,9 +16505,12 @@ function evaluateShootStageReadiness(opts = {}) {
   const lights = (scan.lights || []).filter((L) => L.filter === filter);
   const lightTempC = opts.lightTempC != null ? opts.lightTempC : modeLightTempC(lights);
   const flatsAll = (scan.flats || []).filter((F) => F.filter === filter);
-  const flats = flatsAll.filter((f) =>
-    tempMatchesLightUi(f.tempC, lightTempC) || ingestIsPathIncluded('flats', ingestFrameKey(f))
-  );
+  const framerCaaDeg = opts.framerCaaDeg != null
+    ? opts.framerCaaDeg
+    : (ingestCtx && ingestCtx.framerCaaDeg != null
+      ? ingestCtx.framerCaaDeg
+      : (opts.lightCaaDeg != null ? opts.lightCaaDeg : modeLightCaaDeg(lights)));
+  const flats = partitionFlatsForImportUi(flatsAll, lightTempC, framerCaaDeg).usable;
   let biases = opts.biases || scan.biases || [];
   // Prefer already-matched list when provided (includes overrides).
   if (!opts.biases && ingestCtx && Array.isArray(ingestCtx.biasMatched)) {
@@ -16719,6 +17107,15 @@ async function runIngestStage(force = false) {
   const shootFolder = buildShootCode(sh, ft);
   const targetOpts = ingestTargetStageOpts(project);
   const sourceDir = selectedIngestSourceDir();
+  if (!sourceDir || !(await asiairSourcePathExists(sourceDir))) {
+    const msg = sourceDir
+      ? `ASIAIR source offline (${sourceDir}). Remount the unit and try Import again.`
+      : 'Set an ASIAIR source path (Settings → ASIAIR source).';
+    document.getElementById('ingest-progress').textContent = msg;
+    applyIngestStageGate();
+    await appAlert(msg, 'ASIAIR offline');
+    return;
+  }
   const result = await withIngestBusy('Importing (copy lights/flats; calib copy + symlink biases/darks)…', () =>
     window.zukoIngest.stage({
       projectDir: project.projectDir,
@@ -16753,13 +17150,13 @@ async function runIngestStage(force = false) {
       applyIngestStageGate();
       return;
     }
-    if (result && result.code === 'MISSING_FRAMES') {
-      document.getElementById('ingest-progress').textContent = result.error || 'Missing required frames.';
-      applyIngestStageGate();
-      return;
-    }
-    document.getElementById('ingest-progress').textContent = 'Import failed: ' + ((result && result.error) || 'unknown');
+    const msg = (result && result.error) || 'Import failed.';
+    document.getElementById('ingest-progress').textContent = msg;
     applyIngestStageGate();
+    const title = result && result.code === 'MISSING_FRAMES'
+      ? 'Missing frames'
+      : (result && result.code === 'SOURCE_OFFLINE' ? 'ASIAIR offline' : 'Import failed');
+    await appAlert(msg, title);
     return;
   }
 

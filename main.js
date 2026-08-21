@@ -732,10 +732,19 @@ ipcMain.handle('zuko-ingest-library-size', async (_event, payload = {}) => {
   }
 });
 
-ipcMain.handle('zuko-ingest-stage', async (_event, payload = {}) => {
+ipcMain.handle('zuko-ingest-stage', async (event, payload = {}) => {
   try {
     const { stageSirilTree } = loadAsiairIngest();
-    return await stageSirilTree(payload || {});
+    return await stageSirilTree({
+      ...(payload || {}),
+      onProgress: (progress) => {
+        try {
+          if (event && event.sender && !event.sender.isDestroyed()) {
+            event.sender.send('zuko-ingest-stage-progress', progress || {});
+          }
+        } catch { /* ignore */ }
+      },
+    });
   } catch (err) {
     return { ok: false, error: String(err && err.message ? err.message : err) };
   }

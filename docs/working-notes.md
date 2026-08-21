@@ -26,6 +26,11 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-20 — build 30 — Import CAA flip + progress
+- **Seen:** Veil 260819 OIII Import looked ready then did nothing (CAA-mismatched flats after meridian flip; G: sometimes unmounted mid-modal).
+- **Fix:** Lights/flats vs Target Framer (±10° or 180°±10°); bias/darks ignore CAA. File list CAA + Use. Determinate progress bar + %. Alert on all Import failures / ASIAIR offline. `npm run dist:win:beta`.
+- **Canvas:** backlog snapshot → 0.3.0 / build 30 (#8 extended).
+
 ### 2026-08-18 — build 29 — Editable Filters
 - **Seen:** Capture Plan dropdowns were a hard-coded EFW list; Filter Wheel header was hardware copy.
 - **Fix:** Filters section CRUD (slot, color presets + picker). In-app confirm/alert. Capture Plan + pipeline follow catalog names/colors. `npm run dist:win:beta`.
