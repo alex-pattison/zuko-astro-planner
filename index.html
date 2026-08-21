@@ -14291,11 +14291,16 @@ function findPipelineGroup(project, nameOrTone) {
 
 function getShootsForFilterTone(project, tone, filterName) {
   const wantName = filterName != null && String(filterName) !== '' ? String(filterName) : '';
+  const toneStr = tone != null ? String(tone) : '';
+  // Callers sometimes pass the display filter name ("OIII") as tone; tone keys are lowercase ("oiii").
+  const nameAsTone = !wantName && toneStr
+    && (project.filterTargets || []).some((f) => f && String(f.filter) === toneStr);
+  const effectiveName = wantName || (nameAsTone ? toneStr : '');
   return (project.shoots || []).filter((sh) => {
     const ft = project.filterTargets[sh.filterIndex];
     if (!ft || !ft.filter) return false;
-    if (wantName) return ft.filter === wantName;
-    return filterToneKey(ft.filter) === tone;
+    if (effectiveName) return String(ft.filter) === effectiveName;
+    return filterToneKey(ft.filter) === toneStr;
   });
 }
 
@@ -14468,7 +14473,7 @@ async function openCullModal(pi, tone) {
   const group = findPipelineGroup(project, tone);
   if (!group) return;
   const f = getPrimaryFilterTarget(project, group);
-  const cal = getFilterCalibrationProgress(project, tone, group.name);
+  const cal = getFilterCalibrationProgress(project, group.tone, group.name);
   if (!isFilterRegisterComplete(f)) {
     appAlert('Run Register for this filter first (aggregates nights and creates r_pp_light), then cull in Siril on Aggregate/.');
     return;
@@ -14482,7 +14487,7 @@ async function openCullModal(pi, tone) {
     return;
   }
   const aggregateDir = resolveFilterAggregateDir(project, group);
-  _cullModalCtx = { pi, tone, aggregateDir };
+  _cullModalCtx = { pi, tone: group.tone, aggregateDir };
   _cullScanResult = null;
   document.getElementById('cull-modal-title').textContent = `Cull — ${group.name}`;
   document.getElementById('cull-modal-sub').innerHTML =
@@ -15645,7 +15650,7 @@ function openCalibrateConfirm(pi, si) {
   });
 }
 
-function openRegisterConfirm(pi, tone) {
+function openRegisterConfirm(pi, nameOrTone) {
   if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
     appAlert('Register needs the Electron desktop app (npm start).');
     return;
@@ -15655,13 +15660,13 @@ function openRegisterConfirm(pi, tone) {
     appAlert('Set Project directory first.');
     return;
   }
-  const group = findPipelineGroup(project, tone);
-  if (!group || !isFilterReadyToRegister(project, tone)) {
+  const group = findPipelineGroup(project, nameOrTone);
+  if (!group || !isFilterReadyToRegister(project, group.tone, group.name)) {
     appAlert('Calibrate at least one night of this filter before registering.');
     return;
   }
   const f = getPrimaryFilterTarget(project, group);
-  const shoots = getFilterIngestedShootsByTone(project, tone).filter(isShootCalibrated);
+  const shoots = getFilterIngestedShootsByTone(project, group.tone, group.name).filter(isShootCalibrated);
   const shootDirs = shoots.map((sh) => resolveShootCalibrateDir(project, sh)).filter(Boolean);
   if (!shootDirs.length) {
     appAlert('No calibrated shoot folders found for this filter.');
@@ -15713,11 +15718,11 @@ function openRegisterConfirm(pi, tone) {
     sub: `${project.name || 'Project'} · ${filter} · ${shoots.length} night${shoots.length === 1 ? '' : 's'}`,
     bodyHtml,
     notesHtml,
-    pending: { kind: 'register', pi, tone, rerun },
+    pending: { kind: 'register', pi, tone: group.tone, rerun },
   });
 }
 
-function openStackConfirm(pi, tone) {
+function openStackConfirm(pi, nameOrTone) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
     appAlert('Stack needs the Electron desktop app (npm start).');
     return;
@@ -15727,7 +15732,7 @@ function openStackConfirm(pi, tone) {
     appAlert('Set Project directory first.');
     return;
   }
-  const group = findPipelineGroup(project, tone);
+  const group = findPipelineGroup(project, nameOrTone);
   if (!group || !isFilterReadyToStack(project, group)) {
     appAlert('Register, cull, and apply Cull before stacking.');
     return;
@@ -15769,7 +15774,7 @@ function openStackConfirm(pi, tone) {
     sub: `${project.name || 'Project'} · ${filter}`,
     bodyHtml,
     notesHtml,
-    pending: { kind: 'stack', pi, tone, rerun },
+    pending: { kind: 'stack', pi, tone: group.tone, rerun },
   });
 }
 
@@ -15856,7 +15861,7 @@ function pathJoinWin(...parts) {
     .join('\\');
 }
 
-async function runRegisterFilterTone(pi, tone) {
+async function runRegisterFilterTone(pi, nameOrTone) {
   if (!window.zukoSiril || typeof window.zukoSiril.register !== 'function') {
     appAlert('Register needs the Electron desktop app (npm start).');
     return;
@@ -15866,12 +15871,12 @@ async function runRegisterFilterTone(pi, tone) {
     appAlert('Set Project directory first.');
     return;
   }
-  const group = findPipelineGroup(project, tone);
-  if (!group || !isFilterReadyToRegister(project, tone)) {
+  const group = findPipelineGroup(project, nameOrTone);
+  if (!group || !isFilterReadyToRegister(project, group.tone, group.name)) {
     appAlert('Calibrate at least one night of this filter before registering.');
     return;
   }
-  const shootDirs = getFilterIngestedShootsByTone(project, tone)
+  const shootDirs = getFilterIngestedShootsByTone(project, group.tone, group.name)
     .filter(isShootCalibrated)
     .map((sh) => resolveShootCalibrateDir(project, sh))
     .filter(Boolean);
@@ -15884,7 +15889,7 @@ async function runRegisterFilterTone(pi, tone) {
   const destHint = resolveFilterAggregateDir(project, group)
     || pathJoinWin(project.projectDir, filter, 'Aggregate');
   const logPath = pathJoinWin(destHint, 'scripts', 'register.log');
-  const step = document.getElementById(`reg-step-${pi}-${tone}`);
+  const step = document.getElementById(`reg-step-${pi}-${group.tone}`);
   const stepLabel = step && step.querySelector('.pipeline-step-label');
   const prevLabel = stepLabel ? stepLabel.textContent : '';
   if (step) {
@@ -15954,7 +15959,7 @@ async function runRegisterFilterTone(pi, tone) {
   });
 }
 
-async function runStackFilterTone(pi, tone, opts = {}) {
+async function runStackFilterTone(pi, nameOrTone, opts = {}) {
   if (!window.zukoSiril || typeof window.zukoSiril.stackFilter !== 'function') {
     appAlert('Stack needs the Electron desktop app (npm start).');
     return;
@@ -15964,7 +15969,7 @@ async function runStackFilterTone(pi, tone, opts = {}) {
     appAlert('Set Project directory first.');
     return;
   }
-  const group = findPipelineGroup(project, tone);
+  const group = findPipelineGroup(project, nameOrTone);
   if (!group || !isFilterReadyToStack(project, group)) {
     appAlert('Register, cull, and apply Cull before stacking.');
     return;
@@ -15973,7 +15978,7 @@ async function runStackFilterTone(pi, tone, opts = {}) {
   const filter = String(group.name || '');
   const reregister = !!(opts && opts.reregister);
   const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
-  const step = document.getElementById(`stack-step-${pi}-${tone}`);
+  const step = document.getElementById(`stack-step-${pi}-${group.tone}`);
   const stepLabel = step && step.querySelector('.pipeline-step-label');
   const prevLabel = stepLabel ? stepLabel.textContent : '';
   if (step) {

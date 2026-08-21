@@ -26,6 +26,12 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-20 — build 32 — Register filter name vs tone gate
+- **Seen:** Veil OIII (and Ha/SII) showed Register unlocked but clicking alerted “Calibrate at least one night…” despite calibrated nights.
+- **Cause:** Click passed display name (`OIII`) while shoot lookup compared tone keys (`oiii`).
+- **Fix:** Register/Cull/Stack resolve via `group.tone` + `group.name`; shoot lookup accepts display name as tone. `npm run dist:win:beta`.
+- **Canvas:** backlog snapshot → 0.3.0 / build 32.
+
 ### 2026-08-20 — build 31 — Import lightCount + data save guards
 - **Seen:** Shoot header showed 21 lights after CAA drop of 1 (disk had 20). Beta dashboard wiped to `projects: []` during a live JSON patch race.
 - **Fix:** `lightCount`/`frameCount` use staged `byType.light`. Siril progress path wraps. Every save snapshots `backups/`; refuse empty-projects overwrite. Disk recover script for pipeline meta. `npm run dist:win:beta`.

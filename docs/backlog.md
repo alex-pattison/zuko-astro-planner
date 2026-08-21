@@ -64,9 +64,9 @@ New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Sh
 
 ---
 
-### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–31)*
+### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–32)*
 
-One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Shoot header light count uses staged totals (not pre-reject scan). Alert when ASIAIR source is offline. Dashboard saves snapshot to `backups/` and refuse empty-projects overwrite. Camera-up marker matches this train; NASA moon stills local.
+One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Shoot header light count uses staged totals (not pre-reject scan). Alert when ASIAIR source is offline. Dashboard saves snapshot to `backups/` and refuse empty-projects overwrite. Register/Cull/Stack match filter display names to tone keys (Ha/OIII/SII). Camera-up marker matches this train; NASA moon stills local.
 
 **Why:** Same dial value for framing, shooting, and ingest checks (target + flats).
 
