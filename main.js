@@ -229,13 +229,58 @@ async function readDataCandidate(filePath) {
   }
 }
 
-async function backupDataFile(filePath) {
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupDir = path.join(path.dirname(filePath), 'backups');
-  await fsp.mkdir(backupDir, { recursive: true });
-  const dest = path.join(backupDir, `zuko-dashboard-data.${stamp}.json`);
-  await fsp.copyFile(filePath, dest);
-  return dest;
+async function backupDataFile(filePath, { keep = 30 } = {}) {
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupDir = path.join(path.dirname(filePath), 'backups');
+    await fsp.mkdir(backupDir, { recursive: true });
+    const dest = path.join(backupDir, `zuko-dashboard-data.${stamp}.json`);
+    await fsp.copyFile(filePath, dest);
+    // Prune oldest auto-backups (keep newest N).
+    try {
+      const names = (await fsp.readdir(backupDir))
+        .filter((n) => /^zuko-dashboard-data\.\d{4}-\d{2}-\d{2}T/.test(n))
+        .sort();
+      const excess = names.length - keep;
+      for (let i = 0; i < excess; i += 1) {
+        await fsp.unlink(path.join(backupDir, names[i])).catch(() => {});
+      }
+    } catch { /* ignore prune errors */ }
+    return dest;
+  } catch (err) {
+    console.warn('backupDataFile failed:', err && err.message ? err.message : err);
+    return null;
+  }
+}
+
+/**
+ * Block accidental wipes: refuse saving empty projects over a file that still
+ * has projects (unless allowEmptyProjects is set).
+ */
+async function assertSafeDataSave(filePath, incoming) {
+  const nextProjects = incoming && Array.isArray(incoming.projects) ? incoming.projects : null;
+  if (!nextProjects) {
+    return { ok: false, error: 'Save rejected: payload missing projects array' };
+  }
+  if (nextProjects.length > 0) return { ok: true };
+  if (incoming && incoming.allowEmptyProjects === true) return { ok: true };
+
+  const existing = await readDataCandidate(filePath);
+  const prevN = existing && existing.data && Array.isArray(existing.data.projects)
+    ? existing.data.projects.length
+    : 0;
+  if (prevN > 0) {
+    return {
+      ok: false,
+      code: 'REFUSE_EMPTY_PROJECTS',
+      error:
+        `Save rejected: refusing to overwrite ${prevN} project(s) with an empty projects list. ` +
+        'If intentional, retry with allowEmptyProjects: true (after a backup).',
+      previousProjectCount: prevN,
+    };
+  }
+  return { ok: true };
 }
 
 /** Load the active channel's single data file (no H: ↔ repo mirror). */
@@ -610,6 +655,24 @@ ipcMain.handle('zuko-data-load', async () => {
 ipcMain.handle('zuko-data-save', async (_event, data) => {
   const { file, mirrorFile, label } = resolveDataPaths();
   try {
+    const gate = await assertSafeDataSave(file, data);
+    if (!gate.ok) {
+      console.error('zuko-data-save blocked:', gate.error);
+      return {
+        ok: false,
+        code: gate.code || 'SAVE_REJECTED',
+        error: gate.error,
+        path: label,
+        previousProjectCount: gate.previousProjectCount,
+      };
+    }
+    // Always snapshot the previous file before overwrite.
+    await backupDataFile(file);
+    // Strip control flag so it is not persisted.
+    if (data && Object.prototype.hasOwnProperty.call(data, 'allowEmptyProjects')) {
+      const { allowEmptyProjects, ...rest } = data;
+      data = rest;
+    }
     await atomicWrite(file, data);
     if (mirrorFile) {
       try {

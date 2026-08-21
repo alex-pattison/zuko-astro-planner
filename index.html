@@ -1806,6 +1806,8 @@
   .siril-progress-overlay.open { display: flex; }
   .siril-progress-modal {
     width: min(640px, 100%);
+    max-width: 100%;
+    min-width: 0;
     max-height: min(80vh, 720px);
     background: var(--bg2);
     border: 1px solid var(--border);
@@ -1814,6 +1816,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   .siril-progress-modal h3 {
     margin: 0;
@@ -1828,6 +1832,8 @@
     padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid var(--border);
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .siril-progress-status.ok {
     color: var(--green);
@@ -1843,6 +1849,10 @@
     font-size: 12px;
     color: var(--gray);
     font-family: var(--mono);
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-all;
   }
   .pipeline-path-link {
     appearance: none;
@@ -9903,8 +9913,14 @@ function persistData() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       window.zukoFs.save(data).then((res) => {
-        if (!res || !res.ok) updateSyncStatus(null, 'error');
-        else updateSyncStatus(res.path || 'zuko-dashboard-data.json', 'connected');
+        if (!res || !res.ok) {
+          updateSyncStatus(null, 'error');
+          if (res && res.code === 'REFUSE_EMPTY_PROJECTS') {
+            appAlert(res.error || 'Save blocked: would wipe all projects.');
+          }
+        } else {
+          updateSyncStatus(res.path || 'zuko-dashboard-data.json', 'connected');
+        }
       }).catch(() => updateSyncStatus(null, 'error'));
     }, 200);
   } else if (fileHandle) {
@@ -16295,6 +16311,13 @@ function projectTargetHint(project) {
 function applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft) {
   const meta = (result && result.meta) || {};
   const lightRow = (scan.filters || []).find((r) => ft && r.filter === ft.filter);
+  // Prefer staged counts (post CAA / reject filters), not raw scan totals.
+  const stagedLights = (meta.byType && meta.byType.light != null)
+    ? Number(meta.byType.light)
+    : null;
+  const lightCount = (stagedLights != null && Number.isFinite(stagedLights))
+    ? stagedLights
+    : (lightRow ? lightRow.lights : 0);
   sh.sourcePath = session.path;
   sh.ingestPath = (meta.destRoots && meta.destRoots[0]) || project.projectDir;
   sh.preprocessMeta = null;
@@ -16310,8 +16333,8 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
     filesSkipped: meta.filesSkipped,
     biasesMoved: meta.biasesMoved,
     byType: meta.byType,
-    lightCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
-    frameCount: lightRow ? lightRow.lights : ((meta.byType && meta.byType.light) || 0),
+    lightCount,
+    frameCount: lightCount,
     exposureSec: (lightRow && lightRow.exposureSec != null)
       ? lightRow.exposureSec
       : (scan.summary && scan.summary.exposureSec),
@@ -16321,8 +16344,8 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
     softWarnings: result.softWarnings || meta.softWarnings || [],
     lightCaaDeg: meta.lightCaaDeg != null ? meta.lightCaaDeg : null,
   };
-  if ((!sh.hours || sh.hours === 0) && lightRow && lightRow.lights && lightRow.exposureSec) {
-    sh.hours = Math.round((lightRow.lights * lightRow.exposureSec / 3600) * 100) / 100;
+  if ((!sh.hours || sh.hours === 0) && lightCount && lightRow && lightRow.exposureSec) {
+    sh.hours = Math.round((lightCount * lightRow.exposureSec / 3600) * 100) / 100;
   }
   if (project.status === 'planning') {
     const prev = project.status;

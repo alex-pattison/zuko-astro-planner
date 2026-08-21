@@ -1,0 +1,26 @@
+---
+description: Never ship or install Beta without the user’s explicit permission
+alwaysApply: true
+---
+
+# No Beta ship without express permission
+
+Do **not** promote work to Beta unless the user clearly asks in that turn.
+
+Forbidden without explicit ask:
+- `npm run dist:win:beta` / `dist:win:beta:build-only`
+- Silent-install / overwrite of the installed Beta app
+- `git push` to `beta-release` (or any Beta promote remote flow)
+- Editing live Beta dashboard data on `H:\Photography\Astrophotography\Dashboard` except when the user asked to fix/restore Beta data
+
+When editing Beta dashboard JSON (only if the user asked):
+- Always copy the current file into `Dashboard/backups/` first
+- Never write `projects: []` over a non-empty file
+- Prefer reconstructing pipeline status from on-disk Siril trees over inventing shoot rows
+
+Allowed without a Beta ask:
+- Dev work (`npm start`, repo `data/`, commits on `main` when they asked to commit)
+- Saying Beta is ready and waiting for them to approve a ship
+
+If they say “save” / “commit” only — commit. Do not also build or install Beta.
+If they say “build beta” / “ship beta” / “dist beta” — that is express permission for that ship only.
