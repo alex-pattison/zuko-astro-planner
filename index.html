@@ -11348,9 +11348,12 @@ function shootDateQuickFill() {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
   return [
+    { label: 'Yesterday', value: yymmdd(yesterday) },
     { label: 'Today', value: yymmdd(today) },
-    { label: 'Yesterday', value: yymmdd(yesterday) }
+    { label: 'Tomorrow', value: yymmdd(tomorrow) },
   ];
 }
 
@@ -15534,7 +15537,7 @@ async function openCullModal(pi, tone) {
   _cullScanResult = null;
   document.getElementById('cull-modal-title').textContent = `Cull — ${group.name}`;
   document.getElementById('cull-modal-sub').innerHTML =
-    `${escapeHtml(project.name || 'Project')} · ${folderPathLink(aggregateDir)} ${copyPathButton(aggregateDir)}`;
+    `${escapeHtml(project.name || 'Project')} · ${folderPathLink(aggregateDir)} ${copySirilCdButton(aggregateDir, 'CD for Siril', 'cull-copy-siril-cd')}`;
   const notes = document.getElementById('cull-modal-notes');
   if (notes) {
     const guideBits = getFilterIngestedShootsByTone(project, group.tone, group.name)
@@ -16035,7 +16038,16 @@ function renderChannelPipelineSection(project, pi) {
   } else if (workingReady) {
     copyWorkingBtn = `<button class="mini-btn" data-testid="copy-working-path" data-copy-working-path="${escapeAttr(workingDir)}" title="${escapeAttr(workingDir)}" onclick="event.stopPropagation(); copyPathToClipboard(this.getAttribute('data-copy-working-path'))">Copy Working Path</button>`;
   } else {
-    copyWorkingBtn = `<button class="mini-btn locked" data-testid="copy-working-path" data-copy-working-path="${escapeAttr(workingDir)}" disabled title="Working folder not created yet — run Register first">Copy Working Path</button>`;
+    copyWorkingBtn = `<button class="mini-btn locked" data-testid="copy-working-path" data-copy-working-path="${escapeAttr(workingDir)}" disabled title="Working folder not created yet — run Stack first (creates working/)">Copy Working Path</button>`;
+  }
+
+  let copySirilWorkingCdBtn;
+  if (!hasProjectDir || !workingDir) {
+    copySirilWorkingCdBtn = `<button class="mini-btn locked" data-testid="copy-siril-cd-working" disabled title="Set Project directory first">CD for Siril</button>`;
+  } else if (workingReady) {
+    copySirilWorkingCdBtn = `<button class="mini-btn" data-testid="copy-siril-cd-working" data-copy-siril-cd-working="${escapeAttr(workingDir)}" title="${escapeAttr(formatSirilCdCommand(workingDir))}" onclick="event.stopPropagation(); copySirilCdToClipboard(this.getAttribute('data-copy-siril-cd-working'))">CD for Siril</button>`;
+  } else {
+    copySirilWorkingCdBtn = `<button class="mini-btn locked" data-testid="copy-siril-cd-working" data-copy-siril-cd-working="${escapeAttr(workingDir)}" disabled title="Working folder not created yet — run Stack first (creates working/)">CD for Siril</button>`;
   }
 
   let cleanupProjectBtn;
@@ -16067,6 +16079,7 @@ function renderChannelPipelineSection(project, pi) {
   const actions = `<div class="shoot-log-actions" style="margin:6px 0 10px;">
       <button class="mini-btn" data-testid="plan-shoot" onclick="addShoot(${pi})">+ Plan Shoot</button>
       ${copyWorkingBtn}
+      ${copySirilWorkingCdBtn}
       ${cleanupProjectBtn}
       ${reviewBtn}
       ${importAllBtn}
@@ -16448,6 +16461,36 @@ async function openInFileManager(targetPath) {
   }
 }
 
+function formatSirilCdCommand(dir) {
+  const p = String(dir || '').trim();
+  if (!p) return '';
+  // Siril command bar: cd with quoted path (spaces OK). Escape embedded quotes.
+  return `cd "${p.replace(/"/g, '\\"')}"`;
+}
+
+function copySirilCdToClipboard(dir) {
+  const cmd = formatSirilCdCommand(dir);
+  if (!cmd) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cmd).then(() => {
+      /* quiet success */
+    }).catch(() => {
+      appAlert('Could not copy Siril command');
+    });
+    return;
+  }
+  appAlert('Clipboard not available');
+}
+
+function copySirilCdButton(dir, label, testId) {
+  const p = String(dir || '').trim();
+  if (!p) return '';
+  const text = escapeHtml(label || 'CD for Siril');
+  const idAttr = testId ? ` data-testid="${escapeAttr(testId)}"` : '';
+  const tip = escapeAttr(`Copies for Siril command bar: ${formatSirilCdCommand(p)}`);
+  return `<button type="button" class="mini-btn"${idAttr} data-copy-siril-cd="${escapeAttr(p)}" title="${tip}" onclick="event.stopPropagation(); copySirilCdToClipboard(this.getAttribute('data-copy-siril-cd'))">${text}</button>`;
+}
+
 function folderPathLink(path, label) {
   const p = String(path || '').trim();
   if (!p) return '—';
@@ -16482,16 +16525,18 @@ function projectWorkingDirExistsHint(project, workingDir) {
 }
 
 async function refreshWorkingPathButtons() {
-  const btns = document.querySelectorAll('[data-copy-working-path]');
+  const pathBtns = Array.from(document.querySelectorAll('[data-copy-working-path]'));
+  const cdBtns = Array.from(document.querySelectorAll('[data-copy-siril-cd-working]'));
+  const btns = [...pathBtns, ...cdBtns];
   if (!btns.length) return;
   const canCheck = !!(window.zukoFs && typeof window.zukoFs.pathExists === 'function');
-  for (const btn of btns) {
-    const dir = String(btn.getAttribute('data-copy-working-path') || '').trim();
-    if (!dir) {
-      btn.disabled = true;
-      btn.classList.add('locked');
-      continue;
-    }
+  const dirs = [...new Set(btns.map((btn) => String(
+    btn.getAttribute('data-copy-working-path')
+      || btn.getAttribute('data-copy-siril-cd-working')
+      || ''
+  ).trim()).filter(Boolean))];
+
+  for (const dir of dirs) {
     let exists = _workingDirExistsCache.has(dir) ? !!_workingDirExistsCache.get(dir) : false;
     if (canCheck) {
       try {
@@ -16501,22 +16546,55 @@ async function refreshWorkingPathButtons() {
       } catch {
         /* keep prior hint */
       }
+    } else if (!_workingDirExistsCache.has(dir)) {
+      _workingDirExistsCache.set(dir, exists);
     }
-    btn.disabled = !exists;
-    if (exists) {
-      btn.classList.remove('locked');
-      btn.removeAttribute('disabled');
-      btn.title = dir;
-      btn.onclick = (event) => {
-        event.stopPropagation();
-        copyPathToClipboard(btn.getAttribute('data-copy-working-path'));
-      };
-    } else {
+  }
+
+  for (const btn of pathBtns) {
+    const dir = String(btn.getAttribute('data-copy-working-path') || '').trim();
+    const exists = !!(dir && _workingDirExistsCache.get(dir));
+    if (!dir || !exists) {
+      btn.disabled = true;
       btn.classList.add('locked');
       btn.setAttribute('disabled', 'disabled');
-      btn.title = 'Working folder not created yet — run Register first';
+      btn.title = dir
+        ? 'Working folder not created yet — run Stack first (creates working/)'
+        : 'Set Project directory first';
       btn.onclick = null;
+      continue;
     }
+    btn.disabled = false;
+    btn.classList.remove('locked');
+    btn.removeAttribute('disabled');
+    btn.title = dir;
+    btn.onclick = (event) => {
+      event.stopPropagation();
+      copyPathToClipboard(btn.getAttribute('data-copy-working-path'));
+    };
+  }
+
+  for (const btn of cdBtns) {
+    const dir = String(btn.getAttribute('data-copy-siril-cd-working') || '').trim();
+    const exists = !!(dir && _workingDirExistsCache.get(dir));
+    if (!dir || !exists) {
+      btn.disabled = true;
+      btn.classList.add('locked');
+      btn.setAttribute('disabled', 'disabled');
+      btn.title = dir
+        ? 'Working folder not created yet — run Stack first (creates working/)'
+        : 'Set Project directory first';
+      btn.onclick = null;
+      continue;
+    }
+    btn.disabled = false;
+    btn.classList.remove('locked');
+    btn.removeAttribute('disabled');
+    btn.title = formatSirilCdCommand(dir);
+    btn.onclick = (event) => {
+      event.stopPropagation();
+      copySirilCdToClipboard(btn.getAttribute('data-copy-siril-cd-working'));
+    };
   }
 }
 

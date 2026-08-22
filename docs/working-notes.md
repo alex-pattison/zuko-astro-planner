@@ -26,6 +26,12 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-22 — build 35 — CD for Siril + Plan Shoot tomorrow
+- **UI:** Cull + Imaging Pipeline “CD for Siril” copies `cd "…"` for the command bar (Aggregate / working/). Plan Shoot quick fills: Yesterday · Today · Tomorrow.
+- **QA:** `scripts/qa-siril-cd-command.js`.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 35).
+- **Canvas:** backlog snapshot → build 35.
+
 ### 2026-08-21 — build 34 — pipeline popup layout + Queechy restore
 - **UI:** Modal scroll lock uses `position:fixed` + single scrollbar pad (no double pad on html+body); skip merge-SVG redraw while open; Last run shows local weekday/time + relative.
 - **Data:** Restored Veil `SII @Queechy B5` capture-plan row; `260725` remapped (disk `260725_SII_B5_Queechy` was always intact, 213 FITS). Script: `scripts/restore-veil-queechy-and-mirror-dev.js`.
