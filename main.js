@@ -884,6 +884,79 @@ ipcMain.handle('zuko-ingest-open', async (_event, folderPath) => {
   }
 });
 
+/** Open a file with the OS default app (Notepad, etc.), or a folder in Explorer. */
+ipcMain.handle('zuko-ingest-open-item', async (_event, payload = {}) => {
+  const target = String(payload.path || payload.filePath || '').trim();
+  if (!target) return { ok: false, error: 'path is required' };
+  try {
+    const st = await fsp.stat(target);
+    const err = await shell.openPath(target);
+    if (err) return { ok: false, error: err };
+    return { ok: true, path: target, isFile: st.isFile() };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-session-logs-list', async (_event, payload = {}) => {
+  try {
+    const { listShootSessionLogs } = loadAsiairIngest().sessionLogs;
+    return await listShootSessionLogs(payload.shootDir || payload.path);
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e), files: [] };
+  }
+});
+
+ipcMain.handle('zuko-ingest-session-logs-read', async (_event, payload = {}) => {
+  try {
+    const { readShootSessionLog } = loadAsiairIngest().sessionLogs;
+    return await readShootSessionLog(payload.path || payload.filePath, {
+      maxBytes: payload.maxBytes,
+    });
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e) };
+  }
+});
+
+ipcMain.handle('zuko-ingest-session-logs-ensure', async (_event, payload = {}) => {
+  try {
+    const ingest = loadAsiairIngest();
+    const sessionLogs = ingest.sessionLogs;
+    const shootDir = payload.shootDir;
+    if (!shootDir) return { ok: false, error: 'shootDir required' };
+    let listed = await sessionLogs.listShootSessionLogs(shootDir);
+    if (listed.ok && listed.files && listed.files.length) {
+      return { ok: true, ...listed, ensured: false };
+    }
+    const sourceRoot = payload.sourceRoot || payload.asiairSourcePath;
+    const nightDate = payload.nightDate;
+    if (!sourceRoot || !nightDate) {
+      return { ok: true, ...listed, ensured: false };
+    }
+    const insight = await sessionLogs.buildSessionLogInsight({
+      sourceRoot,
+      nightDate,
+      shootFilter: payload.shootFilter || null,
+      refCaaDeg: payload.refCaaDeg != null ? Number(payload.refCaaDeg) : null,
+      lightCount: payload.lightCount != null ? Number(payload.lightCount) : null,
+      targetNames: payload.targetNames || [],
+    });
+    if (insight && insight.ok) {
+      await sessionLogs.copySessionLogsToShootDirs([shootDir], insight);
+      listed = await sessionLogs.listShootSessionLogs(shootDir);
+      return {
+        ok: true,
+        ...listed,
+        ensured: true,
+        digest: insight.digest || null,
+      };
+    }
+    return { ok: true, ...listed, ensured: false };
+  } catch (e) {
+    return { ok: false, error: String(e && e.message ? e.message : e), files: [] };
+  }
+});
+
 ipcMain.handle('zuko-siril-calibrate', async (event, payload = {}) => {
   try {
     const { calibrateShoot } = loadSirilPreprocess();

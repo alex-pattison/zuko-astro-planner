@@ -1,0 +1,182 @@
+{
+  "description": "Permutation catalog for Siril preprocess settings (script generation only — no real FITS).",
+  "notes": [
+    "Each case builds calibrate/register/stack .ssf text via src/siril/preprocess.js",
+    "Run: node scripts/qa-preprocess-settings.js",
+    "Sample tree under project/ is a fake Aggregate layout for path smoke only"
+  ],
+  "cases": [
+    {
+      "id": "default-calibrate",
+      "kind": "calibrate",
+      "settings": {},
+      "expectIncludes": [
+        "set core.binning_update=false",
+        "stack bias rej 3 3 -nonorm",
+        "-cc=dark"
+      ],
+      "expectExcludes": ["-2pass"]
+    },
+    {
+      "id": "default-register",
+      "kind": "register",
+      "settings": {},
+      "expectIncludes": ["set core.binning_update=false", "register pp_light"],
+      "expectExcludes": ["-2pass", "seqapplyreg"]
+    },
+    {
+      "id": "default-stack",
+      "kind": "stack",
+      "settings": {},
+      "frameCount": 12,
+      "expectIncludes": [
+        "set core.binning_update=false",
+        "stack pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result"
+      ],
+      "expectExcludes": ["register pp_light"]
+    },
+    {
+      "id": "stack-binning-on",
+      "kind": "stack",
+      "binningUpdate": true,
+      "settings": {},
+      "expectIncludes": ["set core.binning_update=true"],
+      "expectExcludes": ["set core.binning_update=false"]
+    },
+    {
+      "id": "register-binning-on",
+      "kind": "register",
+      "binningUpdate": true,
+      "settings": {},
+      "expectIncludes": ["set core.binning_update=true"]
+    },
+    {
+      "id": "mono-register-2pass",
+      "kind": "register",
+      "settings": { "register": { "preset": "monoRecommended" } },
+      "expectIncludes": ["register pp_light -2pass", "seqapplyreg pp_light"]
+    },
+    {
+      "id": "mono-stack-few-frames-median",
+      "kind": "stack",
+      "frameCount": 10,
+      "settings": { "stack": { "preset": "monoRecommended" } },
+      "expectIncludes": ["stack pp_light med", "-norm=addscale"]
+    },
+    {
+      "id": "mono-stack-many-frames-rej",
+      "kind": "stack",
+      "frameCount": 24,
+      "settings": { "stack": { "preset": "monoRecommended" } },
+      "expectIncludes": ["stack pp_light rej 3 3 -norm=addscale"]
+    },
+    {
+      "id": "stack-reregister-mono",
+      "kind": "stack",
+      "reregister": true,
+      "frameCount": 30,
+      "settings": {
+        "register": { "preset": "monoRecommended" },
+        "stack": { "preset": "monoRecommended" }
+      },
+      "expectIncludes": [
+        "register pp_light -2pass",
+        "seqapplyreg pp_light",
+        "stack r_pp_light rej 3 3"
+      ]
+    },
+    {
+      "id": "custom-bias-sigma",
+      "kind": "calibrate",
+      "settings": {
+        "bias": {
+          "preset": "custom",
+          "custom": {
+            "method": "rej",
+            "rejection": "sigma",
+            "sigmaLow": 2,
+            "sigmaHigh": 5,
+            "norm": "none",
+            "weight": "none"
+          }
+        }
+      },
+      "expectIncludes": ["stack bias rej s 2 5 -nonorm"]
+    },
+    {
+      "id": "custom-flat-no-bias",
+      "kind": "calibrate",
+      "settings": {
+        "flat": {
+          "preset": "custom",
+          "custom": {
+            "useBias": false,
+            "method": "rej",
+            "rejection": "winsorized",
+            "sigmaLow": 3,
+            "sigmaHigh": 3,
+            "norm": "mul",
+            "weight": "none"
+          }
+        }
+      },
+      "expectIncludes": ["calibrate flat\n"],
+      "expectExcludes": ["calibrate flat -bias="]
+    },
+    {
+      "id": "custom-calibrate-no-cosmetic",
+      "kind": "calibrate",
+      "settings": {
+        "calibrate": { "preset": "custom", "custom": { "cosmetic": false } }
+      },
+      "expectExcludes": ["-cc=dark"]
+    },
+    {
+      "id": "custom-stack-weight-noise",
+      "kind": "stack",
+      "settings": {
+        "stack": {
+          "preset": "custom",
+          "custom": {
+            "method": "rej",
+            "rejection": "winsorized",
+            "sigmaLow": 3,
+            "sigmaHigh": 3,
+            "norm": "addscale",
+            "weight": "noise",
+            "outputNorm": true,
+            "bits32": true
+          }
+        }
+      },
+      "expectIncludes": ["-weight=noise", "-norm=addscale"]
+    },
+    {
+      "id": "custom-stack-median-method",
+      "kind": "stack",
+      "settings": {
+        "stack": {
+          "preset": "custom",
+          "custom": {
+            "method": "med",
+            "norm": "addscale",
+            "outputNorm": true,
+            "bits32": true
+          }
+        }
+      },
+      "expectIncludes": ["stack pp_light med -norm=addscale -output_norm -32b -out=result"]
+    },
+    {
+      "id": "mixed-presets",
+      "kind": "register",
+      "settings": {
+        "bias": { "preset": "default" },
+        "register": { "preset": "custom", "custom": { "twoPass": true } },
+        "stack": { "preset": "monoRecommended" }
+      },
+      "binningUpdate": false,
+      "expectIncludes": ["set core.binning_update=false", "-2pass", "seqapplyreg"]
+    }
+  ]
+}

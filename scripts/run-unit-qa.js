@@ -10,6 +10,8 @@ const scripts = [
   'scripts/qa-project-framer-fov.js',
   'scripts/qa-filters.js',
   'scripts/qa-asiair-filename.js',
+  'scripts/qa-asiair-session-logs.js',
+  'scripts/smoke-session-log-pipeline.js',
   'scripts/_test-calib-focused-qa.js',
   'scripts/qa-asiair-ingest.js',
   'scripts/qa-target-match-flow.js',
@@ -17,6 +19,7 @@ const scripts = [
   'scripts/qa-sky-astro-modules.js',
   'scripts/qa-siril-cull-seq.js',
   'scripts/qa-siril-register-stack.js',
+  'scripts/qa-preprocess-settings.js',
   'scripts/qa-cleanup-helpers.js',
 ];
 

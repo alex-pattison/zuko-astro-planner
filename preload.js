@@ -52,6 +52,10 @@ contextBridge.exposeInMainWorld('zukoIngest', {
   scan: (opts) => ipcRenderer.invoke('zuko-ingest-scan', opts || {}),
   run: (opts) => ipcRenderer.invoke('zuko-ingest-run', opts || {}),
   open: (folderPath) => ipcRenderer.invoke('zuko-ingest-open', folderPath),
+  openItem: (opts) => ipcRenderer.invoke('zuko-ingest-open-item', typeof opts === 'string' ? { path: opts } : (opts || {})),
+  listSessionLogs: (opts) => ipcRenderer.invoke('zuko-ingest-session-logs-list', opts || {}),
+  readSessionLog: (opts) => ipcRenderer.invoke('zuko-ingest-session-logs-read', opts || {}),
+  ensureSessionLogs: (opts) => ipcRenderer.invoke('zuko-ingest-session-logs-ensure', opts || {}),
   onStageProgress: (handler) => {
     if (typeof handler !== 'function') return () => {};
     const listener = (_event, payload) => handler(payload || {});

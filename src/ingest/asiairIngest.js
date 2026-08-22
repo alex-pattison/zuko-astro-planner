@@ -18,6 +18,7 @@
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
+const sessionLogs = require('./asiairSessionLogs');
 
 const FRAME_TYPES = new Set(['light', 'flat', 'dark', 'bias', 'darkflat']);
 const TYPE_FOLDERS = {
@@ -1195,6 +1196,34 @@ async function scanSession(opts = {}) {
   const shootingTypes = [...new Set(sessionSummaries.map((s) => s.shootingType))];
   const targetNames = [...new Set(filteredLights.map((l) => l.target).filter(Boolean))];
 
+  let sessionLog = null;
+  try {
+    const insight = await sessionLogs.buildSessionLogInsight({
+      sourceRoot: projectDir,
+      nightDate,
+      shootFilter,
+      refCaaDeg,
+      lightCount: filteredLights.length,
+      targetNames,
+    });
+    if (insight && (insight.ok || (insight.softWarnings && insight.softWarnings.length) || (insight.insights && insight.insights.length))) {
+      sessionLog = {
+        ok: !!insight.ok,
+        digest: insight.digest,
+        softWarnings: insight.softWarnings || [],
+        insights: insight.insights || [],
+        logDirs: insight.logDirs || [],
+        autorunFiles: (insight.autorunSessions || []).map((s) => s.fileName).filter(Boolean),
+        phd2Files: (insight.phd2 || []).map((s) => s.fileName).filter(Boolean),
+      };
+      for (const w of sessionLog.softWarnings) {
+        if (w && !softWarnings.includes(w)) softWarnings.push(w);
+      }
+    }
+  } catch (err) {
+    softWarnings.push(`Session log parse skipped: ${String(err.message || err)}`);
+  }
+
   return {
     ok: true,
     projectDir: projectDir || null,
@@ -1219,6 +1248,7 @@ async function scanSession(opts = {}) {
     targetMatch: matchGate,
     includeTargets: effectiveIncludes,
     softWarnings,
+    sessionLog,
     lights: filteredLights,
     flats,
     biases,
@@ -3027,6 +3057,44 @@ async function stageSirilTree(opts = {}) {
     'done'
   );
 
+  const destRoots = filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder));
+  let sessionLogMeta = (scan.sessionLog && scan.sessionLog.digest) || null;
+  let sessionLogCopied = [];
+  try {
+    const stagedLightCount = staged.filter((s) => s.type === 'light' && s.action !== 'skipped').length;
+    const insight = await sessionLogs.buildSessionLogInsight({
+      sourceRoot: sourceDir,
+      nightDate,
+      shootFilter,
+      refCaaDeg: framerCaaDeg,
+      lightCount: stagedLightCount,
+      targetNames: scan.targetNames || [],
+    });
+    if (insight && insight.digest) {
+      sessionLogMeta = insight.digest;
+      for (const w of insight.softWarnings || []) {
+        if (w && !softWarnings.includes(w)) softWarnings.push(w);
+      }
+      sessionLogCopied = await sessionLogs.copySessionLogsToShootDirs(destRoots, insight);
+      if (sessionLogCopied.length) {
+        sessionLogMeta = {
+          ...sessionLogMeta,
+          copiedTo: destRoots.map((d) => path.join(d, 'session-logs')),
+          filesCopied: sessionLogCopied.filter((c) => !c.error).length,
+        };
+      }
+    } else if (scan.sessionLog && scan.sessionLog.digest) {
+      // Still archive whatever scan found
+      sessionLogCopied = await sessionLogs.copySessionLogsToShootDirs(destRoots, {
+        autorunSessions: [],
+        phd2: [],
+        digest: scan.sessionLog.digest,
+      });
+    }
+  } catch (err) {
+    softWarnings.push(`Session log archive skipped: ${String(err.message || err)}`);
+  }
+
   return {
     ok: errors.length === 0 || staged.length > 0,
     meta: {
@@ -3037,7 +3105,7 @@ async function stageSirilTree(opts = {}) {
       nightDate,
       shootFolder,
       filters,
-      destRoots: filters.map((f) => path.join(projectDir, sanitizeFolderName(f), shootFolder)),
+      destRoots,
       biasLibrary: biasLibDir,
       biasSource: 'session-calibration',
       darkLibrary: useMasterDarks ? (masterDarkSourceDir || darkLibDir) : darkLibDir,
@@ -3067,10 +3135,12 @@ async function stageSirilTree(opts = {}) {
       filterRows: scan.filters,
       lightCaaDeg,
       softWarnings,
+      sessionLog: sessionLogMeta,
       stagedAt: new Date().toISOString(),
       errors,
     },
     softWarnings,
+    sessionLog: sessionLogMeta,
     staged,
     copiedBiases,
     copiedDarks,
@@ -3080,6 +3150,7 @@ async function stageSirilTree(opts = {}) {
       filters: scan.filters,
       targets: scan.targets,
       summary: scan.summary,
+      sessionLog: scan.sessionLog || null,
     },
   };
 }
@@ -3413,4 +3484,5 @@ module.exports = {
   masterDarkSourceSetDir,
   ensureLink,
   isUsableLinkedFile,
+  sessionLogs,
 };

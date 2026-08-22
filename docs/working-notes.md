@@ -26,6 +26,33 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-21 — build 34 — pipeline popup layout + Queechy restore
+- **UI:** Modal scroll lock uses `position:fixed` + single scrollbar pad (no double pad on html+body); skip merge-SVG redraw while open; Last run shows local weekday/time + relative.
+- **Data:** Restored Veil `SII @Queechy B5` capture-plan row; `260725` remapped (disk `260725_SII_B5_Queechy` was always intact, 213 FITS). Script: `scripts/restore-veil-queechy-and-mirror-dev.js`.
+- **QA:** `qa-preprocess-settings` + unit suites green; Dev re-mirrored from Beta after unit reset.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 34).
+- **Canvas:** backlog snapshot → build 34.
+
+### 2026-08-21 — build 33 — Siril preprocessing settings
+- **UI:** Per-step Default / Mono Recommended / Custom on Calibrate, Register, Stack; (i) help per stage/flag; SHO→Mono, LRGB→Default; binning checkbox default off.
+- **Code:** `src/siril/preprocessSettings.js` + builders; scripts stamp `set core.binning_update=…`.
+- **QA:** `qa-preprocess-settings.js` (+ weight/norm/rej permutations) + register/cull smoke.
+- **Dev:** `npm start` (zukoBuild 33). Beta not shipped this turn.
+- **Canvas:** backlog snapshot → 0.3.0 / build 33.
+
+### 2026-08-21 — preprocessing-settings — Siril presets + binning checkbox
+- **UI:** Presets on each Calibrate / Register / Stack confirm (Default · Mono Recommended · Custom); Stack also has binning checkbox + (i) tips. Settings holds the same defaults.
+- **Docs / canvas:** `docs/preprocess-settings.md`; `preprocess-settings-catalog.canvas.tsx`.
+- **QA:** `scripts/qa-preprocess-settings.js` + `staging/preprocess-settings-sample/fixtures.json` (15 cases).
+- **Next:** Try Mono Recommended on a real Aggregate; optional `update_key` XPIXSZ on result from imaging config.
+
+### 2026-08-20 — explore/asiair-logs — Autorun + PHD2 session logs
+- **Seen:** ASIAIR dump `log/` has Autorun_Log / Plan_Log + PHD2_GuideLog (EN + CHN dupes). Unused by Zuko until now.
+- **Use:** Parse beside Import; soft-warn plate-solve Angle vs Target Framer CAA, planned vs staged lights, filter-change fails, guide quality; archive copies into each shoot’s `session-logs/` + `session-digest.json` on `ingestMeta.sessionLog`.
+- **UI:** Import session-log panel; night detail badge + softWarnings; Calibrate/Cull tips from guide RMS.
+- **QA:** `scripts/qa-asiair-session-logs.js`; backfill `scripts/backfill-session-logs.js`.
+- **Next:** Wire Plan_Log_* when a Plan dump arrives (parser already accepts). Optional: richer timeline viewer.
+
 ### 2026-08-20 — build 32 — Register filter name vs tone gate
 - **Seen:** Veil OIII (and Ha/SII) showed Register unlocked but clicking alerted “Calibrate at least one night…” despite calibrated nights.
 - **Cause:** Click passed display name (`OIII`) while shoot lookup compared tone keys (`oiii`).
