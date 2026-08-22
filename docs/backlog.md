@@ -95,7 +95,7 @@ Reusable master dark flats, not only the ASIAIR Bias folder that rode in with th
 
 ### ASIAIR / ingest / framer
 
-#### 25. ASIAIR session logs (Autorun / Plan / PHD2) — *in progress on explore/asiair-logs*
+#### 25. ASIAIR session logs (Autorun / Plan / PHD2) — *merged to main*
 
 Read `{asiairSource}/log/` beside Import. Persist digest on `ingestMeta.sessionLog` and copy logs into `shoot/session-logs/`. Soft-warn CAA vs plate Angle, planned vs staged lights, filter fails; guide quality on Calibrate/Cull.
 
@@ -170,6 +170,10 @@ Suggest framing + hours per filter for rig + site. Spike first — wrong-advice 
 ---
 
 ### Processing / quality
+
+#### 26. Siril preprocessing settings (Default / Mono Recommended / Custom) — *shipped build 33*
+
+Per-stage presets on Calibrate / Register / Stack confirms; Custom unlocks Siril flags with (i) help. SHO/Hβ → Mono Recommended, LRGB → Default. Stack: binning checkbox (default off → `core.binning_update=false`). Docs: `docs/preprocess-settings.md`; QA: `scripts/qa-preprocess-settings.js`.
 
 #### 13. In-app culling UI **(requires FITS thumb / HFR preview)**
 

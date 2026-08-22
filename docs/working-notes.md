@@ -26,6 +26,19 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-21 — build 33 — Siril preprocessing settings
+- **UI:** Per-step Default / Mono Recommended / Custom on Calibrate, Register, Stack; (i) help per stage/flag; SHO→Mono, LRGB→Default; binning checkbox default off.
+- **Code:** `src/siril/preprocessSettings.js` + builders; scripts stamp `set core.binning_update=…`.
+- **QA:** `qa-preprocess-settings.js` (+ weight/norm/rej permutations) + register/cull smoke.
+- **Dev:** `npm start` (zukoBuild 33). Beta not shipped this turn.
+- **Canvas:** backlog snapshot → 0.3.0 / build 33.
+
+### 2026-08-21 — preprocessing-settings — Siril presets + binning checkbox
+- **UI:** Presets on each Calibrate / Register / Stack confirm (Default · Mono Recommended · Custom); Stack also has binning checkbox + (i) tips. Settings holds the same defaults.
+- **Docs / canvas:** `docs/preprocess-settings.md`; `preprocess-settings-catalog.canvas.tsx`.
+- **QA:** `scripts/qa-preprocess-settings.js` + `staging/preprocess-settings-sample/fixtures.json` (15 cases).
+- **Next:** Try Mono Recommended on a real Aggregate; optional `update_key` XPIXSZ on result from imaging config.
+
 ### 2026-08-20 — explore/asiair-logs — Autorun + PHD2 session logs
 - **Seen:** ASIAIR dump `log/` has Autorun_Log / Plan_Log + PHD2_GuideLog (EN + CHN dupes). Unused by Zuko until now.
 - **Use:** Parse beside Import; soft-warn plate-solve Angle vs Target Framer CAA, planned vs staged lights, filter-change fails, guide quality; archive copies into each shoot’s `session-logs/` + `session-digest.json` on `ingestMeta.sessionLog`.

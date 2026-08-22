@@ -446,7 +446,7 @@
   .settings-btn:hover { filter: brightness(1.08); border-color: var(--accent-soft-border); color: var(--accent2); }
 
   .settings-modal {
-    max-width: 520px;
+    max-width: 560px;
   }
   .settings-section {
     margin-top: 8px;
@@ -513,6 +513,159 @@
     font-size: 10px;
     color: var(--gray);
     margin-top: 4px;
+  }
+  .pp-settings-stage {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg3);
+  }
+  .pp-settings-stage-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pp-settings-stage-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pp-settings-stage select {
+    font-family: var(--mono);
+    font-size: 11px;
+    min-width: 150px;
+  }
+  .pp-settings-custom {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .pp-settings-custom.open { display: block; }
+  .pp-settings-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .pp-settings-field label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    min-width: 110px;
+  }
+  .pp-settings-field select {
+    font-family: var(--mono);
+    font-size: 11px;
+    flex: 1;
+    min-width: 120px;
+  }
+  .info-i-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .info-i-btn:hover {
+    border-color: var(--accent-soft-border);
+    color: var(--accent2);
+    filter: brightness(1.1);
+  }
+  .pipeline-opt-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .pipeline-opt-row input { margin-top: 2px; }
+  .pipeline-opt-row .info-i-btn { margin-left: 6px; vertical-align: middle; }
+  .help-info-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 14000;
+    background: rgba(0, 0, 0, 0.72);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .help-info-overlay.open { display: flex; }
+  .help-info-modal {
+    width: min(480px, 100%);
+    max-height: min(70vh, 560px);
+    overflow: auto;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    color: var(--text);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+  .help-info-modal h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .help-info-modal .help-summary {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.45;
+    margin-bottom: 10px;
+  }
+  .help-info-modal .help-opt {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.45;
+  }
+  .help-info-modal .help-opt strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .help-info-modal .modal-actions { margin-top: 14px; }
+  .pp-job-settings {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .pp-job-settings-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent2);
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pp-job-settings-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    line-height: 1.35;
+    margin: 0 0 8px;
   }
 
   /* Red mode: mute multi-color diagrams / sky embeds so they don't dump green/blue light */
@@ -891,7 +1044,7 @@
   }
   .ingest-session-log {
     margin: 0 0 12px;
-    padding: 10px 12px;
+    padding: 0;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--bg3);
@@ -900,15 +1053,36 @@
     color: var(--text2);
   }
   .ingest-session-log[hidden] { display: none !important; }
+  .ingest-session-log .ssl-details { margin: 0; }
   .ingest-session-log .ssl-title {
+    list-style: none;
+    cursor: pointer;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--gray);
-    margin: 0 0 6px;
+    margin: 0;
+    padding: 10px 12px;
+    user-select: none;
   }
-  .ingest-session-log .ssl-lines { margin: 0; padding-left: 1.1em; }
+  .ingest-session-log .ssl-title::-webkit-details-marker { display: none; }
+  .ingest-session-log .ssl-title::marker { content: ''; }
+  .ingest-session-log .ssl-title::before {
+    content: '▸';
+    display: inline-block;
+    margin-right: 6px;
+    color: var(--gray);
+    transition: transform 0.12s ease;
+  }
+  .ingest-session-log .ssl-details[open] > .ssl-title::before {
+    transform: rotate(90deg);
+  }
+  .ingest-session-log .ssl-body {
+    padding: 0 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .ingest-session-log .ssl-lines { margin: 8px 0 0; padding-left: 1.1em; }
   .ingest-session-log .ssl-lines li { margin: 0 0 2px; }
   .ingest-session-log .ssl-warn {
     margin-top: 8px;
@@ -2021,8 +2195,8 @@
   }
   .pipeline-job-overlay.open { display: flex; }
   .pipeline-job-modal {
-    width: min(520px, 100%);
-    max-height: min(80vh, 640px);
+    width: min(560px, 100%);
+    max-height: min(84vh, 720px);
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -3267,10 +3441,15 @@
   }
   html[data-theme="red"] .modal-btn.primary.danger { color: #1a0505; }
 
+  html {
+    scrollbar-gutter: stable;
+  }
   html.modal-open,
   body.modal-open {
     overflow: hidden !important;
     overscroll-behavior: none;
+    /* Keep layout width stable when the scrollbar is suppressed (pipeline dots stay put). */
+    padding-right: var(--zuko-scrollbar-pad, 0px);
   }
 
   .modal {
@@ -5373,6 +5552,12 @@
     </div>
 
     <div class="settings-section">
+      <h4>Siril preprocessing</h4>
+      <p class="settings-hint">Default presets for Calibrate / Register / Stack. The same controls also appear on each pipeline step’s confirm dialog (pick Default, Mono Recommended, or Custom per stage). Custom unlocks per-flag options with <strong>i</strong> help.</p>
+      <div id="pp-settings-root"></div>
+    </div>
+
+    <div class="settings-section">
       <h4>ASIAIR source</h4>
       <p class="settings-hint">Default folder for Import — usually the ASIAIR unit share or USB dump that contains <code>Autorun</code> / <code>Plan</code> (or is an Autorun itself). Import copies matched frames into each project’s directory.</p>
       <label for="settings-asiair-source">Default source path</label>
@@ -5416,6 +5601,17 @@
     <div class="modal-actions">
       <button type="button" class="modal-btn" data-testid="settings-cancel" onclick="closeSettings()">Cancel</button>
       <button type="button" class="modal-btn primary" data-testid="settings-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="help-info-overlay" id="help-info-overlay" data-testid="help-info-overlay" onclick="if(event.target===this)closeHelpInfo()">
+  <div class="help-info-modal" role="dialog" aria-modal="true" aria-labelledby="help-info-title">
+    <h3 id="help-info-title">—</h3>
+    <div class="help-summary" id="help-info-summary"></div>
+    <div id="help-info-options"></div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn primary" data-testid="help-info-close" onclick="closeHelpInfo()">Close</button>
     </div>
   </div>
 </div>
@@ -5737,7 +5933,7 @@ const STORAGE_KEY = 'zuko-rig-v7';
 let fileHandle = null;
 
 // Keep in sync with package.json version + zukoBuild (Electron overrides via IPC)
-const APP_META_FALLBACK = { version: '0.3.0', build: 29, channel: 'dev' };
+const APP_META_FALLBACK = { version: '0.3.0', build: 33, channel: 'dev' };
 let APP_META = { ...APP_META_FALLBACK };
 
 const HOME_SITE = {
@@ -6413,6 +6609,690 @@ function ensureHomeSite() {
       lon: data.homeSite.lon,
     };
   }
+  ensurePreprocessSettings();
+}
+
+/** Siril preprocess presets (mirrored in src/siril/preprocessSettings.js). */
+const PP_PRESET_OPTIONS = [
+  { value: 'default', label: 'Default' },
+  { value: 'monoRecommended', label: 'Mono Recommended' },
+  { value: 'custom', label: 'Custom' },
+];
+
+const PP_HELP = {
+  sirilSettingsCalibrate: {
+    label: 'Siril settings — Calibration',
+    summary:
+      'Controls how this night’s masters and lights are built in Siril. Pick a preset per stage below, or Custom to edit flags. Changes apply to this run and are saved as your defaults.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'Zuko’s shipped Mono 1.4 scripts: bias/dark rej 3 3 (Winsorized), flats with bias + mul norm, lights calibrated with cosmetic from dark.',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'Same master/calibrate recipe as Default for mono ASIAIR data (Winsorized masters, bias on flats, -cc=dark). Prefer this when your other steps also use Mono Recommended.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Unlock Method / Rejection / Norm / Weight (and Use bias / Cosmetic) for that stage only.',
+      },
+    ],
+  },
+  sirilSettingsRegister: {
+    label: 'Siril settings — Register',
+    summary:
+      'Controls how Aggregate pp_light_* frames are aligned into r_pp_light_*. One preset for this Register run.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'Single-pass register pp_light (no -2pass). Faster; fine for a single night.',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'register -2pass then seqapplyreg — picks a better reference from quality/framing before writing r_pp_light_*. Preferred for multi-night Aggregate.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Turn two-pass on/off explicitly.',
+      },
+    ],
+  },
+  sirilSettingsStack: {
+    label: 'Siril settings — Stack',
+    summary:
+      'Controls how included Aggregate frames are combined into working/result_<Filter>.fit. Sampling (binning update) is the checkbox above — leave it unchecked for ASIAIR Bin2.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'Average + rejection (Winsorized) with additive+scale norm, output_norm, 32-bit — always, regardless of frame count.',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'If N < 20 included frames → median stack; if N ≥ 20 → Winsorized rejection stack with addscale. Matches typical mono deep-sky practice.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Pick method, rejection, normalization, and optional frame weights yourself.',
+      },
+    ],
+  },
+  stageBias: {
+    label: 'Master bias / dark',
+    summary:
+      'How Zuko stacks the bias (dark-flat) and dark masters for this night. Same stack flags are used for both masters (nonorm).',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'rej 3 3 (Winsorized) with -nonorm → masters/bias_stacked and masters/dark_stacked.',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'Same as Default: average + Winsorized rejection, no normalization — standard for mono bias/dark masters.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Change method, rejection type, σ low/high, or weighting for the master stacks.',
+      },
+    ],
+  },
+  stageFlat: {
+    label: 'Master flat',
+    summary:
+      'Calibrate flats (usually against the master bias), then stack into masters/pp_flat_stacked. Multiplicative normalization is the usual flat recipe.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'calibrate flat -bias=… then stack pp_flat rej 3 3 -norm=mul.',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'Same as Default: use bias, Winsorized rejection, multiplicative norm — your preferred mono flat path.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Toggle Use bias, or change stack method / rejection / norm / weight.',
+      },
+    ],
+  },
+  stageCalibrate: {
+    label: 'Calibrate lights',
+    summary:
+      'Applies master dark + flat to each light. Cosmetic correction can pull hot/cold pixels from the master dark (-cc=dark).',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'calibrate light -dark=… -flat=… -cc=dark (cosmetic on).',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'Same as Default for mono: cosmetic from dark on. CFA/debayer stay off (mono pipeline).',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Turn cosmetic correction on or off.',
+      },
+    ],
+  },
+  stageRegister: {
+    label: 'Register',
+    summary:
+      'Star-aligns Aggregate/pp_light_* and writes r_pp_light_*. Two-pass registration finds a better reference before applying transforms.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'register pp_light only (one pass).',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'register pp_light -2pass + seqapplyreg pp_light — recommended for multi-night Aggregate.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Choose two-pass on/off.',
+      },
+    ],
+  },
+  stageStack: {
+    label: 'Stack',
+    summary:
+      'Combines included Aggregate frames (after Cull) into the final filter stack. Rejection stacking needs enough frames to estimate outliers well.',
+    options: [
+      {
+        value: 'default',
+        label: 'Default',
+        when: 'Always rej 3 3 -norm=addscale -output_norm -32b (Winsorized by Siril default).',
+      },
+      {
+        value: 'monoRecommended',
+        label: 'Mono Recommended',
+        when: 'N < 20 → median; N ≥ 20 → Winsorized rejection + addscale. Weighting stays none unless you switch to Custom.',
+      },
+      {
+        value: 'custom',
+        label: 'Custom',
+        when: 'Full control of method, rejection, norm, and weight.',
+      },
+    ],
+  },
+  twoPass: {
+    label: 'Two-pass registration',
+    summary:
+      'Siril register -2pass computes transforms and picks a reference from image quality and framing, but does not write aligned frames yet. seqapplyreg then applies those transforms to produce r_pp_light_*. Without two-pass, register writes aligned frames in one step using the first suitable reference.',
+    options: [
+      {
+        value: 'false',
+        label: 'Off',
+        when: 'Default preset. Faster; OK for a single clean night.',
+      },
+      {
+        value: 'true',
+        label: 'On',
+        when: 'Mono Recommended. Prefer for multi-night Aggregate or when framing drifts between nights.',
+      },
+    ],
+  },
+  rejection: {
+    label: 'Rejection type',
+    summary:
+      'Used with average (rej) stacking. Siril estimates a robust mean after clipping outliers (satellites, planes, hot pixels). If the type token is omitted, Siril defaults to Winsorized. σ low / σ high are in units of that estimator’s sigma (Zuko uses 3 / 3 unless Custom changes them).',
+    options: [
+      {
+        value: 'winsorized',
+        label: 'Winsorized',
+        when: 'Soft-clips extreme values then re-estimates σ. Mono Recommended for light stacks when N ≥ 20; also Default/Mono for masters.',
+      },
+      {
+        value: 'median',
+        label: 'Median sigma',
+        when: 'More aggressive / robust on small sets; can soften fine detail. Mono Recommended uses full median stacking (method=med) when N < 20 instead of this clipper.',
+      },
+      {
+        value: 'sigma',
+        label: 'Sigma',
+        when: 'Classic iterative sigma clip. Fine on clean data; less robust than Winsorized on heavy outliers.',
+      },
+      {
+        value: 'none',
+        label: 'None',
+        when: 'No outlier rejection — only if frames are already pristine or you intentionally want every pixel.',
+      },
+    ],
+  },
+  stackMethod: {
+    label: 'Stack method',
+    summary:
+      'How Siril combines pixels across the sequence. Rejection (mean) stacking is the usual deep-sky choice; median is safer when few frames remain after cull.',
+    options: [
+      {
+        value: 'rej',
+        label: 'Average + rejection',
+        when: 'Default and Mono Recommended (when N ≥ 20). Best SNR once you have enough frames to reject outliers.',
+      },
+      {
+        value: 'med',
+        label: 'Median',
+        when: 'Mono Recommended when N < 20. Very robust to outliers but softer / lower SNR than a large rejection stack.',
+      },
+      {
+        value: 'sum',
+        label: 'Sum',
+        when: 'Adds ADU without rejection. Rare for final deep-sky stacks; mostly special cases.',
+      },
+    ],
+  },
+  norm: {
+    label: 'Normalization',
+    summary:
+      'Matches frame levels before combining so sky background and scale differences do not bias the stack. Siril computes location/scale estimators per frame (IKSS by default).',
+    options: [
+      {
+        value: 'none',
+        label: 'None (-nonorm)',
+        when: 'Bias and dark masters (Default / Mono Recommended). Do not rescale calibration masters.',
+      },
+      {
+        value: 'mul',
+        label: 'Multiplicative',
+        when: 'Master flats (Default / Mono Recommended). Scales flats to a common multiplicative level after bias.',
+      },
+      {
+        value: 'addscale',
+        label: 'Additive + scale',
+        when: 'Light stacks (Default / Mono Recommended). Additive offset plus scale — Siril’s usual light-stack choice.',
+      },
+      {
+        value: 'add',
+        label: 'Additive',
+        when: 'Additive background match only (no scale). Use if you intentionally want that variant.',
+      },
+    ],
+  },
+  weight: {
+    label: 'Frame weighting',
+    summary:
+      'Optional per-frame weights during rejection (mean) stacking. Better frames pull the result more; worse frames still contribute but less. Weights need registration metrics (except noise). Mono Recommended and Default leave this on None — cull bad frames in Cull instead of heavily weighting.',
+    options: [
+      {
+        value: 'none',
+        label: 'None',
+        when: 'Default / Mono Recommended. Equal contribution after rejection; safest unless you curated quality.',
+      },
+      {
+        value: 'noise',
+        label: 'Noise',
+        when:
+          'Weights by background noise: lower-noise frames get higher weight. Useful when sky transparency or read noise varies night-to-night. Does not require star registration metrics.',
+      },
+      {
+        value: 'wfwhm',
+        label: 'wFWHM',
+        when:
+          'Weighted FWHM from registration: FWHM improved by star count — for the same FWHM, more stars ⇒ better (smaller) wFWHM. Siril maps 1/wFWHM² into normalized weights so sharper, richer frames dominate. Needs register data on the sequence.',
+      },
+      {
+        value: 'nbstars',
+        label: 'Star count',
+        when:
+          'Weights by number of stars detected at registration. Frames with more stars (often better transparency / tracking) contribute more. Needs register data.',
+      },
+    ],
+  },
+  cosmetic: {
+    label: 'Cosmetic correction',
+    summary:
+      'During light calibration, Siril can replace hot/cold pixels using the master dark (-cc=dark), estimating outliers from that dark. Reduces pepper noise before register/stack.',
+    options: [
+      {
+        value: 'on',
+        label: 'On (from dark)',
+        when: 'Default / Mono Recommended for mono with a good master dark.',
+      },
+      {
+        value: 'off',
+        label: 'Off',
+        when: 'Already cleaned data, or no usable dark for cosmetics.',
+      },
+    ],
+  },
+  useBias: {
+    label: 'Use master bias on flats',
+    summary:
+      'Runs calibrate flat -bias=masters/bias_stacked before stacking the master flat. Removes the bias/dark-flat pedestal so flat ratios are correct.',
+    options: [
+      {
+        value: 'true',
+        label: 'On',
+        when: 'Default / Mono Recommended for the normal ASIAIR bias → flat workflow.',
+      },
+      {
+        value: 'false',
+        label: 'Off',
+        when: 'Only if flats are already bias-corrected.',
+      },
+    ],
+  },
+  binningUpdate: {
+    label: 'Update pixel size of binned images',
+    summary:
+      'Siril core.binning_update (“real pixel size”). Checked → multiply FITS XPIXSZ by XBINNING. Unchecked → header µm already includes binning. ASIAIR Bin2 usually writes effective µm — leave unchecked so plate solving on r_pp_light_* and result_*.fit stays correct.',
+    options: [
+      {
+        value: 'unchecked',
+        label: 'Unchecked (default)',
+        when: 'ASIAIR / software that already wrote binned µm — Mono Recommended sampling choice.',
+      },
+      {
+        value: 'checked',
+        label: 'Checked',
+        when: 'Acquisition wrote physical (unbinned) µm plus a separate binning keyword.',
+      },
+    ],
+  },
+};
+
+function defaultPreprocessSettingsUi() {
+  return {
+    bias: {
+      preset: 'default',
+      custom: { method: 'rej', rejection: 'winsorized', sigmaLow: 3, sigmaHigh: 3, norm: 'none', weight: 'none' },
+    },
+    flat: {
+      preset: 'default',
+      custom: { useBias: true, method: 'rej', rejection: 'winsorized', sigmaLow: 3, sigmaHigh: 3, norm: 'mul', weight: 'none' },
+    },
+    calibrate: {
+      preset: 'default',
+      custom: { cosmetic: true, cosmeticFrom: 'dark', equalizeCfa: false, debayer: false },
+    },
+    register: { preset: 'default', custom: { twoPass: false } },
+    stack: {
+      preset: 'default',
+      custom: {
+        method: 'rej',
+        rejection: 'winsorized',
+        sigmaLow: 3,
+        sigmaHigh: 3,
+        norm: 'addscale',
+        weight: 'none',
+        outputNorm: true,
+        bits32: true,
+        winsorizedWhenNAtLeast: null,
+        winsorizedMinFrames: 20,
+        rejectionBelowThreshold: 'median',
+      },
+    },
+    binningUpdate: false,
+  };
+}
+
+function ensurePreprocessSettings() {
+  const base = defaultPreprocessSettingsUi();
+  const raw = data.preprocessSettings && typeof data.preprocessSettings === 'object' ? data.preprocessSettings : {};
+  const out = { ...base, ...raw, binningUpdate: typeof raw.binningUpdate === 'boolean' ? raw.binningUpdate : false };
+  for (const stage of ['bias', 'flat', 'calibrate', 'register', 'stack']) {
+    const src = raw[stage] || {};
+    const preset = ['default', 'monoRecommended', 'custom'].includes(src.preset) ? src.preset : 'default';
+    out[stage] = {
+      preset,
+      custom: { ...base[stage].custom, ...(src.custom && typeof src.custom === 'object' ? src.custom : {}) },
+    };
+  }
+  data.preprocessSettings = out;
+  return out;
+}
+
+function getPreprocessSettingsForJobs() {
+  return ensurePreprocessSettings();
+}
+
+function infoIButton(helpKey, opts = {}) {
+  const key = String(helpKey || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const testid = opts.testid || `help-i-${key}`;
+  // Use single-quoted attribute so JSON/double quotes in the handler never break HTML.
+  return (
+    `<button type="button" class="info-i-btn" data-testid="${escapeHtml(testid)}" title="More info" ` +
+    `onclick='event.preventDefault();event.stopPropagation();openHelpInfo(${JSON.stringify(key)});'>i</button>`
+  );
+}
+
+/** Inline (i) with a one-off title/summary (Stack dialog tips). */
+function infoIButtonInline(id, label, summary) {
+  const safeId = String(id || 'tip').replace(/[^a-zA-Z0-9_-]/g, '');
+  // Stash copy on the button dataset via a tiny registry so we don't embed long text in HTML attrs.
+  if (!window._zukoHelpInline) window._zukoHelpInline = {};
+  window._zukoHelpInline[safeId] = { label: String(label || ''), summary: String(summary || ''), options: [] };
+  return (
+    `<button type="button" class="info-i-btn" data-testid="help-i-${escapeHtml(safeId)}" title="More info" ` +
+    `onclick='event.preventDefault();event.stopPropagation();openHelpInfo(${JSON.stringify(safeId)});'>i</button>`
+  );
+}
+
+function openHelpInfo(helpKey) {
+  const key = String(helpKey || '');
+  const entry = (PP_HELP && PP_HELP[key])
+    || (window._zukoHelpInline && window._zukoHelpInline[key])
+    || null;
+  const overlay = document.getElementById('help-info-overlay');
+  if (!overlay || !entry) return;
+  document.getElementById('help-info-title').textContent = entry.label || key;
+  document.getElementById('help-info-summary').textContent = entry.summary || '';
+  const optsEl = document.getElementById('help-info-options');
+  if (optsEl) {
+    optsEl.innerHTML = (entry.options || [])
+      .map(
+        (o) =>
+          `<div class="help-opt"><strong>${escapeHtml(o.label)}</strong>${escapeHtml(o.when || '')}</div>`
+      )
+      .join('');
+  }
+  overlay.classList.add('open');
+  syncBodyScrollLock();
+}
+
+function closeHelpInfo() {
+  const overlay = document.getElementById('help-info-overlay');
+  if (overlay) overlay.classList.remove('open');
+  syncBodyScrollLock();
+}
+
+function ppSelectHtml(id, value, options, testid) {
+  const opts = options
+    .map((o) => {
+      const v = typeof o === 'string' ? o : o.value;
+      const lab = typeof o === 'string' ? o : o.label;
+      return `<option value="${escapeHtml(v)}"${String(v) === String(value) ? ' selected' : ''}>${escapeHtml(lab)}</option>`;
+    })
+    .join('');
+  return `<select id="${escapeHtml(id)}" data-testid="${escapeHtml(testid || id)}">${opts}</select>`;
+}
+
+function renderPreprocessSettingsForm() {
+  const root = document.getElementById('pp-settings-root');
+  if (!root) return;
+  const stages = [
+    { key: 'bias', title: 'Master bias / dark', customKind: 'stack' },
+    { key: 'flat', title: 'Master flat', customKind: 'flat' },
+    { key: 'calibrate', title: 'Calibrate lights', customKind: 'calibrate' },
+    { key: 'register', title: 'Register', customKind: 'register' },
+    { key: 'stack', title: 'Stack', customKind: 'stackLights' },
+  ];
+  root.innerHTML = stages.map((st) => ppStageCardHtml(st, 'pp')).join('');
+  bindPpStagePresetHandlers(stages.map((s) => s.key), 'pp');
+}
+
+const PP_STAGE_META = {
+  bias: { title: 'Master bias / dark', customKind: 'stack', helpKey: 'stageBias' },
+  flat: { title: 'Master flat', customKind: 'flat', helpKey: 'stageFlat' },
+  calibrate: { title: 'Calibrate lights', customKind: 'calibrate', helpKey: 'stageCalibrate' },
+  register: { title: 'Register', customKind: 'register', helpKey: 'stageRegister' },
+  stack: { title: 'Stack', customKind: 'stackLights', helpKey: 'stageStack' },
+};
+
+/** Stage cards for Settings (prefix pp) or a job confirm dialog (prefix pp-job). */
+function ppStageCardHtml(st, idPrefix) {
+  const s = ensurePreprocessSettings();
+  const meta = typeof st === 'string' ? { key: st, ...PP_STAGE_META[st] } : st;
+  const block = s[meta.key] || { preset: 'default', custom: {} };
+  const customOpen = block.preset === 'custom' ? ' open' : '';
+  const p = idPrefix || 'pp';
+  const stageHelp = meta.helpKey || 'stageBias';
+  return `<div class="pp-settings-stage" data-stage="${meta.key}">
+    <div class="pp-settings-stage-head">
+      <div class="pp-settings-stage-title">${escapeHtml(meta.title)} ${infoIButton(stageHelp)}</div>
+      ${ppSelectHtml(`${p}-preset-${meta.key}`, block.preset, PP_PRESET_OPTIONS, `${p}-preset-${meta.key}`)}
+    </div>
+    <div class="pp-settings-custom${customOpen}" id="${p}-custom-${meta.key}">
+      ${renderPpCustomFields(meta.key, meta.customKind, block.custom, p)}
+    </div>
+  </div>`;
+}
+
+function ppJobStageControlsHtml(stageKeys, filterName) {
+  const keys = (stageKeys || []).filter((k) => PP_STAGE_META[k]);
+  if (!keys.length) return '';
+  applySuggestedPpPresetsForFilter(filterName, keys);
+  let headerHelp = 'sirilSettingsCalibrate';
+  if (keys.length === 1 && keys[0] === 'register') headerHelp = 'sirilSettingsRegister';
+  else if (keys.length === 1 && keys[0] === 'stack') headerHelp = 'sirilSettingsStack';
+  else if (keys.includes('bias') || keys.includes('flat') || keys.includes('calibrate')) {
+    headerHelp = 'sirilSettingsCalibrate';
+  }
+  return `<div class="pp-job-settings" id="pp-job-settings">
+    <div class="pp-job-settings-title">Siril settings ${infoIButton(headerHelp)}</div>
+    <div class="pp-job-settings-note">No LRGB Recommended preset yet — LRGB uses Default for now.</div>
+    ${keys.map((k) => ppStageCardHtml(k, 'pp-job')).join('')}
+  </div>`;
+}
+
+/** SHO / Hβ → Mono Recommended; LRGB → Default. Leaves Custom alone. */
+function suggestedPpPresetForFilter(filterName) {
+  const tone = filterToneKey(filterName);
+  if (tone === 'ha' || tone === 'oiii' || tone === 'sii' || tone === 'hb') return 'monoRecommended';
+  if (tone === 'l' || tone === 'r' || tone === 'g' || tone === 'b') return 'default';
+  return 'default';
+}
+
+function applySuggestedPpPresetsForFilter(filterName, stageKeys) {
+  if (!filterName) return;
+  const suggested = suggestedPpPresetForFilter(filterName);
+  const s = ensurePreprocessSettings();
+  let changed = false;
+  for (const key of stageKeys || []) {
+    if (!s[key] || !PP_STAGE_META[key]) continue;
+    if (s[key].preset === 'custom') continue;
+    if (s[key].preset !== suggested) {
+      s[key].preset = suggested;
+      changed = true;
+    }
+  }
+  if (changed) data.preprocessSettings = s;
+}
+
+function bindPpStagePresetHandlers(stageKeys, idPrefix) {
+  const p = idPrefix || 'pp';
+  for (const key of stageKeys || []) {
+    const sel = document.getElementById(`${p}-preset-${key}`);
+    if (!sel) continue;
+    sel.onchange = () => {
+      const custom = document.getElementById(`${p}-custom-${key}`);
+      if (custom) custom.classList.toggle('open', sel.value === 'custom');
+    };
+  }
+}
+
+function renderPpCustomFields(stage, kind, custom, idPrefix) {
+  const c = custom || {};
+  const p = idPrefix || 'pp';
+  if (kind === 'register') {
+    return `<div class="pp-settings-field">
+      <label>Two-pass ${infoIButton('twoPass')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-twoPass`, c.twoPass ? 'true' : 'false', [
+        { value: 'false', label: 'Off' },
+        { value: 'true', label: 'On' },
+      ])}
+    </div>`;
+  }
+  if (kind === 'calibrate') {
+    return `<div class="pp-settings-field">
+      <label>Cosmetic ${infoIButton('cosmetic')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-cosmetic`, c.cosmetic === false ? 'false' : 'true', [
+        { value: 'true', label: 'On (from dark)' },
+        { value: 'false', label: 'Off' },
+      ])}
+    </div>`;
+  }
+  if (kind === 'flat') {
+    return `${renderPpStackCustomFields(stage, c, p)}
+    <div class="pp-settings-field">
+      <label>Use bias ${infoIButton('useBias')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-useBias`, c.useBias === false ? 'false' : 'true', [
+        { value: 'true', label: 'On' },
+        { value: 'false', label: 'Off' },
+      ])}
+    </div>`;
+  }
+  return renderPpStackCustomFields(stage, c, p);
+}
+
+function renderPpStackCustomFields(stage, c, idPrefix) {
+  const p = idPrefix || 'pp';
+  return `<div class="pp-settings-field">
+      <label>Method ${infoIButton('stackMethod')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-method`, c.method || 'rej', [
+        { value: 'rej', label: 'Average + rejection' },
+        { value: 'med', label: 'Median' },
+        { value: 'sum', label: 'Sum' },
+      ])}
+    </div>
+    <div class="pp-settings-field">
+      <label>Rejection ${infoIButton('rejection')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-rejection`, c.rejection || 'winsorized', [
+        { value: 'winsorized', label: 'Winsorized' },
+        { value: 'median', label: 'Median sigma' },
+        { value: 'sigma', label: 'Sigma' },
+        { value: 'none', label: 'None' },
+      ])}
+    </div>
+    <div class="pp-settings-field">
+      <label>Norm ${infoIButton('norm')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-norm`, c.norm || 'none', [
+        { value: 'none', label: 'None' },
+        { value: 'mul', label: 'Multiplicative' },
+        { value: 'addscale', label: 'Additive + scale' },
+        { value: 'add', label: 'Additive' },
+      ])}
+    </div>
+    <div class="pp-settings-field">
+      <label>Weight ${infoIButton('weight')}</label>
+      ${ppSelectHtml(`${p}-custom-${stage}-weight`, c.weight || 'none', [
+        { value: 'none', label: 'None' },
+        { value: 'noise', label: 'Noise' },
+        { value: 'wfwhm', label: 'wFWHM' },
+        { value: 'nbstars', label: 'Star count' },
+      ])}
+    </div>`;
+}
+
+function readPreprocessSettingsFromForm(idPrefix) {
+  const p = idPrefix || 'pp';
+  const out = ensurePreprocessSettings();
+  for (const stage of ['bias', 'flat', 'calibrate', 'register', 'stack']) {
+    const presetEl = document.getElementById(`${p}-preset-${stage}`);
+    if (!presetEl) continue;
+    const preset = ['default', 'monoRecommended', 'custom'].includes(presetEl.value)
+      ? presetEl.value
+      : out[stage].preset;
+    const custom = { ...out[stage].custom };
+    const get = (suffix) => {
+      const el = document.getElementById(`${p}-custom-${stage}-${suffix}`);
+      return el ? el.value : null;
+    };
+    if (stage === 'register') {
+      const v = get('twoPass');
+      if (v != null) custom.twoPass = v === 'true';
+    } else if (stage === 'calibrate') {
+      const v = get('cosmetic');
+      if (v != null) custom.cosmetic = v === 'true';
+    } else {
+      const method = get('method');
+      const rejection = get('rejection');
+      const norm = get('norm');
+      const weight = get('weight');
+      if (method) custom.method = method;
+      if (rejection) custom.rejection = rejection;
+      if (norm) custom.norm = norm;
+      if (weight) custom.weight = weight;
+      if (stage === 'flat') {
+        const ub = get('useBias');
+        if (ub != null) custom.useBias = ub === 'true';
+      }
+    }
+    out[stage] = { preset, custom };
+  }
+  data.preprocessSettings = out;
+  return out;
 }
 
 function normalizeFilterHex(hex, fallback) {
@@ -15416,14 +16296,19 @@ function closePipelineJobConfirm() {
   syncBodyScrollLock();
 }
 
-function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, startLabel }) {
+function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, startLabel, ppStages }) {
   _pipelineJobPending = pending || null;
+  if (_pipelineJobPending && ppStages) _pipelineJobPending.ppStages = ppStages;
   const overlay = document.getElementById('pipeline-job-overlay');
   if (!overlay) return;
   document.getElementById('pipeline-job-title').textContent = title || 'Run job';
   document.getElementById('pipeline-job-sub').textContent = sub || '';
   document.getElementById('pipeline-job-body').innerHTML = bodyHtml || '';
-  document.getElementById('pipeline-job-notes').innerHTML = notesHtml || '';
+  const notesEl = document.getElementById('pipeline-job-notes');
+  if (notesEl) {
+    notesEl.innerHTML = notesHtml || '';
+    notesEl.style.display = notesHtml && String(notesHtml).trim() ? '' : 'none';
+  }
   const startBtn = document.getElementById('pipeline-job-start');
   if (startBtn) {
     if (startLabel) {
@@ -15440,14 +16325,26 @@ function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, star
   }
   overlay.classList.add('open');
   syncBodyScrollLock();
+  if (ppStages && ppStages.length) {
+    // Bind after DOM insert so Custom expands correctly on this dialog.
+    setTimeout(() => bindPpStagePresetHandlers(ppStages, 'pp-job'), 0);
+  }
 }
 
 function confirmPipelineJobStart() {
   const pending = _pipelineJobPending;
   let stackReregister = false;
+  let stackBinningUpdate = false;
+  if (pending && pending.ppStages && pending.ppStages.length) {
+    readPreprocessSettingsFromForm('pp-job');
+    if (typeof save === 'function') save();
+  }
   if (pending && pending.kind === 'stack') {
     const cb = document.getElementById('stack-reregister-cb');
     stackReregister = !!(cb && cb.checked);
+    const binCb = document.getElementById('stack-binning-update-cb');
+    stackBinningUpdate = !!(binCb && binCb.checked);
+    ensurePreprocessSettings().binningUpdate = stackBinningUpdate;
   }
   if (pending && pending.kind === 'remove-shoot') {
     const cb = document.getElementById('remove-night-delete-cb');
@@ -15464,7 +16361,10 @@ function confirmPipelineJobStart() {
     return;
   }
   if (pending.kind === 'stack') {
-    runStackFilterTone(pending.pi, pending.tone, { reregister: stackReregister });
+    runStackFilterTone(pending.pi, pending.tone, {
+      reregister: stackReregister,
+      binningUpdate: stackBinningUpdate,
+    });
     return;
   }
   if (pending.kind === 'cleanup-shoot') {
@@ -15967,45 +16867,18 @@ function openCalibrateConfirm(pi, si) {
     ${pipelineJobRow('Integration', stats.actualHtml + ' / ' + stats.targetHtml)}
     ${pipelineJobRow('Folder', folderPathLink(shootDir))}
     ${rerun ? pipelineJobRow('Last run', escapeHtml(calAt || 'calibrated')) : ''}
-    ${(() => {
-      const d = sh.ingestMeta && sh.ingestMeta.sessionLog;
-      if (!d || !d.guide) return '';
-      const g = d.guide;
-      return pipelineJobRow(
-        'Guide (session log)',
-        escapeHtml(
-          `${g.quality}${g.rmsTotalArcsec != null ? ` · RMS ${g.rmsTotalArcsec}″` : ''}`
-          + (g.starLost ? ` · ${g.starLost} lost` : '')
-        )
-      );
-    })()}
-  </div>`;
-  const clearWarn = clearBits.length
-    ? `<div style="margin-top:6px;" class="warn">Re-running clears <strong>${escapeHtml(clearBits.join(' and '))}</strong> for the whole ${escapeHtml((ft && ft.filter) || 'filter')} channel.</div>`
+  </div>
+  ${ppJobStageControlsHtml(['bias', 'flat', 'calibrate'], ft && ft.filter)}`;
+  const notesHtml = clearBits.length
+    ? `<div class="warn">Re-running clears <strong>${escapeHtml(clearBits.join(' and '))}</strong> for the whole ${escapeHtml((ft && ft.filter) || 'filter')} channel.</div>`
     : '';
-  const guideTip = (() => {
-    const d = sh.ingestMeta && sh.ingestMeta.sessionLog;
-    if (!d || !d.guide) return '';
-    if (d.guide.quality === 'poor') {
-      return `<div style="margin-top:6px;" class="warn">Session guide quality was <strong>poor</strong> — expect more frames to cull after register.</div>`;
-    }
-    if (d.guide.quality === 'fair') {
-      return `<div style="margin-top:6px;">Guide quality was fair — watch Plot during Cull.</div>`;
-    }
-    return '';
-  })();
-  const notesHtml = `
-    <div><strong>Siril</strong> will calibrate lights in this night’s folder → <code>process/pp_light_*.fit</code>.</div>
-    ${clearWarn}
-    ${guideTip}
-    <div style="margin-top:6px;">Needs a working <code>siril-cli</code> and Dark Library matches staged at Import.</div>
-  `;
   openPipelineJobConfirm({
     title: rerun ? 'Re-run Calibration' : 'Start Calibration',
     sub: `${project.name || 'Project'} · ${code}`,
     bodyHtml,
     notesHtml,
     pending: { kind: 'calibrate', pi, si, rerun },
+    ppStages: ['bias', 'flat', 'calibrate'],
   });
 }
 
@@ -16064,10 +16937,10 @@ function openRegisterConfirm(pi, nameOrTone) {
   <div style="margin-top:10px;">
     <div class="k" style="margin-bottom:4px;color:var(--gray);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.04em;">Nights included</div>
     <ul class="pipeline-job-list">${nightLis}</ul>
-  </div>`;
+  </div>
+  ${ppJobStageControlsHtml(['register'], filter)}`;
   const notesHtml = `
     <div>Aggregates each night’s <code>process/pp_light_*.fit</code> into <code>${escapeHtml(filter)}/Aggregate/</code>, then Siril <strong>register</strong> → <code>r_pp_light_*</code>.</div>
-    <div style="margin-top:6px;">Then cull <code>r_pp_light</code> in Siril (Plot works), scan &amp; apply in <strong>Cull</strong>, then <strong>Stack</strong>.</div>
     ${clearBits.length
       ? `<div style="margin-top:6px;" class="warn">Re-register rebuilds Aggregate/ and clears <strong>${escapeHtml(clearBits.join(' and '))}</strong>.</div>`
       : ''}
@@ -16078,6 +16951,7 @@ function openRegisterConfirm(pi, nameOrTone) {
     bodyHtml,
     notesHtml,
     pending: { kind: 'register', pi, tone: group.tone, rerun },
+    ppStages: ['register'],
   });
 }
 
@@ -16119,21 +16993,29 @@ function openStackConfirm(pi, nameOrTone) {
     ${pipelineJobRow('Working', folderPathLink(outFolder))}
     ${rerun && f.stackMeta && f.stackMeta.stackedAt ? pipelineJobRow('Last run', escapeHtml(String(f.stackMeta.stackedAt))) : ''}
   </div>
-  <label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:12px;color:var(--text2);cursor:pointer;">
-    <input type="checkbox" id="stack-reregister-cb" style="margin-top:2px;">
-    <span><strong style="color:var(--text);">Re-register before stacking</strong> — re-align only the included frames, then stack (slower; default off).</span>
-  </label>`;
-  const notesHtml = `
-    <div><strong>Siril</strong> stacks included <code>r_pp_light_*</code> from <code>Aggregate/</code> → <code>working/result_${escapeHtml(filter)}.fit</code>.</div>
-    <div style="margin-top:6px;">Excluded frames come from the saved cull scan (<code>culled.txt</code>).</div>
-    ${rerun ? '<div style="margin-top:6px;" class="warn">This replaces the existing stack result.</div>' : ''}
-  `;
+  <label class="pipeline-opt-row">
+    <input type="checkbox" id="stack-reregister-cb">
+    <span><strong style="color:var(--text);">Re-register before stacking</strong>${infoIButtonInline(
+      'stackReregister',
+      'Re-register before stacking',
+      'Re-align only the included frames from the cull set, then stack (slower; default off). Use when Aggregate registration looks soft or you culled heavily and want a fresh align on survivors only.'
+    )}</span>
+  </label>
+  <label class="pipeline-opt-row">
+    <input type="checkbox" id="stack-binning-update-cb"${ensurePreprocessSettings().binningUpdate ? ' checked' : ''}>
+    <span><strong style="color:var(--text);">Update pixel size of binned images</strong>${infoIButton('binningUpdate')}</span>
+  </label>
+  ${ppJobStageControlsHtml(['stack'], filter)}`;
+  const notesHtml = rerun
+    ? `<div class="warn">This replaces the existing stack result.</div>`
+    : '';
   openPipelineJobConfirm({
     title: rerun ? 'Re-run Stack' : 'Start Stack',
     sub: `${project.name || 'Project'} · ${filter}`,
     bodyHtml,
     notesHtml,
     pending: { kind: 'stack', pi, tone: group.tone, rerun },
+    ppStages: ['stack'],
   });
 }
 
@@ -16167,7 +17049,11 @@ async function runPreprocessShoot(pi, si) {
     title: `Calibration · ${buildShootCode(sh, project.filterTargets[sh.filterIndex])}`,
     logPath,
     kind: 'calibrate',
-    startJob: () => window.zukoSiril.calibrate({ shootDir }),
+    startJob: () => window.zukoSiril.calibrate({
+      shootDir,
+      settings: getPreprocessSettingsForJobs(),
+      binningUpdate: !!getPreprocessSettingsForJobs().binningUpdate,
+    }),
   });
 
   if (!result || !result.ok) {
@@ -16265,6 +17151,9 @@ async function runRegisterFilterTone(pi, nameOrTone) {
       projectDir: project.projectDir,
       filter,
       shootDirs,
+      settings: getPreprocessSettingsForJobs(),
+      // Registered lights need correct sampling for plate solve — same default as Stack (unchecked).
+      binningUpdate: !!getPreprocessSettingsForJobs().binningUpdate,
     }),
   });
 
@@ -16293,6 +17182,8 @@ async function runRegisterFilterTone(pi, nameOrTone) {
     rPpLightCount: result.rPpLightCount,
     logPath: result.logPath || logPath,
     scriptPath: result.scriptPath,
+    binningUpdate: typeof result.binningUpdate === 'boolean' ? result.binningUpdate : undefined,
+    settingsPreset: result.settingsPreset || undefined,
   };
   group.fis.forEach((fi) => {
     if (project.filterTargets[fi]) {
@@ -16336,6 +17227,9 @@ async function runStackFilterTone(pi, nameOrTone, opts = {}) {
 
   const filter = String(group.name || '');
   const reregister = !!(opts && opts.reregister);
+  const binningUpdate = opts && typeof opts.binningUpdate === 'boolean'
+    ? opts.binningUpdate
+    : !!getPreprocessSettingsForJobs().binningUpdate;
   const logPath = pathJoinWin(project.projectDir, filter, '_stack', 'scripts', 'stack.log');
   const step = document.getElementById(`stack-step-${pi}-${group.tone}`);
   const stepLabel = step && step.querySelector('.pipeline-step-label');
@@ -16354,6 +17248,8 @@ async function runStackFilterTone(pi, nameOrTone, opts = {}) {
       projectDir: project.projectDir,
       filter,
       reregister,
+      settings: getPreprocessSettingsForJobs(),
+      binningUpdate,
     }),
   });
 
@@ -16375,6 +17271,8 @@ async function runStackFilterTone(pi, nameOrTone, opts = {}) {
     workingDir: result.workingDir || pathJoinWin(project.projectDir, 'working'),
     aggregateDir: result.aggregateDir || resolveFilterAggregateDir(project, group),
     reregister: !!result.reregister,
+    binningUpdate: typeof result.binningUpdate === 'boolean' ? result.binningUpdate : undefined,
+    settingsPreset: result.settingsPreset || undefined,
   };
   if (stackMeta.workingDir) _workingDirExistsCache.set(String(stackMeta.workingDir), true);
   group.fis.forEach((fi) => {
@@ -16718,19 +17616,23 @@ function renderIngestSessionLogPanel(scan) {
       lines.push('Autorun paused / stopped manually');
     }
   }
+  const isGuideDup = (text) => /^Guide quality\b/i.test(String(text || ''));
   for (const tip of (sl && sl.insights) || []) {
-    if (tip && !lines.some((l) => l.includes(escapeHtml(String(tip).slice(0, 24))))) {
-      lines.push(escapeHtml(String(tip)));
-    }
+    if (!tip || isGuideDup(tip)) continue;
+    const esc = escapeHtml(String(tip));
+    if (!lines.some((l) => l.includes(esc.slice(0, 24)))) lines.push(esc);
   }
-  const warns = (sl && sl.softWarnings) || [];
+  const warns = ((sl && sl.softWarnings) || []).filter((w) => !isGuideDup(w));
   el.hidden = false;
   el.innerHTML =
-    `<div class="ssl-title">Session log · ASIAIR Autorun / PHD2</div>`
+    `<details class="ssl-details">`
+    + `<summary class="ssl-title">Session log · ASIAIR Autorun / PHD2</summary>`
+    + `<div class="ssl-body">`
     + (lines.length ? `<ul class="ssl-lines">${lines.map((l) => `<li>${l}</li>`).join('')}</ul>` : '')
     + (warns.length
       ? `<div class="ssl-warn">${warns.map((w) => escapeHtml(String(w))).join('<br>')}</div>`
-      : '');
+      : '')
+    + `</div></details>`;
 }
 
 function sessionLogBadgeHtml(digest) {
@@ -18182,18 +19084,27 @@ const MODAL_OPEN_SELECTOR = [
   '.pipeline-job-overlay.open',
   '.session-log-overlay.open',
   '.app-dialog-overlay.open',
+  '.help-info-overlay.open',
 ].join(', ');
 
 function syncBodyScrollLock() {
   const open = !!document.querySelector(MODAL_OPEN_SELECTOR);
-  document.documentElement.classList.toggle('modal-open', open);
+  const root = document.documentElement;
+  if (open && !root.classList.contains('modal-open')) {
+    const pad = Math.max(0, window.innerWidth - root.clientWidth);
+    root.style.setProperty('--zuko-scrollbar-pad', pad ? `${pad}px` : '0px');
+  }
+  if (!open) {
+    root.style.setProperty('--zuko-scrollbar-pad', '0px');
+  }
+  root.classList.toggle('modal-open', open);
   document.body.classList.toggle('modal-open', open);
 }
 
 function initModalScrollLock() {
   syncBodyScrollLock();
   const roots = document.querySelectorAll(
-    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay, .session-log-overlay, .app-dialog-overlay'
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay, .session-log-overlay, .app-dialog-overlay, .help-info-overlay'
   );
   if (!roots.length || typeof MutationObserver !== 'function') return;
   const obs = new MutationObserver(() => syncBodyScrollLock());
@@ -18516,6 +19427,7 @@ async function openSettings() {
   ensureDarkLibrary();
   const darkLibEl = document.getElementById('settings-darklib-path');
   if (darkLibEl) darkLibEl.value = data.darkLibrary.path || '';
+  renderPreprocessSettingsForm();
   const keyInput = document.getElementById('settings-api-key');
   if (keyInput) {
     keyInput.value = '';
@@ -18668,6 +19580,7 @@ async function saveSettings() {
     const p = normalizeWinPath((darkLibSrc.value || '').trim());
     if (p) data.darkLibrary.path = p;
   }
+  readPreprocessSettingsFromForm();
 
   const keyInput = document.getElementById('settings-api-key');
   const newKey = keyInput ? keyInput.value.trim() : '';

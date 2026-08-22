@@ -16,6 +16,14 @@ const {
   writeAggregateCullManifest,
   resolveExcludedPpLights,
 } = require('./sirilSeq');
+const {
+  normalizePreprocessSettings,
+  resolveStageOptions,
+  formatStackArgs,
+  formatBinningUpdateLines,
+  HELP_CATALOG,
+  defaultPreprocessSettings,
+} = require('./preprocessSettings');
 
 const DEFAULT_SIRIL_CLI = path.join(
   process.env['ProgramFiles'] || 'C:\\Program Files',
@@ -131,6 +139,29 @@ function sanitizeFilterName(filter) {
 function buildCalibrateScript(opts = {}) {
   const skipBiasStack = !!opts.skipBiasStack;
   const skipDarkStack = !!opts.skipDarkStack;
+  const settings = normalizePreprocessSettings(opts.settings);
+  if (typeof opts.binningUpdate === 'boolean') settings.binningUpdate = opts.binningUpdate;
+  const biasOpts = resolveStageOptions(settings, 'bias');
+  const flatOpts = resolveStageOptions(settings, 'flat');
+  const calOpts = resolveStageOptions(settings, 'calibrate');
+  const binningLines = formatBinningUpdateLines(!!settings.binningUpdate);
+
+  const biasStackArgs = formatStackArgs(biasOpts, { out: '../masters/bias_stacked' });
+  const flatStackArgs = formatStackArgs(
+    { ...flatOpts, outputNorm: false, bits32: false },
+    { out: '../masters/pp_flat_stacked' }
+  );
+  const darkStackArgs = formatStackArgs(biasOpts, { out: '../masters/dark_stacked' });
+
+  const flatCal = flatOpts.useBias === false
+    ? 'calibrate flat'
+    : 'calibrate flat -bias=../masters/bias_stacked';
+  const lightCc =
+    calOpts.cosmetic === false
+      ? ''
+      : calOpts.cosmeticFrom === 'dark'
+        ? ' -cc=dark'
+        : '';
 
   const biasBlock = skipBiasStack
     ? `# Bias master already present at masters/bias_stacked.fit — skip stack
@@ -138,7 +169,7 @@ function buildCalibrateScript(opts = {}) {
     : `cd biases
 convert bias -out=../process
 cd ../process
-stack bias rej 3 3 -nonorm -out=../masters/bias_stacked
+stack bias ${biasStackArgs}
 cd ..
 
 `;
@@ -149,30 +180,32 @@ cd ..
     : `cd darks
 convert dark -out=../process
 cd ../process
-stack dark rej 3 3 -nonorm -out=../masters/dark_stacked
+stack dark ${darkStackArgs}
 cd ..
 
 `;
 
+  const presetNote = `bias=${biasOpts.preset} flat=${flatOpts.preset} calibrate=${calOpts.preset}`;
+
   return `############################################
-# Zuko calibrate (Mono 1.4 settings)
+# Zuko calibrate (${presetNote})
 # Stops after calibrate → process/pp_light_*.fit
 # Generated — do not hand-edit mid-run
 ############################################
 
 requires 1.3.4
 
-${biasBlock}cd flats
+${binningLines}${biasBlock}cd flats
 convert flat -out=../process
 cd ../process
-calibrate flat -bias=../masters/bias_stacked
-stack pp_flat rej 3 3 -norm=mul -out=../masters/pp_flat_stacked
+${flatCal}
+stack pp_flat ${flatStackArgs}
 cd ..
 
 ${darkBlock}cd lights
 convert light -out=../process
 cd ../process
-calibrate light -dark=../masters/dark_stacked -flat=../masters/pp_flat_stacked -cc=dark
+calibrate light -dark=../masters/dark_stacked -flat=../masters/pp_flat_stacked${lightCc}
 
 close
 `;
@@ -196,18 +229,32 @@ close
 `;
 }
 
-/** Register only — run with workDir = Filter/Aggregate/ (pp_light_* already present). */
-function buildRegisterScript() {
+/**
+ * Register only — run with workDir = Filter/Aggregate/ (pp_light_* already present).
+ * @param {{ settings?: object, binningUpdate?: boolean }} [opts]
+ */
+function buildRegisterScript(opts = {}) {
+  const settings = normalizePreprocessSettings(opts.settings);
+  if (typeof opts.binningUpdate === 'boolean') settings.binningUpdate = opts.binningUpdate;
+  const regOpts = resolveStageOptions(settings, 'register');
+  const binningLines = formatBinningUpdateLines(!!settings.binningUpdate);
+
+  const registerBlock = regOpts.twoPass
+    ? `register pp_light -2pass
+seqapplyreg pp_light
+`
+    : `register pp_light
+`;
+
   return `############################################
-# Zuko register (Mono 1.4 settings)
+# Zuko register (preset=${regOpts.preset}${regOpts.twoPass ? ', 2-pass' : ''})
 # Expects Aggregate/pp_light_*.fit — writes r_pp_light_*
 # Generated — do not hand-edit mid-run
 ############################################
 
 requires 1.3.4
 
-register pp_light
-
+${binningLines}${registerBlock}
 close
 `;
 }
@@ -215,27 +262,47 @@ close
 /**
  * Stack included frames staged into _stack/inputs/.
  * @param {string} resultBase
- * @param {{ reregister?: boolean }} opts
+ * @param {{ reregister?: boolean, settings?: object, binningUpdate?: boolean, frameCount?: number }} opts
  */
 function buildStackScript(resultBase, opts = {}) {
   const safe = String(resultBase || 'result').replace(/[^\w.-]+/g, '_');
   const reregister = !!opts.reregister;
-  const alignBlock = reregister
-    ? `register pp_light
+  const settings = normalizePreprocessSettings(opts.settings);
+  if (typeof opts.binningUpdate === 'boolean') settings.binningUpdate = opts.binningUpdate;
+  const stackOpts = resolveStageOptions(settings, 'stack', { frameCount: opts.frameCount });
+  const regOpts = resolveStageOptions(settings, 'register');
+  const binningLines = formatBinningUpdateLines(!!settings.binningUpdate);
 
-stack r_pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result
+  const stackArgs = formatStackArgs(
+    { ...stackOpts, outputNorm: stackOpts.outputNorm !== false, bits32: stackOpts.bits32 !== false },
+    { out: 'result' }
+  );
+
+  let alignBlock;
+  if (reregister) {
+    const regCmd = regOpts.twoPass
+      ? `register pp_light -2pass
+seqapplyreg pp_light
 `
-    : `stack pp_light rej 3 3 -norm=addscale -output_norm -32b -out=result
+      : `register pp_light
 `;
+    alignBlock = `${regCmd}
+stack r_pp_light ${stackArgs}
+`;
+  } else {
+    alignBlock = `stack pp_light ${stackArgs}
+`;
+  }
+
   return `############################################
-# Zuko stack (Mono 1.4 settings)
+# Zuko stack (preset=${stackOpts.preset}, binning_update=${settings.binningUpdate ? 'true' : 'false'})
 # Expects included FITS in inputs/ (aligned r_pp_light or pp_light for re-register)
 # Generated — do not hand-edit mid-run
 ############################################
 
 requires 1.3.4
 
-cd inputs
+${binningLines}cd inputs
 convert pp_light -out=..
 cd ..
 
@@ -459,7 +526,16 @@ async function calibrateShoot(opts = {}) {
 
   const scriptPath = path.join(scriptsDir, 'calibrate.ssf');
   const logPath = path.join(scriptsDir, 'calibrate.log');
-  await fsp.writeFile(scriptPath, buildCalibrateScript({ skipBiasStack, skipDarkStack }), 'utf8');
+  await fsp.writeFile(
+    scriptPath,
+    buildCalibrateScript({
+      skipBiasStack,
+      skipDarkStack,
+      settings: opts.settings,
+      binningUpdate: opts.binningUpdate,
+    }),
+    'utf8'
+  );
 
   const run = await runSirilCli({
     cliPath,
@@ -755,7 +831,7 @@ async function aggregateFilter(opts = {}) {
 
 /**
  * Aggregate calibrated nights into Filter/Aggregate/, then register → r_pp_light_*.
- * @param {{ projectDir: string, filter: string, shootDirs: string[], sirilCli?: string, onLog?: Function }} opts
+ * @param {{ projectDir: string, filter: string, shootDirs: string[], sirilCli?: string, settings?: object, binningUpdate?: boolean, onLog?: Function }} opts
  */
 async function registerFilter(opts = {}) {
   const projectDir = opts.projectDir && path.resolve(String(opts.projectDir));
@@ -787,7 +863,14 @@ async function registerFilter(opts = {}) {
   await fsp.mkdir(scriptsDir, { recursive: true });
   const scriptPath = path.join(scriptsDir, 'register.ssf');
   const logPath = path.join(scriptsDir, 'register.log');
-  await fsp.writeFile(scriptPath, buildRegisterScript(), 'utf8');
+  await fsp.writeFile(
+    scriptPath,
+    buildRegisterScript({
+      settings: opts.settings,
+      binningUpdate: opts.binningUpdate,
+    }),
+    'utf8'
+  );
 
   const run = await runSirilCli({
     cliPath,
@@ -845,6 +928,11 @@ async function registerFilter(opts = {}) {
     copies: agg.copies,
     aggregatedAt: agg.aggregatedAt,
     registeredAt: new Date().toISOString(),
+    binningUpdate:
+      typeof opts.binningUpdate === 'boolean'
+        ? opts.binningUpdate
+        : !!(normalizePreprocessSettings(opts.settings).binningUpdate),
+    settingsPreset: resolveStageOptions(opts.settings, 'register').preset,
     logText: run.logText,
     logTail: run.logTail,
   };
@@ -853,7 +941,7 @@ async function registerFilter(opts = {}) {
 /**
  * Stack included Aggregate/r_pp_light_* (after Cull). Optional re-register of included pp_light.
  * Stages into Filter/_stack/inputs for Siril scratch, then writes working/result_<Filter>.fit.
- * @param {{ projectDir: string, filter: string, sirilCli?: string, reregister?: boolean, onLog?: Function }} opts
+ * @param {{ projectDir: string, filter: string, sirilCli?: string, reregister?: boolean, settings?: object, binningUpdate?: boolean, onLog?: Function }} opts
  */
 async function stackFilter(opts = {}) {
   const projectDir = opts.projectDir && path.resolve(String(opts.projectDir));
@@ -940,7 +1028,16 @@ async function stackFilter(opts = {}) {
   const resultBase = `result_${filter}`;
   const scriptPath = path.join(scriptsDir, 'stack.ssf');
   const logPath = path.join(scriptsDir, 'stack.log');
-  await fsp.writeFile(scriptPath, buildStackScript(resultBase, { reregister }), 'utf8');
+  await fsp.writeFile(
+    scriptPath,
+    buildStackScript(resultBase, {
+      reregister,
+      settings: opts.settings,
+      binningUpdate: opts.binningUpdate,
+      frameCount: sourceFiles.length,
+    }),
+    'utf8'
+  );
 
   const run = await runSirilCli({
     cliPath,
@@ -1026,6 +1123,13 @@ async function stackFilter(opts = {}) {
     ppLightCount: linked.length,
     linked,
     reregister,
+    binningUpdate:
+      typeof opts.binningUpdate === 'boolean'
+        ? opts.binningUpdate
+        : !!(normalizePreprocessSettings(opts.settings).binningUpdate),
+    settingsPreset: resolveStageOptions(opts.settings, 'stack', {
+      frameCount: linked.length,
+    }).preset,
     stackedAt: new Date().toISOString(),
     logText: run.logText,
     logTail: run.logTail,
@@ -1340,6 +1444,11 @@ module.exports = {
   cleanProjectIntermediates,
   inspectMonoPreprocessingScript,
   parseMonoScriptMeta,
+  normalizePreprocessSettings,
+  resolveStageOptions,
+  formatStackArgs,
+  HELP_CATALOG,
+  defaultPreprocessSettings,
   DEFAULT_SIRIL_CLI,
   DEFAULT_MONO_SCRIPT,
 };
