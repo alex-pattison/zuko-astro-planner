@@ -3444,11 +3444,14 @@
   html {
     scrollbar-gutter: stable;
   }
-  html.modal-open,
+  /* Body fixed + scrollbar pad keeps page width stable (pipeline merge lines stay put). */
   body.modal-open {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
     overflow: hidden !important;
     overscroll-behavior: none;
-    /* Keep layout width stable when the scrollbar is suppressed (pipeline dots stay put). */
     padding-right: var(--zuko-scrollbar-pad, 0px);
   }
 
@@ -8559,6 +8562,37 @@ function fmtFetchedAt(iso) {
   });
 }
 
+/** Human-readable pipeline “Last run” (local time, relative when recent). */
+function formatPipelineLastRun(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso);
+  const now = Date.now();
+  const diffMs = now - d.getTime();
+  const abs = Math.abs(diffMs);
+  let relative = '';
+  if (diffMs >= 0 && abs < 60 * 1000) relative = 'just now';
+  else if (diffMs >= 0 && abs < 60 * 60 * 1000) {
+    const m = Math.round(abs / 60000);
+    relative = `${m} min ago`;
+  } else if (diffMs >= 0 && abs < 24 * 60 * 60 * 1000) {
+    const h = Math.round(abs / 3600000);
+    relative = h === 1 ? '1 hour ago' : `${h} hours ago`;
+  } else if (diffMs >= 0 && abs < 7 * 24 * 60 * 60 * 1000) {
+    const days = Math.round(abs / 86400000);
+    relative = days === 1 ? 'yesterday' : `${days} days ago`;
+  }
+  const absolute = d.toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  return relative ? `${absolute} (${relative})` : absolute;
+}
+
 function showClearOutsideFallback(lat, lon, show) {
   const wrap = document.getElementById('skyfx-co-wrap');
   const img = document.getElementById('skyfx-co-img');
@@ -9985,6 +10019,8 @@ function observePipelineMerges() {
 
 /** Continuous Calibrate → spine → Cull; spine sits in the gutter between cards. */
 function layoutPipelineMerges() {
+  // Skip while a modal locks scroll — redrawing mid-open misplaces Calibrate→spine lines.
+  if (document.body.classList.contains('modal-open')) return;
   document.querySelectorAll('[data-pipeline-merge]').forEach(layoutOnePipelineMerge);
 }
 
@@ -16849,7 +16885,7 @@ function openCalibrateConfirm(pi, si) {
   const stats = shootNightStats(sh);
   const rerun = isShootCalibrated(sh);
   const calAt = sh.preprocessMeta && sh.preprocessMeta.calibratedAt
-    ? String(sh.preprocessMeta.calibratedAt)
+    ? formatPipelineLastRun(sh.preprocessMeta.calibratedAt)
     : '';
   const group = ft ? findPipelineGroup(project, ft.filter) : null;
   const primary = group ? getPrimaryFilterTarget(project, group) : ft;
@@ -16931,7 +16967,7 @@ function openRegisterConfirm(pi, nameOrTone) {
     ${pipelineJobRow('Frames (est.)', frameEst ? String(frameEst) : '—')}
     ${pipelineJobRow('Destination', `<code style="font-size:11px;word-break:break-all;">${escapeHtml(aggregateDir)}</code>`)}
     ${rerun && f.registerMeta && f.registerMeta.registeredAt
-      ? pipelineJobRow('Last run', escapeHtml(String(f.registerMeta.registeredAt)))
+      ? pipelineJobRow('Last run', escapeHtml(formatPipelineLastRun(f.registerMeta.registeredAt)))
       : ''}
   </div>
   <div style="margin-top:10px;">
@@ -16991,7 +17027,9 @@ function openStackConfirm(pi, nameOrTone) {
     ${pipelineJobRow('Frames for stack', escapeHtml(String(frameCount)) + (excludedCount != null ? ` (${excludedCount} excluded)` : ''))}
     ${pipelineJobRow('Output', folderPathLink(resultPath))}
     ${pipelineJobRow('Working', folderPathLink(outFolder))}
-    ${rerun && f.stackMeta && f.stackMeta.stackedAt ? pipelineJobRow('Last run', escapeHtml(String(f.stackMeta.stackedAt))) : ''}
+    ${rerun && f.stackMeta && f.stackMeta.stackedAt
+      ? pipelineJobRow('Last run', escapeHtml(formatPipelineLastRun(f.stackMeta.stackedAt)))
+      : ''}
   </div>
   <label class="pipeline-opt-row">
     <input type="checkbox" id="stack-reregister-cb">
@@ -19090,15 +19128,28 @@ const MODAL_OPEN_SELECTOR = [
 function syncBodyScrollLock() {
   const open = !!document.querySelector(MODAL_OPEN_SELECTOR);
   const root = document.documentElement;
-  if (open && !root.classList.contains('modal-open')) {
+  const body = document.body;
+  const wasOpen = body.classList.contains('modal-open');
+  if (open && !wasOpen) {
+    const scrollY = window.scrollY || root.scrollTop || 0;
+    body.dataset.zukoScrollY = String(scrollY);
     const pad = Math.max(0, window.innerWidth - root.clientWidth);
     root.style.setProperty('--zuko-scrollbar-pad', pad ? `${pad}px` : '0px');
+    body.style.top = `-${scrollY}px`;
   }
-  if (!open) {
+  if (!open && wasOpen) {
+    const scrollY = Number(body.dataset.zukoScrollY || 0) || 0;
+    body.style.top = '';
+    delete body.dataset.zukoScrollY;
     root.style.setProperty('--zuko-scrollbar-pad', '0px');
+    body.classList.remove('modal-open');
+    root.classList.remove('modal-open');
+    window.scrollTo(0, scrollY);
+    requestAnimationFrame(() => layoutPipelineMerges());
+    return;
   }
   root.classList.toggle('modal-open', open);
-  document.body.classList.toggle('modal-open', open);
+  body.classList.toggle('modal-open', open);
 }
 
 function initModalScrollLock() {

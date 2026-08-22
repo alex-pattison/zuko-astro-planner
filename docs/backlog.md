@@ -171,9 +171,11 @@ Suggest framing + hours per filter for rig + site. Spike first — wrong-advice 
 
 ### Processing / quality
 
-#### 26. Siril preprocessing settings (Default / Mono Recommended / Custom) — *shipped build 33*
+#### 26. Siril preprocessing settings (Default / Mono Recommended / Custom) — *shipped build 33* · polish *build 34*
 
 Per-stage presets on Calibrate / Register / Stack confirms; Custom unlocks Siril flags with (i) help. SHO/Hβ → Mono Recommended, LRGB → Default. Stack: binning checkbox (default off → `core.binning_update=false`). Docs: `docs/preprocess-settings.md`; QA: `scripts/qa-preprocess-settings.js`.
+
+Build 34: stable Calibrate→Register merge lines while popups open; human-readable Last run; Veil Queechy capture-plan row restored (disk was intact).
 
 #### 13. In-app culling UI **(requires FITS thumb / HFR preview)**
 

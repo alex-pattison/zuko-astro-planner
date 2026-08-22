@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-21 — build 34 — pipeline popup layout + Queechy restore
+- **UI:** Modal scroll lock uses `position:fixed` + single scrollbar pad (no double pad on html+body); skip merge-SVG redraw while open; Last run shows local weekday/time + relative.
+- **Data:** Restored Veil `SII @Queechy B5` capture-plan row; `260725` remapped (disk `260725_SII_B5_Queechy` was always intact, 213 FITS). Script: `scripts/restore-veil-queechy-and-mirror-dev.js`.
+- **QA:** `qa-preprocess-settings` + unit suites green; Dev re-mirrored from Beta after unit reset.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 34).
+- **Canvas:** backlog snapshot → build 34.
+
 ### 2026-08-21 — build 33 — Siril preprocessing settings
 - **UI:** Per-step Default / Mono Recommended / Custom on Calibrate, Register, Stack; (i) help per stage/flag; SHO→Mono, LRGB→Default; binning checkbox default off.
 - **Code:** `src/siril/preprocessSettings.js` + builders; scripts stamp `set core.binning_update=…`.
