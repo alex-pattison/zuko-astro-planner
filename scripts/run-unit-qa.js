@@ -20,6 +20,7 @@ const scripts = [
   'scripts/qa-siril-cull-seq.js',
   'scripts/qa-siril-register-stack.js',
   'scripts/qa-preprocess-settings.js',
+  'scripts/qa-siril-cd-command.js',
   'scripts/qa-cleanup-helpers.js',
 ];
 

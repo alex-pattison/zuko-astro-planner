@@ -177,6 +177,10 @@ Per-stage presets on Calibrate / Register / Stack confirms; Custom unlocks Siril
 
 Build 34: stable Calibrate→Register merge lines while popups open; human-readable Last run; Veil Queechy capture-plan row restored (disk was intact).
 
+#### 27. CD for Siril (clipboard) — *shipped build 35*
+
+Cull + Imaging Pipeline buttons copy `cd "…"` for Siril’s command bar (Aggregate / `working/`). Plan Shoot date quick fills: Yesterday · Today · Tomorrow. QA: `scripts/qa-siril-cd-command.js`.
+
 #### 13. In-app culling UI **(requires FITS thumb / HFR preview)**
 
 Cull in Zuko with thumbs/metrics. Without preview, don’t bother.
