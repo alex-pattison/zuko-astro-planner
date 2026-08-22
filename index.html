@@ -889,6 +889,35 @@
     gap: 8px;
     align-items: center;
   }
+  .ingest-session-log {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg3);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text2);
+  }
+  .ingest-session-log[hidden] { display: none !important; }
+  .ingest-session-log .ssl-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin: 0 0 6px;
+  }
+  .ingest-session-log .ssl-lines { margin: 0; padding-left: 1.1em; }
+  .ingest-session-log .ssl-lines li { margin: 0 0 2px; }
+  .ingest-session-log .ssl-warn {
+    margin-top: 8px;
+    color: var(--yellow);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .ingest-session-log .ssl-ok { color: var(--green); }
+  .ingest-session-log .ssl-bad { color: var(--yellow); }
   .ingest-chip {
     font-family: var(--mono);
     font-size: 10px;
@@ -1648,6 +1677,85 @@
   .pipeline-night-detail-actions .pipeline-night-remove {
     color: var(--red);
     border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+  }
+  .session-log-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 12050;
+    background: color-mix(in srgb, #000 55%, transparent);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .session-log-overlay.open { display: flex; }
+  .session-log-modal {
+    width: min(920px, 96vw);
+    max-height: min(86vh, 900px);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px 14px;
+    box-sizing: border-box;
+  }
+  .session-log-modal h3 { margin: 0 0 4px; font-size: 16px; }
+  .session-log-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin: 0 0 10px;
+    word-break: break-all;
+  }
+  .session-log-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 10px;
+  }
+  .session-log-tab {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .session-log-tab.active {
+    color: var(--text);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+  .session-log-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    margin: 0 0 6px;
+  }
+  .session-log-body {
+    flex: 1;
+    min-height: 220px;
+    overflow: auto;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .session-log-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 12px;
   }
   .pipeline-empty-shoots {
     font-size: 11px;
@@ -5187,6 +5295,21 @@
   </div>
 </div>
 
+<div class="session-log-overlay" id="session-log-overlay" onclick="if(event.target===this)closeSessionLogViewer()">
+  <div class="session-log-modal" role="dialog" aria-modal="true" aria-labelledby="session-log-title">
+    <h3 id="session-log-title">Session logs</h3>
+    <div class="session-log-sub" id="session-log-sub">—</div>
+    <div class="session-log-tabs" id="session-log-tabs" role="tablist"></div>
+    <div class="session-log-meta" id="session-log-meta"></div>
+    <pre class="session-log-body" id="session-log-body"></pre>
+    <div class="session-log-actions">
+      <button type="button" class="modal-btn" id="session-log-open-folder" onclick="openSessionLogFolder()">Open folder</button>
+      <button type="button" class="modal-btn" id="session-log-open-file" onclick="openSessionLogFile()">Open file</button>
+      <button type="button" class="modal-btn primary" onclick="closeSessionLogViewer()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <h3 id="modal-title">Add Item</h3>
@@ -5414,6 +5537,7 @@
       </div>
     </div>
     <div class="ingest-chips" id="ingest-chips"></div>
+    <div id="ingest-session-log" class="ingest-session-log" hidden></div>
     <div id="ingest-confirm" class="ingest-confirm-block"></div>
     <div class="table-scroll">
       <table class="ingest-table">
@@ -13286,6 +13410,8 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-stage-btn').disabled = true;
   document.getElementById('ingest-filter-body').innerHTML = '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
+  const sslClear = document.getElementById('ingest-session-log');
+  if (sslClear) { sslClear.hidden = true; sslClear.innerHTML = ''; }
   document.getElementById('ingest-confirm').textContent = '';
   renderIngestTargetMatchRow();
   const useEl = document.getElementById('ingest-use-masters');
@@ -13566,6 +13692,7 @@ async function runIngestScan(opts = {}) {
     `<div class="ingest-chips-row">${ingestCtx._chipBase.join('')}` +
     (multi && lightBreakdown ? `<span class="ingest-status-line" style="margin-left:4px;">${lightBreakdown}</span>` : '') +
     `</div><div class="ingest-chips-row" id="ingest-chips-masters"></div>`;
+  renderIngestSessionLogPanel(scan);
 
   // Keep filter selection for file popup highlighting
   ingestCtx.multiFilters = multi ? (ingestBatch.filters || []) : null;
@@ -14494,9 +14621,25 @@ async function openCullModal(pi, tone) {
     `${escapeHtml(project.name || 'Project')} · ${folderPathLink(aggregateDir)} ${copyPathButton(aggregateDir)}`;
   const notes = document.getElementById('cull-modal-notes');
   if (notes) {
+    const guideBits = getFilterIngestedShootsByTone(project, group.tone, group.name)
+      .map((sh) => {
+        const g = sh.ingestMeta && sh.ingestMeta.sessionLog && sh.ingestMeta.sessionLog.guide;
+        if (!g || !g.quality || g.quality === 'unknown') return null;
+        const code = buildShootCode(sh, project.filterTargets[sh.filterIndex]);
+        return `${code}: guide ${g.quality}${g.rmsTotalArcsec != null ? ` (${g.rmsTotalArcsec}″)` : ''}`;
+      })
+      .filter(Boolean);
+    const guideNote = guideBits.length
+      ? `<div style="margin-top:6px;">Session guide: ${escapeHtml(guideBits.join(' · '))}`
+        + (guideBits.some((b) => /poor|fair/.test(b))
+          ? ' — lean on Plot for weak nights.'
+          : '.')
+        + `</div>`
+      : '';
     notes.innerHTML =
       'In Siril, load <code>r_pp_light</code>, exclude frames (Plot works after Register), then <strong>Scan sequence</strong>. ' +
-      '<strong>Apply &amp; mark done</strong> writes <code>culled.txt</code> and unlocks Stack.';
+      '<strong>Apply &amp; mark done</strong> writes <code>culled.txt</code> and unlocks Stack.'
+      + guideNote;
   }
   const saved = f && f.cullMeta;
   if (saved && saved.frames && saved.frames.length) {
@@ -14802,6 +14945,17 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
   const cleanupBtn = canCleanup
     ? `<button type="button" class="mini-btn" data-testid="cleanup-night" data-cleanup-shoot="${pi}:${si}" onclick="event.stopPropagation(); cleanupShootNight(${pi},${si})" title="Delete masters/, process/, and scripts/ for this night">Cleanup</button>`
     : `<button type="button" class="mini-btn locked" data-testid="cleanup-night" disabled title="${shootDir ? 'Cleanup needs the Electron desktop app' : 'Import this night first'}">Cleanup</button>`;
+  const canListLogs = !!(shootDir && window.zukoIngest && typeof window.zukoIngest.listSessionLogs === 'function');
+  const hasSessionLog = !!(meta.sessionLog);
+  let showLogBtn;
+  if (!canListLogs) {
+    showLogBtn = `<button type="button" class="mini-btn locked" data-testid="show-session-log" disabled title="${shootDir ? 'Needs Electron desktop app' : 'Import this night first'}">Show log</button>`;
+  } else if (hasSessionLog) {
+    showLogBtn = `<button type="button" class="mini-btn" data-testid="show-session-log" data-show-session-log="${pi}:${si}" onclick="event.stopPropagation(); openSessionLogViewer(${pi},${si})" title="View Autorun / PHD2 logs archived under this night’s session-logs/">Show log</button>`;
+  } else {
+    // Grey until disk refresh finds session-logs/ (only Import-from-now archives them).
+    showLogBtn = `<button type="button" class="mini-btn locked" data-testid="show-session-log" data-show-session-log="${pi}:${si}" disabled title="No session log archived for this night (Import after ASIAIR log/ support)">Show log</button>`;
+  }
   return `<div class="pipeline-night-detail" onclick="event.stopPropagation()" data-night-detail="${pi}:${si}" data-shoot-dir="${escapeAttr(shootDir || '')}">
     <div class="pipeline-night-detail-grid">
       <div><div class="detail-k">Shoot code</div><div class="detail-v">${escapeHtml(code)}</div></div>
@@ -14814,9 +14968,14 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
       <div><div class="detail-k">Folder size</div><div class="detail-v" data-shoot-folder-size="${pi}:${si}">…</div></div>
       <div><div class="detail-k">Intermediates</div><div class="detail-v" data-shoot-intermediate-size="${pi}:${si}">…</div></div>
       <div><div class="detail-k">Import path</div><div class="detail-v" style="word-break:break-all;">${sh.ingestPath ? escapeHtml(String(sh.ingestPath)) : '—'}</div></div>
+      ${meta.sessionLog ? `<div>${sessionLogBadgeHtml(meta.sessionLog)}</div>` : ''}
     </div>
+    ${(meta.softWarnings && meta.softWarnings.length)
+      ? `<div class="pipeline-night-detail-warn" style="margin-top:8px;font-size:11px;color:var(--yellow);font-family:var(--mono);">${meta.softWarnings.map((w) => escapeHtml(String(w))).join('<br>')}</div>`
+      : ''}
     <div class="pipeline-night-detail-actions">
       ${cleanupBtn}
+      ${showLogBtn}
       <button type="button" class="mini-btn" onclick="editShoot(${pi},${si})">Edit night</button>
       <button type="button" class="mini-btn pipeline-night-remove" onclick="removeShoot(${pi},${si})">Remove night</button>
     </div>
@@ -15426,14 +15585,18 @@ async function refreshWorkingPathButtons() {
 }
 
 async function refreshOpenNightDiskInfo() {
-  if (!window.zukoSiril || typeof window.zukoSiril.inspectShootDisk !== 'function') return;
   const panels = document.querySelectorAll('[data-night-detail]');
+  const canInspect = !!(window.zukoSiril && typeof window.zukoSiril.inspectShootDisk === 'function');
+  const canListLogs = !!(window.zukoIngest && typeof window.zukoIngest.listSessionLogs === 'function');
+  if (!canInspect && !canListLogs) return;
+
   for (const panel of panels) {
     const key = panel.getAttribute('data-night-detail') || '';
     const shootDir = String(panel.getAttribute('data-shoot-dir') || '').trim();
     const sizeEl = panel.querySelector(`[data-shoot-folder-size="${key}"]`);
     const interEl = panel.querySelector(`[data-shoot-intermediate-size="${key}"]`);
     const btn = panel.querySelector('[data-cleanup-shoot]');
+    const logBtn = panel.querySelector('[data-show-session-log]');
     if (!shootDir) {
       if (sizeEl) sizeEl.textContent = '—';
       if (interEl) interEl.textContent = '—';
@@ -15441,41 +15604,213 @@ async function refreshOpenNightDiskInfo() {
         btn.disabled = true;
         btn.classList.add('locked');
       }
+      if (logBtn) {
+        logBtn.disabled = true;
+        logBtn.classList.add('locked');
+        logBtn.title = 'Import this night first';
+        logBtn.onclick = null;
+      }
       continue;
     }
-    if (sizeEl) sizeEl.textContent = '…';
-    if (interEl) interEl.textContent = '…';
-    try {
-      const info = await window.zukoSiril.inspectShootDisk({ shootDir });
-      if (sizeEl) {
-        sizeEl.textContent = info && info.ok && info.exists
-          ? formatBytesShort(info.sizeBytes)
-          : '—';
-        if (info && info.ok && info.exists) sizeEl.title = shootDir;
-      }
-      if (interEl) {
-        const bytes = info && info.ok && info.exists ? (Number(info.intermediateBytes) || 0) : 0;
-        interEl.textContent = info && info.ok && info.exists ? formatBytesShort(bytes) : '—';
-        interEl.title = bytes
-          ? 'masters/ + process/ + scripts/'
-          : 'No masters/, process/, or scripts/';
-      }
-      if (btn) {
-        const dirty = !!(info && info.ok && info.hasIntermediates);
-        btn.disabled = !dirty;
-        if (dirty) {
-          btn.classList.remove('locked');
-          btn.title = 'Delete masters/, process/, and scripts/ for this night';
-        } else {
-          btn.classList.add('locked');
-          btn.title = 'No masters/process/scripts to remove';
+    if (canInspect) {
+      if (sizeEl) sizeEl.textContent = '…';
+      if (interEl) interEl.textContent = '…';
+      try {
+        const info = await window.zukoSiril.inspectShootDisk({ shootDir });
+        if (sizeEl) {
+          sizeEl.textContent = info && info.ok && info.exists
+            ? formatBytesShort(info.sizeBytes)
+            : '—';
+          if (info && info.ok && info.exists) sizeEl.title = shootDir;
         }
+        if (interEl) {
+          const bytes = info && info.ok && info.exists ? (Number(info.intermediateBytes) || 0) : 0;
+          interEl.textContent = info && info.ok && info.exists ? formatBytesShort(bytes) : '—';
+          interEl.title = bytes
+            ? 'masters/ + process/ + scripts/'
+            : 'No masters/, process/, or scripts/';
+        }
+        if (btn) {
+          const dirty = !!(info && info.ok && info.hasIntermediates);
+          btn.disabled = !dirty;
+          if (dirty) {
+            btn.classList.remove('locked');
+            btn.title = 'Delete masters/, process/, and scripts/ for this night';
+          } else {
+            btn.classList.add('locked');
+            btn.title = 'No masters/process/scripts to remove';
+          }
+        }
+      } catch (e) {
+        if (sizeEl) sizeEl.textContent = '—';
+        if (interEl) interEl.textContent = '—';
       }
-    } catch (e) {
-      if (sizeEl) sizeEl.textContent = '—';
-      if (interEl) interEl.textContent = '—';
+    }
+
+    if (logBtn && canListLogs) {
+      try {
+        const listed = await window.zukoIngest.listSessionLogs({ shootDir });
+        const hasFiles = !!(listed && listed.ok && listed.files && listed.files.length);
+        const parts = String(logBtn.getAttribute('data-show-session-log') || '').split(':');
+        const pi = parseInt(parts[0], 10);
+        const si = parseInt(parts[1], 10);
+        if (hasFiles && Number.isFinite(pi) && Number.isFinite(si)) {
+          logBtn.disabled = false;
+          logBtn.classList.remove('locked');
+          logBtn.title = 'View Autorun / PHD2 logs archived under this night’s session-logs/';
+          logBtn.onclick = (event) => {
+            event.stopPropagation();
+            openSessionLogViewer(pi, si);
+          };
+        } else {
+          logBtn.disabled = true;
+          logBtn.classList.add('locked');
+          logBtn.title = 'No session log archived for this night (Import after ASIAIR log/ support)';
+          logBtn.onclick = null;
+        }
+      } catch (_) {
+        logBtn.disabled = true;
+        logBtn.classList.add('locked');
+        logBtn.title = 'No session log archived for this night';
+        logBtn.onclick = null;
+      }
     }
   }
+}
+
+let _sessionLogViewerCtx = null;
+
+function formatBytesShort(n) {
+  const v = Number(n) || 0;
+  if (v < 1024) return `${v} B`;
+  if (v < 1024 * 1024) return `${(v / 1024).toFixed(1)} KB`;
+  return `${(v / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function closeSessionLogViewer() {
+  const overlay = document.getElementById('session-log-overlay');
+  if (overlay) overlay.classList.remove('open');
+  _sessionLogViewerCtx = null;
+}
+
+async function openSessionLogViewer(pi, si) {
+  if (!window.zukoIngest || typeof window.zukoIngest.listSessionLogs !== 'function') {
+    appAlert('Session logs need the Electron desktop app (npm start).');
+    return;
+  }
+  const project = data.projects[pi];
+  const sh = project && project.shoots && project.shoots[si];
+  if (!project || !sh) return;
+  const shootDir = resolveShootCalibrateDir(project, sh) || sh.ingestPath;
+  if (!shootDir) {
+    appAlert('Import this night before viewing session logs.');
+    return;
+  }
+  const ft = project.filterTargets[sh.filterIndex];
+  const code = buildShootCode(sh, ft);
+  const night = shootNightYmd(sh);
+  const sourceRoot = resolveAsiairSourceDir();
+
+  const overlay = document.getElementById('session-log-overlay');
+  const sub = document.getElementById('session-log-sub');
+  const tabs = document.getElementById('session-log-tabs');
+  const metaEl = document.getElementById('session-log-meta');
+  const body = document.getElementById('session-log-body');
+  if (!overlay || !body) return;
+
+  document.getElementById('session-log-title').textContent = `Session logs — ${code}`;
+  sub.textContent = 'Loading…';
+  tabs.innerHTML = '';
+  metaEl.textContent = '';
+  body.textContent = '';
+  overlay.classList.add('open');
+
+  let listed = await window.zukoIngest.listSessionLogs({ shootDir });
+  if ((!listed || !listed.files || !listed.files.length)
+    && typeof window.zukoIngest.ensureSessionLogs === 'function'
+    && sourceRoot && night) {
+    sub.textContent = 'No archived logs yet — copying from ASIAIR source…';
+    listed = await window.zukoIngest.ensureSessionLogs({
+      shootDir,
+      sourceRoot,
+      nightDate: night,
+      shootFilter: ft ? ft.filter : null,
+      refCaaDeg: projectFramerCaa(project),
+      lightCount: sh.ingestMeta && sh.ingestMeta.lightCount,
+      targetNames: [project.target, project.name].filter(Boolean),
+    });
+    if (listed && listed.digest && sh.ingestMeta) {
+      sh.ingestMeta.sessionLog = listed.digest;
+      save();
+    }
+  }
+
+  const dir = (listed && listed.dir) || pathJoinWin(shootDir, 'session-logs');
+  const files = (listed && listed.files) || [];
+  _sessionLogViewerCtx = { pi, si, shootDir, dir, files, activePath: null };
+
+  if (!files.length) {
+    sub.innerHTML = `${escapeHtml(dir)}<br><span style="color:var(--yellow);">No session logs archived for this night yet. Re-Import when ASIAIR log/ is available, or point Settings → ASIAIR source at a dump that includes log/.</span>`;
+    body.textContent = '';
+    metaEl.textContent = '';
+    return;
+  }
+
+  sub.textContent = dir;
+  tabs.innerHTML = files.map((f, i) => {
+    const label = f.kind === 'digest' ? 'digest' : (f.kind === 'phd2' ? 'PHD2' : (f.kind === 'plan' ? 'Plan' : 'Autorun'));
+    const short = f.name.length > 36 ? `${f.name.slice(0, 18)}…${f.name.slice(-14)}` : f.name;
+    return `<button type="button" class="session-log-tab${i === 0 ? ' active' : ''}" data-session-log-idx="${i}" onclick="selectSessionLogTab(${i})" title="${escapeAttr(f.name)}">${escapeHtml(label)} · ${escapeHtml(short)}</button>`;
+  }).join('');
+
+  await selectSessionLogTab(0);
+}
+
+async function selectSessionLogTab(idx) {
+  if (!_sessionLogViewerCtx || !_sessionLogViewerCtx.files) return;
+  const file = _sessionLogViewerCtx.files[idx];
+  if (!file) return;
+  _sessionLogViewerCtx.activePath = file.path;
+  document.querySelectorAll('.session-log-tab').forEach((btn) => {
+    btn.classList.toggle('active', Number(btn.getAttribute('data-session-log-idx')) === idx);
+  });
+  const metaEl = document.getElementById('session-log-meta');
+  const body = document.getElementById('session-log-body');
+  metaEl.textContent = `${file.name} · ${formatBytesShort(file.size)} · loading…`;
+  body.textContent = '…';
+  const read = await window.zukoIngest.readSessionLog({ path: file.path });
+  if (!read || !read.ok) {
+    metaEl.textContent = `${file.name} · ${formatBytesShort(file.size)}`;
+    body.textContent = (read && read.error) || 'Could not read log.';
+    return;
+  }
+  metaEl.textContent = `${file.name} · ${formatBytesShort(read.size)}`
+    + (read.truncated ? ' · showing first ~400 KB (use Open file for the full PHD2 log)' : '');
+  body.textContent = read.text || '';
+}
+
+async function openSessionLogFolder() {
+  if (!_sessionLogViewerCtx || !_sessionLogViewerCtx.dir) return;
+  if (!window.zukoIngest || typeof window.zukoIngest.open !== 'function') {
+    appAlert('Open folder needs the Electron desktop app (npm start).');
+    return;
+  }
+  const res = await window.zukoIngest.open(_sessionLogViewerCtx.dir);
+  if (res && res.ok === false) appAlert(res.error || 'Could not open folder');
+}
+
+async function openSessionLogFile() {
+  const p = _sessionLogViewerCtx && _sessionLogViewerCtx.activePath;
+  if (!p) {
+    appAlert('Select a log tab first.');
+    return;
+  }
+  if (!window.zukoIngest || typeof window.zukoIngest.openItem !== 'function') {
+    appAlert('Open file needs the Electron desktop app (restart Dev after update).');
+    return;
+  }
+  const res = await window.zukoIngest.openItem({ path: p });
+  if (res && res.ok === false) appAlert(res.error || 'Could not open file');
 }
 
 async function cleanupShootNight(pi, si) {
@@ -15632,13 +15967,37 @@ function openCalibrateConfirm(pi, si) {
     ${pipelineJobRow('Integration', stats.actualHtml + ' / ' + stats.targetHtml)}
     ${pipelineJobRow('Folder', folderPathLink(shootDir))}
     ${rerun ? pipelineJobRow('Last run', escapeHtml(calAt || 'calibrated')) : ''}
+    ${(() => {
+      const d = sh.ingestMeta && sh.ingestMeta.sessionLog;
+      if (!d || !d.guide) return '';
+      const g = d.guide;
+      return pipelineJobRow(
+        'Guide (session log)',
+        escapeHtml(
+          `${g.quality}${g.rmsTotalArcsec != null ? ` · RMS ${g.rmsTotalArcsec}″` : ''}`
+          + (g.starLost ? ` · ${g.starLost} lost` : '')
+        )
+      );
+    })()}
   </div>`;
   const clearWarn = clearBits.length
     ? `<div style="margin-top:6px;" class="warn">Re-running clears <strong>${escapeHtml(clearBits.join(' and '))}</strong> for the whole ${escapeHtml((ft && ft.filter) || 'filter')} channel.</div>`
     : '';
+  const guideTip = (() => {
+    const d = sh.ingestMeta && sh.ingestMeta.sessionLog;
+    if (!d || !d.guide) return '';
+    if (d.guide.quality === 'poor') {
+      return `<div style="margin-top:6px;" class="warn">Session guide quality was <strong>poor</strong> — expect more frames to cull after register.</div>`;
+    }
+    if (d.guide.quality === 'fair') {
+      return `<div style="margin-top:6px;">Guide quality was fair — watch Plot during Cull.</div>`;
+    }
+    return '';
+  })();
   const notesHtml = `
     <div><strong>Siril</strong> will calibrate lights in this night’s folder → <code>process/pp_light_*.fit</code>.</div>
     ${clearWarn}
+    ${guideTip}
     <div style="margin-top:6px;">Needs a working <code>siril-cli</code> and Dark Library matches staged at Import.</div>
   `;
   openPipelineJobConfirm({
@@ -16313,6 +16672,82 @@ function projectTargetHint(project) {
   ].filter(Boolean).join(' · ');
 }
 
+function renderIngestSessionLogPanel(scan) {
+  const el = document.getElementById('ingest-session-log');
+  if (!el) return;
+  const sl = scan && scan.sessionLog;
+  const digest = sl && sl.digest;
+  if (!digest && !(sl && (sl.softWarnings || []).length) && !(sl && (sl.insights || []).length)) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  const lines = [];
+  if (digest) {
+    if (digest.planName) lines.push(`Plan <strong>${escapeHtml(digest.planName)}</strong>`);
+    if (digest.targets && digest.targets.length) {
+      lines.push(`Target ${escapeHtml(digest.targets.join(', '))}`);
+    }
+    if (digest.plateAngleDeg != null) {
+      const caaCls = digest.plateAngleOk === true ? 'ssl-ok' : (digest.plateAngleOk === false ? 'ssl-bad' : '');
+      const caaTxt = digest.plateAngleOk === true ? 'matches CAA' : (digest.plateAngleOk === false ? '≠ Target Framer CAA' : 'CAA n/a');
+      lines.push(
+        `Plate-solve <span class="${caaCls}">${escapeHtml(Number(digest.plateAngleDeg).toFixed(1))}°</span> · ${caaTxt}`
+      );
+    }
+    if (digest.plannedLights != null) {
+      lines.push(`Autorun planned <strong>${digest.plannedLights}</strong> light(s) for this filter`);
+    }
+    if (digest.autofocus && digest.autofocus.length) {
+      const last = digest.autofocus[digest.autofocus.length - 1];
+      if (last.eafPos != null) {
+        lines.push(`Autofocus EAF <strong>${escapeHtml(String(last.eafPos))}</strong>${last.ok ? '' : ' (failed)'}`);
+      }
+    }
+    if (digest.guide) {
+      const g = digest.guide;
+      const gCls = g.quality === 'good' ? 'ssl-ok' : (g.quality === 'poor' ? 'ssl-bad' : '');
+      lines.push(
+        `Guide <span class="${gCls}">${escapeHtml(g.quality)}</span>`
+        + (g.rmsTotalArcsec != null ? ` · RMS ${escapeHtml(String(g.rmsTotalArcsec))}″` : '')
+        + (g.starLost ? ` · ${g.starLost} star-lost` : '')
+        + (g.settleFail ? ` · ${g.settleFail} settle fail` : '')
+      );
+    }
+    if (digest.flags && digest.flags.paused && !digest.flags.finishedClean) {
+      lines.push('Autorun paused / stopped manually');
+    }
+  }
+  for (const tip of (sl && sl.insights) || []) {
+    if (tip && !lines.some((l) => l.includes(escapeHtml(String(tip).slice(0, 24))))) {
+      lines.push(escapeHtml(String(tip)));
+    }
+  }
+  const warns = (sl && sl.softWarnings) || [];
+  el.hidden = false;
+  el.innerHTML =
+    `<div class="ssl-title">Session log · ASIAIR Autorun / PHD2</div>`
+    + (lines.length ? `<ul class="ssl-lines">${lines.map((l) => `<li>${l}</li>`).join('')}</ul>` : '')
+    + (warns.length
+      ? `<div class="ssl-warn">${warns.map((w) => escapeHtml(String(w))).join('<br>')}</div>`
+      : '');
+}
+
+function sessionLogBadgeHtml(digest) {
+  if (!digest) return '';
+  const bits = [];
+  if (digest.plateAngleDeg != null) {
+    const ok = digest.plateAngleOk;
+    bits.push(`∠${Number(digest.plateAngleDeg).toFixed(0)}°${ok === true ? '✓' : (ok === false ? '≠' : '')}`);
+  }
+  if (digest.guide && digest.guide.quality && digest.guide.quality !== 'unknown') {
+    bits.push(`guide ${digest.guide.quality}${digest.guide.rmsTotalArcsec != null ? ` ${digest.guide.rmsTotalArcsec}″` : ''}`);
+  }
+  if (digest.plannedLights != null) bits.push(`plan ${digest.plannedLights}L`);
+  if (!bits.length) return '';
+  return `<div class="detail-k">Session log</div><div class="detail-v">${escapeHtml(bits.join(' · '))}</div>`;
+}
+
 function applyIngestStageResult(project, sh, session, scan, result, shootFolder, ft) {
   const meta = (result && result.meta) || {};
   const lightRow = (scan.filters || []).find((r) => ft && r.filter === ft.filter);
@@ -16348,6 +16783,7 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
     stagedAt: meta.stagedAt,
     softWarnings: result.softWarnings || meta.softWarnings || [],
     lightCaaDeg: meta.lightCaaDeg != null ? meta.lightCaaDeg : null,
+    sessionLog: meta.sessionLog || (result && result.sessionLog) || null,
   };
   if ((!sh.hours || sh.hours === 0) && lightCount && lightRow && lightRow.exposureSec) {
     sh.hours = Math.round((lightCount * lightRow.exposureSec / 3600) * 100) / 100;
@@ -17200,7 +17636,10 @@ async function runIngestStage(force = false) {
   document.getElementById('ingest-progress').textContent =
     `Imported ${meta.filesStaged || 0} files → ${shortPath((meta.destRoots && meta.destRoots[0]) || '')} · L${by.light || 0} F${by.flat || 0} D${by.dark || 0}${reuseNote}`
     + (((result.softWarnings || meta.softWarnings || []).length)
-      ? ` · CAA: ${(result.softWarnings || meta.softWarnings).join(' · ')}`
+      ? ` · ${(result.softWarnings || meta.softWarnings).join(' · ')}`
+      : '')
+    + ((meta.sessionLog && meta.sessionLog.copiedTo)
+      ? ` · session logs saved`
       : '');
   setTimeout(() => closeIngestModal(), 700);
 }
@@ -17741,6 +18180,7 @@ const MODAL_OPEN_SELECTOR = [
   '.cull-overlay.open',
   '.siril-progress-overlay.open',
   '.pipeline-job-overlay.open',
+  '.session-log-overlay.open',
   '.app-dialog-overlay.open',
 ].join(', ');
 
@@ -17753,7 +18193,7 @@ function syncBodyScrollLock() {
 function initModalScrollLock() {
   syncBodyScrollLock();
   const roots = document.querySelectorAll(
-    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay, .app-dialog-overlay'
+    '.modal-overlay, .ingest-overlay, .ingest-target-confirm-overlay, .source-review-overlay, .ingest-files-overlay, .cull-overlay, .siril-progress-overlay, .pipeline-job-overlay, .session-log-overlay, .app-dialog-overlay'
   );
   if (!roots.length || typeof MutationObserver !== 'function') return;
   const obs = new MutationObserver(() => syncBodyScrollLock());

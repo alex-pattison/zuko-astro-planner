@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-20 — explore/asiair-logs — Autorun + PHD2 session logs
+- **Seen:** ASIAIR dump `log/` has Autorun_Log / Plan_Log + PHD2_GuideLog (EN + CHN dupes). Unused by Zuko until now.
+- **Use:** Parse beside Import; soft-warn plate-solve Angle vs Target Framer CAA, planned vs staged lights, filter-change fails, guide quality; archive copies into each shoot’s `session-logs/` + `session-digest.json` on `ingestMeta.sessionLog`.
+- **UI:** Import session-log panel; night detail badge + softWarnings; Calibrate/Cull tips from guide RMS.
+- **QA:** `scripts/qa-asiair-session-logs.js`; backfill `scripts/backfill-session-logs.js`.
+- **Next:** Wire Plan_Log_* when a Plan dump arrives (parser already accepts). Optional: richer timeline viewer.
+
 ### 2026-08-20 — build 32 — Register filter name vs tone gate
 - **Seen:** Veil OIII (and Ha/SII) showed Register unlocked but clicking alerted “Calibrate at least one night…” despite calibrated nights.
 - **Cause:** Click passed display name (`OIII`) while shoot lookup compared tone keys (`oiii`).

@@ -95,6 +95,14 @@ Reusable master dark flats, not only the ASIAIR Bias folder that rode in with th
 
 ### ASIAIR / ingest / framer
 
+#### 25. ASIAIR session logs (Autorun / Plan / PHD2) — *in progress on explore/asiair-logs*
+
+Read `{asiairSource}/log/` beside Import. Persist digest on `ingestMeta.sessionLog` and copy logs into `shoot/session-logs/`. Soft-warn CAA vs plate Angle, planned vs staged lights, filter fails; guide quality on Calibrate/Cull.
+
+**Why:** FITS alone miss plan name, AF, pauses, and guide RMS.
+
+---
+
 #### 5. ASIAIR Plan CSV / coords export from Target Framer
 
 Export RA/Dec/rotation (later mosaic panels) in the CSV shape ASIAIR Plan can import.
