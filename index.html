@@ -676,6 +676,20 @@
   html[data-theme="red"] [id^="aladin-framer-"] {
     filter: grayscale(1) sepia(1) hue-rotate(-52deg) saturate(5.5) brightness(0.45) contrast(1.1);
   }
+  .aladin-tile-wait {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bg) 62%, transparent);
+    color: var(--gray);
+    font-family: var(--mono);
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 8px;
+  }
   html[data-theme="red"] #boot-splash {
     background: #000000;
     color: #ff2222;
@@ -794,6 +808,7 @@
     font-weight: 600;
   }
   .ingest-target-confirm-aladin {
+    position: relative;
     width: 100%;
     height: 260px;
     background: #0a0a0c;
@@ -1041,6 +1056,50 @@
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+  }
+  .ingest-flat-sets {
+    margin: 0 0 12px;
+    padding: 8px 10px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg3);
+  }
+  .ingest-flat-sets[hidden] { display: none !important; }
+  .ingest-flat-sets-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .ingest-flat-set-filter {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 8px 0 2px;
+  }
+  .ingest-flat-set-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 4px;
+    font-size: 12px;
+    line-height: 1.35;
+    border-radius: 6px;
+  }
+  .ingest-flat-set-row:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .ingest-flat-set-row input { margin-top: 2px; flex-shrink: 0; }
+  .ingest-flat-set-row .set-body { min-width: 0; }
+  .ingest-flat-set-row .set-meta { color: var(--text2); font-size: 11px; }
+  .ingest-flat-set-row.warn .set-meta { color: var(--yellow); }
+  .ingest-flat-set-row .set-tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .ingest-session-log {
     margin: 0 0 12px;
@@ -5070,7 +5129,7 @@
       </div>
       <div class="skyfx-top">
         <div class="skyfx-top-actions">
-          <button type="button" class="modal-btn skyfx-needs-net" id="skyfx-refresh-btn" onclick="refreshSkyForecastPanel(true)" title="Force a new Astrospheric pull (~65 credits)">Pull fresh data</button>
+          <button type="button" class="modal-btn skyfx-needs-net" id="skyfx-refresh-btn" onclick="refreshSkyForecastPanel(true)" title="Force a new Astrospheric pull">Pull fresh data</button>
           <a class="skyfx-ext skyfx-needs-net" id="skyfx-link" href="https://www.astrospheric.com/" target="_blank" rel="noopener">Open Astrospheric ↗</a>
         </div>
       </div>
@@ -5582,7 +5641,7 @@
 
     <div class="settings-section">
       <h4>Astrospheric</h4>
-      <p class="settings-hint">Pro API key from Astrospheric → My Profile. Stored in a local <code>.env</code> next to the data folder in Beta, or the repo root in Dev (not in the dashboard JSON). Pulls request cloud, transparency, seeing, and temperature only (~80 credits each; monthly allowance).</p>
+      <p class="settings-hint">Pro API key from Astrospheric → My Profile. Stored in a local <code>.env</code> next to the data folder in Beta, or the repo root in Dev (not in the dashboard JSON). Pulls request cloud, transparency, and seeing. Cost is whatever the API reports on the last live call (recently 15 credits; older table-sum was ~65). Monthly remaining is shown from the API, not a hardcoded cap.</p>
       <label for="settings-api-key">API key</label>
       <input id="settings-api-key" data-testid="settings-api-key" type="password" autocomplete="off" placeholder="Paste key to update">
       <div id="settings-api-key-status">Not configured</div>
@@ -5736,6 +5795,7 @@
       </div>
     </div>
     <div class="ingest-chips" id="ingest-chips"></div>
+    <div id="ingest-flat-sets" class="ingest-flat-sets" hidden></div>
     <div id="ingest-session-log" class="ingest-session-log" hidden></div>
     <div id="ingest-confirm" class="ingest-confirm-block"></div>
     <div class="table-scroll">
@@ -7901,62 +7961,129 @@ function pickHourlyAt(hourly, when) {
   };
 }
 
-async function refreshHeaderSky() {
+function headerShootCoords() {
+  ensureHomeSite();
+  const home = data.homeSite || HOME_SITE;
+  return { lat: Number(home.lat), lon: Number(home.lon) };
+}
+
+function skyFxForecastCoordsNearHeader() {
+  const loc = data.forecastLocation;
+  if (!loc) return false;
+  const home = headerShootCoords();
+  return Math.abs(Number(loc.lat) - home.lat) < 0.0015
+    && Math.abs(Number(loc.lon) - home.lon) < 0.0015;
+}
+
+function setHeaderOfflineChip(show, label, title) {
+  const offlineChip = document.getElementById('header-offline-chip');
+  if (!offlineChip) return;
+  if (show) {
+    offlineChip.hidden = false;
+    offlineChip.classList.add('is-visible');
+    offlineChip.textContent = label || 'Offline';
+    offlineChip.title = title || 'Offline — click to open Sky Forecast';
+  } else {
+    offlineChip.hidden = true;
+    offlineChip.classList.remove('is-visible');
+  }
+}
+
+function setHeaderShootChip(rag, label, title, note, offlineState) {
   const chipEl = document.getElementById('header-shoot-chip');
   const labelEl = document.getElementById('header-shoot-label');
   const noteEl = document.getElementById('header-shoot-note');
-  const offlineChip = document.getElementById('header-offline-chip');
   const wrapEl = document.getElementById('header-shoot-rag');
-  ensureHomeSite();
-  const home = data.homeSite || HOME_SITE;
+  if (chipEl) chipEl.className = 'shoot-rag-chip rag-' + (rag || 'muted');
+  if (labelEl) labelEl.textContent = label || 'Tonight —';
+  if (wrapEl) wrapEl.title = title || 'Tonight’s shoot recommendation';
+  if (noteEl) {
+    if (note && !offlineState) {
+      noteEl.hidden = false;
+      noteEl.textContent = note;
+    } else {
+      noteEl.hidden = true;
+      noteEl.textContent = '';
+    }
+  }
+  if (offlineState) setHeaderOfflineChip(true, offlineState.label, offlineState.title);
+  else setHeaderOfflineChip(false);
+}
+
+/** Paint the header GO / OK / NO chip from a tonightShoot / skyForecast result. */
+function applyHeaderSkyFromForecast(res) {
+  const offline = !skyFxIsOnline() || !!(res && res.offline);
+  const offlineState = offline
+    ? {
+        label: (res && res.ok && res.cached) ? 'Offline · cached' : 'Offline',
+        title: (res && res.ok && res.cached)
+          ? 'Offline — showing cached forecast. Click to open Sky Forecast.'
+          : 'No internet — live forecast unavailable. Click to open Sky Forecast.',
+      }
+    : null;
+
+  if (!res || !res.ok) {
+    const detail = (res && (res.primaryError || res.error)) || 'unavailable';
+    setHeaderShootChip(
+      'muted',
+      'Tonight · —',
+      offline ? 'No internet — live forecast unavailable' : detail,
+      null,
+      offlineState
+    );
+    return;
+  }
+
+  if (res.fallback || res.noRag) {
+    setHeaderShootChip(
+      'muted',
+      'Tonight · —',
+      offline
+        ? 'No internet — no shoot RAG'
+        : 'No RAG on fallback data · click to open Sky Forecast',
+      null,
+      offlineState
+    );
+    return;
+  }
+
+  const rag = res.rag || 'amber';
+  const chipLabel = 'Tonight · ' + (res.label || rag);
+  let title = 'Tonight’s shoot · click to open Sky Forecast';
+  if (res.averages) {
+    const bits = [];
+    if (res.averages.cloud != null) bits.push(res.averages.cloud + '% cloud');
+    if (res.averages.transparency != null) bits.push('trans ' + res.averages.transparency);
+    if (res.averages.seeing != null) bits.push('seeing ' + res.averages.seeing);
+    if (bits.length) title += ' · ' + bits.join(' · ');
+  }
+  if (res.pullsRemaining != null) title += ' · ' + res.pullsRemaining + ' pulls left this month';
+
+  let note = null;
+  if (res.synthetic) {
+    note = 'synthetic · Dev setting';
+    title += ' (synthetic)';
+  }
+  if (offline) title += ' (offline cache)';
+
+  setHeaderShootChip(rag, chipLabel, title, note, offlineState);
+}
+
+async function refreshHeaderSky(opts = {}) {
+  const silent = !!(opts && opts.silent);
+  const home = headerShootCoords();
   const lat = home.lat, lon = home.lon;
   const now = new Date();
   const night = nextAstroNight(lat, lon, now);
   const imaging = upcomingImagingNights(lat, lon, 1, 1, now)[0];
 
-  function setOfflineChip(show, label, title) {
-    if (!offlineChip) return;
-    if (show) {
-      offlineChip.hidden = false;
-      offlineChip.classList.add('is-visible');
-      offlineChip.textContent = label || 'Offline';
-      offlineChip.title = title || 'Offline — click to open Sky Forecast';
-    } else {
-      offlineChip.hidden = true;
-      offlineChip.classList.remove('is-visible');
-    }
-  }
-
-  function setChip(rag, label, title, note, offlineState) {
-    if (chipEl) {
-      chipEl.className = 'shoot-rag-chip rag-' + (rag || 'muted');
-    }
-    if (labelEl) labelEl.textContent = label || 'Tonight —';
-    if (wrapEl) wrapEl.title = title || 'Tonight’s shoot recommendation';
-    if (noteEl) {
-      // Non-offline notes (e.g. synthetic) still use the small note under the RAG chip
-      if (note && !offlineState) {
-        noteEl.hidden = false;
-        noteEl.textContent = note;
-      } else {
-        noteEl.hidden = true;
-        noteEl.textContent = '';
-      }
-    }
-    if (offlineState) {
-      setOfflineChip(true, offlineState.label, offlineState.title);
-    } else {
-      setOfflineChip(false);
-    }
-  }
-
-  setChip('muted', 'Tonight · …', 'Loading tonight’s recommendation');
+  if (!silent) setHeaderShootChip('muted', 'Tonight · …', 'Loading tonight’s recommendation');
 
   const windowStart = (imaging && imaging.start) || night.dusk || night.darkStart;
   const windowEnd = (imaging && imaging.end) || night.dawn || night.darkEnd;
   if (!windowStart || !windowEnd) {
-    setChip('muted', 'Tonight · —', 'Astro-dark window unavailable');
-    return;
+    setHeaderShootChip('muted', 'Tonight · —', 'Astro-dark window unavailable');
+    return null;
   }
 
   try {
@@ -7983,65 +8110,11 @@ async function refreshHeaderSky() {
         primaryError: 'Astrospheric requires the desktop app',
       };
     }
-
-    const offline = !skyFxIsOnline() || !!(res && res.offline);
-    const offlineState = offline
-      ? {
-          label: (res && res.ok && res.cached) ? 'Offline · cached' : 'Offline',
-          title: (res && res.ok && res.cached)
-            ? 'Offline — showing cached forecast. Click to open Sky Forecast.'
-            : 'No internet — live forecast unavailable. Click to open Sky Forecast.',
-        }
-      : null;
-
-    if (!res || !res.ok) {
-      const detail = (res && (res.primaryError || res.error)) || 'unavailable';
-      setChip(
-        'muted',
-        'Tonight · —',
-        offline ? 'No internet — live forecast unavailable' : detail,
-        null,
-        offlineState
-      );
-      return;
-    }
-
-    if (res.fallback || res.noRag) {
-      setChip(
-        'muted',
-        'Tonight · —',
-        offline
-          ? 'No internet — no shoot RAG'
-          : 'No RAG on fallback data · click to open Sky Forecast',
-        null,
-        offlineState
-      );
-      return;
-    }
-
-    const rag = res.rag || 'amber';
-    const chipLabel = 'Tonight · ' + (res.label || rag);
-    let title = 'Tonight’s shoot · click to open Sky Forecast';
-    if (res.averages) {
-      const bits = [];
-      if (res.averages.cloud != null) bits.push(res.averages.cloud + '% cloud');
-      if (res.averages.transparency != null) bits.push('trans ' + res.averages.transparency);
-      if (res.averages.seeing != null) bits.push('seeing ' + res.averages.seeing);
-      if (bits.length) title += ' · ' + bits.join(' · ');
-    }
-    if (res.pullsRemaining != null) title += ' · ' + res.pullsRemaining + ' pulls left this month';
-
-    let note = null;
-    if (res.synthetic) {
-      note = 'synthetic · Dev setting';
-      title += ' (synthetic)';
-    }
-    if (offline) title += ' (offline cache)';
-
-    setChip(rag, chipLabel, title, note, offlineState);
+    applyHeaderSkyFromForecast(res);
+    return res;
   } catch (e) {
     const offline = !skyFxIsOnline() || /fetch|network|offline/i.test(String(e && e.message));
-    setChip(
+    setHeaderShootChip(
       'muted',
       'Tonight · —',
       offline ? 'No internet — live forecast unavailable' : String(e && e.message ? e.message : e),
@@ -8050,7 +8123,29 @@ async function refreshHeaderSky() {
         ? { label: 'Offline', title: 'No internet — live forecast unavailable' }
         : null
     );
+    return null;
   }
+}
+
+/** Soft-refresh Sky Forecast + header while the window stays open (cache still 4h). */
+const SKYFX_AUTO_REFRESH_MS = 15 * 60 * 1000;
+let _skyFxAutoRefreshTimer = null;
+
+function initSkyForecastAutoRefresh() {
+  if (_skyFxAutoRefreshTimer) return;
+  const tick = async () => {
+    let res = null;
+    try { res = await refreshHeaderSky({ silent: true }); } catch (e) {}
+    // Rebuild the Sky Forecast panel only when this tick caused a live pull
+    // (otherwise we'd rewrite the night tables every 15 minutes).
+    if (res && res.ok && !res.cached) {
+      try { await refreshSkyForecastPanel(false); } catch (e) {}
+    }
+  };
+  _skyFxAutoRefreshTimer = setInterval(tick, SKYFX_AUTO_REFRESH_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) tick();
+  });
 }
 
 function save(opts) {
@@ -8198,6 +8293,16 @@ async function bootFromElectronFile() {
 }
 
 // ============ LOCATION & SKY FORECAST ============
+let _skyFxLastCostPerPull = null;
+
+function skyFxPullTitle(canPull) {
+  if (!canPull) return 'Needs internet to pull fresh Astrospheric data';
+  const n = _skyFxLastCostPerPull;
+  return n != null
+    ? 'Force a new Astrospheric pull (' + n + ' credits)'
+    : 'Force a new Astrospheric pull (uses last billed cost)';
+}
+
 function skyFxIsOnline() {
   if (skyFxSimulateOffline()) return false;
   return typeof navigator === 'undefined' || navigator.onLine !== false;
@@ -8229,7 +8334,7 @@ function setSkyFxOfflineBanner(forceOffline, detail) {
       // Only lock Pull when the machine is actually offline (or simulated).
       // A prior response with res.offline (cached after a failed pull) must not stick.
       refreshBtn.disabled = skyFxPreferFallback() || skyFxPreferSynthetic();
-      refreshBtn.title = 'Force a new Astrospheric pull (~65 credits)';
+      refreshBtn.title = skyFxPullTitle(true);
     }
   }
   const searchBtn = document.getElementById('locfx-search-btn');
@@ -9205,12 +9310,17 @@ function updateSkyFxCreditTicker(res) {
   const sub = document.getElementById('skyfx-credit-ticker-sub');
   if (!main) return;
 
+  if (res && res.costPerPull != null && Number(res.costPerPull) > 0) {
+    _skyFxLastCostPerPull = Number(res.costPerPull);
+  }
+
   const pullsLeft = res && res.pullsRemaining != null ? res.pullsRemaining : null;
-  const pullsCap = res && res.pullsPerMonth != null ? res.pullsPerMonth : null;
+  const cost = res && res.costPerPull != null ? res.costPerPull : _skyFxLastCostPerPull;
+  const creditsLeft = res && res.creditsRemaining != null ? res.creditsRemaining : null;
   const days = res && res.daysUntilReset != null ? res.daysUntilReset : null;
   const offline = !skyFxIsOnline() || !!(res && res.offline);
 
-  if (pullsLeft == null || pullsCap == null) {
+  if (pullsLeft == null) {
     main.innerHTML = offline
       ? '<strong>API pulls</strong> · offline'
       : '<strong>API pulls</strong> · unknown until first Astrospheric pull';
@@ -9220,7 +9330,13 @@ function updateSkyFxCreditTicker(res) {
       : (days === 0
         ? 'resets today (midnight UTC)'
         : (days === 1 ? 'resets in 1 day' : 'resets in ' + days + ' days'));
-    main.innerHTML = '<strong>' + pullsLeft + '/' + pullsCap + ' requests remaining</strong>' +
+    const costBit = cost != null ? cost + ' credits/pull' : null;
+    const poolBit = creditsLeft != null
+      ? Number(creditsLeft).toLocaleString('en-US') + ' credits left'
+      : null;
+    main.innerHTML = '<strong>' + Number(pullsLeft).toLocaleString('en-US') + ' pulls left</strong>' +
+      (costBit ? ' · ' + escapeHtml(costBit) : '') +
+      (poolBit ? ' · ' + escapeHtml(poolBit) : '') +
       ' · ' + escapeHtml(resetBit) +
       (offline ? ' · <span style="color:var(--red)">offline</span>' : '');
   }
@@ -9289,7 +9405,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
     refreshBtn.hidden = preferFallback || preferSynthetic;
     refreshBtn.title = !online
       ? 'Needs internet to pull fresh Astrospheric data'
-      : 'Force a new Astrospheric pull (~65 credits)';
+      : skyFxPullTitle(true);
     if (willForcePull) {
       refreshBtn.disabled = true;
       refreshBtn.classList.add('is-loading');
@@ -9347,6 +9463,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
       wrap.hidden = false;
       setSkyFxDataBanner(res || { offline: true, fallback: true, noRag: true });
       updateSkyFxCreditTicker(res);
+      if (skyFxForecastCoordsNearHeader()) applyHeaderSkyFromForecast(res);
       if (statusEl) {
         statusEl.hidden = false;
         statusEl.textContent = offline
@@ -9374,6 +9491,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
     if (offline) res = { ...res, offline: true };
     setSkyFxDataBanner(res);
     updateSkyFxCreditTicker(res);
+    if (skyFxForecastCoordsNearHeader()) applyHeaderSkyFromForecast(res);
     showClearOutsideFallback(lat, lon, isFallback || offline);
 
     if (metricsEl) {
@@ -9404,6 +9522,15 @@ async function refreshSkyForecastPanel(forceRefresh) {
         skyfxMetric('Temp', tonightAvg.tempF != null ? tonightAvg.tempF + '°F' : '—', 'night avg'),
         skyfxMetric('Precip', precipVal != null ? precipVal + '%' : '—', 'night avg')
       );
+      if (tonightAvg.dewF != null) {
+        items.push(skyfxMetric('Dew', tonightAvg.dewF + '°F', 'night avg'));
+      }
+      if (tonightAvg.windMph != null) {
+        items.push(skyfxMetric('Wind', tonightAvg.windMph + ' mph', 'night avg'));
+      }
+      if (tonightAvg.smoke != null) {
+        items.push(skyfxMetric('Smoke', String(tonightAvg.smoke), 'column'));
+      }
       metricsEl.innerHTML = items.join('');
     }
 
@@ -9529,6 +9656,9 @@ async function refreshSkyForecastPanel(forceRefresh) {
       nightsListEl.innerHTML = '<div class="skyfx-offline-placeholder"><strong>No internet</strong> · hourly night forecast unavailable</div>';
     }
     showClearOutsideFallback(lat, lon, true);
+    if (skyFxForecastCoordsNearHeader()) {
+      applyHeaderSkyFromForecast({ ok: false, offline, fallback: true, noRag: true });
+    }
   } finally {
     if (refreshBtn) {
       refreshBtn.classList.remove('is-loading');
@@ -9541,9 +9671,7 @@ async function refreshSkyForecastPanel(forceRefresh) {
       const canPull = skyFxIsOnline() && !skyFxPreferFallback() && !skyFxPreferSynthetic();
       refreshBtn.classList.toggle('is-offline', !skyFxIsOnline());
       refreshBtn.disabled = !canPull;
-      refreshBtn.title = canPull
-        ? 'Force a new Astrospheric pull (~65 credits)'
-        : 'Needs internet to pull fresh Astrospheric data';
+      refreshBtn.title = skyFxPullTitle(canPull);
     }
   }
 }
@@ -10872,15 +11000,51 @@ function dismissBootSplash() {
   setTimeout(() => { try { splash.remove(); } catch (e) {} }, 280);
 }
 
-// Vendored Aladin Lite (ESM) — avoids flaky CDS CDN from Electron/file://
+// Vendored Aladin Lite (ESM). DSS2 color HiPS: use the CDS *bis* mirror first —
+// alasky.cds.unistra.fr currently hangs from US networks, which left a black WebGL
+// canvas after "ready". Pass a URL string (not an A.HiPS() object) as `survey`.
+const ALADIN_DSS_HIPS_URL = 'https://alaskybis.cds.unistra.fr/DSS/DSSColor';
+const ALADIN_DSS_HIPS_MIRROR = 'https://alasky.cds.unistra.fr/DSS/DSSColor';
+const ALADIN_DSS_PREFETCH = [
+  ALADIN_DSS_HIPS_URL + '/properties',
+  ALADIN_DSS_HIPS_URL + '/Norder3/Allsky.jpg',
+  ALADIN_DSS_HIPS_MIRROR + '/properties',
+];
 let aladinLoadPromise = null;
 
 function aladinReady() {
   return typeof A !== 'undefined' && A && typeof A.aladin === 'function' && A.init != null;
 }
 
+function prefetchAladinSurvey() {
+  ALADIN_DSS_PREFETCH.forEach((u) => {
+    try { fetch(u, { mode: 'cors', cache: 'force-cache' }).catch(() => {}); } catch (e) { /* ignore */ }
+  });
+}
+
+function mountAladinViewer(hostId, ra, dec, fovDeg, extraOpts) {
+  const host = document.getElementById(hostId);
+  if (!host) return null;
+  host.innerHTML = '';
+  return A.aladin('#' + hostId, Object.assign({
+    target: `${ra} ${dec}`,
+    fov: fovDeg,
+    survey: ALADIN_DSS_HIPS_URL,
+    showLayersControl: false,
+    showGotoControl: false,
+    showProjectionControl: false,
+    showZoomControl: false,
+    showFrame: false,
+    showReticle: false,
+    cooFrame: 'ICRS',
+  }, extraOpts || {}));
+}
+
 function ensureAladinLoaded() {
-  if (aladinReady()) return Promise.resolve();
+  if (aladinReady()) {
+    prefetchAladinSurvey();
+    return Promise.resolve();
+  }
   if (aladinLoadPromise) return aladinLoadPromise;
   aladinLoadPromise = (async () => {
     try {
@@ -10890,8 +11054,11 @@ function ensureAladinLoaded() {
         throw new Error('Aladin module did not export A.aladin');
       }
       window.A = api;
-      await Promise.resolve(api.init);
+      const initP = api.init;
+      if (initP && typeof initP.then === 'function') await initP;
+      else if (typeof initP === 'function') await initP();
       if (!aladinReady()) throw new Error('Aladin init finished but API is incomplete');
+      prefetchAladinSurvey();
     } catch (e) {
       aladinLoadPromise = null;
       throw e;
@@ -10922,15 +11089,10 @@ function initFramer(pi) {
     }
     host.innerHTML = '';
     const rot = p.framerRotation || 0;
-    const aladin = A.aladin(`#aladin-framer-${pi}`, {
-      target: `${p.savedTarget.ra} ${p.savedTarget.dec}`,
-      fov: framerViewFovDeg(p.framerMode, rot),
-      survey: 'P/DSS2/color',
+    const aladin = mountAladinViewer(`aladin-framer-${pi}`, p.savedTarget.ra, p.savedTarget.dec, framerViewFovDeg(p.framerMode, rot), {
       showFullscreenControl: true,
-      showLayersControl: false,
-      showGotoControl: false,
-      cooFrame: 'ICRS'
     });
+    if (!aladin) return;
     const overlay = A.graphicOverlay({ color: '#eab308', lineWidth: 2 });
     aladin.addOverlay(overlay);
     framerInstances[pi] = { aladin, overlay };
@@ -12644,7 +12806,92 @@ function ingestCalibOverridePayload() {
     rejectFlatPaths: (o.flats && o.flats.rejectPaths) || [],
     rejectDarkPaths: (o.darks && o.darks.rejectPaths) || [],
     rejectBiasPaths: (o.biases && o.biases.rejectPaths) || [],
+    flatSetChoice: (ingestCtx && ingestCtx.flatSetChoice) || {},
   };
+}
+
+function ingestChosenFlatKeys() {
+  const keys = new Set();
+  const choice = (ingestCtx && ingestCtx.flatSetChoice) || {};
+  for (const s of (ingestCtx && ingestCtx.flatSets) || []) {
+    if (choice[s.filter] !== s.id) continue;
+    for (const k of s.frameKeys || []) keys.add(k);
+  }
+  return keys;
+}
+
+async function scoreIngestFlatSets(opts) {
+  if (!window.zukoIngest || typeof window.zukoIngest.scoreFlatSets !== 'function') {
+    return { ok: false, sets: [], defaults: {} };
+  }
+  try {
+    const scored = await window.zukoIngest.scoreFlatSets(opts || {});
+    if (!scored || scored.ok === false) return { ok: false, sets: [], defaults: {} };
+    return scored;
+  } catch (err) {
+    return { ok: false, sets: [], defaults: {}, error: String(err && err.message ? err.message : err) };
+  }
+}
+
+function selectIngestFlatSet(filter, id) {
+  if (!ingestCtx) return;
+  if (!ingestCtx.flatSetChoice) ingestCtx.flatSetChoice = {};
+  ingestCtx.flatSetChoice[filter] = id;
+  refreshIngestCalibFromOverrides();
+}
+
+function renderIngestFlatSetPicker() {
+  const el = document.getElementById('ingest-flat-sets');
+  if (!el) return;
+  const allow = ingestCtx && ingestCtx.multiFilters
+    ? new Set(ingestCtx.multiFilters)
+    : (ingestCtx && ingestCtx._shootFilter
+      ? new Set([ingestCtx._shootFilter])
+      : null);
+  const sets = ((ingestCtx && ingestCtx.flatSets) || []).filter((s) => {
+    if (!allow) return true;
+    return allow.has(s.filter);
+  });
+  if (!sets.length) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  const choice = (ingestCtx && ingestCtx.flatSetChoice) || {};
+  const byFilter = new Map();
+  for (const s of sets) {
+    if (!byFilter.has(s.filter)) byFilter.set(s.filter, []);
+    byFilter.get(s.filter).push(s);
+  }
+  const multiChoice = [...byFilter.values()].some((list) => list.length > 1);
+  const blocks = [];
+  for (const [filter, list] of byFilter) {
+    const tone = filterToneKey(filter);
+    const rows = list.map((s) => {
+      const checked = choice[s.filter] === s.id;
+      const warn = !s.caaOk || !s.biasCovered;
+      const tag = s.isDefault ? '<span class="set-tag">closest</span>' : '';
+      return `<label class="ingest-flat-set-row${warn ? ' warn' : ''}">
+        <input type="radio" name="ingest-flat-set-${escapeAttr(filter)}" value="${escapeAttr(s.id)}"
+          ${checked ? 'checked' : ''} onchange="selectIngestFlatSet('${escapeAttr(filter)}', this.value)">
+        <span class="set-body">
+          <span class="flt-${tone}">${escapeHtml(filter)}</span>
+          ${tag}
+          <div class="set-meta">${escapeHtml(s.label || [
+            s.stampLabel,
+            (s.count || 0) + ' flats',
+            s.deltaLabel,
+            s.biasCovered ? ('bias ' + s.biasCount) : 'no matching bias',
+          ].filter(Boolean).join(' · '))}</div>
+        </span>
+      </label>`;
+    }).join('');
+    blocks.push((byFilter.size > 1 ? `<div class="ingest-flat-set-filter flt-${tone}">${escapeHtml(filter)}</div>` : '') + rows);
+  }
+  el.hidden = false;
+  el.innerHTML =
+    `<div class="ingest-flat-sets-title">${multiChoice ? 'Flat sets — pick one per filter' : 'Flat set vs this night’s lights'}</div>`
+    + blocks.join('');
 }
 
 function ingestIsPathIncluded(kind, key) {
@@ -13043,8 +13290,13 @@ function openIngestFilesPopup(kind) {
     const framerCaa = ingestCtx.framerCaaDeg;
     frames = (scan.flats || []).filter((f) => {
       const ff = f.filter != null ? (normalizeFilterClient(f.filter) || f.filter) : null;
-      if (allow) return allow.has(ff);
-      if (shootFilter) return !ff || ff === shootFilter;
+      if (allow) {
+        if (!allow.has(ff)) return false;
+      } else if (shootFilter && ff && ff !== shootFilter) {
+        return false;
+      }
+      const chosen = ingestChosenFlatKeys();
+      if (chosen.size && !chosen.has(ingestFrameKey(f))) return false;
       return true;
     }).map((f) => {
       const key = ingestFrameKey(f);
@@ -13076,7 +13328,7 @@ function openIngestFilesPopup(kind) {
       `Framer CAA ${framerCaa != null ? framerCaa + '°' : '—'} · light temp ${lightTempC != null ? lightTempC + '°C' : '—'}`,
       tempN ? `${tempN} temp` : null,
       caaN ? `${caaN} CAA` : null,
-      '— Use checkbox to include or reject.',
+      '— Use checkbox to include or reject frames in this set.',
     ].filter(Boolean).join(' · ');
   } else if (kind === 'biases') {
     const rejected = ingestCtx.biasRejected || [];
@@ -13564,15 +13816,8 @@ function mountConfirmAladin(hostId, ra, dec, project, color, rotationDeg) {
     if (!el) return null;
     el.innerHTML = '';
     try {
-      const aladin = A.aladin(`#${hostId}`, {
-        target: `${ra} ${dec}`,
-        fov: fovDeg,
-        survey: 'P/DSS2/color',
-        showFullscreenControl: false,
-        showLayersControl: false,
-        showGotoControl: false,
-        cooFrame: 'ICRS',
-      });
+      const aladin = mountAladinViewer(hostId, ra, dec, fovDeg, { showFullscreenControl: false });
+      if (!aladin) return null;
       const overlay = drawAladinFovBox(aladin, ra, dec, project, color || '#eab308', rot);
       return { aladin, overlay };
     } catch (err) {
@@ -14329,6 +14574,8 @@ async function openIngestModal(pi, si) {
   document.getElementById('ingest-stage-btn').disabled = true;
   document.getElementById('ingest-filter-body').innerHTML = '<tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
+  const flatSetsClear = document.getElementById('ingest-flat-sets');
+  if (flatSetsClear) { flatSetsClear.hidden = true; flatSetsClear.innerHTML = ''; }
   const sslClear = document.getElementById('ingest-session-log');
   if (sslClear) { sslClear.hidden = true; sslClear.innerHTML = ''; }
   document.getElementById('ingest-confirm').textContent = '';
@@ -14415,10 +14662,8 @@ async function runIngestScan(opts = {}) {
   renderIngestTargetMatchRow();
   const pendingSet = multi ? new Set(ingestBatch.filters || []) : null;
   const shootFilter = ft ? ft.filter : null;
+  ingestCtx._shootFilter = shootFilter;
   const lightsRaw = (scan.lights || []).filter((f) =>
-    multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
-  );
-  const flatsForShootAll = (scan.flats || []).filter((f) =>
     multi ? pendingSet.has(f.filter) : (!shootFilter || f.filter === shootFilter)
   );
   const biases = scan.biases || [];
@@ -14434,6 +14679,31 @@ async function runIngestScan(opts = {}) {
   const lightCaaDeg = modeLightCaaDeg(lightsForShoot);
   ingestCtx.lightTempC = lightTempC;
   ingestCtx.lightCaaDeg = lightCaaDeg;
+
+  const allowFlatFilters = multi
+    ? (ingestBatch.filters || [])
+    : (shootFilter ? [shootFilter] : null);
+  if (!opts.reuseScan) ingestCtx.flatSetChoice = {};
+  const scoredFlats = await scoreIngestFlatSets({
+    flats: scan.flats || [],
+    lights: lightsForShoot.length ? lightsForShoot : lightsRaw,
+    biases,
+    framerCaaDeg: lightPart.framerCaaDeg,
+    lightTempC,
+    filters: allowFlatFilters,
+  });
+  ingestCtx.flatSets = scoredFlats.sets || [];
+  ingestCtx.flatSetDefaults = scoredFlats.defaults || {};
+  if (!ingestCtx.flatSetChoice) ingestCtx.flatSetChoice = {};
+  for (const [filt, id] of Object.entries(ingestCtx.flatSetDefaults || {})) {
+    if (!ingestCtx.flatSetChoice[filt]) ingestCtx.flatSetChoice[filt] = id;
+  }
+  const chosenFlatKeys = ingestChosenFlatKeys();
+  const flatsForShootAll = (scan.flats || []).filter((f) => {
+    if (multi ? !pendingSet.has(f.filter) : (shootFilter && f.filter !== shootFilter)) return false;
+    if (!chosenFlatKeys.size) return true;
+    return chosenFlatKeys.has(ingestFrameKey(f));
+  });
 
   // Flats vs light temp (±3°C) then Target Framer CAA (±10° / 180°±10°).
   let flatPart;
@@ -14567,6 +14837,11 @@ async function runIngestScan(opts = {}) {
             : 'Darkflat count matches flats')
           : `${biasMatched.length} matching / ${flatsN} flats — need more or include out-of-range`)));
 
+  const otherSetN = (ingestCtx.flatSets || []).filter((s) => {
+    if (allowFlatFilters && allowFlatFilters.length && !allowFlatFilters.includes(s.filter)) return false;
+    return ingestCtx.flatSetChoice && ingestCtx.flatSetChoice[s.filter] !== s.id;
+  }).length;
+
   const flatTone = !lightsForShoot.length
     ? (flatsForShootAll.length ? 'warn' : 'warn')
     : (!flatsForShoot.length
@@ -14589,7 +14864,8 @@ async function runIngestScan(opts = {}) {
               : null,
             'click to review / include',
           ].filter(Boolean).join(' · ')
-        : `Show flats matching light temp + framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}`));
+        : `Show flats matching light temp + framer CAA ${framerCaaDeg != null ? framerCaaDeg + '°' : '—'}`))
+    + (otherSetN ? ` · ${otherSetN} other set${otherSetN === 1 ? '' : 's'} below` : '');
 
   ingestCtx._chipBase = [
     chip('lights', lightPart.caaOut
@@ -14611,10 +14887,9 @@ async function runIngestScan(opts = {}) {
     `<div class="ingest-chips-row">${ingestCtx._chipBase.join('')}` +
     (multi && lightBreakdown ? `<span class="ingest-status-line" style="margin-left:4px;">${lightBreakdown}</span>` : '') +
     `</div><div class="ingest-chips-row" id="ingest-chips-masters"></div>`;
-  renderIngestSessionLogPanel(scan);
-
-  // Keep filter selection for file popup highlighting
   ingestCtx.multiFilters = multi ? (ingestBatch.filters || []) : null;
+  renderIngestFlatSetPicker();
+  renderIngestSessionLogPanel(scan);
 
   const shootFilterName = shootFilter;
   const plannedHrs = Number(sh.hours) || 0;
@@ -14622,13 +14897,24 @@ async function runIngestScan(opts = {}) {
     ? new Set(ingestBatch.filters || [])
     : null;
   const useMasterPreview = isIngestUseMastersChecked();
-  const rows = scan.filters || [];
+  const rows = (scan.filters || []).filter((r) => {
+    const isMatch = pendingFilters
+      ? pendingFilters.has(r.filter)
+      : !!(shootFilterName && r.filter === shootFilterName);
+    if (isMatch) return true;
+    return (r.lights || 0) > 0;
+  });
   document.getElementById('ingest-filter-body').innerHTML = rows.length ? rows.map((r) => {
     const isMatch = pendingFilters
       ? pendingFilters.has(r.filter)
       : !!(shootFilterName && r.filter === shootFilterName);
     const lightsN = r.lights || 0;
-    const flatsN = r.flats || 0;
+    const flatsForRowAll = (scan.flats || []).filter((x) => {
+      if (x.filter !== r.filter) return false;
+      if (!chosenFlatKeys.size) return true;
+      return chosenFlatKeys.has(ingestFrameKey(x));
+    });
+    const flatsN = flatsForRowAll.length;
     const inLog = hasShootLogForFilterNight(project, r.filter, night);
     const targetHrs = (isMatch && inLog)
       ? (pendingFilters
@@ -14644,7 +14930,6 @@ async function runIngestScan(opts = {}) {
       ? integ.targetHtml
       : '<span class="shoot-integ-val na">—</span>';
     const tone = filterToneKey(r.filter);
-    const flatsForRowAll = (scan.flats || []).filter((x) => x.filter === r.filter);
     const flatsForRow = partitionFlatsForImportUi(flatsForRowAll, lightTempC, framerCaaDeg).usable;
     const rowBiasOk = biasesCoverFlatsUi(biasMatched.length ? biasMatched : biases, flatsForRow, lightTempC);
     const missingForRow = [];
@@ -18379,6 +18664,8 @@ async function ingestAllCapturedShoots(pi) {
   document.getElementById('ingest-filter-body').innerHTML =
     '<tr><td colspan="10" style="color:var(--gray);">Scanning pending filters…</td></tr>';
   document.getElementById('ingest-chips').innerHTML = '';
+  const flatSetsClearAll = document.getElementById('ingest-flat-sets');
+  if (flatSetsClearAll) { flatSetsClearAll.hidden = true; flatSetsClearAll.innerHTML = ''; }
   document.getElementById('ingest-confirm').innerHTML = '';
   renderIngestTargetMatchRow();
 
@@ -19795,10 +20082,12 @@ try { syncThemeToggleBtns(normalizeUiTheme(document.documentElement.getAttribute
     persistData();
     syncHeaderVersion();
     initSkyFxConnectivityListeners();
+    initSkyForecastAutoRefresh();
     dismissBootSplash();
     // Weather / moon after first paint — don't block the UI
     refreshHeaderSky();
     checkSirilMonoScriptOnBoot();
+    setTimeout(() => { try { ensureAladinLoaded(); } catch (e) {} }, 1800);
   } catch (e) {
     console.error('Boot failed:', e);
     setBootStatus('Something went wrong — check DevTools console');

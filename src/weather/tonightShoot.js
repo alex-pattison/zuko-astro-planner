@@ -6,12 +6,19 @@ const path = require('path');
 const ASTROSPHERIC_URL =
   'https://v2-api-public.astrospheric.com/api/GetForecastData';
 
-/** v2 monthly allowance (resets 1st of month, midnight UTC). */
+/** Last documented monthly pool (resets 1st of month, midnight UTC). Live remaining can exceed this. */
 const MONTHLY_CREDITS = 29900;
+/** Moon endpoint cost — never use as the forecast "requests remaining" divider. */
+const MOON_API_COST = 10;
 
-/** Variables for shoot decisions (temp comes free from Open-Meteo). */
+/** Variables for shoot decisions (temp comes free from Open-Meteo).
+ *  v2 accepted names: Cloud, Transparency, Seeing, Temperature, DewPoint,
+ *  WindDirection, Wind, GDPSExtended, Smoke, GFSCloud, ICONCloud, NBMCloud.
+ *  Live billing is per variable (Cloud+Trans+Seeing ≈ 15–65; adding Temperature
+ *  jumped to 80; DewPoint+Wind+Smoke with those four billed 225). Keep the
+ *  default pull to the three RAG inputs. */
 const FORECAST_VARIABLES = ['Cloud', 'Transparency', 'Seeing'];
-/** Documented per-variable costs (sum = expected cost if API bills by table). */
+/** Documented per-variable table costs (fallback if the API omits APICreditCostOfCall). */
 const VARIABLE_COSTS = {
   Cloud: 15,
   Transparency: 30,
@@ -30,6 +37,8 @@ const CACHE_MAX_AGE_MS = 4 * 60 * 60 * 1000;
 
 /** In-memory cache — Astrospheric costs credits; prefer cache unless forceRefresh. */
 const forecastCache = new Map();
+/** Coalesce parallel GetForecastData calls for the same lat/lon (boot header + panel). */
+const inflightFetches = new Map();
 let diskCacheDir = null;
 
 function setForecastCacheDir(dir) {
@@ -137,27 +146,37 @@ function writeCreditSnapshot(info) {
 }
 
 /**
- * Monthly allowance is 29900 (docs). Cost = sum of requested variable costs.
- * Live billing confirmed: Cloud+Transparency+Seeing+Temperature = 80 / pull.
+ * Prefer live APICreditCostOfCall. Ignore the Moon endpoint's 10-credit cost if it
+ * leaked into a snapshot. Table-sum EXPECTED_COST (65) is only a fallback.
+ *
+ * Aug 2026 live v2 billing: Cloud+Transparency+Seeing returned for 15 credits/pull
+ * (not 65). Remaining pool can exceed the old 29900 cap (~95k observed).
  */
-function creditInfo({ remaining, costOfCall, fromCache } = {}) {
+function resolveForecastPullCost(raw, fallback = EXPECTED_COST) {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0 || n <= MOON_API_COST) return fallback;
+  return n;
+}
+
+function creditInfo({ remaining, costOfCall, monthlyCap, fromCache } = {}) {
   const rem =
     remaining != null && Number.isFinite(Number(remaining))
       ? Math.max(0, Number(remaining))
       : null;
-  const cost =
-    costOfCall != null && Number.isFinite(Number(costOfCall)) && Number(costOfCall) > 0
-      ? Number(costOfCall)
-      : EXPECTED_COST;
+  const cost = resolveForecastPullCost(costOfCall, EXPECTED_COST);
   const pullsRemaining = rem != null ? Math.floor(rem / cost) : null;
-  const pullsPerMonth = Math.floor(MONTHLY_CREDITS / cost);
+  const capBase =
+    monthlyCap != null && Number(monthlyCap) > 0 ? Number(monthlyCap) : MONTHLY_CREDITS;
+  // If remaining exceeds the old documented cap, the pool grew — don't show 6334/1993.
+  const cap = rem != null ? Math.max(capBase, rem) : capBase;
+  const pullsPerMonth = Math.floor(cap / cost);
   const resetAt = nextMonthlyResetUtc();
   const daysUntilReset = daysUntilMonthlyReset();
   const pullsUsed =
     pullsRemaining != null ? Math.max(0, pullsPerMonth - pullsRemaining) : null;
   const info = {
     creditsRemaining: rem,
-    creditsMonthlyCap: MONTHLY_CREDITS,
+    creditsMonthlyCap: cap,
     costPerPull: cost,
     pullsRemaining,
     pullsPerMonth,
@@ -176,15 +195,14 @@ function getStoredCreditInfo() {
   if (!snap) {
     return creditInfo({});
   }
-  // Prefer forecast pull cost. Ignore moon's 10-credit costOfCall if it leaked into the snapshot.
-  let cost = snap.costPerPull;
-  if (cost == null || !(Number(cost) > 0)) {
-    const raw = Number(snap.costOfCall);
-    cost = Number.isFinite(raw) && raw >= 50 ? raw : EXPECTED_COST;
-  }
+  const cost = resolveForecastPullCost(
+    snap.costPerPull != null ? snap.costPerPull : snap.costOfCall,
+    EXPECTED_COST
+  );
   return creditInfo({
     remaining: snap.creditsRemaining,
     costOfCall: cost,
+    monthlyCap: snap.creditsMonthlyCap,
     fromCache: true,
   });
 }
@@ -533,6 +551,12 @@ function toTempF(raw) {
   return Math.round(cToF(c));
 }
 
+function toWindMph(raw) {
+  if (raw == null || !Number.isFinite(raw)) return null;
+  // v2 Wind matches v1 RDPS_WindVelocity (m/s).
+  return Math.round(raw * 2.23694);
+}
+
 function extractSeries(forecast) {
   // v2 public API: HourlyForecast[{ Cloud, Transparency, Seeing, Temperature, UTCForecastHour }]
   // Older / docs shape: separate Cloud / Transparency / … arrays
@@ -548,6 +572,9 @@ function extractSeries(forecast) {
       const transparency = nestedMetricValue(row.Transparency);
       const seeing = nestedMetricValue(row.Seeing);
       const tempRaw = nestedMetricValue(row.Temperature);
+      const dewRaw = nestedMetricValue(row.DewPoint);
+      const windRaw = nestedMetricValue(row.Wind);
+      const smoke = nestedMetricValue(row.Smoke);
       const scored = scoreHour({ cloud, transparency, seeing });
       hours.push({
         at: t,
@@ -563,6 +590,12 @@ function extractSeries(forecast) {
         seeingLabel: seeingLabel(seeing),
         tempF: toTempF(tempRaw),
         tempColor: nestedMetricColor(row.Temperature),
+        dewF: toTempF(dewRaw),
+        dewColor: nestedMetricColor(row.DewPoint),
+        windMph: toWindMph(windRaw),
+        windColor: nestedMetricColor(row.Wind),
+        smoke,
+        smokeColor: nestedMetricColor(row.Smoke),
         rag: scored.rag,
         score: scored.score,
       });
@@ -674,6 +707,9 @@ function serializeHour(h) {
     seeingLabel: h.seeingLabel,
     tempF: h.tempF,
     tempColor: h.tempColor,
+    dewF: h.dewF != null ? h.dewF : null,
+    windMph: h.windMph != null ? h.windMph : null,
+    smoke: h.smoke != null && Number.isFinite(h.smoke) ? Math.round(h.smoke * 10) / 10 : null,
     precipChance: h.precipChance != null ? Math.round(h.precipChance) : null,
     rag: h.rag,
     score: h.score != null ? Math.round(h.score) : null,
@@ -686,6 +722,9 @@ function nightAverages(hours) {
   const avgSeeing = mean(hours.map((h) => h.seeing));
   const avgTempF = mean(hours.map((h) => h.tempF));
   const avgPrecip = mean(hours.map((h) => h.precipChance));
+  const avgDewF = mean(hours.map((h) => h.dewF));
+  const avgWind = mean(hours.map((h) => h.windMph));
+  const avgSmoke = mean(hours.map((h) => h.smoke));
   return {
     cloud: avgCloud != null ? Math.round(avgCloud) : null,
     transparency: avgTrans != null ? Math.round(avgTrans * 10) / 10 : null,
@@ -693,6 +732,9 @@ function nightAverages(hours) {
     seeing: avgSeeing != null ? Math.round(avgSeeing * 10) / 10 : null,
     seeingLabel: seeingLabel(avgSeeing),
     tempF: avgTempF != null ? Math.round(avgTempF) : null,
+    dewF: avgDewF != null ? Math.round(avgDewF) : null,
+    windMph: avgWind != null ? Math.round(avgWind) : null,
+    smoke: avgSmoke != null ? Math.round(avgSmoke * 10) / 10 : null,
     precipChance: avgPrecip != null ? Math.round(avgPrecip) : null,
   };
 }
@@ -839,83 +881,99 @@ async function fetchAstrospheric(lat, lon, apiKey, opts = {}) {
     if (hit && isCacheFresh(hit.fetchedAt)) return hit;
   }
 
-  let res;
-  let text;
-  try {
-    res = await fetch(ASTROSPHERIC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        Latitude: Number(lat),
-        Longitude: longitude,
-        APIKey: apiKey,
-        Variables: FORECAST_VARIABLES,
-        ForecastLength: FORECAST_LENGTH_HOURS,
-      }),
-    });
-    text = await res.text();
-  } catch (err) {
-    const stale = tryCached();
-    if (stale) {
+  const existing = inflightFetches.get(cacheKey);
+  if (existing) {
+    const shared = await existing;
+    if (!forceRefresh) return shared;
+    if (shared && shared.ok && !shared.cached) return shared;
+  }
+
+  const pending = (async () => {
+    let res;
+    let text;
+    try {
+      res = await fetch(ASTROSPHERIC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          Latitude: Number(lat),
+          Longitude: longitude,
+          APIKey: apiKey,
+          Variables: FORECAST_VARIABLES,
+          ForecastLength: FORECAST_LENGTH_HOURS,
+        }),
+      });
+      text = await res.text();
+    } catch (err) {
+      const stale = tryCached();
+      if (stale) {
+        return {
+          ...stale,
+          refreshError: String(err && err.message ? err.message : err),
+          offline: isNetworkError(err),
+        };
+      }
       return {
-        ...stale,
-        refreshError: String(err && err.message ? err.message : err),
+        ok: false,
+        error: String(err && err.message ? err.message : err),
         offline: isNetworkError(err),
       };
     }
-    return {
-      ok: false,
-      error: String(err && err.message ? err.message : err),
-      offline: isNetworkError(err),
-    };
-  }
 
-  let body = null;
+    let body = null;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      body = null;
+    }
+
+    if (!res.ok) {
+      const msg =
+        (body && (body.ErrorInfo || body.ErrorMessage || body.Message || body.error)) ||
+        `HTTP ${res.status}`;
+      const stale = tryCached();
+      if (stale) {
+        return {
+          ...stale,
+          refreshError: String(msg),
+        };
+      }
+      return { ok: false, error: String(msg), status: res.status };
+    }
+
+    const hasHourly =
+      body && Array.isArray(body.HourlyForecast) && body.HourlyForecast.length;
+    const hasV2Arrays = body && Array.isArray(body.Cloud) && body.Cloud.length;
+    const hasV1 = body && Array.isArray(body.RDPS_CloudCover) && body.RDPS_CloudCover.length;
+    if (!hasHourly && !hasV2Arrays && !hasV1) {
+      const stale = tryCached();
+      if (stale) {
+        return {
+          ...stale,
+          refreshError: 'Unexpected Astrospheric response shape',
+        };
+      }
+      return {
+        ok: false,
+        error:
+          (body && (body.ErrorInfo || body.ErrorMessage)) ||
+          'Unexpected Astrospheric response shape',
+        status: res.status,
+      };
+    }
+
+    const fetchedAt = new Date().toISOString();
+    forecastCache.set(cacheKey, { at: Date.now(), fetchedAt, forecast: body });
+    writeDiskCache(cacheKey, body, fetchedAt);
+    return { ok: true, forecast: body, cached: false, fetchedAt };
+  })();
+
+  inflightFetches.set(cacheKey, pending);
   try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = null;
+    return await pending;
+  } finally {
+    if (inflightFetches.get(cacheKey) === pending) inflightFetches.delete(cacheKey);
   }
-
-  if (!res.ok) {
-    const msg =
-      (body && (body.ErrorInfo || body.ErrorMessage || body.Message || body.error)) ||
-      `HTTP ${res.status}`;
-    const stale = tryCached();
-    if (stale) {
-      return {
-        ...stale,
-        refreshError: String(msg),
-      };
-    }
-    return { ok: false, error: String(msg), status: res.status };
-  }
-
-  const hasHourly =
-    body && Array.isArray(body.HourlyForecast) && body.HourlyForecast.length;
-  const hasV2Arrays = body && Array.isArray(body.Cloud) && body.Cloud.length;
-  const hasV1 = body && Array.isArray(body.RDPS_CloudCover) && body.RDPS_CloudCover.length;
-  if (!hasHourly && !hasV2Arrays && !hasV1) {
-    const stale = tryCached();
-    if (stale) {
-      return {
-        ...stale,
-        refreshError: 'Unexpected Astrospheric response shape',
-      };
-    }
-    return {
-      ok: false,
-      error:
-        (body && (body.ErrorInfo || body.ErrorMessage)) ||
-        'Unexpected Astrospheric response shape',
-      status: res.status,
-    };
-  }
-
-  const fetchedAt = new Date().toISOString();
-  forecastCache.set(cacheKey, { at: Date.now(), fetchedAt, forecast: body });
-  writeDiskCache(cacheKey, body, fetchedAt);
-  return { ok: true, forecast: body, cached: false, fetchedAt };
 }
 
 function scoreOpenMeteoWindows(hourly, windows) {
@@ -1430,7 +1488,11 @@ module.exports = {
   setForecastCacheDir,
   creditInfo,
   getStoredCreditInfo,
+  resolveForecastPullCost,
   maskApiKey,
+  EXPECTED_COST,
+  MONTHLY_CREDITS,
+  MOON_API_COST,
   // exported for unit-style checks
   scoreHour,
   aggregateRags,

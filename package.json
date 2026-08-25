@@ -1,7 +1,7 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.3.0",
-  "zukoBuild": 35,
+  "zukoBuild": 36,
   "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
   "main": "main.js",
   "author": "Alexandra Pattison",

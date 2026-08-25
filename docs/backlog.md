@@ -64,11 +64,19 @@ New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Sh
 
 ---
 
-### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–32)*
+### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–32, 36)*
 
 One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Shoot header light count uses staged totals (not pre-reject scan). Alert when ASIAIR source is offline. Dashboard saves snapshot to `backups/` and refuse empty-projects overwrite. Register/Cull/Stack match filter display names to tone keys (Ha/OIII/SII). Camera-up marker matches this train; NASA moon stills local.
 
 **Why:** Same dial value for framing, shooting, and ingest checks (target + flats).
+
+---
+
+### 29. Cross-night flat-set picker — *shipped build 36*
+
+Import no longer night-gates flats. Sets are grouped (filter + night + exp/gain/bin + CAA) and scored vs this shoot’s lights; default is the closest CAA-matching set with covering bias. Import UI: **Flat set vs this night’s lights** radios. Hide leftover 0-light rows from other-filter calib (the old “SII 0/0 no shot log”). Header shoot chip refreshes on a silent tick; Astrospheric ticker uses live v2 `APICreditCostOfCall`; Aladin DSS uses the alaskybis HiPS mirror.
+
+**Why:** Last night’s lights often reuse Autorun flats from a prior evening (and 180° CAA after a flip).
 
 ---
 
@@ -147,6 +155,20 @@ Rank nights for *this* project/filter. Pairs with #14.
 
 NYC roof / Queechy tree line (Stellarium-style). More useful after #14.
 
+#### 28. Astrospheric v2 extra variables (opt-in)
+
+Default 4h pull stays **Cloud + Transparency + Seeing** (~15 credits). Parser already shows dew/wind/smoke **if the payload has them**.
+
+Later, optional expensive pulls (not the default):
+
+- **Temperature** (~80 credits extra on a live key)
+- **DewPoint + Wind + Smoke** with those (~225 billed in the same probe)
+- Ensemble extras: `GFSCloud`, `ICONCloud`, `NBMCloud`, `GDPSExtended`, `WindDirection`
+
+Keep v1 (`GetForecastData_V1`, 5 credits, daily 100 cap) as a documented fallback only — do not switch the app to it.
+
+**Why:** v2 bills per variable; stuffing the default request would burn the ~95k pool for fields Open-Meteo already covers (temp) or that are nice-to-have (dew/wind/smoke).
+
 #### 19. Optional Telescopius API target search
 
 Respect ToS / non-commercial. Sesame/MAST already covers lookup.
@@ -203,7 +225,7 @@ Across machines. Needs auth, conflicts, and backup (#2) first.
 
 #### Weather alerts / “go image”
 
-Park until imaging windows exist; revisit with mobile push. Astrospheric credits matter.
+Park until imaging windows exist; revisit with mobile push. Extra Astrospheric variables are #28 (credits).
 
 #### Export night plan → NINA sequencer
 

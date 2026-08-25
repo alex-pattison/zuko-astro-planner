@@ -103,11 +103,13 @@ function touchCreditSnapshot(body) {
     // Same monthly pool as GetForecastData — update remaining only.
     // Do NOT overwrite costPerPull: the UI "requests remaining" divider is forecast
     // pull size (~65). Moon is a separate 10-credit call on that pool.
+    const prevPull = Number(prev.costPerPull);
+    const prevCall = Number(prev.costOfCall);
     const forecastPullCost =
-      prev.costPerPull != null && Number(prev.costPerPull) > 0
-        ? Number(prev.costPerPull)
-        : prev.costOfCall != null && Number(prev.costOfCall) >= 50
-          ? Number(prev.costOfCall)
+      Number.isFinite(prevPull) && prevPull > MOON_API_COST
+        ? prevPull
+        : Number.isFinite(prevCall) && prevCall > MOON_API_COST
+          ? prevCall
           : null;
     const remNum = Number(rem);
     fs.writeFileSync(

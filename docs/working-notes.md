@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-08-25 — build 36 — Cross-night flat-set picker
+- **Import:** Flats are reusable (not night-gated). Picker groups sets and defaults to the closest CAA-matching set with covering bias; radios switch which flats/bias Import uses. Hide leftover 0-light filter rows (SII 0/0 no shot log).
+- **Header / Aladin:** Shoot chip silent 15m refresh; Astrospheric credits from live v2 billing (~15/pull); DSS HiPS via `alaskybis.cds.unistra.fr`.
+- **QA:** `scripts/qa-flat-set-picker.js` (31) + ingest suite; fixture `F:\zuko_dev\ASIAIR-flat-picker`.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 36).
+- **Canvas:** backlog snapshot → build 36.
+
 ### 2026-08-22 — build 35 — CD for Siril + Plan Shoot tomorrow
 - **UI:** Cull + Imaging Pipeline “CD for Siril” copies `cd "…"` for the command bar (Aggregate / working/). Plan Shoot quick fills: Yesterday · Today · Tomorrow.
 - **QA:** `scripts/qa-siril-cd-command.js`.

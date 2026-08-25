@@ -729,6 +729,22 @@ ipcMain.handle('zuko-ingest-scan-session', async (_event, payload = {}) => {
   }
 });
 
+ipcMain.handle('zuko-ingest-score-flat-sets', async (_event, payload = {}) => {
+  try {
+    const { buildScoredFlatSets } = loadAsiairIngest();
+    const scored = buildScoredFlatSets(payload || {});
+    return {
+      ...scored,
+      sets: (scored.sets || []).map((s) => {
+        const { frames, ...rest } = s;
+        return rest;
+      }),
+    };
+  } catch (err) {
+    return { ok: false, error: String(err && err.message ? err.message : err), sets: [], defaults: {} };
+  }
+});
+
 ipcMain.handle('zuko-ingest-index-darks', async (_event, payload = {}) => {
   try {
     const { indexDarkLibrary } = loadAsiairIngest();

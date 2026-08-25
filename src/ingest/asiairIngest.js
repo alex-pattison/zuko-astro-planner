@@ -7,8 +7,11 @@
  *   <projectDir>/<Filter>/<ShootName>/{lights,flats,biases,darks}/
  *
  * Source ASIAIR folders are never modified.
- * - Lights/flats: copied directly into the Siril tree.
- * - Biases (ASIAIR Bias = darkflats): from the session with flats, only frames
+ * - Lights: copied directly into the Siril tree (gated to the shoot night).
+ * - Flats: copied from the dump even when DATE-OBS is an earlier evening.
+ *   Import groups sets (filter + night + exp/gain/bin + CAA) and defaults to the
+ *   closest CAA-matching set with covering bias; the user can pick another set.
+ * - Biases (ASIAIR Bias = darkflats): from the session with those flats, only frames
  *   matching flat filter/exp/gain/temp/bin and DATE-OBS within ±12h of those flats
  *   — copy into _calibration/darkflats/<night>/ then symlink into biases/ (per channel).
  * - Darks: master Dark Library symlink into darks/, or session → _calibration/darks.
@@ -932,6 +935,260 @@ function frameInNightWindow(frame, nightYmd) {
   return window.has(n) || window.has(normalizeNight(frame.date));
 }
 
+function frameNightKey(frame) {
+  if (!frame) return '';
+  return frame.night || astronomicalNightForFrame(frame.date, frame.time) || normalizeNight(frame.date) || '';
+}
+
+/**
+ * Keep the newest astronomical night of frames per filter.
+ * Off-night flats are allowed (scan does not require the shoot night), but a
+ * dump with months of Autorun flats must not mix an old gain/exp set into
+ * last night's import. Undated frames are kept.
+ */
+function keepNewestNightPerFilter(frames = []) {
+  const newest = new Map();
+  for (const f of frames) {
+    if (!f) continue;
+    const night = frameNightKey(f);
+    if (!night) continue;
+    const filt = normalizeFilter(f.filter) || 'Unknown';
+    if (!newest.has(filt) || night > newest.get(filt)) newest.set(filt, night);
+  }
+  if (!newest.size) return frames.slice();
+  return frames.filter((f) => {
+    const night = frameNightKey(f);
+    if (!night) return true;
+    const filt = normalizeFilter(f.filter) || 'Unknown';
+    return night === newest.get(filt);
+  });
+}
+
+function medianNumber(values = []) {
+  const v = values.filter((x) => x != null && Number.isFinite(Number(x))).map(Number).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const mid = Math.floor(v.length / 2);
+  return v.length % 2 ? v[mid] : (v[mid - 1] + v[mid]) / 2;
+}
+
+function frameKeyOf(f) {
+  return (f && (f.filePath || f.fileName)) || '';
+}
+
+function roundFlatExp(sec) {
+  if (sec == null || !Number.isFinite(Number(sec))) return '';
+  return Number(sec).toFixed(3);
+}
+
+function roundFlatGain(g) {
+  if (g == null || !Number.isFinite(Number(g))) return '';
+  return String(Math.round(Number(g)));
+}
+
+function roundFlatBin(b) {
+  if (b == null || !Number.isFinite(Number(b))) return '';
+  return String(Math.round(Number(b)));
+}
+
+function roundFlatCaa(deg) {
+  if (deg == null || !Number.isFinite(Number(deg))) return '';
+  return String(Math.round(Number(deg)));
+}
+
+function flatSetIdFromParts(parts) {
+  return [
+    parts.filter || 'Unknown',
+    parts.night || '',
+    parts.exposureKey || '',
+    parts.gainKey || '',
+    parts.binKey || '',
+    parts.caaKey || '',
+  ].join('|');
+}
+
+function formatObsStamp(ms) {
+  if (ms == null || !Number.isFinite(Number(ms))) return '—';
+  const d = new Date(Number(ms));
+  if (!Number.isFinite(d.getTime())) return '—';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${months[d.getMonth()]} ${d.getDate()} ${hh}:${mm}`;
+}
+
+function formatDeltaToLights(setMs, lightMs) {
+  if (setMs == null || lightMs == null || !Number.isFinite(setMs) || !Number.isFinite(lightMs)) {
+    return { deltaMs: null, absDeltaMs: null, label: 'time unknown vs lights' };
+  }
+  const deltaMs = setMs - lightMs;
+  const absDeltaMs = Math.abs(deltaMs);
+  const dir = deltaMs < 0 ? 'before' : 'after';
+  let label;
+  if (absDeltaMs < 90 * 60 * 1000) label = 'same time as lights';
+  else if (absDeltaMs < 48 * 3600 * 1000) {
+    const h = absDeltaMs / 3600000;
+    label = `${h < 10 ? h.toFixed(1) : Math.round(h)}h ${dir} lights`;
+  } else {
+    const days = absDeltaMs / 86400000;
+    label = `${days < 10 ? days.toFixed(1) : Math.round(days)}d ${dir} lights`;
+  }
+  return { deltaMs, absDeltaMs, label };
+}
+
+function formatCaaVsRef(setDeg, refDeg) {
+  if (setDeg == null || !Number.isFinite(Number(setDeg))) return 'CAA —';
+  const s = `${Math.round(Number(setDeg))}°`;
+  if (refDeg == null || !Number.isFinite(Number(refDeg))) return s;
+  const d = caaAngleDiffDeg(setDeg, refDeg);
+  if (d == null) return s;
+  if (d <= FRAMER_FRAME_CAA_TOL_DEG) return `${s} (matches ${Math.round(Number(refDeg))}°)`;
+  if (d >= 180 - FRAMER_FRAME_CAA_TOL_DEG) return `${s} (180° of ${Math.round(Number(refDeg))}°)`;
+  return `${s} ≠ ${Math.round(Number(refDeg))}°`;
+}
+
+/**
+ * Group flats into sets: filter + night + exp/gain/bin + CAA.
+ */
+function groupFlatSets(flats = [], opts = {}) {
+  const allow = opts.filters && opts.filters.length
+    ? new Set(opts.filters.map((f) => normalizeFilter(f) || String(f)))
+    : null;
+  const map = new Map();
+  for (const f of flats || []) {
+    if (!f) continue;
+    const filter = normalizeFilter(f.filter) || 'Unknown';
+    if (allow && !allow.has(filter)) continue;
+    const night = frameNightKey(f);
+    const exposureKey = roundFlatExp(f.exposureSec);
+    const gainKey = roundFlatGain(f.gain);
+    const binKey = roundFlatBin(f.bin);
+    const caaKey = roundFlatCaa(f.rotatorDeg);
+    const id = flatSetIdFromParts({ filter, night, exposureKey, gainKey, binKey, caaKey });
+    let row = map.get(id);
+    if (!row) {
+      row = {
+        id,
+        filter,
+        night,
+        exposureSec: f.exposureSec != null && Number.isFinite(Number(f.exposureSec)) ? Number(f.exposureSec) : null,
+        gain: f.gain != null && Number.isFinite(Number(f.gain)) ? Number(f.gain) : null,
+        bin: f.bin != null && Number.isFinite(Number(f.bin)) ? Number(f.bin) : null,
+        rotatorDeg: f.rotatorDeg != null && Number.isFinite(Number(f.rotatorDeg)) ? Math.round(Number(f.rotatorDeg)) : null,
+        frames: [],
+        frameKeys: [],
+      };
+      map.set(id, row);
+    }
+    row.frames.push(f);
+    const k = frameKeyOf(f);
+    if (k) row.frameKeys.push(k);
+  }
+  return [...map.values()].map((row) => {
+    const times = row.frames.map(frameObsMs).filter((t) => t != null);
+    row.count = row.frames.length;
+    row.medianObsMs = medianNumber(times);
+    row.stampLabel = formatObsStamp(row.medianObsMs);
+    return row;
+  });
+}
+
+function rankFlatSets(a, b) {
+  if (!!a.caaOk !== !!b.caaOk) return a.caaOk ? -1 : 1;
+  if (!!a.biasCovered !== !!b.biasCovered) return a.biasCovered ? -1 : 1;
+  const da = a.absDeltaMs == null ? Number.POSITIVE_INFINITY : a.absDeltaMs;
+  const db = b.absDeltaMs == null ? Number.POSITIVE_INFINITY : b.absDeltaMs;
+  if (da !== db) return da - db;
+  return (b.count || 0) - (a.count || 0);
+}
+
+function pickDefaultFlatSetIds(sets = []) {
+  const byFilter = new Map();
+  for (const s of sets) {
+    const f = s.filter || 'Unknown';
+    if (!byFilter.has(f)) byFilter.set(f, []);
+    byFilter.get(f).push(s);
+  }
+  const defaults = {};
+  for (const [filter, list] of byFilter) {
+    const ranked = list.slice().sort(rankFlatSets);
+    if (ranked[0]) defaults[filter] = ranked[0].id;
+  }
+  return defaults;
+}
+
+/**
+ * Score dump flat sets against this shoot's lights.
+ * Default per filter: CAA match (or 180° flip) + covering bias + closest |Δt|.
+ */
+function buildScoredFlatSets(opts = {}) {
+  const lights = opts.lights || [];
+  const biases = opts.biases || [];
+  const lightTempC = opts.lightTempC != null && Number.isFinite(Number(opts.lightTempC))
+    ? Number(opts.lightTempC)
+    : modeTempC(lights);
+  const lightMs = medianNumber(lights.map(frameObsMs).filter((t) => t != null));
+  const lightCaa = modeRotatorDeg(lights);
+  const refCaa = opts.framerCaaDeg != null && Number.isFinite(Number(opts.framerCaaDeg))
+    ? Number(opts.framerCaaDeg)
+    : lightCaa;
+  const sets = groupFlatSets(opts.flats || [], { filters: opts.filters }).map((row) => {
+    const delta = formatDeltaToLights(row.medianObsMs, lightMs);
+    const caaOk = caaMatchesFramer(row.rotatorDeg, refCaa);
+    const tempOk = lightTempC == null
+      ? true
+      : row.frames.some((f) => tempMatchesLight(f.tempC, lightTempC));
+    const usable = collectUsableDarkflats(biases, row.frames, { lightTempC });
+    const biasCovered = darkflatsCoverFlats(biases, row.frames, { lightTempC });
+    return {
+      ...row,
+      lightObsMs: lightMs,
+      refCaaDeg: refCaa != null ? Math.round(Number(refCaa)) : null,
+      ...delta,
+      caaOk,
+      caaLabel: formatCaaVsRef(row.rotatorDeg, refCaa),
+      tempOk,
+      biasCovered,
+      biasCount: (usable.matches || []).length,
+      label: [
+        row.filter,
+        row.stampLabel,
+        `${row.count} flat${row.count === 1 ? '' : 's'}`,
+        delta.label,
+        biasCovered ? `bias ${usable.matches.length}` : (usable.matches.length ? `bias ${usable.matches.length} (incomplete)` : 'no matching bias'),
+      ].filter(Boolean).join(' · '),
+    };
+  });
+  sets.sort((a, b) => {
+    const fa = String(a.filter || '');
+    const fb = String(b.filter || '');
+    if (fa !== fb) return fa.localeCompare(fb);
+    return rankFlatSets(a, b);
+  });
+  const defaults = pickDefaultFlatSetIds(sets);
+  for (const s of sets) s.isDefault = defaults[s.filter] === s.id;
+  return {
+    ok: true,
+    sets,
+    defaults,
+    lightObsMs: lightMs,
+    refCaaDeg: refCaa != null ? Math.round(Number(refCaa)) : null,
+    lightTempC,
+  };
+}
+
+function flatsMatchingFlatSetChoice(flats, scored, choiceByFilter = {}) {
+  const sets = (scored && scored.sets) || [];
+  const defaults = (scored && scored.defaults) || {};
+  const choice = { ...defaults, ...(choiceByFilter || {}) };
+  const keep = new Set();
+  for (const s of sets) {
+    if (choice[s.filter] !== s.id) continue;
+    for (const k of s.frameKeys || []) keep.add(k);
+  }
+  if (!keep.size) return (flats || []).slice();
+  return (flats || []).filter((f) => keep.has(frameKeyOf(f)));
+}
+
 function shootingTypeLabel(session) {
   const k = String((session && (session.kind || session.name)) || '').toLowerCase();
   if (k === 'autorun') return 'Autorun';
@@ -987,7 +1244,8 @@ async function scanSingleSession(session, opts = {}) {
   if (frameDirs.flat) {
     for (const fp of await walkFitFiles(frameDirs.flat)) {
       const parsed = await parseFitFile(fp, 'flat');
-      if (nightDate && !frameInNightWindow(parsed, nightDate)) continue;
+      // Flats are reusable calibration — do not gate on shoot night.
+      // Lights from last night often reuse Autorun flats/bias from a prior evening.
       flats.push(tag(parsed));
     }
   }
@@ -1162,6 +1420,10 @@ async function scanSession(opts = {}) {
   for (const F of flats) {
     const f = normalizeFilter(F.filter) || 'Unknown';
     if (!byFilter[f]) {
+      // Off-night flats of other wavelengths must not spawn a 0-light table row
+      // (Import would show "SII · 0 · 0 · no shot log"). Keep a flats-only row
+      // only for this shoot's filter, so missing lights still appear.
+      if (!shootFilter || f !== shootFilter) continue;
       byFilter[f] = {
         filter: f,
         lights: 0,
@@ -2571,6 +2833,34 @@ async function stageSirilTree(opts = {}) {
     }
   }
 
+  // One flat set per filter (closest CAA-matching set with covering bias).
+  {
+    const scored = buildScoredFlatSets({
+      flats,
+      lights,
+      biases: sessionBiases,
+      framerCaaDeg,
+      lightTempC,
+    });
+    const chosen = flatsMatchingFlatSetChoice(flats, scored, opts.flatSetChoice || {});
+    const chosenKeys = new Set(chosen.map(frameKey));
+    if (chosenKeys.size && chosen.length !== flats.length) {
+      const dropped = flats.length - chosen.length;
+      flats = flats.filter((F) => chosenKeys.has(frameKey(F)) || isIncluded('flats', F));
+      if (dropped) {
+        const picks = Object.entries({ ...scored.defaults, ...(opts.flatSetChoice || {}) })
+          .map(([filt, id]) => {
+            const s = (scored.sets || []).find((x) => x.id === id);
+            return s ? `${filt} ${s.stampLabel}` : filt;
+          })
+          .filter(Boolean);
+        softWarnings.push(
+          `Using ${picks.length ? picks.join(', ') : 'closest'} flat set(s); left ${dropped} flat(s) from other sets`
+        );
+      }
+    }
+  }
+
   // Flats must match light temp (±3°C) unless override includes them.
   flats = flats.filter((F) => tempMatchesLight(F.tempC, lightTempC) || isIncluded('flats', F));
 
@@ -3427,6 +3717,14 @@ module.exports = {
   sanitizeFolderName,
   astronomicalNightForFrame,
   nightWindowYmds,
+  frameNightKey,
+  keepNewestNightPerFilter,
+  groupFlatSets,
+  buildScoredFlatSets,
+  pickDefaultFlatSetIds,
+  flatsMatchingFlatSetChoice,
+  formatDeltaToLights,
+  formatCaaVsRef,
   readFitsHeaderKeywords,
   parseFitsAngleDegrees,
   angularSeparationDeg,

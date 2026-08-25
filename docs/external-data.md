@@ -10,7 +10,7 @@ API keys: `ASTROSPHERIC_API_KEY` in `.env` (see `.env.example`). Never commit `.
 
 | Source | Endpoint | Auth / cost | Fields used | UI | Cache |
 |--------|----------|-------------|-------------|----|-------|
-| **Astrospheric** (primary) | `POST https://v2-api-public.astrospheric.com/api/GetForecastData` | Pro API key · ~65 credits/pull (`Cloud` + `Transparency` + `Seeing`) | Hourly cloud %, transparency (0–27+), seeing (0–5), plus derived shoot RAG | Header chip · Sky Forecast metrics · hourly night tables · RAG status (GO / OK / NO) | ~**4 hours** on disk (`astrospheric-v2-cache-*.json`) |
+| **Astrospheric** (primary) | `POST https://v2-api-public.astrospheric.com/api/GetForecastData` | Pro API key · **per-variable** on the new v2 host. Default pull is `Cloud` + `Transparency` + `Seeing`. Live: 3-var ≈ **15**/pull; adding `Temperature` billed **80**; `DewPoint`+`Wind`+`Smoke` with those billed **225**. Accepted names also include `WindDirection`, `GDPSExtended`, `GFSCloud`, `ICONCloud`, `NBMCloud`. Remaining pool is `APICreditsRemaining` (observed ~95k). | Hourly cloud %, transparency, seeing, derived RAG. Temp/precip still merged from Open-Meteo unless those fields are in the payload. | Header chip · Sky Forecast metrics · hourly night tables · RAG status (GO / OK / NO) | ~**4 hours** on disk (`astrospheric-v2-cache-*.json`) |
 | **Local math** (no network) | Renderer `_ASTRO.moonAltitude` | — | Per-hour moon altitude | **Moon** column on hourly night tables (`↑ nn°` / `↓`) | — |
 | **Open-Meteo** (fallback) | `GET https://api.open-meteo.com/v1/forecast` | Free | `cloud_cover`, `temperature_2m`, `precipitation_probability` (hourly) | Same panels when Astrospheric is missing/offline — **no** transparency, seeing, or shoot RAG | Short-lived / as returned; used when primary fails |
 | **Clear Outside** (visual) | `https://clearoutside.com/forecast_image_large/{lat}/{lon}/forecast.png` | Free image | Forecast strip image | Optional graphic under Sky Forecast | Browser image cache only |
@@ -33,7 +33,7 @@ Temperature on Astrospheric rows is merged from Open-Meteo when available (Astro
 
 Code: `src/weather/skyAstronomy.js` · IPC `zuko-sky-astronomy` · moon/sun UI in `index.html`.
 
-Credit snapshot (remaining monthly pool) is written to `astrospheric-credits.json` after Astrospheric calls.
+Credit snapshot (remaining monthly pool) is written to `astrospheric-credits.json` after Astrospheric calls. The Sky Forecast ticker shows **pulls left** using live `APICreditCostOfCall` (not a hardcoded 65) and the remaining credit pool from the API.
 
 ---
 
@@ -51,7 +51,7 @@ Credit snapshot (remaining monthly pool) is written to `astrospheric-credits.jso
 
 | Source | Notes |
 |--------|--------|
-| **Aladin Lite** | Bundled under `vendor/aladin-lite.js` (loads survey tiles from CDS / partner hosts when the map is shown) |
+| **Aladin Lite** | Bundled `vendor/aladin-lite.js` (v3.8.2). Target Framer loads DSS2 color from the CDS **bis** HiPS mirror (`https://alaskybis.cds.unistra.fr/DSS/DSSColor`) — the primary `alasky.cds.unistra.fr` host currently hangs from US networks and left a black WebGL canvas. Properties + Allsky JPEG are prefetched after boot. |
 | **Sesame / SIMBAD / MAST** | Name → RA/Dec resolve when looking up targets (`cdsweb.u-strasbg.fr`, `simbad.cds.unistra.fr`, `mast.stsci.edu`) |
 
 ---

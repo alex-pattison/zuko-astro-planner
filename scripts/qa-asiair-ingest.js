@@ -20,6 +20,8 @@ const {
   normalizeNight,
   astronomicalNightForFrame,
   nightWindowYmds,
+  keepNewestNightPerFilter,
+  buildScoredFlatSets,
   angularSeparationDeg,
   buildTargetFolders,
   targetMatchNeedsConfirm,
@@ -179,13 +181,14 @@ async function buildFixture() {
   const bWrong = await copyFew(biasSrc, path.join(QA_AUTORUN, 'Bias'), () => true, 2);
   const d = await copyFew(darkSrc, path.join(QA_AUTORUN, 'Dark'), () => true, 3);
 
-  // Flats are night-window gated — rewrite to NIGHT+1 morning so scan(night=NIGHT) finds them.
+  // Stamp flats two evenings before NIGHT so scan(night=NIGHT) must accept
+  // off-night flats (same policy as session bias/darks).
   const flatDir = path.join(QA_AUTORUN, 'Flat');
   const flatNight = (() => {
     const y = Number(NIGHT.slice(0, 4));
     const m = Number(NIGHT.slice(4, 6));
     const d0 = Number(NIGHT.slice(6, 8));
-    const dt = new Date(Date.UTC(y, m - 1, d0 + 1));
+    const dt = new Date(Date.UTC(y, m - 1, d0 - 2));
     const yy = dt.getUTCFullYear();
     const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
     const dd = String(dt.getUTCDate()).padStart(2, '0');
@@ -332,6 +335,37 @@ async function testHelpers() {
   assert('normalizeFilter SII', normalizeFilter('S') === 'SII');
   assert('normalizeNight yyMMdd', normalizeNight('260725') === '20260725');
   assert('night window includes D+1', nightWindowYmds('20260725').includes('20260726'));
+  const newest = keepNewestNightPerFilter([
+    { filter: 'Ha', night: '20260714', fileName: 'old' },
+    { filter: 'Ha', night: '20260815', fileName: 'new' },
+    { filter: 'OIII', night: '20260810', fileName: 'o' },
+  ]);
+  assert(
+    'newest night per filter keeps latest Ha + OIII',
+    newest.length === 2 && newest.some((f) => f.fileName === 'new') && newest.some((f) => f.fileName === 'o'),
+    newest.map((f) => f.fileName).join(','),
+  );
+  const scored = buildScoredFlatSets({
+    lights: [
+      { filter: 'Ha', date: '20260824', time: '203209', rotatorDeg: 212, tempC: -10, exposureSec: 180, gain: 120, bin: 2 },
+    ],
+    biases: [
+      { filter: 'Ha', date: '20260823', time: '175921', exposureSec: 0.5, gain: 120, bin: 2, tempC: -10, filePath: 'b-new' },
+      { filter: 'Ha', date: '20260714', time: '120000', exposureSec: 2, gain: 0, bin: 2, tempC: -10, filePath: 'b-old' },
+    ],
+    flats: [
+      { filter: 'Ha', date: '20260823', time: '175541', rotatorDeg: 32, exposureSec: 0.5, gain: 120, bin: 2, tempC: -10, filePath: 'f-new' },
+      { filter: 'Ha', date: '20260714', time: '120000', rotatorDeg: 32, exposureSec: 2, gain: 0, bin: 2, tempC: -10, filePath: 'f-old' },
+    ],
+    framerCaaDeg: 212,
+    lightTempC: -10,
+  });
+  const def = (scored.sets || []).find((s) => s.id === scored.defaults.Ha);
+  assert(
+    'closest Ha set is the Aug 23 flats, not July',
+    def && def.frameKeys && def.frameKeys.includes('f-new') && !def.frameKeys.includes('f-old'),
+    def && def.label,
+  );
   assert(
     'normalizeWinPath collapses doubles',
     normalizeWinPath('H:\\\\Photography\\\\Zuko') === 'H:\\Photography\\Zuko',
@@ -440,7 +474,11 @@ async function testPipeline() {
   assert('scan ok', scan.ok !== false && (scan.lights || []).length > 0, `lights=${(scan.lights || []).length} status=${scan.status}`);
   const filters = [...new Set((scan.lights || []).map((l) => normalizeFilter(l.filter)).filter(Boolean))];
   assert('scan sees multiple filters', filters.length >= 2, filters.join(','));
-  assert('scan flats', (scan.flats || []).length > 0, `flats=${(scan.flats || []).length}`);
+  assert(
+    'scan includes flats from two nights earlier',
+    (scan.flats || []).length > 0,
+    `flats=${(scan.flats || []).length}`,
+  );
   assert('scan biases', (scan.biases || []).length > 0, `biases=${(scan.biases || []).length}`);
 
   let darkIndex = [];
@@ -1388,9 +1426,21 @@ async function testLiveLastNightDump() {
   const flatsHa = (scan.flats || []).filter((f) => normalizeFilter(f.filter) === 'Ha');
   const biases = scan.biases || [];
   assert('last-night Ha lights', lightsHa.length > 0, `n=${lightsHa.length}`);
-  assert('last-night Ha flats', flatsHa.length > 0, `n=${flatsHa.length}`);
+  assert('last-night Ha flats in dump (multiple sets ok)', flatsHa.length > 0, `n=${flatsHa.length}`);
   const lightTempC = modeTempC(lightsHa);
-  const usable = collectUsableDarkflats(biases, flatsHa, { lightTempC });
+  const scored = buildScoredFlatSets({
+    flats: flatsHa,
+    lights: lightsHa,
+    biases,
+    lightTempC,
+  });
+  const defHa = (scored.sets || []).find((s) => s.id === scored.defaults.Ha);
+  assert(
+    'last-night default Ha flat set is the closest paired set, not every historical Ha flat',
+    defHa && defHa.count > 0 && defHa.count <= 40,
+    defHa ? `n=${defHa.count} ${defHa.label}` : 'no default',
+  );
+  const usable = collectUsableDarkflats(biases, (defHa && defHa.frames) || [], { lightTempC });
   const matchFilters = [...new Set(usable.matches.map((b) => normalizeFilter(b.filter)))];
   assert(
     'last-night Ha darkflats are Ha only',
