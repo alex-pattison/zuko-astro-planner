@@ -80,6 +80,14 @@ Import no longer night-gates flats. Sets are grouped (filter + night + exp/gain/
 
 ---
 
+### 30. Light-mode dusk-card contrast — *shipped build 37*
+
+Sky Forecast nautical / astronomical / **Astro night** chips stay dark in Light (night colors). Labels and times use light type so **ASTRO NIGHT** remains readable.
+
+**Why:** Light theme left `--gray` / `--text` on a dark mix; the uppercase kicker vanished.
+
+---
+
 ### 11. Local crash / error log folder
 
 Write last N main/renderer errors to a zipable folder. No cloud required.

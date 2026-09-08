@@ -4544,6 +4544,27 @@
     letter-spacing: 0.02em;
     line-height: 1.15;
   }
+  /* Dark-tinted dusk cards (nautical / astro / night) stay dark in light mode;
+     --gray / --text are daytime-on-paper and fail contrast on those mixes. */
+  html[data-theme="light"] .skyfx-dusk-step.is-naut {
+    background: color-mix(in srgb, #2a1a4a 72%, var(--bg));
+  }
+  html[data-theme="light"] .skyfx-dusk-step.is-astro {
+    background: color-mix(in srgb, #0f1a36 78%, var(--bg));
+  }
+  html[data-theme="light"] .skyfx-dusk-step.is-night {
+    background: color-mix(in srgb, #070b14 84%, var(--bg));
+  }
+  html[data-theme="light"] .skyfx-dusk-step.is-naut .k,
+  html[data-theme="light"] .skyfx-dusk-step.is-astro .k,
+  html[data-theme="light"] .skyfx-dusk-step.is-night .k {
+    color: #e2e8f0;
+  }
+  html[data-theme="light"] .skyfx-dusk-step.is-naut .v,
+  html[data-theme="light"] .skyfx-dusk-step.is-astro .v,
+  html[data-theme="light"] .skyfx-dusk-step.is-night .v {
+    color: #f8fafc;
+  }
   html[data-theme="red"] .skyfx-twilight-bar { background: #1a0000; }
   html[data-theme="red"] .skyfx-twilight-bar .seg-astro { background: #2a0505; }
   html[data-theme="red"] .skyfx-twilight-bar .seg-naut { background: #3a0a0a; }

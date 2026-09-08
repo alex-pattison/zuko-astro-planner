@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-08 — build 37 — Light-mode dusk-card contrast
+- **Seen:** Sky Forecast **ASTRO NIGHT** (and nautical/astro dusk kickers) hard to read in Light.
+- **Cause:** Dark-tinted cards mixed with `--bg` still used daytime `--gray` / `--text`.
+- **Fix / next:** Light theme deepens those cards and uses light type. Dark/Red unchanged.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 37).
+- **Canvas:** backlog snapshot → build 37.
+
 ### 2026-08-25 — build 36 — Cross-night flat-set picker
 - **Import:** Flats are reusable (not night-gated). Picker groups sets and defaults to the closest CAA-matching set with covering bias; radios switch which flats/bias Import uses. Hide leftover 0-light filter rows (SII 0/0 no shot log).
 - **Header / Aladin:** Shoot chip silent 15m refresh; Astrospheric credits from live v2 billing (~15/pull); DSS HiPS via `alaskybis.cds.unistra.fr`.
