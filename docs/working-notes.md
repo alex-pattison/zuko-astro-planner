@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-08 — build 38 — Rename to ZAP
+- **Seen:** App still branded Zuko / “Astro Planner” / “dashboard” in chrome, shortcuts, and installer names.
+- **Fix / next:** Product is **ZAP**. Header is logo + ZAP; channels **ZAP Dev** / **ZAP Beta**. Paths and `zuko*` IDs left alone.
+- **QA:** 17/17 unit; e2e smoke 7/7.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 38).
+- **Canvas:** backlog snapshot → build 38.
+
 ### 2026-09-08 — build 37 — Light-mode dusk-card contrast
 - **Seen:** Sky Forecast **ASTRO NIGHT** (and nautical/astro dusk kickers) hard to read in Light.
 - **Cause:** Dark-tinted cards mixed with `--bg` still used daytime `--gray` / `--text`.

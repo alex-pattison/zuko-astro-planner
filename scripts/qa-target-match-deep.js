@@ -412,7 +412,7 @@ async function testParentIgnoreOnNewProject() {
 }
 
 async function main() {
-  console.log('Zuko DEEP target-match QA');
+  console.log('ZAP DEEP target-match QA');
   await ensureFixture();
 
   await testIgnoreScope();

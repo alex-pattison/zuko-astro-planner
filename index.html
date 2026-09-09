@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zuko Astrophotography Dashboard</title>
+<title>ZAP</title>
 <script>
 /* Apply saved theme before paint to avoid a bright flash at the site */
 (function () {
@@ -149,6 +149,26 @@
     gap: 6px;
     min-width: 0;
   }
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-title-row h1 {
+    margin: 0;
+  }
+  .app-logo {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: block;
+  }
+  .app-logo-bg { fill: #5c4412; }
+  .app-logo-fg { fill: #fff0d2; }
+  .app-logo-accent { fill: #c9a227; }
+  .app-logo.is-beta .app-logo-bg { fill: #125c66; }
+  .app-logo.is-beta .app-logo-fg { fill: #e8f8fa; }
+  .app-logo.is-beta .app-logo-accent { fill: #2db7c7; }
 
   .header-version {
     font-family: var(--mono);
@@ -4994,6 +5014,15 @@
     visibility: hidden;
     pointer-events: none;
   }
+  #boot-splash .boot-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #boot-splash .app-logo {
+    width: 22px;
+    height: 22px;
+  }
   #boot-splash .boot-title {
     font-size: 15px;
     font-weight: 700;
@@ -5026,7 +5055,15 @@
 </head>
 <body>
 <div id="boot-splash" aria-live="polite" aria-busy="true">
-  <div class="boot-title">Zuko Astrophotography Dashboard</div>
+  <div class="boot-brand">
+    <svg class="app-logo is-dev" viewBox="0 0 32 32" aria-hidden="true">
+      <rect class="app-logo-bg" x="1" y="1" width="30" height="30" rx="6"/>
+      <rect class="app-logo-fg" x="8" y="8" width="16" height="3.5"/>
+      <rect class="app-logo-fg" x="8" y="20.5" width="16" height="3.5"/>
+      <polygon class="app-logo-accent" points="20,11.5 24,11.5 12,20.5 8,20.5"/>
+    </svg>
+    <div class="boot-title">ZAP</div>
+  </div>
   <div class="boot-bar" aria-hidden="true"><i></i></div>
   <div class="boot-status" id="boot-status">Starting…</div>
 </div>
@@ -5035,7 +5072,15 @@
   <header>
     <div class="header-top">
       <div class="header-brand">
-        <h1 id="rig-name-el">Zuko Astrophotography Dashboard</h1>
+        <div class="header-title-row">
+          <svg class="app-logo is-dev" viewBox="0 0 32 32" aria-hidden="true">
+            <rect class="app-logo-bg" x="1" y="1" width="30" height="30" rx="6"/>
+            <rect class="app-logo-fg" x="8" y="8" width="16" height="3.5"/>
+            <rect class="app-logo-fg" x="8" y="20.5" width="16" height="3.5"/>
+            <polygon class="app-logo-accent" points="20,11.5 24,11.5 12,20.5 8,20.5"/>
+          </svg>
+          <h1 id="rig-name-el">ZAP</h1>
+        </div>
         <div class="header-version" id="header-version">v—</div>
         <div class="header-brand-controls">
           <div class="theme-toggle" role="group" aria-label="Display mode">
@@ -5602,7 +5647,7 @@
     <div class="settings-section">
       <h4>Rig</h4>
       <label for="settings-rig-name">Display name</label>
-      <input id="settings-rig-name" data-testid="settings-rig-name" type="text" autocomplete="off" placeholder="Zuko">
+      <input id="settings-rig-name" data-testid="settings-rig-name" type="text" autocomplete="off" placeholder="ZAP">
     </div>
 
     <div class="settings-section">
@@ -6165,7 +6210,7 @@ const DEFAULT_FILTERS = [
 ];
 
 const defaultData = {
-  rigName: 'Zuko',
+  rigName: 'ZAP',
   homeSite: { ...HOME_SITE },
   forecastLocation: { name: HOME_SITE.name, lat: HOME_SITE.lat, lon: HOME_SITE.lon },
   appMeta: { version: APP_META_FALLBACK.version, build: APP_META_FALLBACK.build },
@@ -6712,7 +6757,7 @@ const PP_HELP = {
       {
         value: 'default',
         label: 'Default',
-        when: 'Zuko’s shipped Mono 1.4 scripts: bias/dark rej 3 3 (Winsorized), flats with bias + mul norm, lights calibrated with cosmetic from dark.',
+        when: 'ZAP’s shipped Mono 1.4 scripts: bias/dark rej 3 3 (Winsorized), flats with bias + mul norm, lights calibrated with cosmetic from dark.',
       },
       {
         value: 'monoRecommended',
@@ -6773,7 +6818,7 @@ const PP_HELP = {
   stageBias: {
     label: 'Master bias / dark',
     summary:
-      'How Zuko stacks the bias (dark-flat) and dark masters for this night. Same stack flags are used for both masters (nonorm).',
+      'How ZAP stacks the bias (dark-flat) and dark masters for this night. Same stack flags are used for both masters (nonorm).',
     options: [
       {
         value: 'default',
@@ -6900,7 +6945,7 @@ const PP_HELP = {
   rejection: {
     label: 'Rejection type',
     summary:
-      'Used with average (rej) stacking. Siril estimates a robust mean after clipping outliers (satellites, planes, hot pixels). If the type token is omitted, Siril defaults to Winsorized. σ low / σ high are in units of that estimator’s sigma (Zuko uses 3 / 3 unless Custom changes them).',
+      'Used with average (rej) stacking. Siril estimates a robust mean after clipping outliers (satellites, planes, hot pixels). If the type token is omitted, Siril defaults to Winsorized. σ low / σ high are in units of that estimator’s sigma (ZAP uses 3 / 3 unless Custom changes them).',
     options: [
       {
         value: 'winsorized',
@@ -7519,8 +7564,8 @@ function showSirilScriptWarn(status) {
     `<strong>Siril Mono_Preprocessing changed</strong> · installed ` +
     `<code>v${escapeHtml(inst.scriptVersion || '?')}</code>` +
     (inst.sirilLabel ? ` (Siril ${escapeHtml(inst.sirilLabel)})` : '') +
-    ` · Zuko reference <code>v${escapeHtml(ref.scriptVersion || '?')}</code>. ` +
-    `Zuko generates its own calibrate/stack scripts from Mono 1.4 settings — review ` +
+    ` · ZAP reference <code>v${escapeHtml(ref.scriptVersion || '?')}</code>. ` +
+    `ZAP generates its own calibrate/stack scripts from Mono 1.4 settings — review ` +
     `<code>src/siril/preprocess.js</code> if Siril’s stock script behavior changed.`;
   el.hidden = false;
   el.classList.add('open');
@@ -7642,6 +7687,10 @@ function syncHeaderVersion() {
     'v' + (APP_META.version || '—') +
     ' · build ' + formatAppBuild(APP_META.build) +
     ' · <span class="' + tagClass + '">' + formatAppChannel(ch) + '</span>';
+  document.querySelectorAll('.app-logo').forEach((logo) => {
+    logo.classList.toggle('is-beta', ch === 'beta');
+    logo.classList.toggle('is-dev', ch !== 'beta');
+  });
 }
 
 async function initAppMeta() {
@@ -8249,7 +8298,7 @@ async function connectDataFile() {
   }
   try {
     const [handle] = await window.showOpenFilePicker({
-      types: [{ description: 'Zuko Dashboard Data', accept: { 'application/json': ['.json'] } }],
+      types: [{ description: 'ZAP data', accept: { 'application/json': ['.json'] } }],
       multiple: false
     });
     fileHandle = handle;
@@ -8276,7 +8325,7 @@ async function createNewDataFile() {
   try {
     const handle = await window.showSaveFilePicker({
       suggestedName: 'zuko-dashboard-data.json',
-      types: [{ description: 'Zuko Dashboard Data', accept: { 'application/json': ['.json'] } }]
+      types: [{ description: 'ZAP data', accept: { 'application/json': ['.json'] } }]
     });
     fileHandle = handle;
     stampAppMeta();
@@ -9712,12 +9761,9 @@ function render() {
 }
 
 function renderUnsafe() {
-  document.title = 'Zuko Astrophotography Dashboard';
+  document.title = String((APP_META && APP_META.channel) || 'dev').toLowerCase() === 'beta' ? 'ZAP Beta' : 'ZAP Dev';
   const rigEl = document.getElementById('rig-name-el');
-  if (rigEl) {
-    const name = (data.rigName && String(data.rigName).trim()) || 'Zuko';
-    rigEl.textContent = name + ' Astrophotography Dashboard';
-  }
+  if (rigEl) rigEl.textContent = 'ZAP';
   renderImagingConfigsTable();
 
   renderProjects();
@@ -19849,7 +19895,7 @@ async function openSettings() {
   ensureHomeSite();
   const home = data.homeSite || HOME_SITE;
   const rig = document.getElementById('settings-rig-name');
-  if (rig) rig.value = data.rigName || 'Zuko';
+  if (rig) rig.value = data.rigName || 'ZAP';
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.value = val != null ? String(val) : '';
@@ -19988,7 +20034,7 @@ async function settingsClearApiKey() {
 }
 
 async function saveSettings() {
-  const rigName = (document.getElementById('settings-rig-name').value || '').trim() || 'Zuko';
+  const rigName = (document.getElementById('settings-rig-name').value || '').trim() || 'ZAP';
   const name = (document.getElementById('settings-home-name').value || '').trim() || 'Home';
   const lat = parseFloat(document.getElementById('settings-home-lat').value);
   const lon = parseFloat(document.getElementById('settings-home-lon').value);

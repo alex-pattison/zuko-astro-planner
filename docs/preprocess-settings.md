@@ -1,6 +1,6 @@
 # Siril preprocessing settings
 
-Zuko generates Siril `.ssf` scripts for Calibrate → Register → Stack. Settings live on the dashboard JSON as `preprocessSettings` and are chosen in **Settings → Siril preprocessing**. The Stack confirm dialog also has a sampling checkbox.
+ZAP generates Siril `.ssf` scripts for Calibrate → Register → Stack. Settings live on the dashboard JSON as `preprocessSettings` and are chosen in **Settings → Siril preprocessing**. The Stack confirm dialog also has a sampling checkbox.
 
 Canonical code: [`src/siril/preprocessSettings.js`](../src/siril/preprocessSettings.js)  
 Builders: [`src/siril/preprocess.js`](../src/siril/preprocess.js)  

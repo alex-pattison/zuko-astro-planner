@@ -1,6 +1,6 @@
 # External data sources
 
-What Zuko pulls from the network (or CDN), where it goes in the UI, and how long it’s cached. Local astronomy math (SunCalc-style twilight, moon phase age) runs offline in the renderer and does **not** need a network call.
+What ZAP pulls from the network (or CDN), where it goes in the UI, and how long it’s cached. Local astronomy math (SunCalc-style twilight, moon phase age) runs offline in the renderer and does **not** need a network call.
 
 API keys: `ASTROSPHERIC_API_KEY` in `.env` (see `.env.example`). Never commit `.env`.
 

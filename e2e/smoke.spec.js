@@ -18,7 +18,7 @@ test.afterAll(async () => {
 });
 
 test('app shell loads with brand and version', async () => {
-  await expect(window.locator('#rig-name-el')).toContainText(/Zuko/i);
+  await expect(window.locator('#rig-name-el')).toHaveText('ZAP');
   await expect(window.locator('#header-version')).not.toHaveText('v—');
   await expect(window.getByTestId('new-project')).toBeVisible();
 });

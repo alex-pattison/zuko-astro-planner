@@ -1,4 +1,4 @@
-# Zuko backlog
+# ZAP backlog
 
 Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
 
@@ -85,6 +85,14 @@ Import no longer night-gates flats. Sets are grouped (filter + night + exp/gain/
 Sky Forecast nautical / astronomical / **Astro night** chips stay dark in Light (night colors). Labels and times use light type so **ASTRO NIGHT** remains readable.
 
 **Why:** Light theme left `--gray` / `--text` on a dark mix; the uppercase kicker vanished.
+
+---
+
+### 31. Rename to ZAP — *shipped build 38*
+
+Product name is **ZAP** (not Zuko / ZAP Astro Planner). Header wordmark + Z logo; window/shortcuts **ZAP Dev** / **ZAP Beta**. Disk paths, `zuko-dashboard-data.json`, and `zuko*` internals unchanged.
+
+**Why:** Short name; drop “dashboard” from the chrome.
 
 ---
 
@@ -213,7 +221,7 @@ Cull + Imaging Pipeline buttons copy `cd "…"` for Siril’s command bar (Aggre
 
 #### 13. In-app culling UI **(requires FITS thumb / HFR preview)**
 
-Cull in Zuko with thumbs/metrics. Without preview, don’t bother.
+Cull in ZAP with thumbs/metrics. Without preview, don’t bother.
 
 #### 22. Session quality history chart
 

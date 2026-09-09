@@ -53,7 +53,7 @@ const project = {
 };
 
 const data = {
-  rigName: 'Zuko E2E',
+  rigName: 'ZAP E2E',
   forecastLocation: { name: 'Test Site', lat: 40.72, lon: -73.98 },
   asiairSourcePath: hasAsiair ? FIXTURE_ASIAIR : '',
   projects: [project],

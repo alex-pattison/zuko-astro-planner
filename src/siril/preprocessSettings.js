@@ -1,5 +1,5 @@
 /**
- * Siril preprocess settings — presets + custom overrides for Zuko script builders.
+ * Siril preprocess settings — presets + custom overrides for ZAP script builders.
  *
  * Presets per stage: default | monoRecommended | custom
  * Stack sampling: binningUpdate (Siril core.binning_update / “real pixel size”)
@@ -252,9 +252,9 @@ const HELP_CATALOG = Object.freeze({
     id: 'preset',
     label: 'Stage preset',
     summary:
-      'Default keeps today’s Zuko Mono 1.4 scripts. Mono Recommended applies your preferred mono recipe (2-pass register, Winsorized when N≥20, ASIAIR-safe sampling). Custom unlocks per-flag controls for that stage.',
+      'Default keeps today’s ZAP Mono 1.4 scripts. Mono Recommended applies your preferred mono recipe (2-pass register, Winsorized when N≥20, ASIAIR-safe sampling). Custom unlocks per-flag controls for that stage.',
     options: [
-      { value: 'default', label: 'Default', when: 'Match the built-in scripts shipped with Zuko (no 2-pass).' },
+      { value: 'default', label: 'Default', when: 'Match the built-in scripts shipped with ZAP (no 2-pass).' },
       {
         value: 'monoRecommended',
         label: 'Mono Recommended',

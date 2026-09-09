@@ -182,7 +182,7 @@ async function main() {
   );
 
   const data = {
-    rigName: prev.rigName || 'Zuko',
+    rigName: prev.rigName || 'ZAP',
     forecastLocation: prev.forecastLocation || { name: 'NYC', lat: 40.7157, lon: -73.986 },
     projects: [
       {

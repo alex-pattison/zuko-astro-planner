@@ -248,7 +248,7 @@ async function testStageConfirmGate() {
 }
 
 async function main() {
-  console.log('Zuko target-match flow QA');
+  console.log('ZAP target-match flow QA');
   await ensureFixture();
   await testIntegrationTone();
   await testBandsAndRotator();

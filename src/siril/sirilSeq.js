@@ -246,7 +246,7 @@ async function writeAggregateCullManifest(aggregateDir, excludedBasenames) {
     .filter(Boolean);
   const unique = [...new Set(excluded.map((n) => n.toLowerCase()))];
   const lines = [
-    '# Zuko cull manifest — excluded from stacking (from Siril .seq scan)',
+    '# ZAP cull manifest — excluded from stacking (from Siril .seq scan)',
     ...unique.map((low) => {
       const orig = excluded.find((n) => n.toLowerCase() === low);
       return orig || low;

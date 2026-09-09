@@ -131,7 +131,7 @@ function getZukoChannel() {
 }
 
 function channelProductTitle() {
-  return getZukoChannel() === 'beta' ? 'Zuko Astro Planner Beta' : 'Zuko Astro Planner Dev';
+  return getZukoChannel() === 'beta' ? 'ZAP Beta' : 'ZAP Dev';
 }
 
 /**

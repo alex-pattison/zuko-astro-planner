@@ -12,7 +12,7 @@ Lean snapshot of stock scripts from the installed app — **not** a full Siril s
 
 | File | Use |
 |------|-----|
-| `Mono_Preprocessing.ssf` | Mono camera preprocess (baseline for Zuko) |
+| `Mono_Preprocessing.ssf` | Mono camera preprocess (baseline for ZAP) |
 | `OSC_Preprocessing.ssf` | OSC preprocess |
 | `OSC_Preprocessing_BayerDrizzle.ssf` | OSC + Bayer drizzle |
 | `OSC_Extract_Ha.ssf` | Extract Ha from OSC |
@@ -21,7 +21,7 @@ Lean snapshot of stock scripts from the installed app — **not** a full Siril s
 
 `Mono_Preprocessing` v1.4 expects `biases/` `flats/` `darks/` `lights/` in the working directory, writes masters to `masters/`, intermediates to `process/`, and saves `result_$FILTER_$LIVETIME` at the shoot root.
 
-Zuko does **not** run this file. It generates per-job `.ssf` scripts in `src/siril/preprocess.js` using the same Mono 1.4 command sequence (calibrate stops before register/stack). On launch, the app compares the installed `C:\Program Files\Siril\scripts\Mono_Preprocessing.ssf` header (`Mono_Preprocessing vX.Y` + content hash) to this reference and warns if Siril updated it.
+ZAP does **not** run this file. It generates per-job `.ssf` scripts in `src/siril/preprocess.js` using the same Mono 1.4 command sequence (calibrate stops before register/stack). On launch, the app compares the installed `C:\Program Files\Siril\scripts\Mono_Preprocessing.ssf` header (`Mono_Preprocessing vX.Y` + content hash) to this reference and warns if Siril updated it.
 
 ## Refresh
 

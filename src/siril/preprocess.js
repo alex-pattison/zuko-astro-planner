@@ -39,7 +39,7 @@ const DEFAULT_MONO_SCRIPT = path.join(
   'Mono_Preprocessing.ssf'
 );
 
-/** Bundled baseline (copied from Siril install when we last verified Zuko templates). */
+/** Bundled baseline (copied from Siril install when we last verified ZAP templates). */
 function resolveReferenceMonoScript() {
   return path.join(__dirname, '..', '..', 'reference', 'siril', 'scripts', 'Mono_Preprocessing.ssf');
 }
@@ -188,7 +188,7 @@ cd ..
   const presetNote = `bias=${biasOpts.preset} flat=${flatOpts.preset} calibrate=${calOpts.preset}`;
 
   return `############################################
-# Zuko calibrate (${presetNote})
+# ZAP calibrate (${presetNote})
 # Stops after calibrate → process/pp_light_*.fit
 # Generated — do not hand-edit mid-run
 ############################################
@@ -214,7 +214,7 @@ close
 function buildLibraryMasterScript(kind = 'bias') {
   const seq = kind === 'dark' ? 'dark' : 'bias';
   return `############################################
-# Zuko library master stack (${seq})
+# ZAP library master stack (${seq})
 # Generated — do not hand-edit mid-run
 ############################################
 
@@ -247,7 +247,7 @@ seqapplyreg pp_light
 `;
 
   return `############################################
-# Zuko register (preset=${regOpts.preset}${regOpts.twoPass ? ', 2-pass' : ''})
+# ZAP register (preset=${regOpts.preset}${regOpts.twoPass ? ', 2-pass' : ''})
 # Expects Aggregate/pp_light_*.fit — writes r_pp_light_*
 # Generated — do not hand-edit mid-run
 ############################################
@@ -295,7 +295,7 @@ stack r_pp_light ${stackArgs}
   }
 
   return `############################################
-# Zuko stack (preset=${stackOpts.preset}, binning_update=${settings.binningUpdate ? 'true' : 'false'})
+# ZAP stack (preset=${stackOpts.preset}, binning_update=${settings.binningUpdate ? 'true' : 'false'})
 # Expects included FITS in inputs/ (aligned r_pp_light or pp_light for re-register)
 # Generated — do not hand-edit mid-run
 ############################################
@@ -1347,7 +1347,7 @@ async function readMonoScriptFile(filePath) {
 
 /**
  * Compare installed Siril Mono_Preprocessing.ssf to the repo reference copy.
- * Zuko does not execute the stock script, but its header/version is the signal
+ * ZAP does not execute the stock script, but its header/version is the signal
  * that Siril updated and our generated calibrate/stack templates may need review.
  */
 async function inspectMonoPreprocessingScript(opts = {}) {

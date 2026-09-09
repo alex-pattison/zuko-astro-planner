@@ -1,6 +1,6 @@
-# Zuko Astro Planner
+# ZAP
 
-Desktop astrophotography planner and rig dashboard for Alex's imaging setup.
+Desktop astrophotography planner for Alex's imaging setup.
 
 Baseline UI comes from the existing standalone HTML/Electron dashboard (`rig-dashboard-v6` lineage). This repo is a new project — not a fork.
 
@@ -14,7 +14,7 @@ Baseline UI comes from the existing standalone HTML/Electron dashboard (`rig-das
    npm start
    ```
 
-Desktop shortcut (optional): point at `node_modules\electron\dist\electron.exe` with arguments `.` and this folder as the working directory.
+Desktop shortcut (optional): name it **ZAP Dev**, point at `node_modules\electron\dist\electron.exe` with arguments `.` and this folder as the working directory.
 
 ## Dev vs Beta
 
@@ -31,7 +31,7 @@ Two side-by-side channels with **separate data pools** (they never sync):
 - Override either pool with `ZUKO_DATA_DIR` (used by Playwright / QA).
 - Force channel with `ZUKO_CHANNEL=dev` or `ZUKO_CHANNEL=beta`.
 - Promote builds: merge `main` → `beta-release`, then `npm run dist:win:beta` (builds the NSIS Setup, silent-installs over `AppData\Local\Programs\zuko-astro-planner`, refreshes the Desktop Beta shortcut). Use `npm run dist:win:beta:build-only` if you only want the exe in `dist\`.
-- After a Beta promote, launch **Zuko Astro Planner Beta** from the Desktop icon — you should see the new version/build in the header.
+- After a Beta promote, launch **ZAP Beta** from the Desktop icon — you should see the new version/build in the header.
 
 **One-time Beta seed** (copies the freshest H: or repo JSON into the Beta folder, then writes `.beta-seeded`; re-runs are no-ops):
 

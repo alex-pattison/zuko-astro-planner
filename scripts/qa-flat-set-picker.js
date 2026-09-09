@@ -113,7 +113,7 @@ async function stageChoice({ night, filter, folder, choiceId, expectNight, expec
 }
 
 async function main() {
-  console.log('Zuko flat-set picker QA');
+  console.log('ZAP flat-set picker QA');
   if (!fs.existsSync('F:\\zuko_dev')) {
     console.log('skip — F:\\zuko_dev not present');
     process.exit(0);

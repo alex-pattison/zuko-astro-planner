@@ -1,8 +1,8 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.3.0",
-  "zukoBuild": 37,
-  "description": "Zuko Astro Planner — desktop dashboard for Alex's astrophotography rig",
+  "zukoBuild": 38,
+  "description": "ZAP — desktop astrophotography planner for Alex's rig",
   "main": "main.js",
   "author": "Alexandra Pattison",
   "license": "UNLICENSED",
@@ -32,7 +32,7 @@
   },
   "build": {
     "appId": "com.alex.zukoastroplanner.beta",
-    "productName": "Zuko Astro Planner Beta",
+    "productName": "ZAP Beta",
     "icon": "build/icon.ico",
     "extraMetadata": {
       "zukoChannel": "beta"
@@ -67,7 +67,9 @@
     "nsis": {
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico"
+      "installerHeaderIcon": "build/icon.ico",
+      "shortcutName": "ZAP Beta",
+      "uninstallDisplayName": "ZAP Beta"
     },
     "mac": {
       "target": "dmg",

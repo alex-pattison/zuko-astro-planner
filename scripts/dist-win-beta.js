@@ -17,7 +17,7 @@ const { spawnSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const pkg = require(path.join(ROOT, 'package.json'));
-const PRODUCT = (pkg.build && pkg.build.productName) || 'Zuko Astro Planner Beta';
+const PRODUCT = (pkg.build && pkg.build.productName) || 'ZAP Beta';
 const SETUP_NAME = `${PRODUCT} Setup ${pkg.version}.exe`;
 const INSTALL_DIR = path.join(
   process.env.LOCALAPPDATA || '',
@@ -49,9 +49,13 @@ function run(cmd, args, opts = {}) {
 function closeBetaProcesses() {
   if (process.platform !== 'win32') return;
   // Packaged Beta only — do not kill Dev `electron.exe`.
+  const names = [PRODUCT, 'Zuko Astro Planner Beta', 'ZAP Astro Planner Beta']
+    .map((n) => "'" + String(n).replace(/'/g, "''") + "'")
+    .join(', ');
   const ps = `
+    $names = @(${names})
     Get-Process -ErrorAction SilentlyContinue |
-      Where-Object { $_.ProcessName -eq '${PRODUCT.replace(/'/g, "''")}' } |
+      Where-Object { $names -contains $_.ProcessName } |
       Stop-Process -Force
   `;
   spawnSync('powershell.exe', ['-NoProfile', '-Command', ps], { stdio: 'inherit' });
@@ -67,6 +71,36 @@ function readInstalledMeta() {
   return { version, zukoBuild, mtime: fs.statSync(ASAR_PATH).mtime };
 }
 
+const LEGACY_BETA_SHORTCUTS = [
+  'Zuko Astro Planner Beta.lnk',
+  'ZAP Astro Planner Beta.lnk',
+];
+
+function removeLegacyBetaShortcuts(desktop) {
+  const dirs = [
+    desktop,
+    path.join(process.env.APPDATA || '', 'Microsoft', 'Windows', 'Start Menu', 'Programs'),
+    path.join(process.env.ProgramData || '', 'Microsoft', 'Windows', 'Start Menu', 'Programs'),
+  ];
+  for (const dir of dirs) {
+    if (!dir || !fs.existsSync(dir)) continue;
+    for (const name of LEGACY_BETA_SHORTCUTS) {
+      const p = path.join(dir, name);
+      try {
+        if (fs.existsSync(p)) {
+          fs.unlinkSync(p);
+          console.log(`dist-win-beta: removed leftover ${p}`);
+        }
+      } catch (err) {
+        console.warn(
+          `dist-win-beta: could not remove leftover shortcut ${p}:`,
+          err && err.message ? err.message : err,
+        );
+      }
+    }
+  }
+}
+
 function ensureDesktopShortcut() {
   if (process.platform !== 'win32') return;
   if (!fs.existsSync(EXE_PATH)) {
@@ -80,17 +114,32 @@ function ensureDesktopShortcut() {
   ];
   const desktop = candidates.find((d) => fs.existsSync(d)) || candidates[0];
   const lnk = path.join(desktop, `${PRODUCT}.lnk`);
+  const startLnk = path.join(
+    process.env.APPDATA || '',
+    'Microsoft',
+    'Windows',
+    'Start Menu',
+    'Programs',
+    `${PRODUCT}.lnk`,
+  );
   const wd = INSTALL_DIR.replace(/'/g, "''");
   const target = EXE_PATH.replace(/'/g, "''");
   const linkPath = lnk.replace(/'/g, "''");
+  const startPath = startLnk.replace(/'/g, "''");
+  const desc = PRODUCT.replace(/'/g, "''");
   const ps = `
     $sh = New-Object -ComObject WScript.Shell
-    $sc = $sh.CreateShortcut('${linkPath}')
-    $sc.TargetPath = '${target}'
-    $sc.WorkingDirectory = '${wd}'
-    $sc.Description = '${PRODUCT.replace(/'/g, "''")}'
-    $sc.Save()
-    Write-Output $sc.TargetPath
+    foreach ($p in @('${linkPath}', '${startPath}')) {
+      if (-not $p) { continue }
+      $dir = Split-Path $p
+      if ($dir -and -not (Test-Path $dir)) { continue }
+      $sc = $sh.CreateShortcut($p)
+      $sc.TargetPath = '${target}'
+      $sc.WorkingDirectory = '${wd}'
+      $sc.Description = '${desc}'
+      $sc.Save()
+    }
+    Write-Output '${target}'
   `;
   const r = spawnSync('powershell.exe', ['-NoProfile', '-Command', ps], {
     encoding: 'utf8',
@@ -99,6 +148,7 @@ function ensureDesktopShortcut() {
     console.warn('dist-win-beta: could not refresh Desktop shortcut:', (r.stderr || r.stdout || '').trim());
     return;
   }
+  removeLegacyBetaShortcuts(desktop);
   console.log(`dist-win-beta: Desktop shortcut → ${(r.stdout || '').trim() || EXE_PATH}`);
 }
 

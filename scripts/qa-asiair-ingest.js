@@ -1473,7 +1473,7 @@ async function testLiveLastNightDump() {
 }
 
 async function main() {
-  console.log('Zuko ASIAIR QA');
+  console.log('ZAP ASIAIR QA');
   console.log('QA root:', QA_ROOT);
   console.log('Source Autorun:', SRC_AUTORUN);
   await buildFixture();
