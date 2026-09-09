@@ -96,6 +96,14 @@ Product name is **ZAP** (not Zuko / ZAP Astro Planner). Header wordmark + Z logo
 
 ---
 
+### 32. Red-mode ZAP logo — *shipped build 39*
+
+Header / boot Z logo uses night-vision red fills in Red mode (Dev amber / Beta teal otherwise).
+
+**Why:** Amber/teal mark broke the red field theme.
+
+---
+
 ### 11. Local crash / error log folder
 
 Write last N main/renderer errors to a zipable folder. No cloud required.

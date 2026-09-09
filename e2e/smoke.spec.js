@@ -28,6 +28,7 @@ test('theme toggles apply html data-theme', async () => {
   await expect(window.locator('html')).toHaveAttribute('data-theme', 'light');
   await window.getByTestId('theme-red').click();
   await expect(window.locator('html')).toHaveAttribute('data-theme', 'red');
+  await expect(window.locator('.header-title-row .app-logo-accent')).toHaveCSS('fill', 'rgb(255, 26, 26)');
   await window.getByTestId('theme-dark').click();
   await expect(window.locator('html')).toHaveAttribute('data-theme', 'dark');
 });

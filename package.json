@@ -1,7 +1,7 @@
 {
   "name": "zuko-astro-planner",
   "version": "0.3.0",
-  "zukoBuild": 38,
+  "zukoBuild": 39,
   "description": "ZAP — desktop astrophotography planner for Alex's rig",
   "main": "main.js",
   "author": "Alexandra Pattison",

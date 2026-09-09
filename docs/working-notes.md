@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-08 — build 39 — Red-mode ZAP logo
+- **Seen:** Header Z stayed Dev amber / Beta teal in Red night-vision mode.
+- **Fix / next:** Red theme paints the logo dark-red / pink / #ff1a1a. Dark and Light unchanged.
+- **QA:** e2e theme toggle asserts red logo fill.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 39).
+- **Canvas:** backlog snapshot → build 39.
+
 ### 2026-09-08 — build 38 — Rename to ZAP
 - **Seen:** App still branded Zuko / “Astro Planner” / “dashboard” in chrome, shortcuts, and installer names.
 - **Fix / next:** Product is **ZAP**. Header is logo + ZAP; channels **ZAP Dev** / **ZAP Beta**. Paths and `zuko*` IDs left alone.
