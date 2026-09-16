@@ -45,25 +45,35 @@ const DUMP =
   ok('normalizeFilter H→Ha', normalizeFilter('H') === 'Ha');
 
   // 2) Scan with dump that HAS log/ — must still ok and attach sessionLog
-  if (!fs.existsSync(DUMP)) {
-    console.log('skip live dump smokes');
-    process.exit(failed ? 1 : 0);
+  const logDir = path.join(DUMP, 'log');
+  const hasLiveLogs = fs.existsSync(logDir)
+    && fs.readdirSync(logDir).some((n) => /\.txt$/i.test(n));
+  if (!fs.existsSync(DUMP) || !hasLiveLogs) {
+    console.log('skip live dump smokes (no log files)');
+  } else {
+    const autorunNames = fs.readdirSync(logDir).filter((n) => /^Autorun_Log_.*\.txt$/i.test(n)).sort();
+    const newest = autorunNames[autorunNames.length - 1] || '';
+    const nightFromName = (newest.match(/(\d{4})-(\d{2})-(\d{2})/) || [])
+      .slice(1, 4)
+      .join('');
+    const hasAug3 = autorunNames.some((n) => /2026-08-03/.test(n));
+    const nightDate = hasAug3 ? '20260803' : (nightFromName || '20260803');
+    const scan = await scanSession({
+      projectDir: DUMP,
+      nightDate,
+      shootFilter: 'Ha',
+      refCaaDeg: 211,
+    });
+    ok('scanSession ok with log/', scan && scan.ok === true, scan && scan.error);
+    ok('scan has lights or empty ok field', scan.ok === true);
+    ok('scan.sessionLog present', !!(scan.sessionLog && (scan.sessionLog.digest || scan.sessionLog.ok != null)));
+    if (hasAug3 && scan.sessionLog && scan.sessionLog.digest) {
+      ok('digest plan Veilq3v2', scan.sessionLog.digest.planName === 'Veilq3v2');
+    } else if (scan.sessionLog && scan.sessionLog.digest) {
+      ok('digest has plan name', !!scan.sessionLog.digest.planName, scan.sessionLog.digest.planName);
+    }
+    ok('softWarnings is array', Array.isArray(scan.softWarnings));
   }
-
-  const scan = await scanSession({
-    projectDir: DUMP,
-    nightDate: '20260803',
-    shootFilter: 'Ha',
-    refCaaDeg: 211,
-  });
-  ok('scanSession ok with log/', scan && scan.ok === true, scan && scan.error);
-  ok('scan has lights or empty ok field', scan.ok === true);
-  ok('scan.sessionLog present', !!(scan.sessionLog && (scan.sessionLog.digest || scan.sessionLog.ok != null)));
-  if (scan.sessionLog && scan.sessionLog.digest) {
-    ok('digest plan Veilq3v2', scan.sessionLog.digest.planName === 'Veilq3v2');
-  }
-  // softWarnings must be an array even when session logs add entries
-  ok('softWarnings is array', Array.isArray(scan.softWarnings));
 
   // 3) Scan with a fake root that has NO log/ — must not throw / fail solely for missing logs
   const emptyRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuko-nolog-'));

@@ -7088,7 +7088,7 @@ const PP_HELP = {
   binningUpdate: {
     label: 'Update pixel size of binned images',
     summary:
-      'Siril core.binning_update (“real pixel size”). Checked → multiply FITS XPIXSZ by XBINNING. Unchecked → header µm already includes binning. ASIAIR Bin2 usually writes effective µm — leave unchecked so plate solving on r_pp_light_* and result_*.fit stays correct.',
+      'Siril core.binning_update (“real pixel size”). Checked → multiply FITS XPIXSZ by XBINNING. Unchecked → header µm already effective. ASI294MM Bin2 is 4.63 µm with XBINNING=2 — leave unchecked. GUI Plate Solver showing 9.26 is that second multiply; enter 4.63 or the solve fails.',
     options: [
       {
         value: 'unchecked',

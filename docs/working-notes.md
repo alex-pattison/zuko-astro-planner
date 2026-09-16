@@ -26,6 +26,18 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-15 — build 40 — ASUS Beta data dir + Elephant Trunk
+- **Beta data:** Packaged app uses `E:\Astrophotography\Dashboard` when H: is missing, then `%LOCALAPPDATA%\zuko-beta-dashboard`. Elephant Nebula (IC 1396) copied into Beta JSON (`Zuko\IC1396_260911`).
+- **Field:** ASI294MM Bin2 plate-solve 4.63 vs Siril 9.26 (`docs/troubleshooting.md`). QA skips a missing Desktop `asiaIRDUMP`.
+- **Drive:** 4TB `E:` (`EXT_4Tb_01`) is optional; FITS copy onto that pool still needs the disk.
+- **Git:** on `onyx` (not merged to `main` / `beta-release`). Packaged installer still build 39 until a Beta dist.
+- **Canvas:** backlog snapshot → build 40.
+
+### 2026-09-12 — Siril plate-solve 9.26 vs 4.63 (ASI294 Bin2)
+- **Seen:** `H_v1.0.2_RCAstro.fit` (4144×2822, `XPIXSZ=4.63`, `XBINNING=2`). Siril Plate Solver fills 9.26 and fails; 4.63 succeeds.
+- **Cause:** ASI294 “Bin2” is already 4.63 µm effective. GUI `core.binning_update=true` multiplies again (4.63×2). ZAP scripts default the flag off; interactive Siril does not.
+- **Fix / next:** Uncheck the Siril preference; use 4.63 µm and ~278–280 mm. Documented in `docs/troubleshooting.md`.
+
 ### 2026-09-08 — build 39 — Red-mode ZAP logo
 - **Seen:** Header Z stayed Dev amber / Beta teal in Red night-vision mode.
 - **Fix / next:** Red theme paints the logo dark-red / pink / #ff1a1a. Dark and Light unchanged.

@@ -6,6 +6,38 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
+const fs = require('fs');
+
+function defaultAsiairQaSrc() {
+  if (process.env.ASIAIR_QA_SRC && String(process.env.ASIAIR_QA_SRC).trim()) {
+    return String(process.env.ASIAIR_QA_SRC).trim();
+  }
+  const desktop = path.join(process.env.USERPROFILE || '', 'OneDrive', 'Desktop', 'asiaIRDUMP');
+  try {
+    if (!fs.existsSync(desktop)) return '';
+    const logDir = path.join(desktop, 'log');
+    const hasLog = fs.existsSync(logDir) && fs.readdirSync(logDir).some((n) => /\.txt$/i.test(n));
+    const autorun = path.join(desktop, 'Autorun');
+    const hasFit = (dir) => {
+      if (!fs.existsSync(dir)) return false;
+      const walk = (d, n = 0) => {
+        if (n > 400) return false;
+        for (const ent of fs.readdirSync(d, { withFileTypes: true })) {
+          const p = path.join(d, ent.name);
+          if (ent.isFile() && /\.fit$/i.test(ent.name)) return true;
+          if (ent.isDirectory() && walk(p, n + 1)) return true;
+        }
+        return false;
+      };
+      return walk(autorun);
+    };
+    if (hasLog || hasFit(autorun)) return desktop;
+  } catch {
+    /* ignore */
+  }
+  return '';
+}
+
 const scripts = [
   'scripts/qa-project-framer-fov.js',
   'scripts/qa-filters.js',
@@ -34,8 +66,7 @@ for (const rel of scripts) {
     stdio: 'inherit',
     env: {
       ...process.env,
-      ASIAIR_QA_SRC: process.env.ASIAIR_QA_SRC
-        || path.join(process.env.USERPROFILE || '', 'OneDrive', 'Desktop', 'asiaIRDUMP'),
+      ...(defaultAsiairQaSrc() ? { ASIAIR_QA_SRC: defaultAsiairQaSrc() } : {}),
     },
   });
   if (r.status !== 0) {

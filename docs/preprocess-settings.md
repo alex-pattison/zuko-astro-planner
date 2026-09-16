@@ -25,10 +25,12 @@ Suggested presets on each job dialog: **SHO / Hβ → Mono Recommended**, **LRGB
 
 | State | Behavior |
 |-------|----------|
-| **Unchecked (default)** | `set core.binning_update=false` — treat FITS `XPIXSZ` as already effective (binned). Correct for ASIAIR Bin2. |
+| **Unchecked (default)** | `set core.binning_update=false` — treat FITS `XPIXSZ` as already effective. Required for ASI294MM Bin2. |
 | **Checked** | `set core.binning_update=true` — multiply header µm by `XBINNING`. |
 
 This line is written into **Register** and **Stack** scripts (and Calibrate) so registered `r_pp_light_*` and `working/result_*.fit` keep correct sampling for plate solving. The Stack confirm checkbox is the interactive control; its value is also stored as `preprocessSettings.binningUpdate`.
+
+**ASI294MM:** Bin2 frames are 4144×2822 with `XPIXSZ=4.63` and `XBINNING=2`. 4.63 µm is already the effective pixel (IMX492 2.315 µm photosites, hardware 2×2). If Siril’s GUI preference is on, Plate Solver shows **9.26** and fails; enter **4.63** (and ~278–280 mm). See [troubleshooting](troubleshooting.md).
 
 ## Mono Recommended detail
 

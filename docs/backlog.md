@@ -1,6 +1,6 @@
 # ZAP backlog
 
-Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
+Scratch / bugs: [`working-notes.md`](working-notes.md). Field recipes: [`troubleshooting.md`](troubleshooting.md). Testing: [`testing.md`](testing.md).
 
 **On every build or version ship:** update this file *and* the [0.3.0 planning canvas](C:/Users/alexp/.cursor/projects/c-Users-alexp-Projects-zuko-astro-planner/canvases/zuko-backlog-02-vs-03.canvas.tsx) (current `version` / `zukoBuild`, shipped items, next headline).
 
@@ -101,6 +101,14 @@ Product name is **ZAP** (not Zuko / ZAP Astro Planner). Header wordmark + Z logo
 Header / boot Z logo uses night-vision red fills in Red mode (Dev amber / Beta teal otherwise).
 
 **Why:** Amber/teal mark broke the red field theme.
+
+---
+
+### 34. Packaged Beta Dashboard when H: is missing — *shipped build 40*
+
+Beta reads `E:\Astrophotography\Dashboard` when `H:` isn’t mounted, then `%LOCALAPPDATA%\zuko-beta-dashboard` so projects still load on this ASUS box. ASI294MM Bin2 plate-solve (4.63 vs Siril 9.26) is in [`troubleshooting.md`](troubleshooting.md). Elephant Nebula (IC 1396) is on the Beta project list.
+
+**Why:** This PC has no H: pool; unplugging the 4TB E: drive used to open Beta empty.
 
 ---
 
@@ -243,9 +251,20 @@ HFR / star count over nights. Needs a metric source (#13 or export).
 
 Forecast / projects / “go image” on phone; later push notifications.
 
+#### 33. Secrets via 1Password (Astrospheric key, later others)
+
+Stop depending on a machine-local `.env` that never ships in git. Store `ASTROSPHERIC_API_KEY` (and later similar secrets) in **1Password**; Dev/Beta read it on this PC without pasting into chat or committing.
+
+- Vault item (or 1Password Environment) as source of truth.
+- Windows: **1Password CLI** (`op`) or desktop app — Environments *mount* is macOS/Linux-only, so don’t plan FIFO mounts here.
+- Inject at launch into Dev repo `.env` and Beta `E:\Astrophotography\Dashboard\.env` (gitignored). Settings → Astrospheric can still overwrite locally.
+- New machine / new disk: pull key from 1Password, not from H: leftover files.
+
+**Why:** This ASUS box had no key because `.env` never left the other PC. 1Password is already in use.
+
 #### Cloud sync
 
-Across machines. Needs auth, conflicts, and backup (#2) first.
+Across machines. Needs auth, conflicts, backup (#2), and secrets (#33) so forecast keys travel without copying `.env` by hand.
 
 #### Weather alerts / “go image”
 

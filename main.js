@@ -22,15 +22,64 @@ const {
   setAstronomyCacheDir,
 } = require('./src/weather/skyAstronomy');
 
+function localBetaDashboardDir() {
+  return process.env.LOCALAPPDATA
+    ? path.join(process.env.LOCALAPPDATA, 'zuko-beta-dashboard')
+    : '';
+}
+
+function driveIsMounted(absPath) {
+  try {
+    const root = path.parse(path.resolve(absPath)).root;
+    return !!(root && fs.existsSync(root));
+  } catch {
+    return false;
+  }
+}
+
+function dirIfMounted(dir) {
+  if (!dir || !String(dir).trim()) return null;
+  const resolved = path.resolve(String(dir).trim());
+  return driveIsMounted(resolved) ? resolved : null;
+}
+
+/** H: when present; local AppData always; E: last (optional external disk). */
+function packagedBetaDataDirCandidates() {
+  return [
+    'H:\\Photography\\Astrophotography\\Dashboard',
+    localBetaDashboardDir(),
+    'E:\\Astrophotography\\Dashboard',
+  ].filter(Boolean);
+}
+
 /** Writable .env home: checkout root in Dev; Beta data dir when packaged (asar is read-only). */
 function resolveEnvRoot() {
-  const override = process.env.ZUKO_ENV_DIR && String(process.env.ZUKO_ENV_DIR).trim();
-  if (override) return path.resolve(override);
-  if (app.isPackaged) return 'H:\\Photography\\Astrophotography\\Dashboard';
+  const override = dirIfMounted(process.env.ZUKO_ENV_DIR);
+  if (override) return override;
+  const dataDir = dirIfMounted(process.env.ZUKO_DATA_DIR);
+  if (dataDir) return dataDir;
+  if (app.isPackaged) {
+    const candidates = packagedBetaDataDirCandidates();
+    for (const dir of candidates) {
+      try {
+        if (dir && fs.existsSync(path.join(dir, '.env'))) return dir;
+      } catch { /* missing drive */ }
+    }
+    for (const dir of candidates) {
+      try {
+        if (dir && driveIsMounted(dir) && fs.existsSync(dir)) return dir;
+      } catch { /* missing drive */ }
+    }
+    return localBetaDashboardDir() || candidates[0];
+  }
   return __dirname;
 }
 
 loadDotEnv(resolveEnvRoot());
+try {
+  const localEnvDir = localBetaDashboardDir();
+  if (localEnvDir) loadDotEnv(localEnvDir);
+} catch { /* ignore */ }
 
 const DEV_FLAGS_FILE = app.isPackaged
   ? path.join(resolveEnvRoot(), 'dev-flags.json')
@@ -88,6 +137,8 @@ function loadSirilPreprocess() {
 }
 /** Beta (packaged installer) owns real dashboard data on H:. */
 const BETA_DATA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
+/** When H: is not mounted: local AppData (always), then optional E: disk. */
+const BETA_DATA_DIR_FALLBACKS = packagedBetaDataDirCandidates().slice(1);
 const PREFERRED_PROJECTS_DIR = 'H:\\Photography\\Astrophotography\\Projects';
 /** Dev channel imaging pool on F: (never share with Beta/H). */
 const DEV_PROJECTS_DIR = 'F:\\zuko_dev\\Projects';
@@ -98,13 +149,11 @@ const DATA_FILENAME = 'zuko-dashboard-data.json';
 
 /** Isolated data root for Playwright / QA (never touch H: live dashboard). */
 function envDataDir() {
-  const raw = process.env.ZUKO_DATA_DIR;
-  return raw && String(raw).trim() ? path.resolve(String(raw).trim()) : null;
+  return dirIfMounted(process.env.ZUKO_DATA_DIR);
 }
 
 function envProjectsDir() {
-  const raw = process.env.ZUKO_PROJECTS_DIR;
-  return raw && String(raw).trim() ? path.resolve(String(raw).trim()) : null;
+  return dirIfMounted(process.env.ZUKO_PROJECTS_DIR);
 }
 
 function readZukoChannelFromPackage() {
@@ -176,6 +225,18 @@ if (!gotSingleInstanceLock) {
   });
 }
 
+function resolveBetaDataDir() {
+  const candidates = packagedBetaDataDirCandidates();
+  for (const dir of candidates) {
+    try {
+      if (dir && fs.existsSync(path.join(dir, DATA_FILENAME))) return dir;
+    } catch {
+      /* ignore missing drive letters */
+    }
+  }
+  return localBetaDashboardDir() || BETA_DATA_DIR;
+}
+
 function resolveDataPaths() {
   const override = envDataDir();
   if (override) {
@@ -190,9 +251,10 @@ function resolveDataPaths() {
   }
   const channel = getZukoChannel();
   if (channel === 'beta') {
-    const file = path.join(BETA_DATA_DIR, DATA_FILENAME);
+    const dir = resolveBetaDataDir();
+    const file = path.join(dir, DATA_FILENAME);
     return {
-      dir: BETA_DATA_DIR,
+      dir,
       file,
       mirrorFile: null,
       label: file,

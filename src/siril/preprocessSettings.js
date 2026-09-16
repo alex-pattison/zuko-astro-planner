@@ -267,7 +267,7 @@ const HELP_CATALOG = Object.freeze({
     id: 'binningUpdate',
     label: 'Update pixel size of binned images (real pixel size)',
     summary:
-      'Siril preference core.binning_update. When checked, Siril multiplies FITS pixel size (XPIXSZ) by XBINNING. When unchecked, it treats the header µm as already effective (binned). ASIAIR usually writes the effective size — leave unchecked so plate solving and arcsec/px sampling stay correct on registered and stacked results.',
+      'Siril preference core.binning_update. When checked, Siril multiplies FITS pixel size (XPIXSZ) by XBINNING. When unchecked, it treats the header µm as already effective. ASI294MM Bin2 already writes 4.63 µm with XBINNING=2 — leave unchecked. If the GUI Plate Solver shows 9.26, that second multiply is wrong and the solve fails; use 4.63 µm (see docs/troubleshooting.md).',
     options: [
       {
         value: 'unchecked',

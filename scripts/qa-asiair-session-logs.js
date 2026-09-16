@@ -45,58 +45,129 @@ check('caaMatchesFramer 206 vs 211', caaMatchesFramer(206.462, 211, 10) === true
 check('caaMatchesFramer 32 vs 211 flip', caaMatchesFramer(32, 211, 10) === true);
 check('caaMatchesFramer 90 vs 211', caaMatchesFramer(90, 211, 10) === false);
 
-if (!fs.existsSync(LOG_DIR)) {
-  console.error('No asiaIRDUMP/log — skipping live dump tests');
-  process.exit(failed ? 1 : 0);
-}
-
 const aug3 = path.join(LOG_DIR, 'Autorun_Log_2026-08-03_220222.txt');
 const jul28 = path.join(LOG_DIR, 'Autorun_Log_2026-07-28_094949.txt');
 const jul25 = path.join(LOG_DIR, 'Autorun_Log_2026-07-25_224541.txt');
 const phdAug = path.join(LOG_DIR, 'PHD2_GuideLog_2026-08-03_214100.txt');
 const phdJul20 = path.join(LOG_DIR, 'PHD2_GuideLog_2026-07-20_221134.txt');
+const liveLogs = [aug3, jul28, jul25, phdAug, phdJul20];
 
-{
-  const s = parseAutorunLog(fs.readFileSync(aug3, 'utf8'), aug3);
-  check('aug3 night 20260803', s.nightYmd === '20260803', s.nightYmd);
-  check('aug3 plan Veilq3v2', s.plans[0] === 'Veilq3v2', JSON.stringify(s.plans));
-  check('aug3 plate angle ~206', s.plateSolves[0] && Math.abs(s.plateSolves[0].angle - 206.462) < 0.01);
-  check('aug3 AF 8300', s.autofocus.some((a) => a.ok && a.eafPos === 8300));
-  check('aug3 planned Ha lights 20', plannedLightsForFilter(s, 'Ha') === 20, plannedLightsForFilter(s, 'Ha'));
-  check('aug3 finished clean', s.flags.finishedClean === true);
-  check('aug3 filter H', s.filterChanges.some((f) => f.to === 'Ha'));
+const haveCanonicalLive = fs.existsSync(LOG_DIR) && liveLogs.every((p) => fs.existsSync(p));
+const liveAutorunLogs = fs.existsSync(LOG_DIR)
+  ? fs.readdirSync(LOG_DIR).filter((n) => /^Autorun_Log_.*\.txt$/i.test(n)).sort()
+  : [];
+const livePhdLogs = fs.existsSync(LOG_DIR)
+  ? fs.readdirSync(LOG_DIR).filter((n) => /^PHD2_GuideLog_.*\.txt$/i.test(n)).sort()
+  : [];
+
+if (!haveCanonicalLive) {
+  console.log('No complete asiaIRDUMP/log set (Aug 3 / Jul fixtures) — using generic live dump checks');
+  if (!fs.existsSync(LOG_DIR)) {
+    console.log('  missing dir', LOG_DIR, '— skip live dump files (parser checks above still run)');
+  } else {
+    for (const p of liveLogs) {
+      if (!fs.existsSync(p)) console.log('  missing', path.basename(p));
+    }
+    if (liveAutorunLogs.length || livePhdLogs.length) {
+      check('live dump has autorun log', liveAutorunLogs.length > 0, liveAutorunLogs.join(',') || 'none');
+      check('live dump has phd2 log', livePhdLogs.length > 0, livePhdLogs.join(',') || 'none');
+    } else {
+      console.log('  log dir empty — skip live dump files');
+    }
+  }
+  for (const name of liveAutorunLogs) {
+    const p = path.join(LOG_DIR, name);
+    const s = parseAutorunLog(fs.readFileSync(p, 'utf8'), p);
+    check(`${name} nightYmd`, /^\d{8}$/.test(s.nightYmd || ''), s.nightYmd);
+    check(`${name} plans array`, Array.isArray(s.plans), JSON.stringify(s.plans));
+  }
+  for (const name of livePhdLogs) {
+    const p = path.join(LOG_DIR, name);
+    const g = parsePhd2GuideLog(fs.readFileSync(p, 'utf8'), p);
+    check(`${name} quality`, ['good', 'fair', 'poor', 'unknown'].includes(g.quality), g.quality);
+  }
 }
 
-{
-  const s = parseAutorunLog(fs.readFileSync(jul28, 'utf8'), jul28);
-  check('jul28 filter fail flagged', s.flags.filterFail === true);
-  check('jul28 has failed change', s.filterChanges.some((f) => f.failed));
-}
+if (haveCanonicalLive) {
+  {
+    const s = parseAutorunLog(fs.readFileSync(aug3, 'utf8'), aug3);
+    check('aug3 night 20260803', s.nightYmd === '20260803', s.nightYmd);
+    check('aug3 plan Veilq3v2', s.plans[0] === 'Veilq3v2', JSON.stringify(s.plans));
+    check('aug3 plate angle ~206', s.plateSolves[0] && Math.abs(s.plateSolves[0].angle - 206.462) < 0.01);
+    check('aug3 AF 8300', s.autofocus.some((a) => a.ok && a.eafPos === 8300));
+    check('aug3 planned Ha lights 20', plannedLightsForFilter(s, 'Ha') === 20, plannedLightsForFilter(s, 'Ha'));
+    check('aug3 finished clean', s.flags.finishedClean === true);
+    check('aug3 filter H', s.filterChanges.some((f) => f.to === 'Ha'));
+  }
 
-{
-  const s = parseAutorunLog(fs.readFileSync(jul25, 'utf8'), jul25);
-  check('jul25 paused', s.flags.paused === true);
-  check('jul25 plan name', s.plans[0] === 'Veil Q3 2026');
-}
+  {
+    const s = parseAutorunLog(fs.readFileSync(jul28, 'utf8'), jul28);
+    check('jul28 filter fail flagged', s.flags.filterFail === true);
+    check('jul28 has failed change', s.filterChanges.some((f) => f.failed));
+  }
 
-{
-  const g = parsePhd2GuideLog(fs.readFileSync(phdAug, 'utf8'), phdAug);
-  check('phd aug night', g.nightYmd === '20260803', g.nightYmd);
-  check('phd aug frames > 1000', g.frameCount > 1000, g.frameCount);
-  check('phd aug has rms', g.rmsTotalArcsec != null && g.rmsTotalArcsec > 0, g.rmsTotalArcsec);
-  check('phd aug quality set', ['good', 'fair', 'poor', 'unknown'].includes(g.quality), g.quality);
-  console.log('    phd aug RMS″', g.rmsTotalArcsec, 'quality', g.quality, 'settleFail', g.settleFail);
-}
+  {
+    const s = parseAutorunLog(fs.readFileSync(jul25, 'utf8'), jul25);
+    check('jul25 paused', s.flags.paused === true);
+    check('jul25 plan name', s.plans[0] === 'Veil Q3 2026');
+  }
 
-{
-  const g = parsePhd2GuideLog(fs.readFileSync(phdJul20, 'utf8'), phdJul20);
-  check('phd jul20 star lost > 0', g.starLost > 0, g.starLost);
-  console.log('    phd jul20 quality', g.quality, 'starLost', g.starLost, 'RMS″', g.rmsTotalArcsec);
+  {
+    const g = parsePhd2GuideLog(fs.readFileSync(phdAug, 'utf8'), phdAug);
+    check('phd aug night', g.nightYmd === '20260803', g.nightYmd);
+    check('phd aug frames > 1000', g.frameCount > 1000, g.frameCount);
+    check('phd aug has rms', g.rmsTotalArcsec != null && g.rmsTotalArcsec > 0, g.rmsTotalArcsec);
+    check('phd aug quality set', ['good', 'fair', 'poor', 'unknown'].includes(g.quality), g.quality);
+    console.log('    phd aug RMS″', g.rmsTotalArcsec, 'quality', g.quality, 'settleFail', g.settleFail);
+  }
+
+  {
+    const g = parsePhd2GuideLog(fs.readFileSync(phdJul20, 'utf8'), phdJul20);
+    check('phd jul20 star lost > 0', g.starLost > 0, g.starLost);
+    console.log('    phd jul20 quality', g.quality, 'starLost', g.starLost, 'RMS″', g.rmsTotalArcsec);
+  }
 }
 
 (async () => {
+  if (!haveCanonicalLive && liveAutorunLogs.length === 0) {
+    if (failed) {
+      console.error('\nFAILED', failed);
+      process.exit(1);
+    }
+    console.log('\nNo live session logs — skipped dump-specific insight checks.');
+    process.exit(0);
+  }
+
   const dirs = await findLogDirs(DUMP);
   check('findLogDirs finds log', dirs.some((d) => /log$/i.test(d)), dirs.join('|'));
+
+  if (!haveCanonicalLive) {
+    const newest = liveAutorunLogs[liveAutorunLogs.length - 1];
+    const parsed = parseAutorunLog(fs.readFileSync(path.join(LOG_DIR, newest), 'utf8'), path.join(LOG_DIR, newest));
+    const night = parsed.nightYmd;
+    const insight = await buildSessionLogInsight({
+      sourceRoot: DUMP,
+      nightDate: night,
+      shootFilter: 'Ha',
+      lightCount: 30,
+      targetNames: parsed.plans || [],
+    });
+    check('generic insight ok', insight.ok === true, insight.error || JSON.stringify(insight.digest && insight.digest.planName));
+    check('generic insight has plan', !!(insight.digest && insight.digest.planName), JSON.stringify(insight.digest));
+    const tmp = path.join(require('os').tmpdir(), `zuko-session-log-qa-${Date.now()}`);
+    fs.mkdirSync(tmp, { recursive: true });
+    const copied = await copySessionLogsToShootDirs([tmp], insight);
+    check('copied logs', copied.length >= 1, copied.length);
+    try {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    } catch (_) { /* */ }
+    if (failed) {
+      console.error('\nFAILED', failed);
+      process.exit(1);
+    }
+    console.log('\nAll session-log checks passed (generic live dump).');
+    process.exit(0);
+  }
 
   const insight = await buildSessionLogInsight({
     sourceRoot: DUMP,

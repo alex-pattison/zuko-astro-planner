@@ -22,7 +22,15 @@ const TM = require('../src/ingest/targetMatchProject');
 const ROOT = path.resolve(__dirname, '..');
 const FIXTURE = path.join(ROOT, 'staging', 'asiair-test-target-match');
 const PLANNER = { ra: 97.9792, dec: 4.9428 };
-const DARK_LIB = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const DARK_LIB = [
+  process.env.ZUKO_DARK_LIBRARY,
+  'F:\\zuko_dev\\Dark Library',
+  'E:\\Astrophotography\\zuko_dev\\Dark Library',
+  'E:\\Astrophotography\\Zuko\\Dark Library',
+  'H:\\Photography\\Astrophotography\\Zuko\\Dark Library',
+].filter(Boolean).find((d) => {
+  try { return fs.existsSync(d); } catch { return false; }
+}) || 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
 
 const results = [];
 function pass(name, detail) {
