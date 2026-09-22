@@ -108,6 +108,6 @@ node scripts/qa-asiair-ingest.js
 
 Requires:
 - `staging/asiair-sample/Autorun` as the FITS source for the QA copy
-- Master dark library at `H:\Photography\Astrophotography\Zuko\Dark Library` (optional for match/stage darks tests; those asserts fail if missing)
+- Master dark library at `H:\Astrophotography\Zuko\Dark Library` (optional for match/stage darks tests; those asserts fail if missing)
 
 Machine-readable last run: `staging/asiair-qa-report.json` (gitignored).

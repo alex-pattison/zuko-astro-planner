@@ -26,6 +26,13 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-21 — build 41 — Beta data root → H:\Astrophotography
+- **Seen:** After moving imaging data off `H:\Photography\Astrophotography`, Beta still pointed at the old Dashboard (empty projects, missing `.env` / Astrospheric cache). Live weather + projects were under `H:\Astrophotography\Dashboard` / `Zuko`.
+- **Fix / next:** Packaged Beta data/env root and Dark Library defaults use `H:\Astrophotography\…`. Remapped 504 path strings in the live Beta JSON; archived leftover empty Photography Dashboard; left a move note at the old root.
+- **QA:** Path resolve + weather files + project dirs exist; unit smoke on session logs / multinight with new Dark Library path.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 41).
+- **Canvas:** backlog snapshot → build 41.
+
 ### 2026-09-21 — build 40 — Import CAA / Autorun filter false warnings
 - **Seen:** Elephant Trunk import showed Light 0 with Target Framer 0°; after setting 281°, nights still showed yellow “CAA mismatch Δ 180°” (meridian flip) and “Using … flat set; left N from other sets.” Sept 15 SII falsely warned “planned 50 / dump has 30.”
 - **Cause:** Folder CAA used a 2° cutoff (no flip); flat-set pick was always saved as a soft warning; Autorun “Shooting → Filter change” did not retag the open block after the first filter, so SII×30 + OIII×20 became planned SII×50.
@@ -323,7 +330,7 @@ Scratch items still land here until promoted:
 ### 2026-08-02 — build 9 — Dev/Beta channel split
 - **Seen:** Packaged Beta could not save Astrospheric key (`ENOENT` on `app.asar/.env`). Header/channel label and Z taskbar icons landed after channel work.
 - **Cause:** Packaged app tried to read/write `.env` inside read-only asar; icon `.ico` needed proper embedding + Windows cache clear.
-- **Fix / next:** Beta `.env` lives on `H:\Photography\Astrophotography\Dashboard\.env`. Dev = F:\ checkout `data/`. Promote to Beta via `beta-release` + `npm run dist:win:beta` when ready.
+- **Fix / next:** Beta `.env` lives on `H:\Astrophotography\Dashboard\.env`. Dev = F:\ checkout `data/`. Promote to Beta via `beta-release` + `npm run dist:win:beta` when ready.
 
 ### 2026-07-29 — builds 6–7 — Go-live / ingest notes
 - Logged copy→move as a hard go-live gate for ingest.

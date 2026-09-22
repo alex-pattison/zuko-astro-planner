@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Remap H: Beta Zuko paths → F:\zuko_dev in the Dev checkout dashboard JSON.
- *   H:\Photography\Astrophotography\Zuko\<project> → F:\zuko_dev\Projects\<project>
+ *   H:\Astrophotography\Zuko\<project> → F:\zuko_dev\Projects\<project>
  *   H:\...\Zuko\Dark Library → F:\zuko_dev\Dark Library
  * Does not touch H: Beta dashboard JSON.
  *
@@ -14,7 +14,8 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const DST = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
 const SRC = process.argv[2] ? path.resolve(process.argv[2]) : DST;
-const H_ZUKO = 'H:\\Photography\\Astrophotography\\Zuko';
+const H_ZUKO = 'H:\\Astrophotography\\Zuko';
+const H_ZUKO_LEGACY = 'H:\\Photography\\Astrophotography\\Zuko';
 const F_ROOT = 'F:\\zuko_dev';
 const F_PROJECTS = path.join(F_ROOT, 'Projects');
 const F_DARK = path.join(F_ROOT, 'Dark Library');
@@ -29,7 +30,11 @@ function normalizeWin(s) {
 
 function remapPath(s) {
   if (typeof s !== 'string') return s;
-  const t = normalizeWin(s);
+  let t = normalizeWin(s);
+  // Collapse legacy Beta root first
+  if (t === H_ZUKO_LEGACY || t.startsWith(H_ZUKO_LEGACY + '\\')) {
+    t = H_ZUKO + t.slice(H_ZUKO_LEGACY.length);
+  }
   const hDark = H_ZUKO + '\\Dark Library';
   if (t === hDark || t.startsWith(hDark + '\\')) {
     return F_DARK + t.slice(hDark.length);
@@ -57,6 +62,8 @@ function remapPath(s) {
 function looksLikeFsPath(s) {
   return (
     /^[A-Za-z]:\\/.test(s) ||
+    s.includes('Astrophotography\\Zuko') ||
+    s.includes('Astrophotography/Zuko') ||
     s.includes('Photography\\Astrophotography\\Zuko') ||
     s.includes('Photography/Astrophotography/Zuko') ||
     s.includes('F:\\Zuko') ||

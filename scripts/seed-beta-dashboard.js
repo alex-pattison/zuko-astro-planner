@@ -3,7 +3,7 @@
  * One-time seed of the Beta dashboard JSON on H:.
  *
  * Copies the freshest of:
- *   - H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json
+ *   - H:\Astrophotography\Dashboard\zuko-dashboard-data.json
  *   - <repo>/data/zuko-dashboard-data.json
  * into the Beta data dir, then writes a .beta-seeded marker.
  *
@@ -16,7 +16,7 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 
-const BETA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
+const BETA_DIR = 'H:\\Astrophotography\\Dashboard';
 const DATA_FILENAME = 'zuko-dashboard-data.json';
 const MARKER = '.beta-seeded';
 const REPO_DATA = path.join(__dirname, '..', 'data', DATA_FILENAME);

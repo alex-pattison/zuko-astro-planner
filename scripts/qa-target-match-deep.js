@@ -22,7 +22,7 @@ const TM = require('../src/ingest/targetMatchProject');
 const ROOT = path.resolve(__dirname, '..');
 const FIXTURE = path.join(ROOT, 'staging', 'asiair-test-target-match');
 const PLANNER = { ra: 97.9792, dec: 4.9428 };
-const DARK_LIB = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const DARK_LIB = 'H:\\Astrophotography\\Zuko\\Dark Library';
 
 const results = [];
 function pass(name, detail) {

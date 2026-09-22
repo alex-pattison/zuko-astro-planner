@@ -24,7 +24,7 @@ const ET = 'J:/Astrophotography/ASIAIRDUMP_260915';
 const OLD = 'F:/ASIAIRDUMP_260816';
 const DARK = fs.existsSync('F:/zuko_dev/Dark Library')
   ? 'F:/zuko_dev/Dark Library'
-  : 'H:/Photography/Astrophotography/Zuko/Dark Library';
+  : 'H:/Astrophotography/Zuko/Dark Library';
 const STAGE = path.join(ROOT, 'staging', 'qa-et-multinight');
 
 let failed = 0;

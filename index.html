@@ -11894,10 +11894,12 @@ async function rescanIngestSource() {
   await runIngestScan();
 }
 
-const BETA_DARK_LIBRARY_PATH = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+const BETA_DARK_LIBRARY_PATH = 'H:\\Astrophotography\\Zuko\\Dark Library';
 const DEV_DARK_LIBRARY_PATH = 'F:\\zuko_dev\\Dark Library';
 const LEGACY_DARK_LIBRARY_PATHS = [
+  'H:\\Astrophotography\\Calibration\\Darks',
   'H:\\Photography\\Astrophotography\\Calibration\\Darks',
+  'H:\\Photography\\Astrophotography\\Zuko\\Dark Library',
 ];
 
 function defaultDarkLibraryPath() {

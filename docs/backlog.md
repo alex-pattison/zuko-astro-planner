@@ -72,7 +72,11 @@ One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Con
 
 ---
 
-### 33. Import CAA / Autorun filter false warnings — *shipped build 40*
+### 34. Beta data root on H:\Astrophotography — *shipped build 41*
+
+Packaged Beta Dashboard / `.env` / weather cache live at `H:\Astrophotography\Dashboard`. Imaging + Dark Library under `H:\Astrophotography\Zuko`. Legacy `H:\Photography\Astrophotography\…` is retired.
+
+**Why:** Folder move left Beta reading an empty Dashboard while weather and projects stayed on the new tree.
 
 Folder CAA match uses the Import gate (±10° or 180°±10°); meridian flip is not a mismatch. Default flat-set pick is not saved as a yellow warning. Autorun retags the open light block on the filter-change line before exposures start.
 

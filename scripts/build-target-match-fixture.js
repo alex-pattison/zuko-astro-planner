@@ -18,7 +18,7 @@ const ROOT = path.resolve(__dirname, '..');
 const FIXTURE = path.join(ROOT, 'staging', 'asiair-test-target-match');
 const DATA_PATH = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
 const PREFERRED_DATA = path.join(
-  'H:\\Photography\\Astrophotography\\Dashboard',
+  'H:\\Astrophotography\\Dashboard',
   'zuko-dashboard-data.json',
 );
 

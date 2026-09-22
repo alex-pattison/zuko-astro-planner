@@ -29,8 +29,8 @@ console.log('=== format ===');
 ok('empty → empty', formatSirilCdCommand('') === '');
 ok(
   'simple path',
-  formatSirilCdCommand('H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate')
-    === 'cd "H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate"'
+  formatSirilCdCommand('H:\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate')
+    === 'cd "H:\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate"'
 );
 ok(
   'spaces quoted',
@@ -67,7 +67,7 @@ ok(
 );
 
 // Live Veil Aggregate (if present) — command shape only
-const veilAgg = 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate';
+const veilAgg = 'H:\\Astrophotography\\Zuko\\NGC6960_Q326\\SII\\Aggregate';
 if (fs.existsSync(veilAgg)) {
   console.log('\n=== live Aggregate path ===');
   const cmd = formatSirilCdCommand(veilAgg);

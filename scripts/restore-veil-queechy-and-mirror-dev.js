@@ -9,9 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const BETA_FILE = 'H:/Photography/Astrophotography/Dashboard/zuko-dashboard-data.json';
+const BETA_FILE = 'H:/Astrophotography/Dashboard/zuko-dashboard-data.json';
 const DEV_FILE = path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json');
-const BETA_ZUKO = 'H:\\Photography\\Astrophotography\\Zuko';
+const BETA_ZUKO = 'H:\\Astrophotography\\Zuko';
 const DEV_VEIL = 'F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror';
 const DEV_NA = 'F:\\zuko_dev\\Projects\\NGC7000_260720_beta_mirror';
 
@@ -195,11 +195,11 @@ function main() {
   for (const p of betaClone.projects || []) {
     if (/veil/i.test(p.name || '')) {
       p.projectDir = DEV_VEIL;
-      remapStringTree(p, 'H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326', DEV_VEIL);
+      remapStringTree(p, 'H:\\Astrophotography\\Zuko\\NGC6960_Q326', DEV_VEIL);
     }
     if (/north america|ngc\s*7000/i.test(p.name || '')) {
       p.projectDir = DEV_NA;
-      remapStringTree(p, 'H:\\Photography\\Astrophotography\\Zuko\\NGC7000_260720', DEV_NA);
+      remapStringTree(p, 'H:\\Astrophotography\\Zuko\\NGC7000_260720', DEV_NA);
     }
   }
 

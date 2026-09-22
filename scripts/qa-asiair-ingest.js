@@ -56,7 +56,7 @@ const QA_AUTORUN = path.join(QA_ROOT, 'Autorun');
 const DARK_LIB = process.env.ZUKO_DARK_LIBRARY
   || (fs.existsSync('F:\\zuko_dev\\Dark Library')
     ? 'F:\\zuko_dev\\Dark Library'
-    : 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library');
+    : 'H:\\Astrophotography\\Zuko\\Dark Library');
 const NIGHT = '20260725';
 
 const results = [];
@@ -372,9 +372,9 @@ async function testHelpers() {
   );
 
   const fakePath =
-    'H:\\Photography\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_1.fit';
+    'H:\\Astrophotography\\Zuko\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_1.fit';
   const badRoot = 'H:\\\\Photography\\\\Astrophotography\\\\Zuko\\\\Dark Library';
-  const goodRoot = 'H:\\Photography\\Astrophotography\\Zuko\\Dark Library';
+  const goodRoot = 'H:\\Astrophotography\\Zuko\\Dark Library';
   const folderBad = masterDarkSetFolder(fakePath, badRoot);
   const folderGood = masterDarkSetFolder(fakePath, goodRoot);
   assert(

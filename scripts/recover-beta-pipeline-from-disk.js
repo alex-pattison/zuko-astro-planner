@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const fsp = fs.promises;
 
-const BETA_FILE = 'H:/Photography/Astrophotography/Dashboard/zuko-dashboard-data.json';
+const BETA_FILE = 'H:/Astrophotography/Dashboard/zuko-dashboard-data.json';
 const FIT_RE = /\.fit[s]?$/i;
 
 function atomicWrite(file, data) {

@@ -10,9 +10,9 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const BETA_FILE = 'H:/Photography/Astrophotography/Dashboard/zuko-dashboard-data.json';
+const BETA_FILE = 'H:/Astrophotography/Dashboard/zuko-dashboard-data.json';
 const DEV_FILE = path.join(__dirname, '..', 'data', 'zuko-dashboard-data.json');
-const BETA_ZUKO = 'H:\\Photography\\Astrophotography\\Zuko';
+const BETA_ZUKO = 'H:\\Astrophotography\\Zuko';
 const DEV_PROJECTS = 'F:\\zuko_dev\\Projects';
 
 function atomicWrite(file, data) {
@@ -157,18 +157,18 @@ function main() {
     for (const sh of p.shoots || []) {
       if (sh.ingestPath && String(sh.ingestPath).includes('NGC6960_Q326')) {
         sh.ingestPath = String(sh.ingestPath).replace(
-          /H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326/i,
+          /H:\\Astrophotography\\Zuko\\NGC6960_Q326/i,
           veilLink
         );
       }
       if (sh.ingestMeta && Array.isArray(sh.ingestMeta.destRoots)) {
         sh.ingestMeta.destRoots = sh.ingestMeta.destRoots.map((r) =>
-          String(r).replace(/H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326/gi, veilLink)
+          String(r).replace(/H:\\Astrophotography\\Zuko\\NGC6960_Q326/gi, veilLink)
         );
       }
       if (sh.preprocessMeta && sh.preprocessMeta.shootDir) {
         sh.preprocessMeta.shootDir = String(sh.preprocessMeta.shootDir).replace(
-          /H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326/gi,
+          /H:\\Astrophotography\\Zuko\\NGC6960_Q326/gi,
           veilLink
         );
       }
@@ -180,7 +180,7 @@ function main() {
         for (const field of ['aggregateDir', 'stackDir', 'workingDir', 'resultPath']) {
           if (m[field]) {
             m[field] = String(m[field]).replace(
-              /H:\\Photography\\Astrophotography\\Zuko\\NGC6960_Q326/gi,
+              /H:\\Astrophotography\\Zuko\\NGC6960_Q326/gi,
               veilLink
             );
           }

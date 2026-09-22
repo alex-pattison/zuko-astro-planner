@@ -26,7 +26,7 @@ const {
 function resolveEnvRoot() {
   const override = process.env.ZUKO_ENV_DIR && String(process.env.ZUKO_ENV_DIR).trim();
   if (override) return path.resolve(override);
-  if (app.isPackaged) return 'H:\\Photography\\Astrophotography\\Dashboard';
+  if (app.isPackaged) return 'H:\\Astrophotography\\Dashboard';
   return __dirname;
 }
 
@@ -87,8 +87,8 @@ function loadSirilPreprocess() {
   return require(SIRIL_PREPROCESS_PATH);
 }
 /** Beta (packaged installer) owns real dashboard data on H:. */
-const BETA_DATA_DIR = 'H:\\Photography\\Astrophotography\\Dashboard';
-const PREFERRED_PROJECTS_DIR = 'H:\\Photography\\Astrophotography\\Projects';
+const BETA_DATA_DIR = 'H:\\Astrophotography\\Dashboard';
+const PREFERRED_PROJECTS_DIR = 'H:\\Astrophotography\\Projects';
 /** Dev channel imaging pool on F: (never share with Beta/H). */
 const DEV_PROJECTS_DIR = 'F:\\zuko_dev\\Projects';
 const REPO_DATA_DIR = path.join(__dirname, 'data');

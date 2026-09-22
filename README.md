@@ -23,7 +23,7 @@ Two side-by-side channels with **separate data pools** (they never sync):
 | Channel | How you run it | App / dashboard JSON | Imaging files |
 |---|---|---|---|
 | **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` |
-| **Beta** | `npm run dist:win:beta` (build **and** install) | `H:\Photography\Astrophotography\Dashboard` | `H:\Photography\Astrophotography\Zuko\…` |
+| **Beta** | `npm run dist:win:beta` (build **and** install) | `H:\Astrophotography\Dashboard` | `H:\Astrophotography\Zuko\…` |
 
 **One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\zuko_dev` is Dev FITS / synthetic data only.
 
@@ -42,7 +42,7 @@ npm run seed:beta
 ## Data storage
 
 - **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories and the Dark Library live under `F:\zuko_dev\…`.
-- **Beta** loads/saves only `H:\Photography\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`. Dark Library lives under `H:\Photography\Astrophotography\Zuko\…`.
+- **Beta** loads/saves only `H:\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`. Dark Library lives under `H:\Astrophotography\Zuko\…`.
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
 
