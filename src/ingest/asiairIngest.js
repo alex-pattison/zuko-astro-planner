@@ -60,7 +60,7 @@ const DARKFLAT_FLAT_WINDOW_MS = 12 * 60 * 60 * 1000;
 const TARGET_MATCH_AUTO_DEG = 0.75;
 /** Above auto and at or below this → pre-ingest confirm; farther → other target. */
 const TARGET_MATCH_CONFIRM_DEG = 2.5;
-/** CAA / ROTATOR circular tolerance (planner ↔ light-folder median for target confirm). */
+/** CAA / ROTATOR circular tolerance for pairing two frames (flat ↔ light). */
 const CAA_MATCH_TOL_DEG = 2;
 /**
  * Per-frame Import gate vs Target Framer CAA.
@@ -584,7 +584,9 @@ function modeRotatorDeg(frames = []) {
 /**
  * Group lights by Light/<folder>, score vs optional reference coords + CAA.
  * band: auto | confirm | other | no_coords
- * caaMatch: true | false | null (unknown / missing)
+ * caaMatch: true | false | null (unknown / missing).
+ * True when the folder median is within the Import gate of Target Framer
+ * (±10°, or 180°±10° after a meridian flip). A flip is not a mismatch.
  */
 function buildTargetFolders(lights, refCoords = null, opts = {}) {
   const byFolder = new Map();
@@ -615,7 +617,16 @@ function buildTargetFolders(lights, refCoords = null, opts = {}) {
   return [...byFolder.values()].map((row) => {
     const medianRa = median(row.ras);
     const medianDec = median(row.decs);
-    const medianRotatorDeg = median(row.rots);
+    // Mode, not a linear average: 101° and 281° are one meridian flip, and
+    // averaging them yields 191°, which matches neither angle.
+    const modeRot = modeRotatorDeg(row.lights);
+    const medianRotatorDeg = modeRot != null ? modeRot : median(row.rots);
+    const failingRots = (refCaa == null)
+      ? []
+      : row.rots.filter((r) => !caaMatchesFramer(r, refCaa));
+    const mismatchRotatorDeg = failingRots.length
+      ? modeRotatorDeg(failingRots.map((rotatorDeg) => ({ rotatorDeg })))
+      : null;
     let separationDeg = null;
     let band = 'no_coords';
     if (medianRa != null && medianDec != null && hasRef) {
@@ -630,7 +641,12 @@ function buildTargetFolders(lights, refCoords = null, opts = {}) {
     const caaDiffDeg = (medianRotatorDeg != null && refCaa != null)
       ? caaAngleDiffDeg(medianRotatorDeg, refCaa)
       : null;
-    const caaMatch = caaDiffDeg == null ? null : caaDiffDeg <= CAA_MATCH_TOL_DEG;
+    const mismatchDiffDeg = (mismatchRotatorDeg != null && refCaa != null)
+      ? caaAngleDiffDeg(mismatchRotatorDeg, refCaa)
+      : null;
+    // Match when every light is inside the Import gate (±10° or 180°±10°).
+    // A meridian flip is not a mismatch. Unknown when CAA is missing.
+    const caaMatch = (refCaa == null || !row.rots.length) ? null : failingRots.length === 0;
     return {
       folder: row.folder,
       name: row.name,
@@ -639,6 +655,8 @@ function buildTargetFolders(lights, refCoords = null, opts = {}) {
       medianDec,
       medianRotatorDeg,
       caaDiffDeg,
+      mismatchRotatorDeg,
+      mismatchDiffDeg,
       caaMatch,
       separationDeg,
       band,
@@ -1369,8 +1387,10 @@ async function scanSession(opts = {}) {
   if (refCaaDeg != null) {
     for (const t of allTargets) {
       if (t.caaMatch === false) {
+        const badRot = t.mismatchRotatorDeg != null ? t.mismatchRotatorDeg : t.medianRotatorDeg;
+        const badDiff = t.mismatchDiffDeg != null ? t.mismatchDiffDeg : t.caaDiffDeg;
         softWarnings.push(
-          `CAA mismatch: planner ${Math.round(refCaaDeg)}° vs “${t.folder}” lights ${t.medianRotatorDeg != null ? Math.round(t.medianRotatorDeg) : '—'}° (Δ ${t.caaDiffDeg != null ? t.caaDiffDeg.toFixed(1) : '—'}°)`
+          `CAA mismatch: planner ${Math.round(refCaaDeg)}° vs “${t.folder}” lights ${badRot != null ? Math.round(badRot) : '—'}° (Δ ${badDiff != null ? badDiff.toFixed(1) : '—'}°)`
         );
       }
     }
@@ -2848,15 +2868,23 @@ async function stageSirilTree(opts = {}) {
       const dropped = flats.length - chosen.length;
       flats = flats.filter((F) => chosenKeys.has(frameKey(F)) || isIncluded('flats', F));
       if (dropped) {
-        const picks = Object.entries({ ...scored.defaults, ...(opts.flatSetChoice || {}) })
-          .map(([filt, id]) => {
-            const s = (scored.sets || []).find((x) => x.id === id);
-            return s ? `${filt} ${s.stampLabel}` : filt;
-          })
-          .filter(Boolean);
-        softWarnings.push(
-          `Using ${picks.length ? picks.join(', ') : 'closest'} flat set(s); left ${dropped} flat(s) from other sets`
-        );
+        // Leaving other nights' flats behind is the picker doing its job.
+        // Only note it when the user overrode the automatic (closest CAA + bias) set.
+        const choice = opts.flatSetChoice || {};
+        const defaults = scored.defaults || {};
+        const overridden = Object.keys(choice).filter((filt) => (
+          choice[filt] && defaults[filt] && choice[filt] !== defaults[filt]
+        ));
+        if (overridden.length) {
+          const labels = overridden.map((filt) => {
+            const used = (scored.sets || []).find((x) => x.id === choice[filt]);
+            const auto = (scored.sets || []).find((x) => x.id === defaults[filt]);
+            const usedLabel = used ? `${filt} ${used.stampLabel}` : filt;
+            const autoLabel = auto ? auto.stampLabel : 'auto';
+            return `${usedLabel} (default was ${autoLabel})`;
+          });
+          softWarnings.push(`Using a non-default flat set: ${labels.join(', ')}`);
+        }
       }
     }
   }

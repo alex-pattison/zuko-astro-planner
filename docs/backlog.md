@@ -64,11 +64,19 @@ New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Sh
 
 ---
 
-### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–32, 36)*
+### 8. CAA alignment: Target Framer ↔ ASIAIR ↔ lights ↔ flats — *shipped (0.3.0 builds 26–32, 36, 40)*
 
-One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Shoot header light count uses staged totals (not pre-reject scan). Alert when ASIAIR source is offline. Dashboard saves snapshot to `backups/` and refuse empty-projects overwrite. Register/Cull/Stack match filter display names to tone keys (Ha/OIII/SII). Camera-up marker matches this train; NASA moon stills local.
+One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Confirm when project CAA ≠ dump lights. Import gates lights/flats vs Target Framer (±10° or 180°±10° after meridian flip); bias/darks ignore CAA. Folder CAA match uses the same gate (flip is not a mismatch); default flat-set pick is not a yellow warning. File list CAA column + Use checkboxes. Determinate Import progress (% + file counts). Shoot header light count uses staged totals (not pre-reject scan). Alert when ASIAIR source is offline. Dashboard saves snapshot to `backups/` and refuse empty-projects overwrite. Register/Cull/Stack match filter display names to tone keys (Ha/OIII/SII). Camera-up marker matches this train; NASA moon stills local.
 
 **Why:** Same dial value for framing, shooting, and ingest checks (target + flats).
+
+---
+
+### 33. Import CAA / Autorun filter false warnings — *shipped build 40*
+
+Folder CAA match uses the Import gate (±10° or 180°±10°); meridian flip is not a mismatch. Default flat-set pick is not saved as a yellow warning. Autorun retags the open light block on the filter-change line before exposures start.
+
+**Why:** Flip nights and multi-filter plans were scaring users with soft warnings that did not match what Import kept.
 
 ---
 
@@ -127,9 +135,9 @@ Reusable master dark flats, not only the ASIAIR Bias folder that rode in with th
 
 ### ASIAIR / ingest / framer
 
-#### 25. ASIAIR session logs (Autorun / Plan / PHD2) — *merged to main*
+#### 25. ASIAIR session logs (Autorun / Plan / PHD2) — *merged to main; filter retag fix build 40*
 
-Read `{asiairSource}/log/` beside Import. Persist digest on `ingestMeta.sessionLog` and copy logs into `shoot/session-logs/`. Soft-warn CAA vs plate Angle, planned vs staged lights, filter fails; guide quality on Calibrate/Cull.
+Read `{asiairSource}/log/` beside Import. Persist digest on `ingestMeta.sessionLog` and copy logs into `shoot/session-logs/`. Soft-warn CAA vs plate Angle, planned vs staged lights, filter fails; guide quality on Calibrate/Cull. Autorun “Shooting → Filter change” retags the open block until the first exposure (SII then OIII no longer counts as planned SII×sum).
 
 **Why:** FITS alone miss plan name, AF, pauses, and guide RMS.
 

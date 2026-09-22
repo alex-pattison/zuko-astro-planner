@@ -26,6 +26,14 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-09-21 — build 40 — Import CAA / Autorun filter false warnings
+- **Seen:** Elephant Trunk import showed Light 0 with Target Framer 0°; after setting 281°, nights still showed yellow “CAA mismatch Δ 180°” (meridian flip) and “Using … flat set; left N from other sets.” Sept 15 SII falsely warned “planned 50 / dump has 30.”
+- **Cause:** Folder CAA used a 2° cutoff (no flip); flat-set pick was always saved as a soft warning; Autorun “Shooting → Filter change” did not retag the open block after the first filter, so SII×30 + OIII×20 became planned SII×50.
+- **Fix / next:** Folder CAA matches the Import gate (±10° or 180°±10°); mode rotator (not average of flip pair); default flat-set note dropped (only non-default overrides warn); pending block retags until first exposure. Multinight smoke vs `ASIAIRDUMP_260915` + `F:\ASIAIRDUMP_260816`.
+- **QA:** session-log QA (ET / 260816 / Desktop); `qa-multinight-import-smoke.js`; full `run-unit-qa` 17/17.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 40).
+- **Canvas:** backlog snapshot → build 40.
+
 ### 2026-09-08 — build 39 — Red-mode ZAP logo
 - **Seen:** Header Z stayed Dev amber / Beta teal in Red night-vision mode.
 - **Fix / next:** Red theme paints the logo dark-red / pink / #ff1a1a. Dark and Light unchanged.

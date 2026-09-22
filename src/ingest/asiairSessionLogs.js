@@ -231,10 +231,16 @@ function parseAutorunLog(text, filePath) {
     }
   };
 
+  /**
+   * ASIAIR writes "Shooting N frames" then "Filter change … to X" before the
+   * first Exposure line. Retag the open block until exposures start — otherwise
+   * the second (and later) blocks inherit the previous filter and never pick up
+   * the new one (SII×30 then OIII×20 was counted as SII×50).
+   */
   const commitPendingFilter = (toFilter) => {
-    if (pendingBlock && !pendingBlock.filter && toFilter) {
-      pendingBlock.filter = toFilter;
-    }
+    if (!pendingBlock || !toFilter) return;
+    if ((pendingBlock.exposuresSeen || 0) > 0) return;
+    pendingBlock.filter = toFilter;
   };
 
   for (const raw of lines) {

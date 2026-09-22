@@ -1298,6 +1298,39 @@ async function testTargetMatchCoords() {
   );
   assert('single no_coords assumed', singleAssumed.needsConfirm === false && singleAssumed.reason === 'assumed_single', singleAssumed.reason);
 
+  const flipFolders = buildTargetFolders(
+    [
+      { targetFolder: 'IC 1396', rotatorDeg: 101, ra: 10, dec: 20 },
+      { targetFolder: 'IC 1396', rotatorDeg: 281, ra: 10.01, dec: 20 },
+    ],
+    { ra: 10, dec: 20 },
+    { refCaaDeg: 281 },
+  );
+  assert(
+    'meridian flip (101 vs 281) is a CAA match',
+    flipFolders[0] && flipFolders[0].caaMatch === true
+      && (flipFolders[0].medianRotatorDeg === 101 || flipFolders[0].medianRotatorDeg === 281),
+    JSON.stringify(flipFolders[0]),
+  );
+  const flipGate = targetMatchNeedsConfirm(flipFolders, { refCoords: { ra: 10, dec: 20 } });
+  assert('meridian flip does not force confirm', flipGate.needsConfirm === false && flipGate.reason === 'confident', flipGate.reason);
+
+  const tenDeg = buildTargetFolders(
+    [{ targetFolder: 'IC 1396', rotatorDeg: 271, ra: 10, dec: 20 }],
+    { ra: 10, dec: 20 },
+    { refCaaDeg: 281 },
+  );
+  assert('10° CAA is a match', tenDeg[0] && tenDeg[0].caaMatch === true, JSON.stringify(tenDeg[0]));
+
+  const off = buildTargetFolders(
+    [{ targetFolder: 'IC 1396', rotatorDeg: 90, ra: 10, dec: 20 }],
+    { ra: 10, dec: 20 },
+    { refCaaDeg: 281 },
+  );
+  assert('90° off is a CAA mismatch', off[0] && off[0].caaMatch === false, JSON.stringify(off[0]));
+  const offGate = targetMatchNeedsConfirm(off, { refCoords: { ra: 10, dec: 20 } });
+  assert('real CAA mismatch still confirms', offGate.needsConfirm === true && offGate.reason === 'caa_mismatch', offGate.reason);
+
   const samplePath = path.join(ROOT, 'staging', 'asiair-sample', 'Autorun');
   if (!fs.existsSync(samplePath)) {
     fail('asiair-sample Autorun missing', samplePath);
