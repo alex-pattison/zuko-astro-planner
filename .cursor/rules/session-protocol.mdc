@@ -1,0 +1,10 @@
+---
+description: Read the shared Astro Pigeon session rules, and write standing decisions back to that file.
+alwaysApply: true
+---
+
+# Shared session
+
+Before acting, read `H:\Astro Pigeon\agent\SESSION.md`, `DECISIONS.md`, and `MAP.md`.
+
+This repo's own rules still apply. Write a new standing decision into `DECISIONS.md` and, when it is ZAP-only, into `.cursor/rules` here. Do not start a second decisions log.

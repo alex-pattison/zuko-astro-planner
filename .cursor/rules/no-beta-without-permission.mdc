@@ -11,7 +11,7 @@ Forbidden without explicit ask:
 - `npm run dist:win:beta` / `dist:win:beta:build-only`
 - Silent-install / overwrite of the installed Beta app
 - `git push` to `beta-release` (or any Beta promote remote flow)
-- Editing live Beta dashboard data on `H:\Photography\Astrophotography\Dashboard` except when the user asked to fix/restore Beta data
+- Editing live Beta dashboard data on `H:\Astrophotography\Dashboard` except when the user asked to fix/restore Beta data
 
 When editing Beta dashboard JSON (only if the user asked):
 - Always copy the current file into `Dashboard/backups/` first

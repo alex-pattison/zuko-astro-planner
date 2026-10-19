@@ -1,20 +1,13 @@
 {
-  "rigName": "Zuko",
-  "forecastLocation": {
-    "name": "NYC",
-    "lat": 40.7157,
-    "lon": -73.986
-  },
   "projects": [
     {
       "name": "Veil Nebula - Full Complex",
       "target": "Cygnus Loop — NGC 6960 (Western Veil) + Pickering's Triangle + NGC 6992/6995 (Eastern Veil)",
-      "frameMode": "Reducer, 280mm f/3.9 — single frame, whole complex (no mosaic)",
+      "frameMode": "Reducer + Bin2 · 280mm f/3.9",
       "centerCoords": "RA 20h51m24.7s  Dec +31°6'0.6\"",
-      "anchorStar": "HD 198626 (mag 6.8) — RA 20h50m36.0s Dec +30°54'45\"",
-      "rotation": "27° (set via framer)",
+      "rotation": "211°",
       "status": "active",
-      "notes": "Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site. Re-shoot flats if rotation changes.",
+      "notes": "Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site.",
       "filterTargets": [
         {
           "filter": "Ha",
@@ -46,8 +39,25 @@
           "loggedHrs": 0,
           "stackMeta": null,
           "cullMeta": null,
-          "aggregateMeta": null,
-          "registerMeta": null
+          "aggregateMeta": {
+            "aggregatedAt": "2026-08-22T01:42:26.067Z",
+            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate",
+            "shootCount": 2,
+            "frameCount": 34,
+            "hardlinks": 34,
+            "copies": 0
+          },
+          "registerMeta": {
+            "registeredAt": "2026-08-22T01:42:38.051Z",
+            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate",
+            "shootCount": 2,
+            "frameCount": 34,
+            "rPpLightCount": 34,
+            "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate\\scripts\\register.log",
+            "scriptPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate\\scripts\\register.ssf",
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          }
         },
         {
           "filter": "SII",
@@ -98,22 +108,22 @@
         {
           "id": "step-1785117355138",
           "text": "Process 260725 Data",
-          "done": true
+          "done": false
         },
         {
           "id": "step-1785117514525",
           "text": "Setup \"Plan\" in ASIAir",
-          "done": false
+          "done": true
         },
         {
           "id": "step-1785252232498",
           "text": "Look into multi night framing",
-          "done": false
+          "done": true
         },
         {
           "id": "step-1785252259426",
           "text": "Does the ange on the above reflect the correct angle I need to set in the ASIAir?",
-          "done": false
+          "done": true
         }
       ],
       "shoots": [
@@ -158,21 +168,25 @@
         "dec": 31.100172599615387
       },
       "framerMode": "reducer",
-      "framerRotation": 27,
+      "framerRotation": 211,
       "projectDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326",
       "processStatus": "processing",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
-      "asiairIgnoredSources": []
+      "asiairIgnoredSources": [],
+      "startDate": "2026-07-25",
+      "endDate": "",
+      "startDateManual": false,
+      "endDateManual": false,
+      "imagingConfig": "reducer-bin2"
     },
     {
       "name": "North America Nebula - First Light",
       "target": "NGC 7000 / Caldwell 20 (North America Nebula); Pelican Nebula (IC 5070) adjacent across L935",
-      "frameMode": "Reducer 280mm f/3.9 · Bin2 — single frame (continent ~2°×1.7° fits easily)",
+      "frameMode": "Reducer + Bin2 · 280mm f/3.9",
       "projectDir": "F:\\zuko_dev\\Projects\\NGC7000_260720",
-      "centerCoords": "RA 20h56m34.4s  Dec +43°50'11.3\"",
-      "anchorStar": "Deneb (α Cyg) — finder reference ~3° west; HD 199579 (mag ~6) near the Gulf of Mexico",
-      "rotation": "122° (set via framer)",
+      "centerCoords": "RA 20h58m0.6s  Dec +44°29'33.8\"",
+      "rotation": "101°",
       "status": "complete",
       "notes": "Ha-dominant emission nebula in Cygnus (~2,590 ly). Classic SHO target: Ha carries the continent shape; OIII/SII add structure along the Gulf and coasts. Reducer FOV (3.91°×2.66°) easily holds NGC 7000 alone; a slight west shift can pull in Pelican (IC 5070) if desired. Shot 2026-07-20 from NYC home (Bortle 9), reducer Bin2 — 30 min Ha, 15 min OIII, 15 min SII.",
       "filterTargets": [
@@ -266,36 +280,1027 @@
       ],
       "savedTarget": {
         "name": "North America Nebula (NGC 7000)",
-        "ra": 314.14313908620005,
-        "dec": 43.836472477741324
+        "ra": 314.50249712253714,
+        "dec": 44.492717896445555
       },
       "framerMode": "reducer",
-      "framerRotation": 122,
+      "framerRotation": 101,
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
-      "asiairIgnoredSources": []
-    }
-  ],
-  "notes": [
-    {
-      "icon": "🔬",
-      "text": "Research master flat process"
+      "asiairIgnoredSources": [],
+      "startDate": "2026-07-20",
+      "endDate": "2026-07-20",
+      "startDateManual": false,
+      "endDateManual": false,
+      "imagingConfig": "reducer-bin2"
     },
     {
-      "icon": "🛠️",
-      "text": "Print Bhatinoff Mask for Guide Scope (and regular scope for validation)"
+      "name": "Rosette Nebula",
+      "target": "NGC 2237 / Caldwell 49 (Rosette) + NGC 2244 (central cluster)",
+      "frameMode": "Reducer + Bin2 · 280mm f/3.9",
+      "centerCoords": "RA 6h32m26.8s  Dec +4°47'37.1\"",
+      "rotation": "2°",
+      "status": "planning",
+      "notes": "Ha-dominant H II region from Home Bortle 9. Planned SHO 6/6/5h (Ha/OIII/SII). OIII and SII weaker than Ha — prioritize SII under moon, OIII on darker nights. Winter target (Nov–Feb); NYC transit ~54°. Re-shoot flats if rotation changes.",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 6,
+          "loggedHrs": 0,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 6,
+          "loggedHrs": 0,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 5,
+          "loggedHrs": 0,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        }
+      ],
+      "checklist": [
+        {
+          "id": "step-1787369935998",
+          "text": "Determine target cardinal location in the sky",
+          "done": false
+        }
+      ],
+      "shoots": [],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "NAME Rosette Nebula",
+        "ra": 98.1115,
+        "dec": 4.79363889
+      },
+      "framerMode": "reducer",
+      "framerRotation": 2,
+      "projectDir": "",
+      "processStatus": "",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [],
+      "asiairIgnoredSources": [],
+      "startDate": "",
+      "endDate": "",
+      "startDateManual": false,
+      "endDateManual": false,
+      "imagingConfig": "reducer-bin2"
     },
     {
-      "icon": "🔬",
-      "text": "Sirilic Research"
-    },
-    {
-      "icon": "📋",
-      "text": "Add a total data and intermediate cleanup option for each progress referencing local files"
-    },
-    {
-      "icon": "💻",
-      "text": "Fix issue where checking an item in planner refreshes the aladin integration"
+      "name": "Elephant Trunk Nebula",
+      "target": "IC 1396A (Elephant Trunk) in IC 1396 / Trumpler 37",
+      "frameMode": "Reducer + Bin2 · 280mm f/3.9",
+      "centerCoords": "RA 21h39m12.6s  Dec +57°34'44.3\"",
+      "rotation": "281°",
+      "status": "active",
+      "notes": "Cepheus H II / dark globule. Trunk is SII-bright; whole IC 1396 bubble is ~3° and fits the reducer. Home Bortle 9 only. Dec +57° / RA 21.6h is high in the evening from NYC — this is the sunset→23:00 target when you get back (~2–3h dark after twilight). California (RA 4h) does not fit that window until late Sept. 15h SHO: Ha 6.5h + SII 4.5h + OIII 4h. No RGB — use SHO stars. Planned first night 260908 Ha 2.5h (adjust if you get back earlier). Re-shoot flats if rotation changes. Dev stage 2026-09-21: Target Framer set to 281° to match ASIAIR (281° before meridian flip, 101° after; Sept 15 was 271°). Beta still has 0°, which rejects every light.",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 2,
+          "loggedHrs": 0,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 2.5,
+          "loggedHrs": 1.5,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 2,
+          "loggedHrs": 1,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "Ha",
+          "location": "Tenafly",
+          "bortle": "7",
+          "targetHrs": 1.5,
+          "loggedHrs": 1.5,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "SII",
+          "location": "Tenafly",
+          "bortle": "7",
+          "targetHrs": 1.5,
+          "loggedHrs": 1.5,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        },
+        {
+          "filter": "OIII",
+          "location": "Tenafly",
+          "bortle": "7",
+          "targetHrs": 1.5,
+          "loggedHrs": 1.5,
+          "stackMeta": null,
+          "cullMeta": null,
+          "aggregateMeta": null,
+          "registerMeta": null
+        }
+      ],
+      "checklist": [],
+      "shoots": [
+        {
+          "date": "260912",
+          "filterIndex": 3,
+          "hours": 1.5,
+          "complete": true,
+          "creditedHours": 1.5,
+          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
+          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly",
+          "ingestMeta": {
+            "nightDate": "20260912",
+            "shootFolder": "260912_Ha_B7_Tenafly",
+            "filters": [
+              "Ha"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260912",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 30,
+              "darksAfter": 1
+            },
+            "filesStaged": 91,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 30,
+              "flat": 30,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 30,
+            "frameCount": 30,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-09-22T01:26:03.124Z",
+            "softWarnings": [],
+            "lightCaaDeg": 101,
+            "sessionLog": {
+              "nightDate": "20260912",
+              "shootFilter": "Ha",
+              "planName": null,
+              "targets": [
+                "IC 1396"
+              ],
+              "plateAngleDeg": null,
+              "plateAngleOk": null,
+              "plateAngleDiffDeg": null,
+              "plannedLights": null,
+              "loggedExposures": null,
+              "ditherCount": 0,
+              "autofocus": [],
+              "filterFails": [],
+              "flags": {
+                "aborted": false,
+                "paused": false,
+                "filterFail": false,
+                "afFail": false,
+                "finishedClean": true,
+                "shutdown": false
+              },
+              "guide": null,
+              "autorunFiles": [
+                "Autorun_Log_2026-09-12_101859.txt"
+              ],
+              "phd2Files": [],
+              "timeline": [
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "filter",
+                  "detail": "L→SII"
+                },
+                {
+                  "at": "2026-09-12T10:19:38",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:20:15",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:20:52",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:29:19",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:29:55",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:30:32",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:32:14",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:32:50",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:33:26",
+                  "kind": "end",
+                  "detail": "finish"
+                }
+              ],
+              "parsedAt": "2026-09-22T01:26:03.120Z",
+              "copiedTo": [
+                "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly\\session-logs"
+              ],
+              "filesCopied": 3
+            }
+          },
+          "preprocessMeta": null
+        },
+        {
+          "date": "260912",
+          "filterIndex": 4,
+          "hours": 1.5,
+          "complete": true,
+          "creditedHours": 1.5,
+          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
+          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly",
+          "ingestMeta": {
+            "nightDate": "20260912",
+            "shootFolder": "260912_SII_B7_Tenafly",
+            "filters": [
+              "SII"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260912",
+              "biasesPreexisting": 30,
+              "darksPreexisting": 0,
+              "biasesAfter": 60,
+              "darksAfter": 1
+            },
+            "filesStaged": 91,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 30,
+              "flat": 30,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 30,
+            "frameCount": 30,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-09-22T01:26:07.182Z",
+            "softWarnings": [],
+            "lightCaaDeg": 281,
+            "sessionLog": {
+              "nightDate": "20260912",
+              "shootFilter": "SII",
+              "planName": null,
+              "targets": [
+                "IC 1396"
+              ],
+              "plateAngleDeg": null,
+              "plateAngleOk": null,
+              "plateAngleDiffDeg": null,
+              "plannedLights": null,
+              "loggedExposures": null,
+              "ditherCount": 0,
+              "autofocus": [],
+              "filterFails": [],
+              "flags": {
+                "aborted": false,
+                "paused": false,
+                "filterFail": false,
+                "afFail": false,
+                "finishedClean": true,
+                "shutdown": false
+              },
+              "guide": null,
+              "autorunFiles": [
+                "Autorun_Log_2026-09-12_101859.txt"
+              ],
+              "phd2Files": [],
+              "timeline": [
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "filter",
+                  "detail": "L→SII"
+                },
+                {
+                  "at": "2026-09-12T10:19:38",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:20:15",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:20:52",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:29:19",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:29:55",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:30:32",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:32:14",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:32:50",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:33:26",
+                  "kind": "end",
+                  "detail": "finish"
+                }
+              ],
+              "parsedAt": "2026-09-22T01:26:07.174Z",
+              "copiedTo": [
+                "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly\\session-logs"
+              ],
+              "filesCopied": 3
+            }
+          },
+          "preprocessMeta": null
+        },
+        {
+          "date": "260912",
+          "filterIndex": 5,
+          "hours": 1.5,
+          "complete": true,
+          "creditedHours": 1.5,
+          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
+          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly",
+          "ingestMeta": {
+            "nightDate": "20260912",
+            "shootFolder": "260912_OIII_B7_Tenafly",
+            "filters": [
+              "OIII"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260912",
+              "biasesPreexisting": 60,
+              "darksPreexisting": 0,
+              "biasesAfter": 90,
+              "darksAfter": 1
+            },
+            "filesStaged": 91,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 30,
+              "flat": 30,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 30,
+            "frameCount": 30,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-09-22T01:26:11.179Z",
+            "softWarnings": [],
+            "lightCaaDeg": 101,
+            "sessionLog": {
+              "nightDate": "20260912",
+              "shootFilter": "OIII",
+              "planName": null,
+              "targets": [
+                "IC 1396"
+              ],
+              "plateAngleDeg": null,
+              "plateAngleOk": null,
+              "plateAngleDiffDeg": null,
+              "plannedLights": null,
+              "loggedExposures": null,
+              "ditherCount": 0,
+              "autofocus": [],
+              "filterFails": [],
+              "flags": {
+                "aborted": false,
+                "paused": false,
+                "filterFail": false,
+                "afFail": false,
+                "finishedClean": true,
+                "shutdown": false
+              },
+              "guide": null,
+              "autorunFiles": [
+                "Autorun_Log_2026-09-12_101859.txt"
+              ],
+              "phd2Files": [],
+              "timeline": [
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:18:59",
+                  "kind": "filter",
+                  "detail": "L→SII"
+                },
+                {
+                  "at": "2026-09-12T10:19:38",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:20:15",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:20:52",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:28:37",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:29:19",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:29:55",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:30:32",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-12T10:31:33",
+                  "kind": "filter",
+                  "detail": "OIII→SII"
+                },
+                {
+                  "at": "2026-09-12T10:32:14",
+                  "kind": "filter",
+                  "detail": "SII→Ha"
+                },
+                {
+                  "at": "2026-09-12T10:32:50",
+                  "kind": "filter",
+                  "detail": "Ha→OIII"
+                },
+                {
+                  "at": "2026-09-12T10:33:26",
+                  "kind": "end",
+                  "detail": "finish"
+                }
+              ],
+              "parsedAt": "2026-09-22T01:26:11.171Z",
+              "copiedTo": [
+                "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly\\session-logs"
+              ],
+              "filesCopied": 3
+            }
+          },
+          "preprocessMeta": null
+        },
+        {
+          "date": "260915",
+          "filterIndex": 1,
+          "hours": 1,
+          "complete": true,
+          "creditedHours": 1.5,
+          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
+          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20260915",
+            "shootFolder": "260915_SII_B9_Home",
+            "filters": [
+              "SII"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260915",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 30,
+              "darksAfter": 1
+            },
+            "filesStaged": 121,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 30,
+              "flat": 60,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 30,
+            "frameCount": 30,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -9.39999961853027,
+            "stagedAt": "2026-09-22T01:26:20.139Z",
+            "softWarnings": [],
+            "lightCaaDeg": 271,
+            "sessionLog": {
+              "nightDate": "20260915",
+              "shootFilter": "SII",
+              "planName": "Veilq3v2",
+              "targets": [
+                "IC 1396"
+              ],
+              "plateAngleDeg": 271.643,
+              "plateAngleOk": true,
+              "plateAngleDiffDeg": 9.357000000000028,
+              "plannedLights": 50,
+              "loggedExposures": 50,
+              "ditherCount": 32,
+              "autofocus": [
+                {
+                  "ok": true,
+                  "eafPos": 7599,
+                  "filter": "SII",
+                  "at": "2026-09-15T19:58:42"
+                },
+                {
+                  "ok": true,
+                  "eafPos": null,
+                  "filter": "SII",
+                  "at": "2026-09-15T19:58:42"
+                },
+                {
+                  "ok": true,
+                  "eafPos": 7599,
+                  "filter": "SII",
+                  "at": "2026-09-15T19:58:42"
+                },
+                {
+                  "ok": true,
+                  "eafPos": null,
+                  "filter": "SII",
+                  "at": "2026-09-15T19:58:42"
+                }
+              ],
+              "filterFails": [],
+              "flags": {
+                "aborted": false,
+                "paused": false,
+                "filterFail": false,
+                "afFail": false,
+                "finishedClean": true,
+                "shutdown": true
+              },
+              "guide": {
+                "quality": "good",
+                "rmsTotalArcsec": 0.53,
+                "rmsRaArcsec": 0.41,
+                "rmsDecArcsec": 0.35,
+                "frameCount": 17929,
+                "settleFail": 0,
+                "settleOk": 21,
+                "starLost": 0,
+                "fileName": "PHD2_GuideLog_2026-09-15_195124.txt"
+              },
+              "autorunFiles": [
+                "Autorun_Log_2026-09-15_172247.txt",
+                "Autorun_Log_2026-09-15_174453.txt",
+                "Autorun_Log_2026-09-15_195632.txt"
+              ],
+              "phd2Files": [
+                "PHD2_GuideLog_2026-09-15_195124.txt"
+              ],
+              "timeline": [
+                {
+                  "at": "2026-09-15T19:56:32",
+                  "kind": "plan",
+                  "detail": "Veilq3v2"
+                },
+                {
+                  "at": "2026-09-15T19:56:33",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-15T19:56:46",
+                  "kind": "solve",
+                  "detail": "271.643°"
+                },
+                {
+                  "at": "2026-09-15T19:56:57",
+                  "kind": "shoot",
+                  "detail": "30×light 180s"
+                },
+                {
+                  "at": "2026-09-15T19:56:57",
+                  "kind": "filter",
+                  "detail": "L→SII"
+                },
+                {
+                  "at": "2026-09-15T19:58:42",
+                  "kind": "af-ok",
+                  "detail": "7599"
+                },
+                {
+                  "at": "2026-09-15T19:58:42",
+                  "kind": "af-ok",
+                  "detail": "ok"
+                },
+                {
+                  "at": "2026-09-15T21:30:47",
+                  "kind": "shoot",
+                  "detail": "20×light 180s"
+                },
+                {
+                  "at": "2026-09-15T21:30:47",
+                  "kind": "filter",
+                  "detail": "SII→OIII"
+                },
+                {
+                  "at": "2026-09-15T21:33:12",
+                  "kind": "af-ok",
+                  "detail": "7500"
+                },
+                {
+                  "at": "2026-09-15T21:33:12",
+                  "kind": "af-ok",
+                  "detail": "ok"
+                },
+                {
+                  "at": "2026-09-15T22:34:45",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-15T22:34:45",
+                  "kind": "plan-end",
+                  "detail": "Veilq3v2"
+                }
+              ],
+              "parsedAt": "2026-09-22T01:26:20.113Z",
+              "copiedTo": [
+                "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home\\session-logs"
+              ],
+              "filesCopied": 9
+            }
+          },
+          "preprocessMeta": null
+        },
+        {
+          "date": "260915",
+          "filterIndex": 2,
+          "hours": 1,
+          "complete": true,
+          "creditedHours": 1,
+          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
+          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20260915",
+            "shootFolder": "260915_OIII_B9_Home",
+            "filters": [
+              "OIII"
+            ],
+            "destRoots": [
+              "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home"
+            ],
+            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "calibReuse": {
+              "nightDate": "20260915",
+              "biasesPreexisting": 30,
+              "darksPreexisting": 0,
+              "biasesAfter": 60,
+              "darksAfter": 1
+            },
+            "filesStaged": 111,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 20,
+              "flat": 60,
+              "bias": 30,
+              "dark": 1
+            },
+            "lightCount": 20,
+            "frameCount": 20,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "stagedAt": "2026-09-22T01:26:25.051Z",
+            "softWarnings": [],
+            "lightCaaDeg": 271,
+            "sessionLog": {
+              "nightDate": "20260915",
+              "shootFilter": "OIII",
+              "planName": "Veilq3v2",
+              "targets": [
+                "IC 1396"
+              ],
+              "plateAngleDeg": 271.643,
+              "plateAngleOk": true,
+              "plateAngleDiffDeg": 9.357000000000028,
+              "plannedLights": null,
+              "loggedExposures": null,
+              "ditherCount": 32,
+              "autofocus": [
+                {
+                  "ok": true,
+                  "eafPos": 7500,
+                  "filter": "OIII",
+                  "at": "2026-09-15T21:33:12"
+                },
+                {
+                  "ok": true,
+                  "eafPos": null,
+                  "filter": "OIII",
+                  "at": "2026-09-15T21:33:12"
+                },
+                {
+                  "ok": true,
+                  "eafPos": 7500,
+                  "filter": "OIII",
+                  "at": "2026-09-15T21:33:12"
+                },
+                {
+                  "ok": true,
+                  "eafPos": null,
+                  "filter": "OIII",
+                  "at": "2026-09-15T21:33:12"
+                }
+              ],
+              "filterFails": [],
+              "flags": {
+                "aborted": false,
+                "paused": false,
+                "filterFail": false,
+                "afFail": false,
+                "finishedClean": true,
+                "shutdown": true
+              },
+              "guide": {
+                "quality": "good",
+                "rmsTotalArcsec": 0.53,
+                "rmsRaArcsec": 0.41,
+                "rmsDecArcsec": 0.35,
+                "frameCount": 17929,
+                "settleFail": 0,
+                "settleOk": 21,
+                "starLost": 0,
+                "fileName": "PHD2_GuideLog_2026-09-15_195124.txt"
+              },
+              "autorunFiles": [
+                "Autorun_Log_2026-09-15_172247.txt",
+                "Autorun_Log_2026-09-15_174453.txt",
+                "Autorun_Log_2026-09-15_195632.txt"
+              ],
+              "phd2Files": [
+                "PHD2_GuideLog_2026-09-15_195124.txt"
+              ],
+              "timeline": [
+                {
+                  "at": "2026-09-15T19:56:32",
+                  "kind": "plan",
+                  "detail": "Veilq3v2"
+                },
+                {
+                  "at": "2026-09-15T19:56:33",
+                  "kind": "target",
+                  "detail": "IC 1396"
+                },
+                {
+                  "at": "2026-09-15T19:56:46",
+                  "kind": "solve",
+                  "detail": "271.643°"
+                },
+                {
+                  "at": "2026-09-15T19:56:57",
+                  "kind": "shoot",
+                  "detail": "30×light 180s"
+                },
+                {
+                  "at": "2026-09-15T19:56:57",
+                  "kind": "filter",
+                  "detail": "L→SII"
+                },
+                {
+                  "at": "2026-09-15T19:58:42",
+                  "kind": "af-ok",
+                  "detail": "7599"
+                },
+                {
+                  "at": "2026-09-15T19:58:42",
+                  "kind": "af-ok",
+                  "detail": "ok"
+                },
+                {
+                  "at": "2026-09-15T21:30:47",
+                  "kind": "shoot",
+                  "detail": "20×light 180s"
+                },
+                {
+                  "at": "2026-09-15T21:30:47",
+                  "kind": "filter",
+                  "detail": "SII→OIII"
+                },
+                {
+                  "at": "2026-09-15T21:33:12",
+                  "kind": "af-ok",
+                  "detail": "7500"
+                },
+                {
+                  "at": "2026-09-15T21:33:12",
+                  "kind": "af-ok",
+                  "detail": "ok"
+                },
+                {
+                  "at": "2026-09-15T22:34:45",
+                  "kind": "end",
+                  "detail": "finish"
+                },
+                {
+                  "at": "2026-09-15T22:34:45",
+                  "kind": "plan-end",
+                  "detail": "Veilq3v2"
+                }
+              ],
+              "parsedAt": "2026-09-22T01:26:25.045Z",
+              "copiedTo": [
+                "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home\\session-logs"
+              ],
+              "filesCopied": 9
+            }
+          },
+          "preprocessMeta": null
+        }
+      ],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "IC 1396A",
+        "ra": 324.8025984016353,
+        "dec": 57.578983982941566
+      },
+      "framerMode": "reducer",
+      "framerRotation": 281,
+      "projectDir": "F:\\zuko_dev\\Projects\\IC1396_Q326",
+      "processStatus": "",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [
+        "IC 1396"
+      ],
+      "asiairIgnoredSources": [],
+      "startDate": "2026-09-12",
+      "endDate": "",
+      "startDateManual": false,
+      "endDateManual": false,
+      "imagingConfig": "reducer-bin2"
     }
   ],
   "assets": [
@@ -397,15 +1402,18 @@
     {
       "cat": "Telescope",
       "name": "Askar FRA400 72mm f/5.6",
+      "status": "acquired",
       "purchased": 1050,
       "newRetail": 1050,
       "acquired": "July 2026",
+      "released": "2020",
       "condition": "New",
+      "vendor": "",
       "notes": "Includes 0.7× reducer + EAF, tube rings, dovetail, handle",
       "specs": [
         [
           "Design",
-          "Quintuplet Petzval, 2× ED elements"
+          "Quintuplet Petzval"
         ],
         [
           "Aperture / FL",
@@ -425,7 +1433,7 @@
         ],
         [
           "Focuser",
-          "3\" rack-and-pinion, 360° rotatable"
+          "3\" rack-and-pinion"
         ],
         [
           "Weight",
@@ -433,16 +1441,15 @@
         ],
         [
           "Includes",
-          "Reducer + EAF, tube rings, dovetail, handle"
+          "Reducer + EAF"
         ]
       ],
       "quirks": [
-        "<strong>Two optical regimes:</strong> native Petzval is forgiving once focused; with the 0.7× reducer, back focus is strict (<strong>55 mm ± ~2 mm</strong> from the M48 thread to the sensor). Current reduced stack ≈ <strong>54.6 mm</strong>.",
+        "Two optical regimes: native Petzval is forgiving once focused; with the 0.7× reducer, back focus is strict (55 mm ± ~2 mm from the M48 thread to the sensor). Current reduced stack ≈ 54.6 mm.",
         "Reducer mounts inside the drawtube (M68); camera side is M48. With the reducer, the camera’s contribution in the spacer chain is the 7.5 mm flange distance (adapter moved into the stack).",
         "Focuser rotates 360°; flat frames are specific to camera rotation."
       ],
-      "status": "acquired",
-      "released": "Apr 2020"
+      "bundled": false
     },
     {
       "cat": "Camera",
@@ -537,10 +1544,13 @@
     {
       "cat": "Filters",
       "name": "Astrodon / Baader 31mm Filter Set",
+      "status": "acquired",
       "purchased": 1225,
       "newRetail": 2490,
       "acquired": "July 2026",
+      "released": "'08-'21",
       "condition": "Used (bundled with camera package)",
+      "vendor": "",
       "notes": "From $2,100 package — allocated $1225. New equiv ~$2490: Astrodon LRGB $769 + Ha/OIII/SII 5nm $488×3 + Baader Hβ $257.",
       "specs": [
         [
@@ -557,7 +1567,7 @@
         ],
         [
           "Wheel order (verified)",
-          "L, R, G, B, SII, Ha, OIII, Hβ"
+          "L"
         ],
         [
           "New-retail basis",
@@ -565,10 +1575,9 @@
         ]
       ],
       "quirks": [
-        "Filters in mixed sets are generally <strong>not parafocal</strong>; EAF per-filter focus offsets are the usual approach."
+        "Filters in mixed sets are generally not parafocal; EAF per-filter focus offsets are the usual approach."
       ],
-      "status": "acquired",
-      "released": "2008–2021"
+      "bundled": false
     },
     {
       "cat": "Guiding",
@@ -829,26 +1838,285 @@
       "quirks": [],
       "status": "acquired",
       "released": "n/a"
+    },
+    {
+      "cat": "Telescope",
+      "name": "Celestron EdgeHD 8\" OTA (CGE)",
+      "status": "wishlist",
+      "purchased": null,
+      "newRetail": 1699,
+      "acquired": "",
+      "released": "2009",
+      "condition": "",
+      "vendor": "High Point Scientific",
+      "notes": "Wishlist — High Point SKU CEL-91030-XLT / MPN 91030-XLT. List $1,699 (Aug 2026). Pair with dedicated 0.7× reducer, ZWO OAG, and EAF Pro (SCT bracket). https://www.highpointscientific.com/celestron-edgehd-8-ota-8-quot-f-10-aplanatic-sct-ota-cge-dovetail-91030-xlt Used market (Aug 2026 snapshot): fair/dealer ~$750–1,000; clean OTA ask ~$1,000–1,250 (Astromart/AstroBin); Celestron CPO list ~$1,400. Realistic target ~$900–1,200 CONUS for a clean CGE-bar OTA. Bundles with reducer/mount run much higher.",
+      "specs": [
+        [
+          "Design",
+          "Aplanatic EdgeHD SCT (5-element flat field)"
+        ],
+        [
+          "Aperture / FL",
+          "203.2 mm (8\") / 2032 mm"
+        ],
+        [
+          "Focal ratio",
+          "f/10 native · f/7 with 0.7× · ~f/2 HyperStar/Fastar"
+        ],
+        [
+          "Image circle",
+          "~42 mm flat (EdgeHD correctors)"
+        ],
+        [
+          "Coatings",
+          "StarBright XLT (~97.4% transmission claimed)"
+        ],
+        [
+          "Dovetail",
+          "CGE / Losmandy-D style bar included"
+        ],
+        [
+          "OTA weight / length",
+          "~14 lb (6.35 kg) · ~17\" (432 mm)"
+        ],
+        [
+          "Includes",
+          "9×50 finder"
+        ]
+      ],
+      "quirks": [
+        "AM3 payload: OTA alone is ~14 lb — near the AM3’s 8 kg / 17 lb no-CW rating. Imaging train + dew gear will likely need the counterweight path (13 kg rated).",
+        "Primary focuses by moving the mirror — expect some image shift; EdgeHD tension clutches help. An EAF on the focus knob is the usual imaging setup.",
+        "Mirror flop / focus shift after meridian flips is classic SCT behavior — plan refocus routines.",
+        "Back focus with the dedicated 0.7× reducer is generous (~105 mm to sensor); native imaging often uses the EdgeHD T-adapter for ~55 mm stacks.",
+        "Fastar/HyperStar needs the secondary removed — separate accessory path, not the 0.7× reducer."
+      ],
+      "bundled": false
+    },
+    {
+      "cat": "Telescope",
+      "name": "Celestron EdgeHD 0.7× Reducer (8\")",
+      "status": "wishlist",
+      "purchased": null,
+      "newRetail": 419,
+      "acquired": "",
+      "released": "2013",
+      "condition": "",
+      "vendor": "High Point Scientific",
+      "notes": "Wishlist — dedicated EdgeHD 800 reducer (MPN 94242). List ~$419 at High Point (Aug 2026). Only for the 8\" EdgeHD (not interchangeable with 9.25\"/11\" reducers). Used market: Astromart ~$325 shipped; Celestron used/refurb ~$330 when stocked. Realistic ~$280–350 vs $419 new. Confirm MPN 94242 (8\" only).",
+      "specs": [
+        [
+          "Design",
+          "4-element reducer/corrector (Lanthanum glass)"
+        ],
+        [
+          "Compression",
+          "0.7× → ~1422 mm f/7 from 2032 mm f/10"
+        ],
+        [
+          "FOV gain",
+          "~43% wider linear FOV (~2× area)"
+        ],
+        [
+          "Optimized circle",
+          "~26.7 mm (APS-C / ASI294-class well covered)"
+        ],
+        [
+          "Back focus",
+          "~105 mm from reducer to sensor"
+        ],
+        [
+          "Weight",
+          "~0.8 lb (0.36 kg)"
+        ],
+        [
+          "MPN",
+          "94242"
+        ]
+      ],
+      "quirks": [
+        "Must be the 8\" EdgeHD reducer — Celestron makes different 0.7× units per aperture.",
+        "Maintains EdgeHD flat-field performance when spaced correctly; verify spacer stack to ~105 mm.",
+        "Pairs with the EdgeHD 8 T-adapter ecosystem; re-tune flats after installing."
+      ],
+      "bundled": false
+    },
+    {
+      "cat": "Guiding",
+      "name": "ZWO OAG (standard)",
+      "status": "wishlist",
+      "purchased": null,
+      "newRetail": 128,
+      "acquired": "",
+      "released": "2019",
+      "condition": "",
+      "vendor": "ZWO / High Point",
+      "notes": "Wishlist — standard OAG (8×8 mm prism, ~16.5 mm thick). List $128. Fits current 8×31 mm EFW + ASI120MM Mini better than OAG-L (OAG-L targets 36 mm / 2\" EFWs). Used market: often $50–100 on CN/AstroBuySell (chipped prism cheaper). Clean units ~$80–110 vs $128 new. OAG-L used often ~$135–180.",
+      "specs": [
+        [
+          "Prism",
+          "8 × 8 mm"
+        ],
+        [
+          "Thickness",
+          "~16.5 mm in the imaging train"
+        ],
+        [
+          "Adapters",
+          "M42 / M48 included"
+        ],
+        [
+          "Guide cams",
+          "ASI Mini class (ASI120MM Mini already owned)"
+        ],
+        [
+          "Use case",
+          "Eliminate guide scope / flexure on long FL SCT"
+        ]
+      ],
+      "quirks": [
+        "With the existing 31 mm EFW, prefer this OAG over OAG-L (larger clear aperture / different EFW pairing).",
+        "Prism must clear the ASI294 imaging area — set prism depth carefully (daytime check).",
+        "Still need correct total back focus with EdgeHD native or 0.7× reducer stacks."
+      ],
+      "bundled": false
+    },
+    {
+      "cat": "Accessories",
+      "name": "ZWO EAF Pro (battery + Bluetooth)",
+      "purchased": null,
+      "newRetail": 299,
+      "acquired": null,
+      "condition": null,
+      "vendor": "ZWO",
+      "notes": "Wishlist — EAF Pro with built-in 2500 mAh battery + Bluetooth 5.0 + on-body IN/OUT buttons. List $299 (standard EAF ~$269). Needs Celestron C8/C9.25 EAF bracket (EAF-C8-C925, sold separately) for EdgeHD 8 focus knob. EAF Pro is new (2025) — thin used market. Prior-gen ZWO EAF used ~$150–200. Expect Pro ~$220–270 until supply catches up; watch CN/Astromart/ZWO FB groups. SCT bracket often separate.",
+      "specs": [
+        [
+          "Power",
+          "Internal 2500 mAh Li-ion (~week typical AF use) + USB-C charge"
+        ],
+        [
+          "Control",
+          "Bluetooth 5.0 wireless · USB-C wired · ASIAIR / ASCOM"
+        ],
+        [
+          "Capacity",
+          "5 kg / 11 lb rated load"
+        ],
+        [
+          "Body",
+          "~258 g · 41 × 52 × 73 mm"
+        ],
+        [
+          "Ports",
+          "Temp sensor · optional hand controller"
+        ],
+        [
+          "Manual",
+          "On-body focus buttons (no separate HC required)"
+        ]
+      ],
+      "quirks": [
+        "Budget the <strong>EAF-C8-C925</strong> SCT bracket (~$50–70) — not included with the motor.",
+        "Wireless mode is the point vs the Askar’s bundled cable EAF; still works USB-C to ASIAIR if preferred.",
+        "Optional temp probe improves temp-compensated refocus; not required for basic AF."
+      ],
+      "status": "wishlist",
+      "released": "2025"
     }
   ],
-  "appMeta": {
-    "version": "0.2.0",
-    "build": 22,
-    "savedAt": "2026-08-16T21:43:58.962Z"
-  },
-  "uiTheme": "dark",
+  "notes": [],
   "homeSite": {
     "zip": "10002",
-    "name": "NYC",
+    "name": "NYC 10002",
     "lat": 40.7157,
     "lon": -73.986,
     "bortle": "9"
   },
+  "forecastLocation": {
+    "name": "NYC 10002",
+    "lat": 40.7157,
+    "lon": -73.986
+  },
+  "filters": [
+    {
+      "id": "l",
+      "name": "L",
+      "brand": "Astrodon",
+      "band": "Luminance",
+      "slot": 1,
+      "colorKey": "l",
+      "color": ""
+    },
+    {
+      "id": "r",
+      "name": "R",
+      "brand": "Astrodon",
+      "band": "Red",
+      "slot": 2,
+      "colorKey": "r",
+      "color": ""
+    },
+    {
+      "id": "g",
+      "name": "G",
+      "brand": "Astrodon",
+      "band": "Green",
+      "slot": 3,
+      "colorKey": "g",
+      "color": ""
+    },
+    {
+      "id": "b",
+      "name": "B",
+      "brand": "Astrodon",
+      "band": "Blue",
+      "slot": 4,
+      "colorKey": "b",
+      "color": ""
+    },
+    {
+      "id": "sii",
+      "name": "SII",
+      "brand": "Astrodon",
+      "band": "5nm",
+      "slot": 5,
+      "colorKey": "sii",
+      "color": ""
+    },
+    {
+      "id": "ha",
+      "name": "Ha",
+      "brand": "Astrodon",
+      "band": "5nm",
+      "slot": 6,
+      "colorKey": "ha",
+      "color": ""
+    },
+    {
+      "id": "oiii",
+      "name": "OIII",
+      "brand": "Astrodon",
+      "band": "5nm",
+      "slot": 7,
+      "colorKey": "oiii",
+      "color": ""
+    },
+    {
+      "id": "hb",
+      "name": "Hb",
+      "brand": "Baader",
+      "band": "5nm",
+      "slot": 8,
+      "colorKey": "hb",
+      "color": ""
+    }
+  ],
   "darkLibrary": {
     "path": "F:\\zuko_dev\\Dark Library",
     "index": [
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -857,14 +2125,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -873,14 +2141,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -889,14 +2157,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -905,14 +2173,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -921,14 +2189,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -937,14 +2205,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -953,14 +2221,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -969,14 +2237,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -985,14 +2253,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1001,14 +2269,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1017,14 +2285,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1033,14 +2301,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1049,14 +2317,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1065,14 +2333,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1081,14 +2349,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1097,14 +2365,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1113,14 +2381,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1129,14 +2397,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1145,14 +2413,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1161,14 +2429,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1177,14 +2445,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1193,14 +2461,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1209,14 +2477,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1225,14 +2493,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1241,14 +2509,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
         "fileName": "master.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1257,14 +2525,14 @@
         "filter": "Ha",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "master",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1273,14 +2541,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1289,14 +2557,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1305,14 +2573,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1321,14 +2589,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1337,14 +2605,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1353,14 +2621,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1369,14 +2637,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1385,14 +2653,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1401,14 +2669,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1417,14 +2685,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1433,14 +2701,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1449,14 +2717,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1465,14 +2733,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1481,14 +2749,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1497,14 +2765,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1513,14 +2781,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1529,14 +2797,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1545,14 +2813,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1561,14 +2829,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1577,14 +2845,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1593,14 +2861,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1609,14 +2877,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1625,14 +2893,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1641,14 +2909,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1657,14 +2925,14 @@
         "filter": "OIII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1673,14 +2941,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1689,14 +2957,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1705,14 +2973,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1721,14 +2989,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1737,14 +3005,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1753,14 +3021,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1769,14 +3037,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1785,14 +3053,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1801,14 +3069,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1817,14 +3085,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1833,14 +3101,14 @@
         "filter": "SII",
         "date": "20260714",
         "acquiredAt": "2026-07-14",
-        "ageDays": 27,
+        "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1849,14 +3117,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1865,14 +3133,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1881,14 +3149,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1897,14 +3165,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1913,14 +3181,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1929,14 +3197,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1945,14 +3213,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1961,14 +3229,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1977,14 +3245,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1993,14 +3261,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2009,14 +3277,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2025,14 +3293,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2041,14 +3309,14 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
+        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2057,25 +3325,25 @@
         "filter": "SII",
         "date": "20260715",
         "acquiredAt": "2026-07-15",
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "type": "dark"
       }
     ],
-    "indexedAt": "2026-08-10T00:11:33.927Z",
+    "indexedAt": "2026-08-21T01:59:29.077Z",
     "removedSets": [],
     "sets": [
       {
-        "folder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+        "folder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
         "name": "Darks_180s_Bin2_-10c",
         "subCount": 75,
         "hasMaster": true,
-        "masterPath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
+        "masterPath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
         "files": [
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2084,14 +3352,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2100,14 +3368,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2116,14 +3384,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2132,14 +3400,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2148,14 +3416,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2164,14 +3432,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2180,14 +3448,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2196,14 +3464,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2212,14 +3480,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2228,14 +3496,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2244,14 +3512,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2260,14 +3528,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2276,14 +3544,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2292,14 +3560,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2308,14 +3576,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2324,14 +3592,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2340,14 +3608,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2356,14 +3624,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2372,14 +3640,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2388,14 +3656,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2404,14 +3672,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2420,14 +3688,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2436,14 +3704,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2452,14 +3720,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2468,14 +3736,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
             "fileName": "master.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2484,14 +3752,14 @@
             "filter": "Ha",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "master",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2500,14 +3768,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2516,14 +3784,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2532,14 +3800,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2548,14 +3816,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2564,14 +3832,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2580,14 +3848,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2596,14 +3864,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2612,14 +3880,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2628,14 +3896,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2644,14 +3912,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2660,14 +3928,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2676,14 +3944,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2692,14 +3960,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2708,14 +3976,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2724,14 +3992,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2740,14 +4008,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2756,14 +4024,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2772,14 +4040,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2788,14 +4056,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2804,14 +4072,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2820,14 +4088,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2836,14 +4104,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2852,14 +4120,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2868,14 +4136,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2884,14 +4152,14 @@
             "filter": "OIII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2900,14 +4168,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2916,14 +4184,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2932,14 +4200,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2948,14 +4216,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2964,14 +4232,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2980,14 +4248,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2996,14 +4264,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3012,14 +4280,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3028,14 +4296,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3044,14 +4312,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3060,14 +4328,14 @@
             "filter": "SII",
             "date": "20260714",
             "acquiredAt": "2026-07-14",
-            "ageDays": 27,
+            "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3076,14 +4344,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3092,14 +4360,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3108,14 +4376,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3124,14 +4392,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3140,14 +4408,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3156,14 +4424,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3172,14 +4440,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3188,14 +4456,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3204,14 +4472,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3220,14 +4488,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3236,14 +4504,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3252,14 +4520,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3268,14 +4536,14 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
+            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3284,10 +4552,10 @@
             "filter": "SII",
             "date": "20260715",
             "acquiredAt": "2026-07-15",
-            "ageDays": 26,
+            "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
             "type": "dark"
           }
         ],
@@ -3296,7 +4564,7 @@
         "gain": 120,
         "tempC": -10,
         "bin": 2,
-        "ageDays": 26,
+        "ageDays": 37,
         "expired": false
       }
     ],
@@ -3304,15 +4572,75 @@
   },
   "uiSections": {
     "tracked-projects": true,
-    "sky-forecast": true,
-    "action-items": false,
     "calibration-libraries": false,
     "optical-train": false,
     "power-data": false,
-    "rig-assets": false,
-    "filter-wheel": false,
-    "imaging-configs": false
+    "rig-assets": true,
+    "filter-wheel": true
   },
-  "asiairSourcePath": "F:\\ASIAIRDUMP_260816",
-  "sirilMonoScriptWarnDismissedFingerprint": ""
+  "asiairSourcePath": "J:\\Astrophotography\\ASIAIRDUMP_260915",
+  "sirilMonoScriptWarnDismissedFingerprint": "",
+  "appMeta": {
+    "version": "0.3.0",
+    "build": 40,
+    "savedAt": "2026-09-22T03:00:06.687Z"
+  },
+  "preprocessSettings": {
+    "bias": {
+      "preset": "default",
+      "custom": {
+        "method": "rej",
+        "rejection": "winsorized",
+        "sigmaLow": 3,
+        "sigmaHigh": 3,
+        "norm": "none",
+        "weight": "none"
+      }
+    },
+    "flat": {
+      "preset": "default",
+      "custom": {
+        "useBias": true,
+        "method": "rej",
+        "rejection": "winsorized",
+        "sigmaLow": 3,
+        "sigmaHigh": 3,
+        "norm": "mul",
+        "weight": "none"
+      }
+    },
+    "calibrate": {
+      "preset": "default",
+      "custom": {
+        "cosmetic": true,
+        "cosmeticFrom": "dark",
+        "equalizeCfa": false,
+        "debayer": false
+      }
+    },
+    "register": {
+      "preset": "monoRecommended",
+      "custom": {
+        "twoPass": false
+      }
+    },
+    "stack": {
+      "preset": "default",
+      "custom": {
+        "method": "rej",
+        "rejection": "winsorized",
+        "sigmaLow": 3,
+        "sigmaHigh": 3,
+        "norm": "addscale",
+        "weight": "none",
+        "outputNorm": true,
+        "bits32": true,
+        "winsorizedWhenNAtLeast": null,
+        "winsorizedMinFrames": 20,
+        "rejectionBelowThreshold": "median"
+      }
+    },
+    "binningUpdate": false
+  },
+  "uiTheme": "dark"
 }

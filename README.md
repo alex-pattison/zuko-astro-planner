@@ -1,6 +1,6 @@
 # ZAP
 
-Desktop astrophotography planner for Alex's imaging setup.
+Desktop astrophotography planner for Alex's imaging setup. Shared channel and imaging rules: `H:\Astro Pigeon\agent\DECISIONS.md`.
 
 Baseline UI comes from the existing standalone HTML/Electron dashboard (`rig-dashboard-v6` lineage). This repo is a new project — not a fork.
 
