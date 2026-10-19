@@ -230,6 +230,42 @@ close
 }
 
 /**
+ * Siril drizzle export flags. Empty when drizzle is off.
+ * Scale is linear (-scale=); 2 means 4× the pixels.
+ * @param {{ drizzle?: boolean, drizzleScale?: string, drizzlePixfrac?: string, drizzleKernel?: string }} regOpts
+ */
+function formatDrizzleClause(regOpts) {
+  if (!regOpts || regOpts.drizzle !== true) return '';
+  const scale = ['1', '2', '3'].includes(String(regOpts.drizzleScale)) ? String(regOpts.drizzleScale) : '2';
+  const pix = ['1', '0.7', '0.5'].includes(String(regOpts.drizzlePixfrac)) ? String(regOpts.drizzlePixfrac) : '1';
+  const kernels = new Set(['square', 'point', 'gaussian', 'turbo', 'lanczos2', 'lanczos3']);
+  let kernel = kernels.has(String(regOpts.drizzleKernel || '').toLowerCase())
+    ? String(regOpts.drizzleKernel).toLowerCase()
+    : 'square';
+  // Siril: Lanczos kernels are for resampling at native scale only.
+  if ((kernel === 'lanczos2' || kernel === 'lanczos3') && (scale !== '1' || pix !== '1')) {
+    kernel = 'square';
+  }
+  return ` -drizzle -scale=${scale} -pixfrac=${pix} -kernel=${kernel}`;
+}
+
+/**
+ * One-pass puts drizzle on register. Two-pass only computes transforms, so drizzle
+ * goes on seqapplyreg, which is the command that writes r_pp_light_*.
+ * @param {{ twoPass?: boolean, drizzle?: boolean }} regOpts
+ */
+function formatRegisterBlock(regOpts) {
+  const drizzle = formatDrizzleClause(regOpts);
+  if (regOpts && regOpts.twoPass) {
+    return `register pp_light -2pass
+seqapplyreg pp_light${drizzle}
+`;
+  }
+  return `register pp_light${drizzle}
+`;
+}
+
+/**
  * Register only — run with workDir = Filter/Aggregate/ (pp_light_* already present).
  * @param {{ settings?: object, binningUpdate?: boolean }} [opts]
  */
@@ -238,16 +274,11 @@ function buildRegisterScript(opts = {}) {
   if (typeof opts.binningUpdate === 'boolean') settings.binningUpdate = opts.binningUpdate;
   const regOpts = resolveStageOptions(settings, 'register');
   const binningLines = formatBinningUpdateLines(!!settings.binningUpdate);
-
-  const registerBlock = regOpts.twoPass
-    ? `register pp_light -2pass
-seqapplyreg pp_light
-`
-    : `register pp_light
-`;
+  const registerBlock = formatRegisterBlock(regOpts);
+  const drizzleNote = regOpts.drizzle ? `, drizzle ${regOpts.drizzleScale}x ${regOpts.drizzleKernel}` : '';
 
   return `############################################
-# ZAP register (preset=${regOpts.preset}${regOpts.twoPass ? ', 2-pass' : ''})
+# ZAP register (preset=${regOpts.preset}${regOpts.twoPass ? ', 2-pass' : ''}${drizzleNote})
 # Expects Aggregate/pp_light_*.fit — writes r_pp_light_*
 # Generated — do not hand-edit mid-run
 ############################################
@@ -280,13 +311,7 @@ function buildStackScript(resultBase, opts = {}) {
 
   let alignBlock;
   if (reregister) {
-    const regCmd = regOpts.twoPass
-      ? `register pp_light -2pass
-seqapplyreg pp_light
-`
-      : `register pp_light
-`;
-    alignBlock = `${regCmd}
+    alignBlock = `${formatRegisterBlock(regOpts)}
 stack r_pp_light ${stackArgs}
 `;
   } else {
@@ -1433,6 +1458,8 @@ module.exports = {
   buildLibraryMasterScript,
   buildRegisterScript,
   buildStackScript,
+  formatDrizzleClause,
+  formatRegisterBlock,
   listPpLights,
   listRPpLights,
   listAllPpLights,

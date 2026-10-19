@@ -571,6 +571,13 @@
     border-top: 1px dashed var(--border);
   }
   .pp-settings-custom.open { display: block; }
+  .pp-settings-drizzle {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .pp-settings-drizzle-extra { display: none; }
+  .pp-settings-drizzle-extra.open { display: block; }
   .pp-settings-field {
     display: flex;
     align-items: center;
@@ -6792,7 +6799,7 @@ const PP_HELP = {
       {
         value: 'custom',
         label: 'Custom',
-        when: 'Turn two-pass on/off explicitly.',
+        when: 'Turn two-pass on/off explicitly. Drizzle is the separate control under the preset.',
       },
     ],
   },
@@ -6902,7 +6909,7 @@ const PP_HELP = {
       {
         value: 'custom',
         label: 'Custom',
-        when: 'Choose two-pass on/off.',
+        when: 'Choose two-pass on/off. Drizzle stays on its own control and works with any preset.',
       },
     ],
   },
@@ -6926,6 +6933,53 @@ const PP_HELP = {
         label: 'Custom',
         when: 'Full control of method, rejection, norm, and weight.',
       },
+    ],
+  },
+  drizzle: {
+    label: 'Drizzle',
+    summary:
+      'Off unless you turn it on. One-pass writes Siril register pp_light -drizzle. Two-pass keeps register -2pass as the transform pass and puts -drizzle on seqapplyreg, which writes r_pp_light_*. This is mono drizzle of calibrated lights, not the OSC Bayer-drizzle script, and it does not feed a flat into the kernel. Cull and Stack still use r_pp_light_*. Scale 2 is four times the pixels. On Reducer + Bin2 (3.41″/px) that lands near the Bin1 plate scale. Single drizzled frames can look blotchy until they are stacked.',
+    options: [
+      {
+        value: 'false',
+        label: 'Off',
+        when: 'Ordinary interpolated alignment. Default and Mono Recommended leave drizzle off.',
+      },
+      {
+        value: 'true',
+        label: 'On',
+        when: 'Drizzle the aligned frames at the scale, pixel fraction, and kernel below.',
+      },
+    ],
+  },
+  drizzleScale: {
+    label: 'Drizzle scale',
+    summary: 'Siril -scale= on the drizzle export. Linear factor. Pixel count grows with the square.',
+    options: [
+      { value: '1', label: '1×', when: 'Same width and height. Redistributes samples without upscaling.' },
+      { value: '2', label: '2×', when: 'Default when drizzle is on. Four times the pixels and a much larger file.' },
+      { value: '3', label: '3×', when: 'Siril’s maximum. Nine times the pixels.' },
+    ],
+  },
+  drizzlePixfrac: {
+    label: 'Pixel fraction',
+    summary: 'Siril -pixfrac=. How much of each input pixel is dropped onto the output grid. 1 is Siril’s default.',
+    options: [
+      { value: '1', label: '1', when: 'Shift-and-add. Pair this with scale 1×. Softer if you upscale.' },
+      { value: '0.7', label: '0.7', when: 'A little larger than 1/2, so fewer empty pixels than 0.5 at scale 2×.' },
+      { value: '0.5', label: '0.5', when: 'Default. About 1/scale for a 2× drizzle — Siril’s rule of thumb.' },
+    ],
+  },
+  drizzleKernel: {
+    label: 'Drizzle kernel',
+    summary: 'Siril -kernel=. Square is Siril’s default.',
+    options: [
+      { value: 'square', label: 'Square', when: 'Default. Compact footprint.' },
+      { value: 'point', label: 'Point', when: 'Smallest footprint.' },
+      { value: 'gaussian', label: 'Gaussian', when: 'Softer drop.' },
+      { value: 'turbo', label: 'Turbo', when: 'Siril turbo kernel.' },
+      { value: 'lanczos2', label: 'Lanczos2', when: 'Only valid at scale 1× and pixel fraction 1. Otherwise the script uses square.' },
+      { value: 'lanczos3', label: 'Lanczos3', when: 'Only valid at scale 1× and pixel fraction 1. Otherwise the script uses square.' },
     ],
   },
   twoPass: {
@@ -7118,7 +7172,14 @@ function defaultPreprocessSettingsUi() {
       preset: 'default',
       custom: { cosmetic: true, cosmeticFrom: 'dark', equalizeCfa: false, debayer: false },
     },
-    register: { preset: 'default', custom: { twoPass: false } },
+    register: {
+      preset: 'default',
+      custom: { twoPass: false },
+      drizzle: false,
+      drizzleScale: '2',
+      drizzlePixfrac: '0.5',
+      drizzleKernel: 'square',
+    },
     stack: {
       preset: 'default',
       custom: {
@@ -7146,10 +7207,23 @@ function ensurePreprocessSettings() {
   for (const stage of ['bias', 'flat', 'calibrate', 'register', 'stack']) {
     const src = raw[stage] || {};
     const preset = ['default', 'monoRecommended', 'custom'].includes(src.preset) ? src.preset : 'default';
-    out[stage] = {
+    const stageOut = {
       preset,
       custom: { ...base[stage].custom, ...(src.custom && typeof src.custom === 'object' ? src.custom : {}) },
     };
+    if (stage === 'register') {
+      const scales = ['1', '2', '3'];
+      const pixes = ['1', '0.7', '0.5'];
+      const kernels = ['square', 'point', 'gaussian', 'turbo', 'lanczos2', 'lanczos3'];
+      const scale = String(src.drizzleScale == null ? '2' : src.drizzleScale);
+      const pix = String(src.drizzlePixfrac == null ? '0.5' : src.drizzlePixfrac);
+      const kernel = String(src.drizzleKernel || 'square').toLowerCase();
+      stageOut.drizzle = src.drizzle === true;
+      stageOut.drizzleScale = scales.includes(scale) ? scale : '2';
+      stageOut.drizzlePixfrac = pixes.includes(pix) ? pix : '1';
+      stageOut.drizzleKernel = kernels.includes(kernel) ? kernel : 'square';
+    }
+    out[stage] = stageOut;
   }
   data.preprocessSettings = out;
   return out;
@@ -7232,6 +7306,7 @@ function renderPreprocessSettingsForm() {
   ];
   root.innerHTML = stages.map((st) => ppStageCardHtml(st, 'pp')).join('');
   bindPpStagePresetHandlers(stages.map((s) => s.key), 'pp');
+  bindPpDrizzleHandlers('pp');
 }
 
 const PP_STAGE_META = {
@@ -7258,6 +7333,7 @@ function ppStageCardHtml(st, idPrefix) {
     <div class="pp-settings-custom${customOpen}" id="${p}-custom-${meta.key}">
       ${renderPpCustomFields(meta.key, meta.customKind, block.custom, p)}
     </div>
+    ${meta.key === 'register' ? renderPpDrizzleFields(block, p) : ''}
   </div>`;
 }
 
@@ -7300,6 +7376,59 @@ function applySuggestedPpPresetsForFilter(filterName, stageKeys) {
     }
   }
   if (changed) data.preprocessSettings = s;
+}
+
+function renderPpDrizzleFields(block, idPrefix) {
+  const p = idPrefix || 'pp';
+  const on = block.drizzle === true;
+  return `<div class="pp-settings-drizzle">
+    <div class="pp-settings-field">
+      <label>Drizzle ${infoIButton('drizzle')}</label>
+      ${ppSelectHtml(`${p}-register-drizzle`, on ? 'true' : 'false', [
+        { value: 'false', label: 'Off' },
+        { value: 'true', label: 'On' },
+      ])}
+    </div>
+    <div class="pp-settings-drizzle-extra${on ? ' open' : ''}" id="${p}-register-drizzle-extra">
+      <div class="pp-settings-field">
+        <label>Scale ${infoIButton('drizzleScale')}</label>
+        ${ppSelectHtml(`${p}-register-drizzle-scale`, block.drizzleScale || '2', [
+          { value: '1', label: '1× (same size)' },
+          { value: '2', label: '2×' },
+          { value: '3', label: '3×' },
+        ])}
+      </div>
+      <div class="pp-settings-field">
+        <label>Pixel fraction ${infoIButton('drizzlePixfrac')}</label>
+        ${ppSelectHtml(`${p}-register-drizzle-pixfrac`, block.drizzlePixfrac || '0.5', [
+          { value: '1', label: '1' },
+          { value: '0.7', label: '0.7' },
+          { value: '0.5', label: '0.5' },
+        ])}
+      </div>
+      <div class="pp-settings-field">
+        <label>Kernel ${infoIButton('drizzleKernel')}</label>
+        ${ppSelectHtml(`${p}-register-drizzle-kernel`, block.drizzleKernel || 'square', [
+          { value: 'square', label: 'Square' },
+          { value: 'point', label: 'Point' },
+          { value: 'gaussian', label: 'Gaussian' },
+          { value: 'turbo', label: 'Turbo' },
+          { value: 'lanczos2', label: 'Lanczos2' },
+          { value: 'lanczos3', label: 'Lanczos3' },
+        ])}
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindPpDrizzleHandlers(idPrefix) {
+  const p = idPrefix || 'pp';
+  const sel = document.getElementById(`${p}-register-drizzle`);
+  const extra = document.getElementById(`${p}-register-drizzle-extra`);
+  if (!sel || !extra) return;
+  const sync = () => extra.classList.toggle('open', sel.value === 'true');
+  sel.onchange = sync;
+  sync();
 }
 
 function bindPpStagePresetHandlers(stageKeys, idPrefix) {
@@ -7401,9 +7530,18 @@ function readPreprocessSettingsFromForm(idPrefix) {
       const el = document.getElementById(`${p}-custom-${stage}-${suffix}`);
       return el ? el.value : null;
     };
+    const stageOut = { preset, custom };
     if (stage === 'register') {
       const v = get('twoPass');
       if (v != null) custom.twoPass = v === 'true';
+      const drizzleEl = document.getElementById(`${p}-register-drizzle`);
+      if (drizzleEl) stageOut.drizzle = drizzleEl.value === 'true';
+      const scaleEl = document.getElementById(`${p}-register-drizzle-scale`);
+      const pixEl = document.getElementById(`${p}-register-drizzle-pixfrac`);
+      const kernelEl = document.getElementById(`${p}-register-drizzle-kernel`);
+      if (scaleEl) stageOut.drizzleScale = scaleEl.value;
+      if (pixEl) stageOut.drizzlePixfrac = pixEl.value;
+      if (kernelEl) stageOut.drizzleKernel = kernelEl.value;
     } else if (stage === 'calibrate') {
       const v = get('cosmetic');
       if (v != null) custom.cosmetic = v === 'true';
@@ -7421,7 +7559,7 @@ function readPreprocessSettingsFromForm(idPrefix) {
         if (ub != null) custom.useBias = ub === 'true';
       }
     }
-    out[stage] = { preset, custom };
+    out[stage] = stageOut;
   }
   data.preprocessSettings = out;
   return out;
@@ -10515,6 +10653,7 @@ function renderProjects() {
   recomputeAllFilterHours();
   data.projects.forEach(p => {
     if (!p.shoots) p.shoots = [];
+    if (!p.checklist) p.checklist = [];
     if (!p.astrobinLinks) p.astrobinLinks = [];
     if (p.savedTarget === undefined) p.savedTarget = null;
     if (p.framerMode === undefined) p.framerMode = 'reducer';
@@ -16733,7 +16872,10 @@ function openPipelineJobConfirm({ title, sub, bodyHtml, notesHtml, pending, star
   syncBodyScrollLock();
   if (ppStages && ppStages.length) {
     // Bind after DOM insert so Custom expands correctly on this dialog.
-    setTimeout(() => bindPpStagePresetHandlers(ppStages, 'pp-job'), 0);
+    setTimeout(() => {
+      bindPpStagePresetHandlers(ppStages, 'pp-job');
+      bindPpDrizzleHandlers('pp-job');
+    }, 0);
   }
 }
 

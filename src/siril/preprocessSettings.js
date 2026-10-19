@@ -16,7 +16,7 @@ function defaultPreprocessSettings() {
     bias: { preset: 'default', custom: defaultBiasCustom() },
     flat: { preset: 'default', custom: defaultFlatCustom() },
     calibrate: { preset: 'default', custom: defaultCalibrateCustom() },
-    register: { preset: 'default', custom: defaultRegisterCustom() },
+    register: { preset: 'default', custom: defaultRegisterCustom(), ...defaultRegisterDrizzle() },
     stack: { preset: 'default', custom: defaultStackCustom() },
     /** Persisted default for Stack confirm checkbox (unchecked = false). */
     binningUpdate: false,
@@ -55,9 +55,37 @@ function defaultCalibrateCustom() {
   };
 }
 
+const DRIZZLE_SCALES = Object.freeze(['1', '2', '3']);
+const DRIZZLE_PIXFRACS = Object.freeze(['1', '0.7', '0.5']);
+const DRIZZLE_KERNELS = Object.freeze(['square', 'point', 'gaussian', 'turbo', 'lanczos2', 'lanczos3']);
+
 function defaultRegisterCustom() {
   return {
     twoPass: false,
+  };
+}
+
+/** Drizzle is independent of the Register preset. Off unless explicitly enabled. */
+function defaultRegisterDrizzle() {
+  return {
+    drizzle: false,
+    drizzleScale: '2',
+    drizzlePixfrac: '0.5',
+    drizzleKernel: 'square',
+  };
+}
+
+function normalizeRegisterDrizzle(raw) {
+  const base = defaultRegisterDrizzle();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  const scale = String(src.drizzleScale == null ? base.drizzleScale : src.drizzleScale);
+  const pix = String(src.drizzlePixfrac == null ? base.drizzlePixfrac : src.drizzlePixfrac);
+  const kernel = String(src.drizzleKernel || base.drizzleKernel).toLowerCase();
+  return {
+    drizzle: src.drizzle === true,
+    drizzleScale: DRIZZLE_SCALES.includes(scale) ? scale : base.drizzleScale,
+    drizzlePixfrac: DRIZZLE_PIXFRACS.includes(pix) ? pix : base.drizzlePixfrac,
+    drizzleKernel: DRIZZLE_KERNELS.includes(kernel) ? kernel : base.drizzleKernel,
   };
 }
 
@@ -124,10 +152,12 @@ function normalizePreprocessSettings(raw) {
             : stage === 'register'
               ? defaultRegisterCustom()
               : defaultStackCustom();
-    base[stage] = {
+    const stageOut = {
       preset,
       custom: { ...customBase, ...(src.custom && typeof src.custom === 'object' ? src.custom : {}) },
     };
+    if (stage === 'register') Object.assign(stageOut, normalizeRegisterDrizzle(src));
+    base[stage] = stageOut;
   }
   if (typeof raw.binningUpdate === 'boolean') base.binningUpdate = raw.binningUpdate;
   return base;
@@ -182,6 +212,10 @@ function resolveStageOptions(settings, stage, ctx = {}) {
         rejection: opts.rejectionBelowThreshold === 'median' ? null : opts.rejection,
       };
     }
+  }
+
+  if (stage === 'register') {
+    opts = { ...opts, ...normalizeRegisterDrizzle(norm.register) };
   }
 
   return { preset, ...opts, binningUpdate: !!norm.binningUpdate };
@@ -340,6 +374,49 @@ const HELP_CATALOG = Object.freeze({
       { value: 'true', label: 'On', when: 'Mono Recommended; multi-night Aggregate.' },
     ],
   },
+  drizzle: {
+    id: 'drizzle',
+    label: 'Drizzle',
+    summary:
+      'Off by default. On writes Siril -drizzle when the aligned frames are created: on register for a one-pass run, on seqapplyreg after -2pass. Mono drizzle of already calibrated pp_light frames. It does not run the OSC Bayer-drizzle script and does not pass a flat into the kernel (lights are already flat-calibrated). Output is still r_pp_light_*. Scale 2 is 4× the pixels. Default pixel fraction 0.5 matches that scale. Lanczos kernels are only emitted at scale 1 and pixel fraction 1; any other scale falls back to square.',
+    options: [
+      { value: 'false', label: 'Off', when: 'Normal interpolation register. Default and Mono Recommended leave this off.' },
+      { value: 'true', label: 'On', when: 'Drizzle the aligned frames. Use with two-pass or one-pass.' },
+    ],
+  },
+  drizzleScale: {
+    id: 'drizzleScale',
+    label: 'Drizzle scale',
+    summary: 'Siril -scale= on the drizzle export. Linear scale; pixel count grows with the square.',
+    options: [
+      { value: '1', label: '1×', when: 'Same dimensions. Redistributes samples without upscaling.' },
+      { value: '2', label: '2×', when: 'Default when drizzle is on. Four times the pixels.' },
+      { value: '3', label: '3×', when: 'Siril’s maximum. Nine times the pixels.' },
+    ],
+  },
+  drizzlePixfrac: {
+    id: 'drizzlePixfrac',
+    label: 'Pixel fraction',
+    summary: 'Siril -pixfrac=. How much of each input pixel is dropped onto the output grid. 1 is the Siril default.',
+    options: [
+      { value: '1', label: '1', when: 'Shift-and-add. Right for scale 1, and the Bayer-drizzle pairing. Softer if you upscale.' },
+      { value: '0.7', label: '0.7', when: 'A little larger than 1/2, fewer empty pixels than 0.5 at scale 2.' },
+      { value: '0.5', label: '0.5', when: 'Default. About 1/scale for a 2× drizzle, which is Siril’s rule of thumb.' },
+    ],
+  },
+  drizzleKernel: {
+    id: 'drizzleKernel',
+    label: 'Drizzle kernel',
+    summary: 'Siril -kernel=. Square is Siril’s default and the stock Bayer-drizzle script’s kernel.',
+    options: [
+      { value: 'square', label: 'Square', when: 'Default. Compact footprint.' },
+      { value: 'point', label: 'Point', when: 'Smallest footprint.' },
+      { value: 'gaussian', label: 'Gaussian', when: 'Softer drop.' },
+      { value: 'turbo', label: 'Turbo', when: 'Siril turbo kernel.' },
+      { value: 'lanczos2', label: 'Lanczos2', when: 'Only for scale 1 and pixel fraction 1. Otherwise ZAP writes square.' },
+      { value: 'lanczos3', label: 'Lanczos3', when: 'Only for scale 1 and pixel fraction 1. Otherwise ZAP writes square.' },
+    ],
+  },
   cosmetic: {
     id: 'cosmetic',
     label: 'Cosmetic correction',
@@ -373,6 +450,8 @@ module.exports = {
   defaultFlatCustom,
   defaultCalibrateCustom,
   defaultRegisterCustom,
+  defaultRegisterDrizzle,
+  normalizeRegisterDrizzle,
   defaultStackCustom,
   monoRecommendedBias,
   monoRecommendedFlat,

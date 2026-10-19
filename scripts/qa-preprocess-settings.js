@@ -61,7 +61,7 @@ function testDefaultsShape() {
 
   const reg = buildRegisterScript();
   expectIncludes(reg, ['set core.binning_update=false', 'register pp_light'], 'register default');
-  expectExcludes(reg, ['-2pass', 'seqapplyreg'], 'register default');
+  expectExcludes(reg, ['-2pass', 'seqapplyreg', '-drizzle'], 'register default');
 
   const stack = buildStackScript('result_Ha', { reregister: false });
   expectIncludes(stack, [
@@ -288,6 +288,72 @@ function testWeightAndNormPermutations() {
   }
 }
 
+function testDrizzle() {
+  console.log('\n=== drizzle ===');
+  const onePass = normalizePreprocessSettings({
+    register: {
+      preset: 'default',
+      drizzle: true,
+      drizzleScale: '2',
+      drizzlePixfrac: '0.7',
+      drizzleKernel: 'lanczos2',
+    },
+  });
+  const reg = buildRegisterScript({ settings: onePass });
+  expectIncludes(reg, [
+    'register pp_light -drizzle -scale=2 -pixfrac=0.7 -kernel=square',
+  ], 'drizzle one-pass lanczos coerced');
+  expectExcludes(reg, ['-2pass', 'seqapplyreg', '-kernel=lanczos2'], 'drizzle one-pass');
+
+  const native = normalizePreprocessSettings({
+    register: {
+      preset: 'default',
+      drizzle: true,
+      drizzleScale: '1',
+      drizzlePixfrac: '1',
+      drizzleKernel: 'lanczos3',
+    },
+  });
+  expectIncludes(buildRegisterScript({ settings: native }), [
+    'register pp_light -drizzle -scale=1 -pixfrac=1 -kernel=lanczos3',
+  ], 'lanczos at native scale');
+  const drizzleDefaults = normalizePreprocessSettings({ register: { drizzle: true } });
+  check(
+    'default drizzle is 2× / 0.5 / square',
+    drizzleDefaults.register.drizzleScale === '2'
+      && drizzleDefaults.register.drizzlePixfrac === '0.5'
+      && drizzleDefaults.register.drizzleKernel === 'square'
+  );
+
+  const twoPass = normalizePreprocessSettings({
+    register: {
+      preset: 'monoRecommended',
+      drizzle: true,
+      drizzleScale: '1',
+      drizzlePixfrac: '1',
+      drizzleKernel: 'square',
+    },
+  });
+  const reg2 = buildRegisterScript({ settings: twoPass });
+  expectIncludes(reg2, [
+    'register pp_light -2pass',
+    'seqapplyreg pp_light -drizzle -scale=1 -pixfrac=1 -kernel=square',
+  ], 'drizzle two-pass');
+  expectExcludes(reg2, ['register pp_light -2pass -drizzle', 'register pp_light -drizzle'], 'drizzle two-pass');
+
+  const stack = buildStackScript('result_Ha', { settings: twoPass, reregister: true, frameCount: 25 });
+  expectIncludes(stack, [
+    'seqapplyreg pp_light -drizzle -scale=1 -pixfrac=1 -kernel=square',
+    'stack r_pp_light',
+  ], 'drizzle stack reregister');
+
+  const resolved = resolveStageOptions({ register: { drizzle: true, drizzleScale: '9', drizzleKernel: 'nope' } }, 'register');
+  check('drizzle rejects unknown scale/kernel', resolved.drizzle === true && resolved.drizzleScale === '2' && resolved.drizzleKernel === 'square', JSON.stringify(resolved));
+
+  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  check('register dialog has drizzle control', html.includes('register-drizzle'));
+}
+
 function testMonoAllStages() {
   console.log('\n=== mono recommended all stages ===');
   const settings = normalizePreprocessSettings({
@@ -308,6 +374,7 @@ function testMonoAllStages() {
   ], 'mono calibrate');
   const reg = buildRegisterScript({ settings });
   expectIncludes(reg, ['-2pass', 'seqapplyreg'], 'mono register');
+  expectExcludes(reg, ['-drizzle'], 'mono register');
   const stack = buildStackScript('result_OIII', { settings, frameCount: 22, binningUpdate: false });
   expectIncludes(stack, ['set core.binning_update=false', 'stack pp_light rej 3 3 -norm=addscale'], 'mono stack');
 }
@@ -318,6 +385,7 @@ async function main() {
   testMonoRecommended();
   testBinningCheckbox();
   testCustomFlags();
+  testDrizzle();
   testFixturesFile();
   testHelpAndResolve();
   testWeightAndNormPermutations();

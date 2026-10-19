@@ -4582,8 +4582,8 @@
   "sirilMonoScriptWarnDismissedFingerprint": "",
   "appMeta": {
     "version": "0.3.0",
-    "build": 40,
-    "savedAt": "2026-09-22T03:00:06.687Z"
+    "build": 41,
+    "savedAt": "2026-10-19T03:06:45.591Z"
   },
   "preprocessSettings": {
     "bias": {
@@ -4622,10 +4622,14 @@
       "preset": "monoRecommended",
       "custom": {
         "twoPass": false
-      }
+      },
+      "drizzle": true,
+      "drizzleScale": "2",
+      "drizzlePixfrac": "1",
+      "drizzleKernel": "square"
     },
     "stack": {
-      "preset": "default",
+      "preset": "monoRecommended",
       "custom": {
         "method": "rej",
         "rejection": "winsorized",

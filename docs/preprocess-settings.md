@@ -58,6 +58,19 @@ This line is written into **Register** and **Stack** scripts (and Calibrate) so 
 ### Register
 
 - **Two-pass** on/off
+- **Drizzle** on/off, plus scale, pixel fraction, and kernel. This is separate from the preset, so Mono Recommended can stay on two-pass and also drizzle. Off unless you turn it on.
+
+## Drizzle
+
+Drizzle exports aligned frames with Siril’s `-drizzle` flags. One-pass puts them on `register`. Two-pass only computes transforms, so the flags go on `seqapplyreg`, which writes `r_pp_light_*`.
+
+| Control | Siril | Default when on |
+|---------|--------|-----------------|
+| Scale | `-scale=` | `2` (four times the pixels; `3` is nine times; `1` keeps the size) |
+| Pixel fraction | `-pixfrac=` | `0.5` (about 1/scale for the 2× default; Siril’s rule of thumb) |
+| Kernel | `-kernel=` | `square` (Lanczos2/3 are written only when scale and pixel fraction are both 1) |
+
+This is mono drizzle of calibrated `pp_light` frames. It does not run `OSC_Preprocessing_BayerDrizzle.ssf` and it does not pass a master flat into the kernel. Cull and Stack still look for `r_pp_light_*`. A Stack re-register uses the same drizzle settings.
 
 ## Persistence
 
