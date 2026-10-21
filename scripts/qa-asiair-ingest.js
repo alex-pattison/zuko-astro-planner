@@ -91,6 +91,22 @@ async function copyFew(srcDir, destDir, pred, limit) {
   return names.length;
 }
 
+function patchFitsNumber(buf, key, value) {
+  const text = buf.toString('binary');
+  const out = Buffer.from(buf);
+  const want = String(key).toUpperCase();
+  for (let i = 0; i + 80 <= Math.min(text.length, 2880 * 8); i += 80) {
+    const card = text.slice(i, i + 80);
+    const k = card.slice(0, 8).trim().toUpperCase();
+    if (k === 'END') break;
+    if (k !== want || card[8] !== '=') continue;
+    const rebuilt = (k.padEnd(8, ' ') + '= ' + String(value).padEnd(20, ' ') + card.slice(30)).slice(0, 80).padEnd(80, ' ');
+    Buffer.from(rebuilt, 'binary').copy(out, i);
+    return out;
+  }
+  return out;
+}
+
 function patchDateObs(buf, ymd) {
   const text = buf.toString('binary');
   const out = Buffer.from(buf);
@@ -202,8 +218,12 @@ async function buildFixture() {
       const destName = fromDate ? name.split(fromDate).join(flatNight) : name;
       const srcPath = path.join(flatDir, name);
       const destPath = path.join(flatDir, destName);
-      const buf = await fsp.readFile(srcPath);
-      await fsp.writeFile(destPath, patchDateObs(buf, flatNight));
+      let buf = await fsp.readFile(srcPath);
+      buf = patchDateObs(buf, flatNight);
+      // Sample O/S flats are ~0°C while the lights are −10°C. The isolated
+      // fixture has to be calibratable; real dumps are not rewritten.
+      buf = patchFitsNumber(buf, 'CCD-TEMP', '-10.0');
+      await fsp.writeFile(destPath, buf);
       if (destName !== name) await fsp.unlink(srcPath).catch(() => {});
     }
   }
@@ -265,7 +285,7 @@ function masterDarkSetFolder(filePath, libraryRoot) {
   const root = normalizeWinPath(libraryRoot || '').replace(/\\+$/, '');
   if (!root) {
     const i = norm.lastIndexOf('\\');
-    return i > 0 ? norm.slice(0, i) : norm;
+    return stripCalibFilterLeaf(i > 0 ? norm.slice(0, i) : norm);
   }
   const rootLower = root.toLowerCase();
   let dir = norm;
@@ -280,7 +300,18 @@ function masterDarkSetFolder(filePath, libraryRoot) {
     dir = parent;
   }
   const i = norm.lastIndexOf('\\');
-  return i > 0 ? norm.slice(0, i) : norm;
+  return stripCalibFilterLeaf(i > 0 ? norm.slice(0, i) : norm);
+}
+
+/** H/O/S under a dark set is the filter, not the set. A stale library root must not hide Bin. */
+function stripCalibFilterLeaf(dir) {
+  if (!dir) return dir;
+  const leaf = String(dir).split(/[/\\]/).pop();
+  if (/^(H|Ha|O|OIII|S|SII|Hb|Hbeta|L|R|G|B)$/i.test(leaf || '')) {
+    const i = Math.max(dir.lastIndexOf('\\'), dir.lastIndexOf('/'));
+    if (i > 0) return dir.slice(0, i);
+  }
+  return dir;
 }
 
 function statisticalMode(values) {
@@ -1392,7 +1423,7 @@ async function testLiveDesktopDump() {
   const dumpRoot = path.join(process.env.USERPROFILE || '', 'OneDrive', 'Desktop', 'asiaIRDUMP');
   const dumpAutorun = path.join(dumpRoot, 'Autorun');
   if (!fs.existsSync(dumpAutorun)) {
-    fail('live dump Autorun present', dumpAutorun);
+    console.log('  skip  live Desktop asiaIRDUMP not on this machine —', dumpAutorun);
     return;
   }
   pass('live dump Autorun present', dumpAutorun);

@@ -15,6 +15,9 @@
  *   matching flat filter/exp/gain/temp/bin and DATE-OBS within ±12h of those flats
  *   — copy into _calibration/darkflats/<night>/ then symlink into biases/ (per channel).
  * - Darks: master Dark Library symlink into darks/, or session → _calibration/darks.
+ *   A dark matches only the same bin, and the same camera / frame size / offset when
+ *   both sides have them. Bin1 and Bin2 of the ASI294MM Pro are different grids
+ *   (8288×5644 @ 2.315 µm vs 4144×2822 @ 4.63 µm) and never share a master.
  * ShootName comes from the shoot log code (e.g. 260725_SII_B9_NYCRoof).
  */
 
@@ -47,11 +50,105 @@ const FRAME_DIR_MAP = {
 const SKIP_DIR_NAMES = new Set(['live', 'preview', 'video', 'log', 'thumbnail', 'thumbnails']);
 const FIT_EXT = /\.(fit|fits|fts)$/i;
 const HEADER_KEYS = [
-  'OBJECT', 'FILTER', 'EXPTIME', 'EXPOSURE', 'GAIN', 'EGAIN',
-  'CCD-TEMP', 'SET-TEMP', 'XBINNING', 'DATE-OBS', 'IMAGETYP', 'FRAME',
+  'OBJECT', 'FILTER', 'EXPTIME', 'EXPOSURE', 'GAIN', 'EGAIN', 'OFFSET',
+  'CCD-TEMP', 'SET-TEMP', 'XBINNING', 'YBINNING', 'DATE-OBS', 'IMAGETYP', 'FRAME',
+  'NAXIS1', 'NAXIS2', 'XPIXSZ', 'YPIXSZ', 'INSTRUME', 'BAYERPAT',
   'RA', 'DEC', 'OBJCTRA', 'OBJCTDEC',
   'ROTATOR', 'CROTA2', 'CROTA1', 'POSANGLE',
 ];
+
+/**
+ * Known full-frame modes. Used as a soft check, not a reject — a crop can be smaller.
+ * ASI294MM Pro (IMX492): Bin1 is the unlocked 2.315 µm grid; Bin2 is the 4.63 µm default.
+ * ASIAIR writes XPIXSZ as the effective size already, so Siril binning_update stays off.
+ */
+const SENSOR_MODES = {
+  asi294mm: {
+    label: 'ASI294MM Pro',
+    1: { naxis1: 8288, naxis2: 5644, pixelUm: 2.315 },
+    2: { naxis1: 4144, naxis2: 2822, pixelUm: 4.63 },
+  },
+};
+
+/** `294MM`, `ASI294MM`, `ZWO ASI294MM Pro` → `asi294mm`. Color MC stays a different id. */
+function canonicalCameraId(raw) {
+  if (raw == null) return null;
+  const s = String(raw).trim().replace(/^['"]|['"]$/g, '');
+  if (!s) return null;
+  const m = s.match(/(\d{2,4})\s*M([MC])/i);
+  if (m) return `asi${m[1]}m${m[2].toLowerCase()}`;
+  const compact = s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const m2 = compact.match(/(?:asi)?(\d{2,4})m([mc])/);
+  if (m2) return `asi${m2[1]}m${m2[2]}`;
+  return compact || null;
+}
+
+function expectedSensorMode(camera, bin) {
+  const id = canonicalCameraId(camera);
+  const table = id && SENSOR_MODES[id];
+  if (!table || bin == null || !Number.isFinite(Number(bin))) return null;
+  const mode = table[Math.round(Number(bin))];
+  if (!mode) return null;
+  return { camera: id, label: table.label, bin: Math.round(Number(bin)), ...mode };
+}
+
+/** One calibration identity for a set of lights (or any frame list). */
+function calibrationProfile(frames) {
+  const list = (frames || []).filter(Boolean);
+  const bins = new Set();
+  const cameras = new Set();
+  const geos = new Set();
+  let exposureSec = null;
+  let gain = null;
+  let tempC = null;
+  let bin = null;
+  let camera = null;
+  let naxis1 = null;
+  let naxis2 = null;
+  let offset = null;
+  let pixelUm = null;
+  for (const f of list) {
+    if (exposureSec == null && f.exposureSec != null) exposureSec = f.exposureSec;
+    if (gain == null && f.gain != null) gain = f.gain;
+    if (tempC == null && f.tempC != null) tempC = f.tempC;
+    if (f.bin != null && Number.isFinite(Number(f.bin))) {
+      const b = Math.round(Number(f.bin));
+      bins.add(b);
+      if (bin == null) bin = b;
+    }
+    const cam = canonicalCameraId(f.camera);
+    if (cam) {
+      cameras.add(cam);
+      if (camera == null) camera = cam;
+    }
+    if (f.naxis1 != null && f.naxis2 != null
+      && Number.isFinite(Number(f.naxis1)) && Number.isFinite(Number(f.naxis2))) {
+      geos.add(`${Number(f.naxis1)}x${Number(f.naxis2)}`);
+      if (naxis1 == null) {
+        naxis1 = Number(f.naxis1);
+        naxis2 = Number(f.naxis2);
+      }
+    }
+    if (offset == null && f.offset != null && Number.isFinite(Number(f.offset))) offset = Number(f.offset);
+    if (pixelUm == null && f.pixelUm != null && Number.isFinite(Number(f.pixelUm))) pixelUm = Number(f.pixelUm);
+  }
+  return {
+    exposureSec,
+    gain,
+    tempC,
+    bin: bins.size > 1 ? null : bin,
+    camera: cameras.size > 1 ? null : camera,
+    naxis1: geos.size > 1 ? null : naxis1,
+    naxis2: geos.size > 1 ? null : naxis2,
+    offset,
+    pixelUm,
+    binMixed: bins.size > 1,
+    cameraMixed: cameras.size > 1,
+    geometryMixed: geos.size > 1,
+    bins: [...bins],
+    cameras: [...cameras],
+  };
+}
 const SIX_MONTHS_MS = 1000 * 60 * 60 * 24 * 183;
 const TEMP_TOLERANCE_C = 3;
 /** Bias (darkflats) default-include only if DATE-OBS is within this of a matching-filter flat. */
@@ -241,7 +338,7 @@ function parseAsiairFilename(fileName) {
   let target = null;
   let idx = 0;
   const isExp = (p) => /^[\d.]+(ms|s)$/i.test(p);
-  const isCamera = (p) => /^(?:ASI)?\d{2,4}MM$/i.test(p);
+  const isCamera = (p) => /^(?:ASI)?\d{2,4}M[MC]$/i.test(p);
   const isGain = (p) => /^gain[\d.]+$/i.test(p);
   const isStamp = (p) => /^\d{8}-\d{6}/.test(p);
   const isRot = (p) => /^-?[\d.]+deg$/i.test(p);
@@ -267,10 +364,10 @@ function parseAsiairFilename(fileName) {
     idx += 1;
   }
 
-  // Optional camera tag inserted before filter (e.g. 294MM / ASI294MM).
+  // Optional camera tag inserted before filter (e.g. 294MM / ASI294MM / 294MC).
   let camera = null;
   if (idx < parts.length && isCamera(parts[idx])) {
-    camera = String(parts[idx]).replace(/^ASI/i, '');
+    camera = canonicalCameraId(parts[idx]);
     idx += 1;
   }
 
@@ -399,6 +496,17 @@ function mergeHeaderIntoParsed(parsed, header) {
   if (header['CCD-TEMP'] != null) next.tempC = Number(header['CCD-TEMP']);
   else if (header['SET-TEMP'] != null) next.tempC = Number(header['SET-TEMP']);
   if (header.XBINNING != null) next.bin = Number(header.XBINNING);
+  if (header.YBINNING != null) next.yBin = Number(header.YBINNING);
+  if (next.bin != null && next.yBin != null && Number(next.bin) !== Number(next.yBin)) {
+    next.binAsymmetric = true;
+  }
+  if (header.NAXIS1 != null && Number.isFinite(Number(header.NAXIS1))) next.naxis1 = Number(header.NAXIS1);
+  if (header.NAXIS2 != null && Number.isFinite(Number(header.NAXIS2))) next.naxis2 = Number(header.NAXIS2);
+  if (header.XPIXSZ != null && Number.isFinite(Number(header.XPIXSZ))) next.pixelUm = Number(header.XPIXSZ);
+  if (header.OFFSET != null && Number.isFinite(Number(header.OFFSET))) next.offset = Number(header.OFFSET);
+  const headerCam = canonicalCameraId(header.INSTRUME);
+  if (headerCam) next.camera = headerCam;
+  else if (next.camera) next.camera = canonicalCameraId(next.camera);
 
   if (header['DATE-OBS']) {
     const { date, time } = parseDateObs(header['DATE-OBS']);
@@ -912,11 +1020,7 @@ function summarizeFrames(frames) {
   const filters = new Set();
   const nights = new Set();
   const targets = new Set();
-  let exposureSec = null;
-  let gain = null;
-  let tempC = null;
-  let bin = null;
-
+  const lights = [];
   for (const f of frames) {
     const t = f.type || 'unknown';
     byType[t] = (byType[t] || 0) + 1;
@@ -924,13 +1028,9 @@ function summarizeFrames(frames) {
     if (f.night) nights.add(f.night);
     else if (f.date) nights.add(f.date);
     if (f.target) targets.add(f.target);
-    if (f.type === 'light') {
-      if (exposureSec == null && f.exposureSec != null) exposureSec = f.exposureSec;
-      if (gain == null && f.gain != null) gain = f.gain;
-      if (tempC == null && f.tempC != null) tempC = f.tempC;
-      if (bin == null && f.bin != null) bin = f.bin;
-    }
+    if (f.type === 'light') lights.push(f);
   }
+  const profile = calibrationProfile(lights);
 
   return {
     byType,
@@ -938,10 +1038,18 @@ function summarizeFrames(frames) {
     nights: [...nights].sort(),
     targets: [...targets],
     lightCount: byType.light || 0,
-    exposureSec,
-    gain,
-    tempC,
-    bin,
+    exposureSec: profile.exposureSec,
+    gain: profile.gain,
+    tempC: profile.tempC,
+    bin: profile.bin,
+    camera: profile.camera,
+    naxis1: profile.naxis1,
+    naxis2: profile.naxis2,
+    offset: profile.offset,
+    pixelUm: profile.pixelUm,
+    binMixed: profile.binMixed,
+    cameraMixed: profile.cameraMixed,
+    geometryMixed: profile.geometryMixed,
   };
 }
 
@@ -1021,6 +1129,7 @@ function flatSetIdFromParts(parts) {
     parts.gainKey || '',
     parts.binKey || '',
     parts.caaKey || '',
+    parts.cameraKey || '',
   ].join('|');
 }
 
@@ -1081,7 +1190,8 @@ function groupFlatSets(flats = [], opts = {}) {
     const gainKey = roundFlatGain(f.gain);
     const binKey = roundFlatBin(f.bin);
     const caaKey = roundFlatCaa(f.rotatorDeg);
-    const id = flatSetIdFromParts({ filter, night, exposureKey, gainKey, binKey, caaKey });
+    const cameraKey = canonicalCameraId(f.camera) || '';
+    const id = flatSetIdFromParts({ filter, night, exposureKey, gainKey, binKey, caaKey, cameraKey });
     let row = map.get(id);
     if (!row) {
       row = {
@@ -1091,6 +1201,9 @@ function groupFlatSets(flats = [], opts = {}) {
         exposureSec: f.exposureSec != null && Number.isFinite(Number(f.exposureSec)) ? Number(f.exposureSec) : null,
         gain: f.gain != null && Number.isFinite(Number(f.gain)) ? Number(f.gain) : null,
         bin: f.bin != null && Number.isFinite(Number(f.bin)) ? Number(f.bin) : null,
+        camera: cameraKey || null,
+        naxis1: f.naxis1 != null && Number.isFinite(Number(f.naxis1)) ? Number(f.naxis1) : null,
+        naxis2: f.naxis2 != null && Number.isFinite(Number(f.naxis2)) ? Number(f.naxis2) : null,
         rotatorDeg: f.rotatorDeg != null && Number.isFinite(Number(f.rotatorDeg)) ? Math.round(Number(f.rotatorDeg)) : null,
         frames: [],
         frameKeys: [],
@@ -1111,6 +1224,8 @@ function groupFlatSets(flats = [], opts = {}) {
 }
 
 function rankFlatSets(a, b) {
+  if ((a.binOk !== false) !== (b.binOk !== false)) return a.binOk !== false ? -1 : 1;
+  if ((a.cameraOk !== false) !== (b.cameraOk !== false)) return a.cameraOk !== false ? -1 : 1;
   if (!!a.caaOk !== !!b.caaOk) return a.caaOk ? -1 : 1;
   if (!!a.biasCovered !== !!b.biasCovered) return a.biasCovered ? -1 : 1;
   const da = a.absDeltaMs == null ? Number.POSITIVE_INFINITY : a.absDeltaMs;
@@ -1128,7 +1243,10 @@ function pickDefaultFlatSetIds(sets = []) {
   }
   const defaults = {};
   for (const [filter, list] of byFilter) {
-    const ranked = list.slice().sort(rankFlatSets);
+    const ranked = list
+      .filter((s) => s.binOk !== false && s.cameraOk !== false)
+      .slice()
+      .sort(rankFlatSets);
     if (ranked[0]) defaults[filter] = ranked[0].id;
   }
   return defaults;
@@ -1149,6 +1267,13 @@ function buildScoredFlatSets(opts = {}) {
   const refCaa = opts.framerCaaDeg != null && Number.isFinite(Number(opts.framerCaaDeg))
     ? Number(opts.framerCaaDeg)
     : lightCaa;
+  const lightProfiles = new Map();
+  for (const L of lights) {
+    const f = normalizeFilter(L.filter) || 'Unknown';
+    if (!lightProfiles.has(f)) lightProfiles.set(f, []);
+    lightProfiles.get(f).push(L);
+  }
+  for (const [f, rows] of lightProfiles) lightProfiles.set(f, calibrationProfile(rows));
   const sets = groupFlatSets(opts.flats || [], { filters: opts.filters }).map((row) => {
     const delta = formatDeltaToLights(row.medianObsMs, lightMs);
     const caaOk = caaMatchesFramer(row.rotatorDeg, refCaa);
@@ -1157,6 +1282,13 @@ function buildScoredFlatSets(opts = {}) {
       : row.frames.some((f) => tempMatchesLight(f.tempC, lightTempC));
     const usable = collectUsableDarkflats(biases, row.frames, { lightTempC });
     const biasCovered = darkflatsCoverFlats(biases, row.frames, { lightTempC });
+    const prof = lightProfiles.get(row.filter) || null;
+    const binOk = !prof || prof.bin == null || row.bin == null || nearlyEqual(row.bin, prof.bin, 0.5);
+    const camWant = prof && canonicalCameraId(prof.camera);
+    const camGot = canonicalCameraId(row.camera);
+    const cameraOk = !camWant || !camGot || camWant === camGot;
+    const geoOk = !prof || prof.naxis1 == null || prof.naxis2 == null || row.naxis1 == null || row.naxis2 == null
+      || (Number(row.naxis1) === Number(prof.naxis1) && Number(row.naxis2) === Number(prof.naxis2));
     return {
       ...row,
       lightObsMs: lightMs,
@@ -1165,13 +1297,19 @@ function buildScoredFlatSets(opts = {}) {
       caaOk,
       caaLabel: formatCaaVsRef(row.rotatorDeg, refCaa),
       tempOk,
+      binOk: binOk && geoOk,
+      cameraOk,
       biasCovered,
       biasCount: (usable.matches || []).length,
       label: [
         row.filter,
+        row.bin != null ? `Bin${Math.round(Number(row.bin))}` : null,
+        camGot ? camGot.replace(/^asi/i, '').toUpperCase() : null,
         row.stampLabel,
         `${row.count} flat${row.count === 1 ? '' : 's'}`,
         delta.label,
+        (binOk && geoOk) ? null : 'bin/size ≠ lights',
+        cameraOk ? null : 'camera ≠ lights',
         biasCovered ? `bias ${usable.matches.length}` : (usable.matches.length ? `bias ${usable.matches.length} (incomplete)` : 'no matching bias'),
       ].filter(Boolean).join(' · '),
     };
@@ -1203,7 +1341,8 @@ function flatsMatchingFlatSetChoice(flats, scored, choiceByFilter = {}) {
     if (choice[s.filter] !== s.id) continue;
     for (const k of s.frameKeys || []) keep.add(k);
   }
-  if (!keep.size) return (flats || []).slice();
+  if (!sets.length) return (flats || []).slice();
+  if (!keep.size) return [];
   return (flats || []).filter((f) => keep.has(frameKeyOf(f)));
 }
 
@@ -1415,27 +1554,44 @@ async function scanSession(opts = {}) {
     );
   }
 
-  const byFilter = {};
+  const lightsByFilter = new Map();
   for (const L of filteredLights) {
     const f = normalizeFilter(L.filter) || 'Unknown';
-    if (!byFilter[f]) {
-      byFilter[f] = {
-        filter: f,
-        lights: 0,
-        flats: 0,
-        exposureSec: null,
-        gain: null,
-        tempC: null,
-        bin: null,
-        shootingTypes: new Set(),
-      };
+    if (!lightsByFilter.has(f)) lightsByFilter.set(f, []);
+    lightsByFilter.get(f).push(L);
+  }
+  const byFilter = {};
+  for (const [f, rows] of lightsByFilter) {
+    const prof = calibrationProfile(rows);
+    const types = new Set();
+    for (const L of rows) {
+      if (L.shootingType) types.add(L.shootingType);
     }
-    byFilter[f].lights += 1;
-    if (L.shootingType) byFilter[f].shootingTypes.add(L.shootingType);
-    if (byFilter[f].exposureSec == null && L.exposureSec != null) byFilter[f].exposureSec = L.exposureSec;
-    if (byFilter[f].gain == null && L.gain != null) byFilter[f].gain = L.gain;
-    if (byFilter[f].tempC == null && L.tempC != null) byFilter[f].tempC = L.tempC;
-    if (byFilter[f].bin == null && L.bin != null) byFilter[f].bin = L.bin;
+    byFilter[f] = {
+      filter: f,
+      lights: rows.length,
+      flats: 0,
+      exposureSec: prof.exposureSec,
+      gain: prof.gain,
+      tempC: prof.tempC,
+      bin: prof.bin,
+      camera: prof.camera,
+      naxis1: prof.naxis1,
+      naxis2: prof.naxis2,
+      offset: prof.offset,
+      pixelUm: prof.pixelUm,
+      binMixed: prof.binMixed,
+      cameraMixed: prof.cameraMixed,
+      geometryMixed: prof.geometryMixed,
+      shootingTypes: types,
+    };
+    const expect = expectedSensorMode(prof.camera, prof.bin);
+    if (expect && prof.naxis1 != null && prof.naxis2 != null
+      && (prof.naxis1 !== expect.naxis1 || prof.naxis2 !== expect.naxis2)) {
+      softWarnings.push(
+        `${f} Bin${prof.bin} is ${prof.naxis1}×${prof.naxis2}; ${expect.label} full frame for that bin is ${expect.naxis1}×${expect.naxis2}`
+      );
+    }
   }
   for (const F of flats) {
     const f = normalizeFilter(F.filter) || 'Unknown';
@@ -1452,6 +1608,14 @@ async function scanSession(opts = {}) {
         gain: null,
         tempC: null,
         bin: null,
+        camera: null,
+        naxis1: null,
+        naxis2: null,
+        offset: null,
+        pixelUm: null,
+        binMixed: false,
+        cameraMixed: false,
+        geometryMixed: false,
         shootingTypes: new Set(),
       };
     }
@@ -1469,6 +1633,14 @@ async function scanSession(opts = {}) {
       gain: row.gain,
       tempC: row.tempC,
       bin: row.bin,
+      camera: row.camera || null,
+      naxis1: row.naxis1 != null ? row.naxis1 : null,
+      naxis2: row.naxis2 != null ? row.naxis2 : null,
+      offset: row.offset != null ? row.offset : null,
+      pixelUm: row.pixelUm != null ? row.pixelUm : null,
+      binMixed: !!row.binMixed,
+      cameraMixed: !!row.cameraMixed,
+      geometryMixed: !!row.geometryMixed,
       shootingTypes: types,
       shootingType: types.length ? types.join(' · ') : '—',
       matchesShoot: shootFilter ? normalizeFilter(row.filter) === shootFilter : null,
@@ -1580,23 +1752,26 @@ function formatLibraryTempLabel(tempC) {
   return `${t}c`;
 }
 
-function darkLibrarySetFolderName({ exposureSec, bin, tempC }) {
+function darkLibrarySetFolderName({ exposureSec, bin, tempC, camera }) {
   const exp = formatLibraryExpLabel(exposureSec);
   const b = bin != null && Number.isFinite(Number(bin)) ? String(Math.round(Number(bin))) : '1';
   const t = formatLibraryTempLabel(tempC);
-  return `Darks_${exp}_Bin${b}_${t}`;
+  const cam = canonicalCameraId(camera);
+  const camPart = cam ? `_${cam}` : '';
+  return `Darks_${exp}_Bin${b}${camPart}_${t}`;
 }
 
-/** Parse Darks_180s_Bin2_-10c / legacy Bias_* set folder names. */
+/** Parse Darks_180s_Bin2_-10c and Darks_180s_Bin1_asi294mm_-10c. */
 function parseLibrarySetFolderName(name) {
   const base = path.basename(String(name || ''));
-  const m = /^(Darks?|Bias(?:es)?)_([0-9]+(?:\.[0-9]+)?)s_Bin(\d+)_(-?\d+)c$/i.exec(base);
+  const m = /^(Darks?|Bias(?:es)?)_([0-9]+(?:\.[0-9]+)?)s_Bin(\d+)(?:_([a-z][a-z0-9]*))?_(-?\d+)c$/i.exec(base);
   if (!m) return null;
   return {
     kind: /^dark/i.test(m[1]) ? 'dark' : 'bias',
     exposureSec: Number(m[2]),
     bin: Number(m[3]),
-    tempC: Number(m[4]),
+    camera: m[4] ? canonicalCameraId(m[4]) : null,
+    tempC: Number(m[5]),
   };
 }
 
@@ -1608,6 +1783,7 @@ function applyLibrarySetFolderHints(set) {
   if (set.exposureSec == null) set.exposureSec = hint.exposureSec;
   if (set.bin == null) set.bin = hint.bin;
   if (set.tempC == null) set.tempC = hint.tempC;
+  if (set.camera == null && hint.camera) set.camera = hint.camera;
   return set;
 }
 
@@ -1678,6 +1854,11 @@ async function indexCalibrationLibrary(libraryPath, frameType = 'dark') {
       gain: parsed.gain,
       tempC: parsed.tempC,
       bin: parsed.bin,
+      camera: canonicalCameraId(parsed.camera),
+      naxis1: parsed.naxis1 != null ? parsed.naxis1 : null,
+      naxis2: parsed.naxis2 != null ? parsed.naxis2 : null,
+      offset: parsed.offset != null ? parsed.offset : null,
+      pixelUm: parsed.pixelUm != null ? parsed.pixelUm : null,
       filter: parsed.filter || null,
       date: parsed.date,
       acquiredAt,
@@ -1742,6 +1923,11 @@ async function indexCalibrationLibrary(libraryPath, frameType = 'dark') {
     set.gain = modeOf('gain');
     set.tempC = modeOf('tempC');
     set.bin = modeOf('bin');
+    set.camera = modeOf('camera');
+    set.naxis1 = modeOf('naxis1');
+    set.naxis2 = modeOf('naxis2');
+    set.offset = modeOf('offset');
+    set.pixelUm = modeOf('pixelUm');
     set.ageDays = modeOf('ageDays');
     set.expired = files.some((f) => f.expired);
     applyLibrarySetFolderHints(set);
@@ -1751,6 +1937,10 @@ async function indexCalibrationLibrary(libraryPath, frameType = 'dark') {
       if (f.bin == null && set.bin != null) f.bin = set.bin;
       if (f.tempC == null && set.tempC != null) f.tempC = set.tempC;
       if (f.gain == null && set.gain != null) f.gain = set.gain;
+      if (f.camera == null && set.camera != null) f.camera = set.camera;
+      if (f.naxis1 == null && set.naxis1 != null) f.naxis1 = set.naxis1;
+      if (f.naxis2 == null && set.naxis2 != null) f.naxis2 = set.naxis2;
+      if (f.offset == null && set.offset != null) f.offset = set.offset;
     }
     sets.push(set);
   }
@@ -1773,10 +1963,13 @@ async function indexDarkLibrary(libraryPath) {
 }
 
 /**
- * Match library frames by exposure + gain + temp (± bin).
+ * Match library frames by exposure + gain + temp + bin.
+ * Camera, frame size, and offset reject only when both sides have a value.
  * Filter is ignored for darks.
  * When opts.strict is true, required params on the target must also be present
  * on the candidate (null on the candidate is a mismatch) — used for darkflats↔flats.
+ * Bin is always required once the target names one: a dark with no bin cannot
+ * calibrate a known-bin light (Bin1 and Bin2 are different sensor grids).
  */
 function matchCalibrationLibrary(opts = {}) {
   const index = opts.index || [];
@@ -1834,14 +2027,32 @@ function matchCalibrationLibrary(opts = {}) {
     }
     if (bin != null) {
       if (d.bin == null) {
-        if (strict) {
-          rejected.push({ ...d, reason: 'bin missing' });
-          continue;
-        }
+        rejected.push({ ...d, reason: 'bin missing' });
+        continue;
       } else if (!nearlyEqual(d.bin, bin, 0.5)) {
         rejected.push({ ...d, reason: 'bin mismatch' });
         continue;
       }
+    }
+    if (d.binAsymmetric) {
+      rejected.push({ ...d, reason: 'asymmetric bin' });
+      continue;
+    }
+    const wantCam = canonicalCameraId(opts.camera);
+    const gotCam = canonicalCameraId(d.camera);
+    if (wantCam && gotCam && wantCam !== gotCam) {
+      rejected.push({ ...d, reason: 'camera mismatch' });
+      continue;
+    }
+    if (opts.naxis1 != null && opts.naxis2 != null && d.naxis1 != null && d.naxis2 != null) {
+      if (Number(d.naxis1) !== Number(opts.naxis1) || Number(d.naxis2) !== Number(opts.naxis2)) {
+        rejected.push({ ...d, reason: 'geometry mismatch' });
+        continue;
+      }
+    }
+    if (opts.offset != null && d.offset != null && !nearlyEqual(d.offset, opts.offset, 0.5)) {
+      rejected.push({ ...d, reason: 'offset mismatch' });
+      continue;
     }
     if (filter) {
       if (d.filter == null || String(d.filter).trim() === '') {
@@ -1882,7 +2093,8 @@ function matchCalibrationLibrary(opts = {}) {
 }
 
 /**
- * Match master darks by exposure + gain + temp only.
+ * Match master darks by exposure + gain + temp + bin.
+ * Camera, frame size, and offset are checked when both sides have them.
  * Filter is intentionally ignored — darks apply to every filter channel.
  * Prefers library master.fit when present.
  */
@@ -1909,7 +2121,9 @@ function uniqueFlatParamSets(flats = []) {
   for (const F of flats) {
     if (!F) continue;
     const filter = F.filter != null ? normalizeFilter(F.filter) : null;
-    const key = [filter, F.exposureSec, F.gain, F.tempC, F.bin].map((v) => (v == null ? '' : String(v))).join('|');
+    const camera = canonicalCameraId(F.camera);
+    const key = [filter, F.exposureSec, F.gain, F.tempC, F.bin, camera, F.naxis1, F.naxis2]
+      .map((v) => (v == null ? '' : String(v))).join('|');
     if (!map.has(key)) {
       map.set(key, {
         filter,
@@ -1917,6 +2131,10 @@ function uniqueFlatParamSets(flats = []) {
         gain: F.gain != null ? Number(F.gain) : null,
         tempC: F.tempC != null ? Number(F.tempC) : null,
         bin: F.bin != null ? Number(F.bin) : null,
+        camera,
+        naxis1: F.naxis1 != null ? Number(F.naxis1) : null,
+        naxis2: F.naxis2 != null ? Number(F.naxis2) : null,
+        offset: F.offset != null ? Number(F.offset) : null,
       });
     }
   }
@@ -1932,6 +2150,11 @@ function flatsMatchingParamSet(flats, params) {
       && !nearlyEqual(F.exposureSec, params.exposureSec, 0.05)) return false;
     if (params.gain != null && F.gain != null && !nearlyEqual(F.gain, params.gain, 0.5)) return false;
     if (params.bin != null && F.bin != null && !nearlyEqual(F.bin, params.bin, 0.5)) return false;
+    const wantCam = canonicalCameraId(params.camera);
+    const gotCam = canonicalCameraId(F.camera);
+    if (wantCam && gotCam && wantCam !== gotCam) return false;
+    if (params.naxis1 != null && F.naxis1 != null && Number(F.naxis1) !== Number(params.naxis1)) return false;
+    if (params.naxis2 != null && F.naxis2 != null && Number(F.naxis2) !== Number(params.naxis2)) return false;
     return true;
   });
 }
@@ -1950,6 +2173,10 @@ function collectUsableDarkflats(biases = [], flats = [], opts = {}) {
     exposureSec: p.exposureSec,
     gain: p.gain,
     bin: p.bin,
+    camera: p.camera,
+    naxis1: p.naxis1,
+    naxis2: p.naxis2,
+    offset: p.offset,
     tempC: lightTempC != null ? lightTempC : p.tempC,
   }));
   const matchKeys = new Set();
@@ -2171,6 +2398,7 @@ async function scanCalibrationLibraryImport(opts = {}) {
           exposureSec: parsed.exposureSec,
           bin: parsed.bin,
           tempC: parsed.tempC,
+          camera: parsed.camera,
         });
         const filterSub = shortFilterSubdir(parsed.filter);
         const key = `dark|${setName}|${filterSub || ''}`;
@@ -2185,6 +2413,7 @@ async function scanCalibrationLibraryImport(opts = {}) {
             gain: parsed.gain,
             tempC: parsed.tempC,
             bin: parsed.bin,
+            camera: canonicalCameraId(parsed.camera),
             sourceDirs: new Set(),
             sampleName: path.basename(fp),
           };
@@ -2378,6 +2607,7 @@ async function importCalibrationSubsToLibrary(opts = {}) {
           exposureSec: parsed.exposureSec,
           bin: parsed.bin,
           tempC: parsed.tempC,
+          camera: parsed.camera,
         });
         const filterSub = shortFilterSubdir(parsed.filter);
         const id = `dark:${setName}:${filterSub || ''}`;
@@ -2933,15 +3163,33 @@ async function stageSirilTree(opts = {}) {
   ])];
 
   const lightParamsByFilter = {};
+  const lightsGrouped = new Map();
   for (const L of lights) {
     const f = normalizeFilter(L.filter) || 'Unknown';
-    if (!lightParamsByFilter[f]) {
-      lightParamsByFilter[f] = {
-        exposureSec: L.exposureSec,
-        gain: L.gain,
-        tempC: L.tempC != null ? L.tempC : lightTempC,
-      };
-    }
+    if (!lightsGrouped.has(f)) lightsGrouped.set(f, []);
+    lightsGrouped.get(f).push(L);
+  }
+  const mixedBits = [];
+  for (const [f, rows] of lightsGrouped) {
+    const prof = calibrationProfile(rows);
+    lightParamsByFilter[f] = {
+      ...prof,
+      tempC: prof.tempC != null ? prof.tempC : lightTempC,
+    };
+    if (prof.binMixed) mixedBits.push(`${f} mixes Bin ${prof.bins.join(' and ')}`);
+    if (prof.cameraMixed) mixedBits.push(`${f} mixes cameras ${prof.cameras.join(', ')}`);
+    if (prof.geometryMixed) mixedBits.push(`${f} mixes frame sizes`);
+  }
+  if (mixedBits.length) {
+    return {
+      ok: false,
+      code: 'MIXED_CALIBRATION',
+      error: `Can't stage one calibration for mixed sensor settings: ${mixedBits.join('; ')}. Split the night by bin and camera.`,
+      softWarnings,
+      scan,
+      lightTempC,
+      lightCaaDeg,
+    };
   }
 
   // Darkflats: flat filter/exp/gain/bin + light temp. Overrides can force-include / reject.
@@ -2985,13 +3233,17 @@ async function stageSirilTree(opts = {}) {
     gain: d.gain,
     tempC: d.tempC,
     bin: d.bin,
+    camera: d.camera || null,
+    naxis1: d.naxis1 != null ? d.naxis1 : null,
+    naxis2: d.naxis2 != null ? d.naxis2 : null,
+    offset: d.offset != null ? d.offset : null,
     date: d.date,
     acquiredAt: d.date
       ? `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`
       : null,
   }));
 
-  // Only exp/gain/temp-matched session darks are usable — plus explicit includes.
+  // Session darks must share the light bin (and camera / size / offset when both sides have them).
   const usableSessionDarks = [];
   const seenDark = new Set();
   for (const filter of (shootFilter ? [shootFilter] : Object.keys(lightParamsByFilter))) {
@@ -3001,6 +3253,11 @@ async function stageSirilTree(opts = {}) {
       exposureSec: params.exposureSec,
       gain: params.gain,
       tempC: params.tempC != null ? params.tempC : lightTempC,
+      bin: params.bin,
+      camera: params.camera,
+      naxis1: params.naxis1,
+      naxis2: params.naxis2,
+      offset: params.offset,
     }).matches;
     for (const d of matched) {
       if (isRejected('darks', d)) continue;
@@ -3145,6 +3402,11 @@ async function stageSirilTree(opts = {}) {
         exposureSec: params.exposureSec,
         gain: params.gain,
         tempC: params.tempC,
+        bin: params.bin,
+        camera: params.camera,
+        naxis1: params.naxis1,
+        naxis2: params.naxis2,
+        offset: params.offset,
       }).matches;
       for (const d of matched) {
         const name = path.basename(d.filePath || d.fileName || '');
@@ -3739,6 +4001,7 @@ module.exports = {
   CAA_MATCH_TOL_DEG,
   FRAMER_FRAME_CAA_TOL_DEG,
   parseAsiairFilename,
+  parseFitFile,
   parseExposureToSeconds,
   normalizeFilter,
   normalizeNight,
@@ -3777,6 +4040,10 @@ module.exports = {
   asiairNightFolderCandidates,
   indexDarkLibrary,
   indexCalibrationLibrary,
+  canonicalCameraId,
+  expectedSensorMode,
+  calibrationProfile,
+  SENSOR_MODES,
   matchMasterDarks,
   matchSessionDarkflats,
   matchCalibrationLibrary,
@@ -3801,6 +4068,7 @@ module.exports = {
   findAsiairFrameDirs,
   folderSizeBytes,
   darkLibrarySetFolderName,
+  parseLibrarySetFolderName,
   formatLibraryTempLabel,
   parseLibrarySetFolderName,
   isLibraryMasterFitName,

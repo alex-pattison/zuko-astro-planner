@@ -26,7 +26,15 @@ Scratch items still land here until promoted:
 
 ## Log
 
-### 2026-09-21 — build 41 — Beta data root → H:\Astrophotography
+### 2026-10-20 — Dev (still build 41) — Pacman project shell
+- **Seen:** Alex is processing the 18 Oct Bin1 Pacman night in Dev, from import onward.
+- **Fix / next:** Added project “Pacman Nebula” with an empty `F:\Astrophotography Dev\zuko_dev\Projects\NGC281_261018`. ASIAIR source is the Pacman dump. No shoots imported. Reducer + Bin1, rotation 283°, Ha 0.85 h / OIII 1.15 h / SII 1.25 h planned from the 180 s counts. Restart Dev so the open window does not save over it.
+
+### 2026-10-19 — Dev (still build 41) — Bin and camera on calibration
+- **Seen:** Pacman (18 Oct) is the first Bin1 night: ASI294MM Pro 8288×5644 @ 2.315 µm, gain 120, offset 30, −10°C, 180s. The Dev Bin2 dark library is 4144×2822 @ 4.63 µm. Same gain, temp, and exposure, so dark matching offered the wrong grid.
+- **Fix / next:** Darks, flats, and dark flats match bin, and camera, frame size, and offset when both sides have them. A mixed bin or camera in one filter refuses staging. Import, file list, and pipeline night detail show Bin. New dark-library folders include the camera id; existing `Darks_180s_Bin2_-10c` is left in place. `binning_update` stays off because ASIAIR already writes effective µm.
+- **QA:** `npm run test:unit` — 18/18. Pacman scan: session Bin1 darks match; the Bin2 library does not. Dev dashboard restored after the suite.
+- **Beta:** not shipped. Restart Dev to pick this up.
 - **Seen:** After moving imaging data off `H:\Photography\Astrophotography`, Beta still pointed at the old Dashboard (empty projects, missing `.env` / Astrospheric cache). Live weather + projects were under `H:\Astrophotography\Dashboard` / `Zuko`.
 - **Fix / next:** Packaged Beta data/env root and Dark Library defaults use `H:\Astrophotography\…`. Remapped 504 path strings in the live Beta JSON; archived leftover empty Photography Dashboard; left a move note at the old root.
 - **QA:** Path resolve + weather files + project dirs exist; unit smoke on session logs / multinight with new Dark Library path.

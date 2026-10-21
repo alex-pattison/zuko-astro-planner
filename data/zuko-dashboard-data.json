@@ -169,7 +169,7 @@
       },
       "framerMode": "reducer",
       "framerRotation": 211,
-      "projectDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326",
+      "projectDir": "H:\\Astrophotography\\Zuko\\NGC6960_Q326",
       "processStatus": "processing",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
@@ -389,7 +389,7 @@
           "location": "Home",
           "bortle": "9",
           "targetHrs": 2.5,
-          "loggedHrs": 1.5,
+          "loggedHrs": 1,
           "stackMeta": null,
           "cullMeta": null,
           "aggregateMeta": null,
@@ -448,154 +448,9 @@
           "hours": 1.5,
           "complete": true,
           "creditedHours": 1.5,
-          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
-          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly",
-          "ingestMeta": {
-            "nightDate": "20260912",
-            "shootFolder": "260912_Ha_B7_Tenafly",
-            "filters": [
-              "Ha"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260912",
-              "biasesPreexisting": 0,
-              "darksPreexisting": 0,
-              "biasesAfter": 30,
-              "darksAfter": 1
-            },
-            "filesStaged": 91,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 30,
-              "flat": 30,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 30,
-            "frameCount": 30,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-09-22T01:26:03.124Z",
-            "softWarnings": [],
-            "lightCaaDeg": 101,
-            "sessionLog": {
-              "nightDate": "20260912",
-              "shootFilter": "Ha",
-              "planName": null,
-              "targets": [
-                "IC 1396"
-              ],
-              "plateAngleDeg": null,
-              "plateAngleOk": null,
-              "plateAngleDiffDeg": null,
-              "plannedLights": null,
-              "loggedExposures": null,
-              "ditherCount": 0,
-              "autofocus": [],
-              "filterFails": [],
-              "flags": {
-                "aborted": false,
-                "paused": false,
-                "filterFail": false,
-                "afFail": false,
-                "finishedClean": true,
-                "shutdown": false
-              },
-              "guide": null,
-              "autorunFiles": [
-                "Autorun_Log_2026-09-12_101859.txt"
-              ],
-              "phd2Files": [],
-              "timeline": [
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "filter",
-                  "detail": "L→SII"
-                },
-                {
-                  "at": "2026-09-12T10:19:38",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:20:15",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:20:52",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:29:19",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:29:55",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:30:32",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:32:14",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:32:50",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:33:26",
-                  "kind": "end",
-                  "detail": "finish"
-                }
-              ],
-              "parsedAt": "2026-09-22T01:26:03.120Z",
-              "copiedTo": [
-                "F:\\zuko_dev\\Projects\\IC1396_Q326\\Ha\\260912_Ha_B7_Tenafly\\session-logs"
-              ],
-              "filesCopied": 3
-            }
-          },
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -604,154 +459,9 @@
           "hours": 1.5,
           "complete": true,
           "creditedHours": 1.5,
-          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
-          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly",
-          "ingestMeta": {
-            "nightDate": "20260912",
-            "shootFolder": "260912_SII_B7_Tenafly",
-            "filters": [
-              "SII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260912",
-              "biasesPreexisting": 30,
-              "darksPreexisting": 0,
-              "biasesAfter": 60,
-              "darksAfter": 1
-            },
-            "filesStaged": 91,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 30,
-              "flat": 30,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 30,
-            "frameCount": 30,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-09-22T01:26:07.182Z",
-            "softWarnings": [],
-            "lightCaaDeg": 281,
-            "sessionLog": {
-              "nightDate": "20260912",
-              "shootFilter": "SII",
-              "planName": null,
-              "targets": [
-                "IC 1396"
-              ],
-              "plateAngleDeg": null,
-              "plateAngleOk": null,
-              "plateAngleDiffDeg": null,
-              "plannedLights": null,
-              "loggedExposures": null,
-              "ditherCount": 0,
-              "autofocus": [],
-              "filterFails": [],
-              "flags": {
-                "aborted": false,
-                "paused": false,
-                "filterFail": false,
-                "afFail": false,
-                "finishedClean": true,
-                "shutdown": false
-              },
-              "guide": null,
-              "autorunFiles": [
-                "Autorun_Log_2026-09-12_101859.txt"
-              ],
-              "phd2Files": [],
-              "timeline": [
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "filter",
-                  "detail": "L→SII"
-                },
-                {
-                  "at": "2026-09-12T10:19:38",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:20:15",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:20:52",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:29:19",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:29:55",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:30:32",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:32:14",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:32:50",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:33:26",
-                  "kind": "end",
-                  "detail": "finish"
-                }
-              ],
-              "parsedAt": "2026-09-22T01:26:07.174Z",
-              "copiedTo": [
-                "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260912_SII_B7_Tenafly\\session-logs"
-              ],
-              "filesCopied": 3
-            }
-          },
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -760,154 +470,9 @@
           "hours": 1.5,
           "complete": true,
           "creditedHours": 1.5,
-          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
-          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly",
-          "ingestMeta": {
-            "nightDate": "20260912",
-            "shootFolder": "260912_OIII_B7_Tenafly",
-            "filters": [
-              "OIII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260912",
-              "biasesPreexisting": 60,
-              "darksPreexisting": 0,
-              "biasesAfter": 90,
-              "darksAfter": 1
-            },
-            "filesStaged": 91,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 30,
-              "flat": 30,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 30,
-            "frameCount": 30,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-09-22T01:26:11.179Z",
-            "softWarnings": [],
-            "lightCaaDeg": 101,
-            "sessionLog": {
-              "nightDate": "20260912",
-              "shootFilter": "OIII",
-              "planName": null,
-              "targets": [
-                "IC 1396"
-              ],
-              "plateAngleDeg": null,
-              "plateAngleOk": null,
-              "plateAngleDiffDeg": null,
-              "plannedLights": null,
-              "loggedExposures": null,
-              "ditherCount": 0,
-              "autofocus": [],
-              "filterFails": [],
-              "flags": {
-                "aborted": false,
-                "paused": false,
-                "filterFail": false,
-                "afFail": false,
-                "finishedClean": true,
-                "shutdown": false
-              },
-              "guide": null,
-              "autorunFiles": [
-                "Autorun_Log_2026-09-12_101859.txt"
-              ],
-              "phd2Files": [],
-              "timeline": [
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:18:59",
-                  "kind": "filter",
-                  "detail": "L→SII"
-                },
-                {
-                  "at": "2026-09-12T10:19:38",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:20:15",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:20:52",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:28:37",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:29:19",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:29:55",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:30:32",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-12T10:31:33",
-                  "kind": "filter",
-                  "detail": "OIII→SII"
-                },
-                {
-                  "at": "2026-09-12T10:32:14",
-                  "kind": "filter",
-                  "detail": "SII→Ha"
-                },
-                {
-                  "at": "2026-09-12T10:32:50",
-                  "kind": "filter",
-                  "detail": "Ha→OIII"
-                },
-                {
-                  "at": "2026-09-12T10:33:26",
-                  "kind": "end",
-                  "detail": "finish"
-                }
-              ],
-              "parsedAt": "2026-09-22T01:26:11.171Z",
-              "copiedTo": [
-                "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260912_OIII_B7_Tenafly\\session-logs"
-              ],
-              "filesCopied": 3
-            }
-          },
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -915,184 +480,10 @@
           "filterIndex": 1,
           "hours": 1,
           "complete": true,
-          "creditedHours": 1.5,
-          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
-          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260915",
-            "shootFolder": "260915_SII_B9_Home",
-            "filters": [
-              "SII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260915",
-              "biasesPreexisting": 0,
-              "darksPreexisting": 0,
-              "biasesAfter": 30,
-              "darksAfter": 1
-            },
-            "filesStaged": 121,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 30,
-              "flat": 60,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 30,
-            "frameCount": 30,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -9.39999961853027,
-            "stagedAt": "2026-09-22T01:26:20.139Z",
-            "softWarnings": [],
-            "lightCaaDeg": 271,
-            "sessionLog": {
-              "nightDate": "20260915",
-              "shootFilter": "SII",
-              "planName": "Veilq3v2",
-              "targets": [
-                "IC 1396"
-              ],
-              "plateAngleDeg": 271.643,
-              "plateAngleOk": true,
-              "plateAngleDiffDeg": 9.357000000000028,
-              "plannedLights": 50,
-              "loggedExposures": 50,
-              "ditherCount": 32,
-              "autofocus": [
-                {
-                  "ok": true,
-                  "eafPos": 7599,
-                  "filter": "SII",
-                  "at": "2026-09-15T19:58:42"
-                },
-                {
-                  "ok": true,
-                  "eafPos": null,
-                  "filter": "SII",
-                  "at": "2026-09-15T19:58:42"
-                },
-                {
-                  "ok": true,
-                  "eafPos": 7599,
-                  "filter": "SII",
-                  "at": "2026-09-15T19:58:42"
-                },
-                {
-                  "ok": true,
-                  "eafPos": null,
-                  "filter": "SII",
-                  "at": "2026-09-15T19:58:42"
-                }
-              ],
-              "filterFails": [],
-              "flags": {
-                "aborted": false,
-                "paused": false,
-                "filterFail": false,
-                "afFail": false,
-                "finishedClean": true,
-                "shutdown": true
-              },
-              "guide": {
-                "quality": "good",
-                "rmsTotalArcsec": 0.53,
-                "rmsRaArcsec": 0.41,
-                "rmsDecArcsec": 0.35,
-                "frameCount": 17929,
-                "settleFail": 0,
-                "settleOk": 21,
-                "starLost": 0,
-                "fileName": "PHD2_GuideLog_2026-09-15_195124.txt"
-              },
-              "autorunFiles": [
-                "Autorun_Log_2026-09-15_172247.txt",
-                "Autorun_Log_2026-09-15_174453.txt",
-                "Autorun_Log_2026-09-15_195632.txt"
-              ],
-              "phd2Files": [
-                "PHD2_GuideLog_2026-09-15_195124.txt"
-              ],
-              "timeline": [
-                {
-                  "at": "2026-09-15T19:56:32",
-                  "kind": "plan",
-                  "detail": "Veilq3v2"
-                },
-                {
-                  "at": "2026-09-15T19:56:33",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-15T19:56:46",
-                  "kind": "solve",
-                  "detail": "271.643°"
-                },
-                {
-                  "at": "2026-09-15T19:56:57",
-                  "kind": "shoot",
-                  "detail": "30×light 180s"
-                },
-                {
-                  "at": "2026-09-15T19:56:57",
-                  "kind": "filter",
-                  "detail": "L→SII"
-                },
-                {
-                  "at": "2026-09-15T19:58:42",
-                  "kind": "af-ok",
-                  "detail": "7599"
-                },
-                {
-                  "at": "2026-09-15T19:58:42",
-                  "kind": "af-ok",
-                  "detail": "ok"
-                },
-                {
-                  "at": "2026-09-15T21:30:47",
-                  "kind": "shoot",
-                  "detail": "20×light 180s"
-                },
-                {
-                  "at": "2026-09-15T21:30:47",
-                  "kind": "filter",
-                  "detail": "SII→OIII"
-                },
-                {
-                  "at": "2026-09-15T21:33:12",
-                  "kind": "af-ok",
-                  "detail": "7500"
-                },
-                {
-                  "at": "2026-09-15T21:33:12",
-                  "kind": "af-ok",
-                  "detail": "ok"
-                },
-                {
-                  "at": "2026-09-15T22:34:45",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-15T22:34:45",
-                  "kind": "plan-end",
-                  "detail": "Veilq3v2"
-                }
-              ],
-              "parsedAt": "2026-09-22T01:26:20.113Z",
-              "copiedTo": [
-                "F:\\zuko_dev\\Projects\\IC1396_Q326\\SII\\260915_SII_B9_Home\\session-logs"
-              ],
-              "filesCopied": 9
-            }
-          },
+          "creditedHours": 1,
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         },
         {
@@ -1101,183 +492,9 @@
           "hours": 1,
           "complete": true,
           "creditedHours": 1,
-          "sourcePath": "J:/Astrophotography/ASIAIRDUMP_260915",
-          "ingestPath": "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home",
-          "ingestMeta": {
-            "nightDate": "20260915",
-            "shootFolder": "260915_OIII_B9_Home",
-            "filters": [
-              "OIII"
-            ],
-            "destRoots": [
-              "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home"
-            ],
-            "darkLibrary": "F:\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
-            "calibReuse": {
-              "nightDate": "20260915",
-              "biasesPreexisting": 30,
-              "darksPreexisting": 0,
-              "biasesAfter": 60,
-              "darksAfter": 1
-            },
-            "filesStaged": 111,
-            "filesSkipped": 0,
-            "biasesMoved": 30,
-            "byType": {
-              "light": 20,
-              "flat": 60,
-              "bias": 30,
-              "dark": 1
-            },
-            "lightCount": 20,
-            "frameCount": 20,
-            "exposureSec": 180,
-            "gain": 120,
-            "tempC": -10,
-            "stagedAt": "2026-09-22T01:26:25.051Z",
-            "softWarnings": [],
-            "lightCaaDeg": 271,
-            "sessionLog": {
-              "nightDate": "20260915",
-              "shootFilter": "OIII",
-              "planName": "Veilq3v2",
-              "targets": [
-                "IC 1396"
-              ],
-              "plateAngleDeg": 271.643,
-              "plateAngleOk": true,
-              "plateAngleDiffDeg": 9.357000000000028,
-              "plannedLights": null,
-              "loggedExposures": null,
-              "ditherCount": 32,
-              "autofocus": [
-                {
-                  "ok": true,
-                  "eafPos": 7500,
-                  "filter": "OIII",
-                  "at": "2026-09-15T21:33:12"
-                },
-                {
-                  "ok": true,
-                  "eafPos": null,
-                  "filter": "OIII",
-                  "at": "2026-09-15T21:33:12"
-                },
-                {
-                  "ok": true,
-                  "eafPos": 7500,
-                  "filter": "OIII",
-                  "at": "2026-09-15T21:33:12"
-                },
-                {
-                  "ok": true,
-                  "eafPos": null,
-                  "filter": "OIII",
-                  "at": "2026-09-15T21:33:12"
-                }
-              ],
-              "filterFails": [],
-              "flags": {
-                "aborted": false,
-                "paused": false,
-                "filterFail": false,
-                "afFail": false,
-                "finishedClean": true,
-                "shutdown": true
-              },
-              "guide": {
-                "quality": "good",
-                "rmsTotalArcsec": 0.53,
-                "rmsRaArcsec": 0.41,
-                "rmsDecArcsec": 0.35,
-                "frameCount": 17929,
-                "settleFail": 0,
-                "settleOk": 21,
-                "starLost": 0,
-                "fileName": "PHD2_GuideLog_2026-09-15_195124.txt"
-              },
-              "autorunFiles": [
-                "Autorun_Log_2026-09-15_172247.txt",
-                "Autorun_Log_2026-09-15_174453.txt",
-                "Autorun_Log_2026-09-15_195632.txt"
-              ],
-              "phd2Files": [
-                "PHD2_GuideLog_2026-09-15_195124.txt"
-              ],
-              "timeline": [
-                {
-                  "at": "2026-09-15T19:56:32",
-                  "kind": "plan",
-                  "detail": "Veilq3v2"
-                },
-                {
-                  "at": "2026-09-15T19:56:33",
-                  "kind": "target",
-                  "detail": "IC 1396"
-                },
-                {
-                  "at": "2026-09-15T19:56:46",
-                  "kind": "solve",
-                  "detail": "271.643°"
-                },
-                {
-                  "at": "2026-09-15T19:56:57",
-                  "kind": "shoot",
-                  "detail": "30×light 180s"
-                },
-                {
-                  "at": "2026-09-15T19:56:57",
-                  "kind": "filter",
-                  "detail": "L→SII"
-                },
-                {
-                  "at": "2026-09-15T19:58:42",
-                  "kind": "af-ok",
-                  "detail": "7599"
-                },
-                {
-                  "at": "2026-09-15T19:58:42",
-                  "kind": "af-ok",
-                  "detail": "ok"
-                },
-                {
-                  "at": "2026-09-15T21:30:47",
-                  "kind": "shoot",
-                  "detail": "20×light 180s"
-                },
-                {
-                  "at": "2026-09-15T21:30:47",
-                  "kind": "filter",
-                  "detail": "SII→OIII"
-                },
-                {
-                  "at": "2026-09-15T21:33:12",
-                  "kind": "af-ok",
-                  "detail": "7500"
-                },
-                {
-                  "at": "2026-09-15T21:33:12",
-                  "kind": "af-ok",
-                  "detail": "ok"
-                },
-                {
-                  "at": "2026-09-15T22:34:45",
-                  "kind": "end",
-                  "detail": "finish"
-                },
-                {
-                  "at": "2026-09-15T22:34:45",
-                  "kind": "plan-end",
-                  "detail": "Veilq3v2"
-                }
-              ],
-              "parsedAt": "2026-09-22T01:26:25.045Z",
-              "copiedTo": [
-                "F:\\zuko_dev\\Projects\\IC1396_Q326\\OIII\\260915_OIII_B9_Home\\session-logs"
-              ],
-              "filesCopied": 9
-            }
-          },
+          "sourcePath": null,
+          "ingestPath": null,
+          "ingestMeta": null,
           "preprocessMeta": null
         }
       ],
@@ -1292,15 +509,830 @@
       "projectDir": "F:\\zuko_dev\\Projects\\IC1396_Q326",
       "processStatus": "",
       "ignoredAsiairFolders": [],
-      "asiairBoundFolders": [
-        "IC 1396"
-      ],
+      "asiairBoundFolders": [],
       "asiairIgnoredSources": [],
       "startDate": "2026-09-12",
       "endDate": "",
       "startDateManual": false,
       "endDateManual": false,
       "imagingConfig": "reducer-bin2"
+    },
+    {
+      "name": "Pacman Nebula",
+      "target": "NGC 281 (Pacman Nebula)",
+      "frameMode": "Reducer + Bin1 · 280mm f/3.9",
+      "imagingConfig": "reducer-bin1",
+      "centerCoords": "RA 0h54m25.0s  Dec +56°46'13.0\"",
+      "rotation": "283°",
+      "status": "processing",
+      "notes": "First Bin1 night, 18 Oct 2026. Dither 10 px every 3 frames. Reducer assumed — change Imaging configuration if this was native. Import from the Pacman dump; the session Bin1 darks match, the Bin2 dark library does not.",
+      "filterTargets": [
+        {
+          "filter": "Ha",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 0.85,
+          "loggedHrs": 0.85,
+          "stackMeta": {
+            "stackedAt": "2026-10-20T23:35:21.817Z",
+            "resultPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working\\result_Ha.fit",
+            "shootCount": 1,
+            "ppLightCount": 17,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\_stack\\scripts\\stack.log",
+            "stackDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\_stack",
+            "workingDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate",
+            "reregister": false,
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          },
+          "cullMeta": {
+            "completedAt": "2026-10-20T23:20:49.064Z",
+            "scannedAt": "2026-10-20T23:20:49.062Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate",
+            "seqPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate\\r_pp_light_.seq",
+            "seqModifiedAt": "2026-10-20T23:16:42.371Z",
+            "manifestPath": null,
+            "totalCount": 17,
+            "includedCount": 17,
+            "excludedCount": 0,
+            "frames": [
+              {
+                "index": 1,
+                "basename": "r_pp_light_00001.fit",
+                "filenum": 1,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 2,
+                "basename": "r_pp_light_00002.fit",
+                "filenum": 2,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 3,
+                "basename": "r_pp_light_00003.fit",
+                "filenum": 3,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 4,
+                "basename": "r_pp_light_00004.fit",
+                "filenum": 4,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 5,
+                "basename": "r_pp_light_00005.fit",
+                "filenum": 5,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 6,
+                "basename": "r_pp_light_00006.fit",
+                "filenum": 6,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 7,
+                "basename": "r_pp_light_00007.fit",
+                "filenum": 7,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 8,
+                "basename": "r_pp_light_00008.fit",
+                "filenum": 8,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 9,
+                "basename": "r_pp_light_00009.fit",
+                "filenum": 9,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 10,
+                "basename": "r_pp_light_00010.fit",
+                "filenum": 10,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 11,
+                "basename": "r_pp_light_00011.fit",
+                "filenum": 11,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 12,
+                "basename": "r_pp_light_00012.fit",
+                "filenum": 12,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 13,
+                "basename": "r_pp_light_00013.fit",
+                "filenum": 13,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 14,
+                "basename": "r_pp_light_00014.fit",
+                "filenum": 14,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 15,
+                "basename": "r_pp_light_00015.fit",
+                "filenum": 15,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 16,
+                "basename": "r_pp_light_00016.fit",
+                "filenum": 16,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 17,
+                "basename": "r_pp_light_00017.fit",
+                "filenum": 17,
+                "included": true,
+                "exists": true
+              }
+            ]
+          },
+          "aggregateMeta": {
+            "aggregatedAt": "2026-10-20T23:16:11.475Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 17,
+            "hardlinks": 17,
+            "copies": 0
+          },
+          "registerMeta": {
+            "registeredAt": "2026-10-20T23:16:42.445Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 17,
+            "rPpLightCount": 17,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate\\scripts\\register.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\Aggregate\\scripts\\register.ssf",
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          }
+        },
+        {
+          "filter": "OIII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 1.15,
+          "loggedHrs": 1.15,
+          "stackMeta": {
+            "stackedAt": "2026-10-20T23:35:50.266Z",
+            "resultPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working\\result_OIII.fit",
+            "shootCount": 1,
+            "ppLightCount": 23,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\_stack\\scripts\\stack.log",
+            "stackDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\_stack",
+            "workingDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate",
+            "reregister": false,
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          },
+          "cullMeta": {
+            "completedAt": "2026-10-20T23:21:39.280Z",
+            "scannedAt": "2026-10-20T23:21:39.280Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate",
+            "seqPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate\\r_pp_light_.seq",
+            "seqModifiedAt": "2026-10-20T23:17:32.314Z",
+            "manifestPath": null,
+            "totalCount": 23,
+            "includedCount": 23,
+            "excludedCount": 0,
+            "frames": [
+              {
+                "index": 1,
+                "basename": "r_pp_light_00001.fit",
+                "filenum": 1,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 2,
+                "basename": "r_pp_light_00002.fit",
+                "filenum": 2,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 3,
+                "basename": "r_pp_light_00003.fit",
+                "filenum": 3,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 4,
+                "basename": "r_pp_light_00004.fit",
+                "filenum": 4,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 5,
+                "basename": "r_pp_light_00005.fit",
+                "filenum": 5,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 6,
+                "basename": "r_pp_light_00006.fit",
+                "filenum": 6,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 7,
+                "basename": "r_pp_light_00007.fit",
+                "filenum": 7,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 8,
+                "basename": "r_pp_light_00008.fit",
+                "filenum": 8,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 9,
+                "basename": "r_pp_light_00009.fit",
+                "filenum": 9,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 10,
+                "basename": "r_pp_light_00010.fit",
+                "filenum": 10,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 11,
+                "basename": "r_pp_light_00011.fit",
+                "filenum": 11,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 12,
+                "basename": "r_pp_light_00012.fit",
+                "filenum": 12,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 13,
+                "basename": "r_pp_light_00013.fit",
+                "filenum": 13,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 14,
+                "basename": "r_pp_light_00014.fit",
+                "filenum": 14,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 15,
+                "basename": "r_pp_light_00015.fit",
+                "filenum": 15,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 16,
+                "basename": "r_pp_light_00016.fit",
+                "filenum": 16,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 17,
+                "basename": "r_pp_light_00017.fit",
+                "filenum": 17,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 18,
+                "basename": "r_pp_light_00018.fit",
+                "filenum": 18,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 19,
+                "basename": "r_pp_light_00019.fit",
+                "filenum": 19,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 20,
+                "basename": "r_pp_light_00020.fit",
+                "filenum": 20,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 21,
+                "basename": "r_pp_light_00021.fit",
+                "filenum": 21,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 22,
+                "basename": "r_pp_light_00022.fit",
+                "filenum": 22,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 23,
+                "basename": "r_pp_light_00023.fit",
+                "filenum": 23,
+                "included": true,
+                "exists": true
+              }
+            ]
+          },
+          "aggregateMeta": {
+            "aggregatedAt": "2026-10-20T23:16:51.678Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 23,
+            "hardlinks": 23,
+            "copies": 0
+          },
+          "registerMeta": {
+            "registeredAt": "2026-10-20T23:17:32.382Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 23,
+            "rPpLightCount": 23,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate\\scripts\\register.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\Aggregate\\scripts\\register.ssf",
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          }
+        },
+        {
+          "filter": "SII",
+          "location": "Home",
+          "bortle": "9",
+          "targetHrs": 1.25,
+          "loggedHrs": 1.25,
+          "stackMeta": {
+            "stackedAt": "2026-10-20T23:37:28.619Z",
+            "resultPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working\\result_SII.fit",
+            "shootCount": 1,
+            "ppLightCount": 25,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\_stack\\scripts\\stack.log",
+            "stackDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\_stack",
+            "workingDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\working",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate",
+            "reregister": false,
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          },
+          "cullMeta": {
+            "completedAt": "2026-10-20T23:34:56.784Z",
+            "scannedAt": "2026-10-20T23:34:56.782Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate",
+            "seqPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate\\r_pp_light_.seq",
+            "seqModifiedAt": "2026-10-20T23:18:43.699Z",
+            "manifestPath": null,
+            "totalCount": 25,
+            "includedCount": 25,
+            "excludedCount": 0,
+            "frames": [
+              {
+                "index": 1,
+                "basename": "r_pp_light_00001.fit",
+                "filenum": 1,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 2,
+                "basename": "r_pp_light_00002.fit",
+                "filenum": 2,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 3,
+                "basename": "r_pp_light_00003.fit",
+                "filenum": 3,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 4,
+                "basename": "r_pp_light_00004.fit",
+                "filenum": 4,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 5,
+                "basename": "r_pp_light_00005.fit",
+                "filenum": 5,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 6,
+                "basename": "r_pp_light_00006.fit",
+                "filenum": 6,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 7,
+                "basename": "r_pp_light_00007.fit",
+                "filenum": 7,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 8,
+                "basename": "r_pp_light_00008.fit",
+                "filenum": 8,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 9,
+                "basename": "r_pp_light_00009.fit",
+                "filenum": 9,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 10,
+                "basename": "r_pp_light_00010.fit",
+                "filenum": 10,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 11,
+                "basename": "r_pp_light_00011.fit",
+                "filenum": 11,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 12,
+                "basename": "r_pp_light_00012.fit",
+                "filenum": 12,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 13,
+                "basename": "r_pp_light_00013.fit",
+                "filenum": 13,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 14,
+                "basename": "r_pp_light_00014.fit",
+                "filenum": 14,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 15,
+                "basename": "r_pp_light_00015.fit",
+                "filenum": 15,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 16,
+                "basename": "r_pp_light_00016.fit",
+                "filenum": 16,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 17,
+                "basename": "r_pp_light_00017.fit",
+                "filenum": 17,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 18,
+                "basename": "r_pp_light_00018.fit",
+                "filenum": 18,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 19,
+                "basename": "r_pp_light_00019.fit",
+                "filenum": 19,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 20,
+                "basename": "r_pp_light_00020.fit",
+                "filenum": 20,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 21,
+                "basename": "r_pp_light_00021.fit",
+                "filenum": 21,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 22,
+                "basename": "r_pp_light_00022.fit",
+                "filenum": 22,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 23,
+                "basename": "r_pp_light_00023.fit",
+                "filenum": 23,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 24,
+                "basename": "r_pp_light_00024.fit",
+                "filenum": 24,
+                "included": true,
+                "exists": true
+              },
+              {
+                "index": 25,
+                "basename": "r_pp_light_00025.fit",
+                "filenum": 25,
+                "included": true,
+                "exists": true
+              }
+            ]
+          },
+          "aggregateMeta": {
+            "aggregatedAt": "2026-10-20T23:17:56.429Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 25,
+            "hardlinks": 25,
+            "copies": 0
+          },
+          "registerMeta": {
+            "registeredAt": "2026-10-20T23:18:43.771Z",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate",
+            "shootCount": 1,
+            "frameCount": 25,
+            "rPpLightCount": 25,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate\\scripts\\register.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\Aggregate\\scripts\\register.ssf",
+            "binningUpdate": false,
+            "settingsPreset": "monoRecommended"
+          }
+        }
+      ],
+      "checklist": [],
+      "shoots": [
+        {
+          "date": "261018",
+          "filterIndex": 0,
+          "hours": 0.85,
+          "complete": true,
+          "creditedHours": 0.85,
+          "sourcePath": "F:\\Astrophotography Dev\\zuko_dev\\Pacman Nebula",
+          "ingestPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\261018_Ha_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20261018",
+            "shootFolder": "261018_Ha_B9_Home",
+            "filters": [
+              "Ha"
+            ],
+            "destRoots": [
+              "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\261018_Ha_B9_Home"
+            ],
+            "darkLibrary": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\_calibration\\darks\\20261018",
+            "calibReuse": {
+              "nightDate": "20261018",
+              "biasesPreexisting": 0,
+              "darksPreexisting": 0,
+              "biasesAfter": 30,
+              "darksAfter": 30
+            },
+            "filesStaged": 107,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 17,
+              "flat": 30,
+              "bias": 30,
+              "dark": 30
+            },
+            "lightCount": 17,
+            "frameCount": 17,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "bin": 1,
+            "camera": "asi294mm",
+            "naxis1": 8288,
+            "naxis2": 5644,
+            "offset": 30,
+            "pixelUm": 2.31500005722046,
+            "stagedAt": "2026-10-20T23:07:53.915Z",
+            "softWarnings": [],
+            "lightCaaDeg": 284,
+            "sessionLog": null
+          },
+          "preprocessMeta": {
+            "calibratedAt": "2026-10-20T23:10:06.738Z",
+            "shootDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\261018_Ha_B9_Home",
+            "ppLightCount": 17,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\261018_Ha_B9_Home\\scripts\\calibrate.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\Ha\\261018_Ha_B9_Home\\scripts\\calibrate.ssf"
+          }
+        },
+        {
+          "date": "261018",
+          "filterIndex": 1,
+          "hours": 1.15,
+          "complete": true,
+          "creditedHours": 1.15,
+          "sourcePath": "F:\\Astrophotography Dev\\zuko_dev\\Pacman Nebula",
+          "ingestPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\261018_OIII_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20261018",
+            "shootFolder": "261018_OIII_B9_Home",
+            "filters": [
+              "OIII"
+            ],
+            "destRoots": [
+              "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\261018_OIII_B9_Home"
+            ],
+            "darkLibrary": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\_calibration\\darks\\20261018",
+            "calibReuse": {
+              "nightDate": "20261018",
+              "biasesPreexisting": 30,
+              "darksPreexisting": 30,
+              "biasesAfter": 60,
+              "darksAfter": 30
+            },
+            "filesStaged": 113,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 23,
+              "flat": 30,
+              "bias": 30,
+              "dark": 30
+            },
+            "lightCount": 23,
+            "frameCount": 23,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "bin": 1,
+            "camera": "asi294mm",
+            "naxis1": 8288,
+            "naxis2": 5644,
+            "offset": 30,
+            "pixelUm": 2.31500005722046,
+            "stagedAt": "2026-10-20T23:08:22.946Z",
+            "softWarnings": [],
+            "lightCaaDeg": 283,
+            "sessionLog": null
+          },
+          "preprocessMeta": {
+            "calibratedAt": "2026-10-20T23:14:48.365Z",
+            "shootDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\261018_OIII_B9_Home",
+            "ppLightCount": 23,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\261018_OIII_B9_Home\\scripts\\calibrate.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\OIII\\261018_OIII_B9_Home\\scripts\\calibrate.ssf"
+          }
+        },
+        {
+          "date": "261018",
+          "filterIndex": 2,
+          "hours": 1.25,
+          "complete": true,
+          "creditedHours": 1.25,
+          "sourcePath": "F:\\Astrophotography Dev\\zuko_dev\\Pacman Nebula",
+          "ingestPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\261018_SII_B9_Home",
+          "ingestMeta": {
+            "nightDate": "20261018",
+            "shootFolder": "261018_SII_B9_Home",
+            "filters": [
+              "SII"
+            ],
+            "destRoots": [
+              "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\261018_SII_B9_Home"
+            ],
+            "darkLibrary": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\_calibration\\darks\\20261018",
+            "calibReuse": {
+              "nightDate": "20261018",
+              "biasesPreexisting": 60,
+              "darksPreexisting": 30,
+              "biasesAfter": 90,
+              "darksAfter": 30
+            },
+            "filesStaged": 115,
+            "filesSkipped": 0,
+            "biasesMoved": 30,
+            "byType": {
+              "light": 25,
+              "flat": 30,
+              "bias": 30,
+              "dark": 30
+            },
+            "lightCount": 25,
+            "frameCount": 25,
+            "exposureSec": 180,
+            "gain": 120,
+            "tempC": -10,
+            "bin": 1,
+            "camera": "asi294mm",
+            "naxis1": 8288,
+            "naxis2": 5644,
+            "offset": 30,
+            "pixelUm": 2.31500005722046,
+            "stagedAt": "2026-10-20T23:08:54.131Z",
+            "softWarnings": [],
+            "lightCaaDeg": 284,
+            "sessionLog": null
+          },
+          "preprocessMeta": {
+            "calibratedAt": "2026-10-20T23:15:21.275Z",
+            "shootDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\261018_SII_B9_Home",
+            "ppLightCount": 25,
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\261018_SII_B9_Home\\scripts\\calibrate.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018\\SII\\261018_SII_B9_Home\\scripts\\calibrate.ssf"
+          }
+        }
+      ],
+      "astrobinLinks": [],
+      "savedTarget": {
+        "name": "NGC 281",
+        "ra": 13.60416,
+        "dec": 56.770279
+      },
+      "framerMode": "reducer",
+      "framerRotation": 283,
+      "projectDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC281_261018",
+      "processStatus": "processing",
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [],
+      "asiairIgnoredSources": [],
+      "startDate": "2026-10-18",
+      "endDate": "2026-10-18",
+      "startDateManual": true,
+      "endDateManual": true
     }
   ],
   "assets": [
@@ -4578,16 +4610,16 @@
     "rig-assets": true,
     "filter-wheel": true
   },
-  "asiairSourcePath": "J:\\Astrophotography\\ASIAIRDUMP_260915",
+  "asiairSourcePath": "F:\\Astrophotography Dev\\zuko_dev\\Pacman Nebula",
   "sirilMonoScriptWarnDismissedFingerprint": "",
   "appMeta": {
     "version": "0.3.0",
     "build": 41,
-    "savedAt": "2026-10-19T03:06:45.591Z"
+    "savedAt": "2026-10-20T23:37:28.696Z"
   },
   "preprocessSettings": {
     "bias": {
-      "preset": "default",
+      "preset": "monoRecommended",
       "custom": {
         "method": "rej",
         "rejection": "winsorized",
@@ -4598,7 +4630,7 @@
       }
     },
     "flat": {
-      "preset": "default",
+      "preset": "monoRecommended",
       "custom": {
         "useBias": true,
         "method": "rej",
@@ -4610,7 +4642,7 @@
       }
     },
     "calibrate": {
-      "preset": "default",
+      "preset": "monoRecommended",
       "custom": {
         "cosmetic": true,
         "cosmeticFrom": "dark",
@@ -4625,7 +4657,7 @@
       },
       "drizzle": true,
       "drizzleScale": "2",
-      "drizzlePixfrac": "1",
+      "drizzlePixfrac": "0.7",
       "drizzleKernel": "square"
     },
     "stack": {

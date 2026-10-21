@@ -59,7 +59,7 @@ expect('new light camera+gain+rot', 'Light_Veil center ap q326_180.0s_Bin2_294MM
   target: 'Veil center ap q326',
   exposureSec: 180,
   bin: 2,
-  camera: '294MM',
+  camera: 'asi294mm',
   filter: 'Ha',
   gain: 120,
   date: '20260815',
@@ -72,7 +72,7 @@ expect('new light camera+gain+rot', 'Light_Veil center ap q326_180.0s_Bin2_294MM
 
 expect('new flat OIII', 'Flat_500.0ms_Bin2_294MM_O_gain120_20260816-002800_211deg_-10.0C_0012.fit', {
   type: 'flat',
-  camera: '294MM',
+  camera: 'asi294mm',
   filter: 'OIII',
   gain: 120,
   date: '20260816',
@@ -82,7 +82,7 @@ expect('new flat OIII', 'Flat_500.0ms_Bin2_294MM_O_gain120_20260816-002800_211de
 
 expect('new bias SII', 'Bias_500.0ms_Bin2_294MM_S_gain120_20260816-003100_211deg_-10.0C_0005.fit', {
   type: 'darkflat',
-  camera: '294MM',
+  camera: 'asi294mm',
   filter: 'SII',
   gain: 120,
   rotatorDeg: 211,
@@ -90,7 +90,7 @@ expect('new bias SII', 'Bias_500.0ms_Bin2_294MM_S_gain120_20260816-003100_211deg
 });
 
 expect('ASI294MM camera strip', 'Light_T_1.0s_Bin1_ASI294MM_H_gain100_20260101-120000_0deg_-10.0C_0001.fit', {
-  camera: '294MM',
+  camera: 'asi294mm',
   filter: 'Ha',
   gain: 100,
   rotatorDeg: 0,

@@ -10,6 +10,7 @@ const scripts = [
   'scripts/qa-project-framer-fov.js',
   'scripts/qa-filters.js',
   'scripts/qa-asiair-filename.js',
+  'scripts/qa-bin-camera-calib.js',
   'scripts/qa-asiair-session-logs.js',
   'scripts/smoke-session-log-pipeline.js',
   'scripts/_test-calib-focused-qa.js',

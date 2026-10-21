@@ -5832,6 +5832,7 @@
             <th>Target</th>
             <th>Lights</th>
             <th>Exp</th>
+            <th>Bin</th>
             <th>Gain</th>
             <th>Temp</th>
             <th>Sep</th>
@@ -5876,7 +5877,7 @@
     <div id="ingest-confirm" class="ingest-confirm-block"></div>
     <div class="table-scroll">
       <table class="ingest-table">
-        <thead><tr><th>Filter</th><th>Type</th><th>Lights</th><th>Flats</th><th>Exp</th><th>Gain</th><th>Temp</th><th>Actual</th><th>Target</th><th>Status</th></tr></thead>
+        <thead><tr><th>Filter</th><th>Type</th><th>Lights</th><th>Flats</th><th>Exp</th><th>Bin</th><th>Gain</th><th>Temp</th><th>Actual</th><th>Target</th><th>Status</th></tr></thead>
         <tbody id="ingest-filter-body"><tr><td colspan="10" style="color:var(--gray);">Scanning…</td></tr></tbody>
       </table>
     </div>
@@ -6004,6 +6005,7 @@
             <th>Target</th>
             <th>Date</th>
             <th>Exp</th>
+            <th>Bin</th>
             <th>Gain</th>
             <th>Temp</th>
           </tr>
@@ -6806,7 +6808,7 @@ const PP_HELP = {
   sirilSettingsStack: {
     label: 'Siril settings — Stack',
     summary:
-      'Controls how included Aggregate frames are combined into working/result_<Filter>.fit. Sampling (binning update) is the checkbox above — leave it unchecked for ASIAIR Bin2.',
+      'Controls how included Aggregate frames are combined into working/result_<Filter>.fit. Sampling (binning update) is the checkbox above — leave it unchecked for ASIAIR Bin1 and Bin2.',
     options: [
       {
         value: 'default',
@@ -7142,7 +7144,7 @@ const PP_HELP = {
   binningUpdate: {
     label: 'Update pixel size of binned images',
     summary:
-      'Siril core.binning_update (“real pixel size”). Checked → multiply FITS XPIXSZ by XBINNING. Unchecked → header µm already includes binning. ASIAIR Bin2 usually writes effective µm — leave unchecked so plate solving on r_pp_light_* and result_*.fit stays correct.',
+      'Siril core.binning_update (“real pixel size”). Checked → multiply FITS XPIXSZ by XBINNING. Unchecked → header µm is already effective. ASIAIR writes that for both ASI294MM modes (Bin1 2.315 µm, Bin2 4.63 µm) — leave unchecked.',
     options: [
       {
         value: 'unchecked',
@@ -12232,12 +12234,13 @@ function collectLibraryFolders(lib) {
         if (f.gain == null && s.gain != null) f.gain = s.gain;
       }
       // Folder-name fallback (Darks_180s_Bin2_-10c) if still missing.
-      if (f.exposureSec == null || f.bin == null || f.tempC == null) {
-        const m = /^(Darks?)_([0-9]+(?:\.[0-9]+)?)s_Bin(\d+)_(-?\d+)c$/i.exec(f.name || '');
+      if (f.exposureSec == null || f.bin == null || f.tempC == null || f.camera == null) {
+        const m = /^(Darks?)_([0-9]+(?:\.[0-9]+)?)s_Bin(\d+)(?:_([a-z][a-z0-9]*))?_(-?\d+)c$/i.exec(f.name || '');
         if (m) {
           if (f.exposureSec == null) f.exposureSec = Number(m[2]);
           if (f.bin == null) f.bin = Number(m[3]);
-          if (f.tempC == null) f.tempC = Number(m[4]);
+          if (f.camera == null && m[4]) f.camera = m[4];
+          if (f.tempC == null && m[5] != null) f.tempC = Number(m[5]);
         }
       }
     }
@@ -13330,6 +13333,58 @@ function partitionFlatsForImportUi(flats, lightTempC, framerCaaDeg) {
   };
 }
 
+function formatBinLabel(bin, mixed) {
+  if (mixed) return 'Bin mixed';
+  if (bin == null || bin === '' || !Number.isFinite(Number(bin))) return '';
+  return 'Bin' + Math.round(Number(bin));
+}
+
+function formatCameraShort(camera) {
+  if (!camera) return '';
+  return String(camera).replace(/^asi/i, '').toUpperCase();
+}
+
+function formatSensorTip(row) {
+  if (!row) return '';
+  const cam = formatCameraShort(row.camera);
+  const geo = (row.naxis1 && row.naxis2) ? (row.naxis1 + '×' + row.naxis2) : '';
+  const um = row.pixelUm != null && Number.isFinite(Number(row.pixelUm))
+    ? (Number(row.pixelUm).toFixed(3) + ' µm')
+    : '';
+  const off = row.offset != null ? ('offset ' + row.offset) : '';
+  return [cam, formatBinLabel(row.bin, row.binMixed), geo, um, off].filter(Boolean).join(' · ');
+}
+
+function ingestCalibMatchQuery(row, index) {
+  const r = row || {};
+  return {
+    index,
+    exposureSec: r.exposureSec,
+    gain: r.gain,
+    tempC: r.tempC,
+    bin: r.bin != null ? r.bin : null,
+    camera: r.camera || null,
+    naxis1: r.naxis1 != null ? r.naxis1 : null,
+    naxis2: r.naxis2 != null ? r.naxis2 : null,
+    offset: r.offset != null ? r.offset : null,
+  };
+}
+
+function ingestCalibProfileKey(row) {
+  const r = row || {};
+  return [r.exposureSec, r.gain, r.tempC, r.bin, r.camera, r.naxis1, r.naxis2].join('|');
+}
+
+function ingestCalibProfileLabel(row) {
+  const r = row || {};
+  const exp = r.exposureSec != null ? r.exposureSec + 's' : '?s';
+  const gain = r.gain != null ? 'g' + r.gain : 'g?';
+  const temp = r.tempC != null ? r.tempC + '°C' : '?°C';
+  const bin = formatBinLabel(r.bin, r.binMixed) || 'Bin?';
+  const cam = formatCameraShort(r.camera);
+  return [exp, gain, temp, bin, cam].filter(Boolean).join(' · ');
+}
+
 function formatShootIntegration(lightsN, exposureSec, plannedHrs) {
   const planned = Number(plannedHrs) || 0;
   const targetStr = planned ? (planned < 10 ? planned.toFixed(2) : planned.toFixed(1)) + 'h' : '—';
@@ -13407,8 +13462,8 @@ function openIngestFilesPopup(kind) {
     showReason = frames.some((f) => f.reason);
     showUse = true;
     sub = rejected.length
-      ? `${rejected.length} out of light exp/gain/temp range — Use checkbox to include or reject.`
-      : 'All session darks match light exp/gain/temp (±3°C). Uncheck Use to reject any.';
+      ? `${rejected.length} out of light exp/gain/temp/bin range — Use checkbox to include or reject.`
+      : 'All session darks match light exp/gain/temp/bin (±3°C). Uncheck Use to reject any.';
   } else if (kind === 'master-darks') {
     title = 'Master dark library (matched sets)';
     const libPath = (data.darkLibrary && data.darkLibrary.path) || '';
@@ -13615,9 +13670,9 @@ function openIngestFilesPopup(kind) {
   const body = document.getElementById('ingest-files-body');
   const head = document.querySelector('#ingest-files-overlay thead tr');
   const showCaa = (kind === 'lights' || kind === 'flats');
-  const colCount = 9 + (showCaa ? 1 : 0) + (showReason ? 1 : 0) + (showUse ? 1 : 0);
+  const colCount = 10 + (showCaa ? 1 : 0) + (showReason ? 1 : 0) + (showUse ? 1 : 0);
   if (head) {
-    head.innerHTML = '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Gain</th><th>Temp</th>'
+    head.innerHTML = '<th>#</th><th>File</th><th>Folder</th><th>Filter</th><th>Target</th><th>Date</th><th>Exp</th><th>Bin</th><th>Gain</th><th>Temp</th>'
       + (showCaa ? '<th title="Camera / ASIAIR CAA (ROTATOR)">CAA</th>' : '')
       + (showReason ? '<th>Note</th>' : '')
       + (showUse ? '<th>Use</th>' : '');
@@ -13663,6 +13718,7 @@ function openIngestFilesPopup(kind) {
         <td>${escapeHtml(f.target || '—')}</td>
         <td class="mono">${escapeHtml(date)}</td>
         <td>${f.exposureSec != null ? f.exposureSec + 's' : '—'}</td>
+        <td class="mono" title="${escapeAttr(formatSensorTip(f))}">${escapeHtml(formatBinLabel(f.bin) || '—')}</td>
         <td>${f.gain != null ? f.gain : '—'}</td>
         <td>${ingestFormatTempC(f.tempC)}</td>
         ${caaCell}
@@ -14529,6 +14585,12 @@ async function openSourceReview(pi) {
         exposureSec: L.exposureSec,
         gain: L.gain,
         tempC: L.tempC,
+        bin: L.bin,
+        camera: L.camera,
+        naxis1: L.naxis1,
+        naxis2: L.naxis2,
+        offset: L.offset,
+        pixelUm: L.pixelUm,
       });
     }
     const g = groups.get(key);
@@ -14536,6 +14598,10 @@ async function openSourceReview(pi) {
     if (g.exposureSec == null && L.exposureSec != null) g.exposureSec = L.exposureSec;
     if (g.gain == null && L.gain != null) g.gain = L.gain;
     if (g.tempC == null && L.tempC != null) g.tempC = L.tempC;
+    if (g.bin == null && L.bin != null) g.bin = L.bin;
+    if (g.camera == null && L.camera) g.camera = L.camera;
+    if (g.naxis1 == null && L.naxis1 != null) g.naxis1 = L.naxis1;
+    if (g.naxis2 == null && L.naxis2 != null) g.naxis2 = L.naxis2;
   }
 
   const rows = [];
@@ -14594,7 +14660,7 @@ function renderSourceReviewTable() {
   const showIgnored = !!(document.getElementById('source-review-show-ignored') || {}).checked;
   const rows = (sourceReviewCtx.rows || []).filter((r) => showIgnored || !r.ignored);
   if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="10" style="color:var(--green);">Nothing to review — all lights match a shoot log and target.</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" style="color:var(--green);">Nothing to review — all lights match a shoot log and target.</td></tr>';
     return;
   }
   const color = {
@@ -14614,6 +14680,7 @@ function renderSourceReviewTable() {
       <td title="${escapeAttr(r.folder)}">${escapeHtml(r.folder)}</td>
       <td>${r.lightCount}</td>
       <td>${r.exposureSec != null ? r.exposureSec + 's' : '—'}</td>
+      <td class="mono" title="${escapeAttr(formatSensorTip(r))}">${escapeHtml(formatBinLabel(r.bin, r.binMixed))}</td>
       <td>${r.gain != null ? r.gain : '—'}</td>
       <td>${r.tempC != null ? r.tempC + '°C' : '—'}</td>
       <td>${formatSepDeg(r.separationDeg)}</td>
@@ -14958,14 +15025,11 @@ async function runIngestScan(opts = {}) {
     darkMatched = [];
     darkRejected = sessionDarks.map((d) => ({ ...d, reason: 'no lights to match against' }));
   } else if (sessionDarks.length && window.zukoIngest && window.zukoIngest.matchDarks) {
-    const res = await window.zukoIngest.matchDarks({
-      index: darkIndex,
-      exposureSec: lightRowAll ? lightRowAll.exposureSec : (lightsForShoot[0] && lightsForShoot[0].exposureSec),
-      gain: lightRowAll ? lightRowAll.gain : (lightsForShoot[0] && lightsForShoot[0].gain),
-      tempC: lightTempC != null
-        ? lightTempC
-        : (lightRowAll ? lightRowAll.tempC : (lightsForShoot[0] && lightsForShoot[0].tempC)),
-    });
+    const lightProfile = lightRowAll || lightsForShoot[0] || {};
+    const res = await window.zukoIngest.matchDarks(ingestCalibMatchQuery({
+      ...lightProfile,
+      tempC: lightTempC != null ? lightTempC : lightProfile.tempC,
+    }, darkIndex));
     darkMatched = (res && res.matches) || [];
     darkRejected = (res && res.rejected) || [];
   } else {
@@ -15021,7 +15085,7 @@ async function runIngestScan(opts = {}) {
     : (!lightsForShoot.length
       ? `${sessionDarks.length} session dark(s) present, but no lights for this shoot — nothing to match against`
       : (!darkMatched.length
-        ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp (unusable)`
+        ? `${darkRejected.length || sessionDarks.length} session dark(s) — none match light exp/gain/temp/bin (unusable)`
         : (darkRejected.length
           ? `${darkRejected.length} dark(s) out of range — click to review / include`
           : 'Show matching session darks')));
@@ -15172,6 +15236,7 @@ async function runIngestScan(opts = {}) {
       <td>${lightsN}</td>
       <td>${flatsN}</td>
       <td>${r.exposureSec != null ? r.exposureSec + 's' : '—'}</td>
+      <td class="mono" title="${escapeAttr(formatSensorTip(r))}">${escapeHtml(formatBinLabel(r.bin, r.binMixed))}</td>
       <td>${r.gain != null ? r.gain : '—'}</td>
       <td>${r.tempC != null ? r.tempC + '°C' : '—'}</td>
       <td class="mono" title="${escapeAttr(integ.title)}">${integ.actualHtml}</td>
@@ -15619,9 +15684,9 @@ function syncIngestMastersCheckbox() {
   el.disabled = !ok;
   if (!ok) {
     el.checked = false;
-    el.title = 'Need a matching master dark set (exp/gain/temp)';
+    el.title = 'Need a matching master dark set (exp/gain/temp/bin)';
   } else {
-    el.title = 'Use Dark Library masters that match light exp/gain/temp';
+    el.title = 'Use Dark Library masters that match light exp/gain/temp/bin';
     if (!ingestCtx._mastersTouched) el.checked = true;
   }
 }
@@ -15645,7 +15710,7 @@ function renderIngestMasterChipsRow() {
     : 'none';
   const darkTitle = darkFolders.length
     ? darkFolders.map((f) => f.name + ': ' + f.count + ' files').join('\n')
-    : 'No master dark matches (' + (ingestCtx.masterDarkProfile || 'exp/gain/temp') + ')';
+    : 'No master dark matches (' + (ingestCtx.masterDarkProfile || 'exp/gain/temp/bin') + ')';
   const html =
     '<button type="button" class="ingest-chip ' + darkTone + '" onclick="openIngestFilesPopup(\'master-darks\')" title="' +
     escapeAttr(darkTitle) + '">Master dark: ' + escapeHtml(darkLabel) + '</button>';
@@ -15701,15 +15766,12 @@ async function refreshIngestDarkMatches() {
     const byProfile = new Map();
     for (const row of scan.filters) {
       if (!row.lights) continue;
-      const key = [row.exposureSec, row.gain, row.tempC].join('|');
+      const key = ingestCalibProfileKey(row);
       let matches = byProfile.get(key);
       if (!matches) {
-        const res = await window.zukoIngest.matchDarks({
-          index: activeLibraryIndex(data.darkLibrary),
-          exposureSec: row.exposureSec,
-          gain: row.gain,
-          tempC: row.tempC,
-        });
+        const res = await window.zukoIngest.matchDarks(
+          ingestCalibMatchQuery(row, activeLibraryIndex(data.darkLibrary))
+        );
         matches = (res && res.matches) || [];
         byProfile.set(key, matches);
       }
@@ -15724,15 +15786,12 @@ async function refreshIngestDarkMatches() {
     for (const fname of focusFilters) {
       const row = (scan.filters || []).find((r) => r.filter === fname && r.lights);
       if (!row) continue;
-      const key = [row.exposureSec, row.gain, row.tempC].join('|');
+      const key = ingestCalibProfileKey(row);
       const matches = byProfile.get(key) || [];
       allMatches = allMatches.concat(matches);
       if (!seenProfile.has(key)) {
         seenProfile.add(key);
-        const exp = row.exposureSec != null ? row.exposureSec + 's' : '?s';
-        const gain = row.gain != null ? 'g' + row.gain : 'g?';
-        const temp = row.tempC != null ? row.tempC + '°C' : '?°C';
-        profiles.push(`${exp} · ${gain} · ${temp}`);
+        profiles.push(ingestCalibProfileLabel(row));
       }
     }
     if (!focusFilters.length && first) allMatches = first.slice();
@@ -16379,6 +16438,7 @@ function nightDetailHtml(project, pi, group, sh, si, detailOpen) {
       <div><div class="detail-k">Exp</div><div class="detail-v">${meta.exposureSec != null ? `${meta.exposureSec}s` : '—'}</div></div>
       <div><div class="detail-k">Temp</div><div class="detail-v">${meta.tempC != null ? `${meta.tempC}°C` : '—'}</div></div>
       <div><div class="detail-k">Gain</div><div class="detail-v">${meta.gain != null ? meta.gain : '—'}</div></div>
+      <div><div class="detail-k">Bin</div><div class="detail-v" title="${escapeAttr(formatSensorTip(meta))}">${escapeHtml(formatBinLabel(meta.bin) || '—')}${meta.camera ? ' · ' + escapeHtml(formatCameraShort(meta.camera)) : ''}</div></div>
       <div><div class="detail-k">Target hours</div><div class="detail-v">${Number(sh.hours) || 0}h</div></div>
       <div><div class="detail-k">Folder size</div><div class="detail-v" data-shoot-folder-size="${pi}:${si}">…</div></div>
       <div><div class="detail-k">Intermediates</div><div class="detail-v" data-shoot-intermediate-size="${pi}:${si}">…</div></div>
@@ -18117,7 +18177,7 @@ function masterDarkSetFolder(filePath, libraryRoot) {
   const root = normalizeWinPath(libraryRoot || '').replace(/\\+$/, '');
   if (!root) {
     const i = norm.lastIndexOf('\\');
-    return i > 0 ? norm.slice(0, i) : norm;
+    return stripCalibFilterLeaf(i > 0 ? norm.slice(0, i) : norm);
   }
   const rootLower = root.toLowerCase();
   let dir = norm;
@@ -18132,7 +18192,17 @@ function masterDarkSetFolder(filePath, libraryRoot) {
     dir = parent;
   }
   const i = norm.lastIndexOf('\\');
-  return i > 0 ? norm.slice(0, i) : norm;
+  return stripCalibFilterLeaf(i > 0 ? norm.slice(0, i) : norm);
+}
+
+function stripCalibFilterLeaf(dir) {
+  if (!dir) return dir;
+  const leaf = String(dir).split(/[/\\]/).pop();
+  if (/^(H|Ha|O|OIII|S|SII|Hb|Hbeta|L|R|G|B)$/i.test(leaf || '')) {
+    const i = Math.max(dir.lastIndexOf('\\'), dir.lastIndexOf('/'));
+    if (i > 0) return dir.slice(0, i);
+  }
+  return dir;
 }
 
 function groupMasterDarkFolders(matches, libraryRoot) {
@@ -18297,6 +18367,12 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
       : (scan.summary && scan.summary.exposureSec),
     gain: (lightRow && lightRow.gain != null) ? lightRow.gain : (scan.summary && scan.summary.gain),
     tempC: (lightRow && lightRow.tempC != null) ? lightRow.tempC : (scan.summary && scan.summary.tempC),
+    bin: (lightRow && lightRow.bin != null) ? lightRow.bin : (scan.summary && scan.summary.bin),
+    camera: (lightRow && lightRow.camera) ? lightRow.camera : (scan.summary && scan.summary.camera),
+    naxis1: (lightRow && lightRow.naxis1 != null) ? lightRow.naxis1 : (scan.summary && scan.summary.naxis1),
+    naxis2: (lightRow && lightRow.naxis2 != null) ? lightRow.naxis2 : (scan.summary && scan.summary.naxis2),
+    offset: (lightRow && lightRow.offset != null) ? lightRow.offset : (scan.summary && scan.summary.offset),
+    pixelUm: (lightRow && lightRow.pixelUm != null) ? lightRow.pixelUm : (scan.summary && scan.summary.pixelUm),
     stagedAt: meta.stagedAt,
     softWarnings: result.softWarnings || meta.softWarnings || [],
     lightCaaDeg: meta.lightCaaDeg != null ? meta.lightCaaDeg : null,
@@ -18325,15 +18401,12 @@ async function buildMasterDarkMatchesForScan(scan, shootFilterName) {
   const byProfile = new Map();
   for (const row of scan.filters) {
     if (!row.lights) continue;
-    const key = [row.exposureSec, row.gain, row.tempC].join('|');
+    const key = ingestCalibProfileKey(row);
     let matches = byProfile.get(key);
     if (!matches) {
-      const res = await window.zukoIngest.matchDarks({
-        index: activeLibraryIndex(data.darkLibrary),
-        exposureSec: row.exposureSec,
-        gain: row.gain,
-        tempC: row.tempC,
-      });
+      const res = await window.zukoIngest.matchDarks(
+        ingestCalibMatchQuery(row, activeLibraryIndex(data.darkLibrary))
+      );
       matches = (res && res.matches) || [];
       byProfile.set(key, matches);
     }
@@ -18344,7 +18417,7 @@ async function buildMasterDarkMatchesForScan(scan, shootFilterName) {
   const shootRow = shootFilterName
     ? (scan.filters || []).find((r) => r.filter === shootFilterName && r.lights)
     : (scan.filters || []).find((r) => r.lights);
-  const shootKey = shootRow ? [shootRow.exposureSec, shootRow.gain, shootRow.tempC].join('|') : null;
+  const shootKey = shootRow ? ingestCalibProfileKey(shootRow) : null;
   const matchCount = shootKey ? ((byProfile.get(shootKey) || []).length) : ((first || []).length);
   return { darkMatchesByFilter, matchCount, useMasterDarks: matchCount > 0 };
 }
@@ -18607,27 +18680,19 @@ async function assessAllIngestNightsReadiness() {
       const row = (scan.filters || []).find((r) => r.filter === filter && r.lights);
       if (!row) continue;
       if (sessionDarks.length && window.zukoIngest.matchDarks) {
-        const res = await window.zukoIngest.matchDarks({
-          index: sessionDarks.map((d) => ({
-            ...d,
-            acquiredAt: d.date
-              ? `${String(d.date).slice(0, 4)}-${String(d.date).slice(4, 6)}-${String(d.date).slice(6, 8)}`
-              : null,
-          })),
-          exposureSec: row.exposureSec,
-          gain: row.gain,
-          tempC: row.tempC,
-        });
+        const res = await window.zukoIngest.matchDarks(ingestCalibMatchQuery(row, sessionDarks.map((d) => ({
+          ...d,
+          acquiredAt: d.date
+            ? `${String(d.date).slice(0, 4)}-${String(d.date).slice(4, 6)}-${String(d.date).slice(6, 8)}`
+            : null,
+        }))));
         const matches = (res && res.matches) || [];
         if (matches.length > darkMatched.length) darkMatched = matches;
       }
       if (data.darkLibrary.index && data.darkLibrary.index.length && window.zukoIngest.matchDarks) {
-        const res = await window.zukoIngest.matchDarks({
-          index: activeLibraryIndex(data.darkLibrary),
-          exposureSec: row.exposureSec,
-          gain: row.gain,
-          tempC: row.tempC,
-        });
+        const res = await window.zukoIngest.matchDarks(
+          ingestCalibMatchQuery(row, activeLibraryIndex(data.darkLibrary))
+        );
         darkMatchesByFilter[filter] = (res && res.matches) || [];
       }
     }
