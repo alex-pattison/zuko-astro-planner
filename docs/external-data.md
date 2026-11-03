@@ -51,7 +51,7 @@ Credit snapshot (remaining monthly pool) is written to `astrospheric-credits.jso
 
 | Source | Notes |
 |--------|--------|
-| **Aladin Lite** | Bundled `vendor/aladin-lite.js` (v3.8.2). Target Framer loads DSS2 color from the CDS **bis** HiPS mirror (`https://alaskybis.cds.unistra.fr/DSS/DSSColor`) — the primary `alasky.cds.unistra.fr` host currently hangs from US networks and left a black WebGL canvas. Properties + Allsky JPEG are prefetched after boot. |
+| **Aladin Lite** | Bundled `vendor/aladin-lite.js` (v3.8.2). Target Framer loads DSS2 color from the first HiPS mirror that answers: ESA `https://skies.esac.esa.int/DSSColor`, then CDS bis, then CDS primary. As of 29 Oct 2026 both `unistra.fr` hosts hang on TLS from this network (Gaia HiPS, VizieR, SIMBAD, Sesame included). Aladin’s startup logger is off (`log: false`) so a dead CDS ping cannot sit on the status bar. |
 | **Sesame / SIMBAD / MAST** | Name → RA/Dec resolve when looking up targets (`cdsweb.u-strasbg.fr`, `simbad.cds.unistra.fr`, `mast.stsci.edu`) |
 
 ---

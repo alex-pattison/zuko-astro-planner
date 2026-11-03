@@ -59,9 +59,16 @@
     {
       "id": "mono-stack-few-frames-median",
       "kind": "stack",
-      "frameCount": 10,
+      "frameCount": 9,
       "settings": { "stack": { "preset": "monoRecommended" } },
       "expectIncludes": ["stack pp_light med", "-norm=addscale"]
+    },
+    {
+      "id": "mono-stack-ten-frames-rej",
+      "kind": "stack",
+      "frameCount": 10,
+      "settings": { "stack": { "preset": "monoRecommended" } },
+      "expectIncludes": ["stack pp_light rej 3 3 -norm=addscale"]
     },
     {
       "id": "mono-stack-many-frames-rej",

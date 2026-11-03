@@ -6818,7 +6818,7 @@ const PP_HELP = {
       {
         value: 'monoRecommended',
         label: 'Mono Recommended',
-        when: 'If N < 20 included frames → median stack; if N ≥ 20 → Winsorized rejection stack with addscale. Matches typical mono deep-sky practice.',
+        when: 'If N < 10 included frames → median stack; if N ≥ 10 → Winsorized rejection stack with addscale. Matches typical mono deep-sky practice.',
       },
       {
         value: 'custom',
@@ -6928,7 +6928,7 @@ const PP_HELP = {
       {
         value: 'monoRecommended',
         label: 'Mono Recommended',
-        when: 'N < 20 → median; N ≥ 20 → Winsorized rejection + addscale. Weighting stays none unless you switch to Custom.',
+        when: 'N < 10 → median; N ≥ 10 → Winsorized rejection + addscale. Weighting stays none unless you switch to Custom.',
       },
       {
         value: 'custom',
@@ -7009,12 +7009,12 @@ const PP_HELP = {
       {
         value: 'winsorized',
         label: 'Winsorized',
-        when: 'Soft-clips extreme values then re-estimates σ. Mono Recommended for light stacks when N ≥ 20; also Default/Mono for masters.',
+        when: 'Soft-clips extreme values then re-estimates σ. Mono Recommended for light stacks when N ≥ 10; also Default/Mono for masters.',
       },
       {
         value: 'median',
         label: 'Median sigma',
-        when: 'More aggressive / robust on small sets; can soften fine detail. Mono Recommended uses full median stacking (method=med) when N < 20 instead of this clipper.',
+        when: 'More aggressive / robust on small sets; can soften fine detail. Mono Recommended uses full median stacking (method=med) when N < 10 instead of this clipper.',
       },
       {
         value: 'sigma',
@@ -7036,12 +7036,12 @@ const PP_HELP = {
       {
         value: 'rej',
         label: 'Average + rejection',
-        when: 'Default and Mono Recommended (when N ≥ 20). Best SNR once you have enough frames to reject outliers.',
+        when: 'Default and Mono Recommended (when N ≥ 10). Best SNR once you have enough frames to reject outliers.',
       },
       {
         value: 'med',
         label: 'Median',
-        when: 'Mono Recommended when N < 20. Very robust to outliers but softer / lower SNR than a large rejection stack.',
+        when: 'Mono Recommended when N < 10. Very robust to outliers but softer / lower SNR than a large rejection stack.',
       },
       {
         value: 'sum',
@@ -7194,7 +7194,7 @@ function defaultPreprocessSettingsUi() {
         outputNorm: true,
         bits32: true,
         winsorizedWhenNAtLeast: null,
-        winsorizedMinFrames: 20,
+        winsorizedMinFrames: 10,
         rejectionBelowThreshold: 'median',
       },
     },
@@ -11211,26 +11211,48 @@ function dismissBootSplash() {
   setTimeout(() => { try { splash.remove(); } catch (e) {} }, 280);
 }
 
-// Vendored Aladin Lite (ESM). DSS2 color HiPS: use the CDS *bis* mirror first —
-// alasky.cds.unistra.fr currently hangs from US networks, which left a black WebGL
-// canvas after "ready". Pass a URL string (not an A.HiPS() object) as `survey`.
-const ALADIN_DSS_HIPS_URL = 'https://alaskybis.cds.unistra.fr/DSS/DSSColor';
-const ALADIN_DSS_HIPS_MIRROR = 'https://alasky.cds.unistra.fr/DSS/DSSColor';
-const ALADIN_DSS_PREFETCH = [
-  ALADIN_DSS_HIPS_URL + '/properties',
-  ALADIN_DSS_HIPS_URL + '/Norder3/Allsky.jpg',
-  ALADIN_DSS_HIPS_MIRROR + '/properties',
+// Vendored Aladin Lite (ESM). DSS2 color HiPS.
+// CDS (alasky / alaskybis on unistra.fr) currently never completes TLS from this
+// network, so the chart stayed on "fetching: https://alasky.unistra.fr/…" and
+// tiles never arrived. Aladin's startup logger (log:true) hits that host with
+// no timeout. ESA's public mirror answers. Probe in order; pass a URL string
+// (not an A.HiPS() object) as `survey`.
+const ALADIN_DSS_CANDIDATES = [
+  'https://skies.esac.esa.int/DSSColor',
+  'https://alaskybis.cds.unistra.fr/DSS/DSSColor',
+  'https://alasky.cds.unistra.fr/DSS/DSSColor',
 ];
+let aladinDssUrl = ALADIN_DSS_CANDIDATES[0];
+let aladinDssPick = null;
 let aladinLoadPromise = null;
 
 function aladinReady() {
   return typeof A !== 'undefined' && A && typeof A.aladin === 'function' && A.init != null;
 }
 
-function prefetchAladinSurvey() {
-  ALADIN_DSS_PREFETCH.forEach((u) => {
-    try { fetch(u, { mode: 'cors', cache: 'force-cache' }).catch(() => {}); } catch (e) { /* ignore */ }
-  });
+function pickAladinDssUrl() {
+  if (aladinDssPick) return aladinDssPick;
+  aladinDssPick = (async () => {
+    for (const base of ALADIN_DSS_CANDIDATES) {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 4000);
+      try {
+        const res = await fetch(base + '/properties', { signal: ac.signal, cache: 'force-cache' });
+        if (!res.ok) continue;
+        const text = await res.text();
+        if (!/hips_frame|creator_did/.test(text)) continue;
+        aladinDssUrl = base;
+        try { fetch(base + '/Norder3/Allsky.jpg', { cache: 'force-cache' }).catch(() => {}); } catch (e) { /* ignore */ }
+        return base;
+      } catch (e) {
+        /* try the next mirror */
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    return aladinDssUrl;
+  })();
+  return aladinDssPick;
 }
 
 function mountAladinViewer(hostId, ra, dec, fovDeg, extraOpts) {
@@ -11240,7 +11262,8 @@ function mountAladinViewer(hostId, ra, dec, fovDeg, extraOpts) {
   return A.aladin('#' + hostId, Object.assign({
     target: `${ra} ${dec}`,
     fov: fovDeg,
-    survey: ALADIN_DSS_HIPS_URL,
+    survey: aladinDssUrl,
+    log: false,
     showLayersControl: false,
     showGotoControl: false,
     showProjectionControl: false,
@@ -11252,13 +11275,11 @@ function mountAladinViewer(hostId, ra, dec, fovDeg, extraOpts) {
 }
 
 function ensureAladinLoaded() {
-  if (aladinReady()) {
-    prefetchAladinSurvey();
-    return Promise.resolve();
-  }
+  if (aladinReady()) return pickAladinDssUrl();
   if (aladinLoadPromise) return aladinLoadPromise;
   aladinLoadPromise = (async () => {
     try {
+      await pickAladinDssUrl();
       const mod = await import('./vendor/aladin-lite.js');
       const api = mod && (mod.default || mod);
       if (!api || typeof api.aladin !== 'function') {
@@ -11269,7 +11290,6 @@ function ensureAladinLoaded() {
       if (initP && typeof initP.then === 'function') await initP;
       else if (typeof initP === 'function') await initP();
       if (!aladinReady()) throw new Error('Aladin init finished but API is incomplete');
-      prefetchAladinSurvey();
     } catch (e) {
       aladinLoadPromise = null;
       throw e;

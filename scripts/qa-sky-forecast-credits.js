@@ -76,7 +76,9 @@ check(
 );
 check('auto refresh timer', html.includes('function initSkyForecastAutoRefresh('));
 check('visibilitychange refresh', html.includes("document.addEventListener('visibilitychange'"));
-check('DSS HiPS uses alaskybis mirror', html.includes('https://alaskybis.cds.unistra.fr/DSS/DSSColor'));
+check('DSS HiPS prefers ESA mirror', html.includes('https://skies.esac.esa.int/DSSColor'));
+check('DSS HiPS still lists CDS fallback', html.includes('https://alaskybis.cds.unistra.fr/DSS/DSSColor'));
+check('Aladin logger disabled', html.includes('log: false'));
 check('Aladin preload after boot', html.includes('ensureAladinLoaded()'));
 check('no A.HiPS in constructor', !html.includes('function aladinSurveyLayer('));
 check('no hardcoded 65 pull title', !html.includes('Force a new Astrospheric pull (~65 credits)'));

@@ -14,7 +14,7 @@ Each of **Master bias/dark**, **Master flat**, **Calibrate lights**, **Register*
 | Preset | Meaning |
 |--------|---------|
 | **Default** | Today’s Mono 1.4 hard-coded scripts (no 2-pass; `rej 3 3` Winsorized-by-omission). |
-| **Mono Recommended** | Your mono recipe: 2-pass register + `seqapplyreg`; stack uses median when N&lt;20 and Winsorized rejection when N≥20. |
+| **Mono Recommended** | Your mono recipe: 2-pass register + `seqapplyreg`; stack uses median when N&lt;10 and Winsorized rejection when N≥10. |
 | **Custom** | Unlocks per-flag dropdowns for that stage only. |
 
 Suggested presets on each job dialog: **SHO / Hβ → Mono Recommended**, **LRGB → Default** (Custom is left alone if you set it).
@@ -36,7 +36,7 @@ This line is written into **Register** and **Stack** scripts (and Calibrate) so 
 |-------|--------|
 | Bias / flat / calibrate | Same as Default (avg+rejection, mul flats, cosmetic from dark). |
 | Register | `register pp_light -2pass` then `seqapplyreg pp_light`. |
-| Stack | If frame count &lt; 20 → `med`; else `rej 3 3` (Winsorized) with `-norm=addscale -output_norm -32b`. |
+| Stack | If frame count &lt; 10 → `med`; else `rej 3 3` (Winsorized) with `-norm=addscale -output_norm -32b`. |
 
 ## Custom flags (per stage)
 

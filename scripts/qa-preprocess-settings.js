@@ -186,12 +186,18 @@ function testHelpAndResolve() {
     'register'
   );
   check('mono register twoPass', resolved.twoPass === true);
+  const stackTiny = resolveStageOptions(
+    { stack: { preset: 'monoRecommended' } },
+    'stack',
+    { frameCount: 9 }
+  );
+  check('mono stack N=9 → med', stackTiny.method === 'med', stackTiny.method);
   const stackFew = resolveStageOptions(
     { stack: { preset: 'monoRecommended' } },
     'stack',
     { frameCount: 12 }
   );
-  check('mono stack N=12 → med', stackFew.method === 'med', stackFew.method);
+  check('mono stack N=12 → rej', stackFew.method === 'rej', stackFew.method);
   const stackMany = resolveStageOptions(
     { stack: { preset: 'monoRecommended' } },
     'stack',

@@ -26,6 +26,23 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-11-02 — build 42 — ESA sky chart + Winsorized from 10
+- **Seen:** Target Framer stuck fetching `alasky.unistra.fr`. Mono Recommended still said N≥20 in help text while the stack threshold was moving to 10.
+- **Fix / next:** DSS probe is ESA, then CDS bis, then CDS primary. Aladin logger off. Mono Recommended uses Winsorized from 10 frames (median below that). Help text matches.
+- **QA:** `qa-sky-forecast-credits`, `qa-preprocess-settings`.
+- **Beta:** `npm run dist:win:beta` (0.3.0 · build 42).
+- **Canvas:** backlog snapshot → build 42.
+
+### 2026-10-29 — Dev (still build 41) — Sky chart stuck on CDS
+- **Seen:** Target Framer sat on `fetching: https://alasky.unistra.fr/…` with a gray chart. Gaia / VizieR / SIMBAD / both DSS hosts on `unistra.fr` never finish TLS. Open-Meteo, Nominatim, and ESA answer.
+- **Fix / next:** DSS probe order is ESA `skies.esac.esa.int/DSSColor`, then CDS bis, then CDS primary. Aladin `log: false` so the startup ping cannot hang the status bar.
+- **Beta:** shipped build 42.
+
+### 2026-10-20 — Dev (still build 41) — Winsorized from 10 frames
+- **Seen:** Mono Recommended stacked with median below 20 frames. Pacman Hα had 17, so it took median and gave up about 20% SNR. Winsorized clipping is usable from about 10 frames.
+- **Fix / next:** Mono Recommended uses Winsorized when N ≥ 10 and median only below that.
+- **Beta:** shipped build 42.
+
 ### 2026-10-20 — Dev (still build 41) — Pacman project shell
 - **Seen:** Alex is processing the 18 Oct Bin1 Pacman night in Dev, from import onward.
 - **Fix / next:** Added project “Pacman Nebula” with an empty `F:\Astrophotography Dev\zuko_dev\Projects\NGC281_261018`. ASIAIR source is the Pacman dump. No shoots imported. Reducer + Bin1, rotation 283°, Ha 0.85 h / OIII 1.15 h / SII 1.25 h planned from the 180 s counts. Restart Dev so the open window does not save over it.

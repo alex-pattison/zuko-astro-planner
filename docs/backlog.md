@@ -72,6 +72,22 @@ One number: Target Framer **CAA** = ASIAIR dial = FITS/`NNNdeg` **ROTATOR**. Con
 
 ---
 
+### 35. Sky chart when CDS hangs — *shipped build 42*
+
+Target Framer loads DSS2 color from the first HiPS mirror that answers: ESA `https://skies.esac.esa.int/DSSColor`, then CDS bis, then CDS primary. Aladin’s startup logger is off, so a dead `alasky.unistra.fr` ping cannot sit on the status bar.
+
+**Why:** Both Unistra hosts stopped completing TLS. The chart stayed on “fetching…” with a gray canvas.
+
+---
+
+### 36. Mono Recommended Winsorized from 10 frames — *shipped build 42*
+
+Mono Recommended stack uses median only below 10 frames and Winsorized rejection (`rej 3 3`) from 10 up.
+
+**Why:** Pacman Hα had 17 frames and was taking median, which costs about 20% SNR. Winsorized clipping is usable from about 10 frames.
+
+---
+
 ### 34. Beta data root on H:\Astrophotography — *shipped build 41*
 
 Packaged Beta Dashboard / `.env` / weather cache live at `H:\Astrophotography\Dashboard`. Imaging + Dark Library under `H:\Astrophotography\Zuko`. Legacy `H:\Photography\Astrophotography\…` is retired.

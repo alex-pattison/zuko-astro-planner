@@ -101,7 +101,7 @@ function defaultStackCustom() {
     bits32: true,
     /** When true (Mono Recommended), use Winsorized only if frameCount >= winsorizedMinFrames. */
     winsorizedWhenNAtLeast: null,
-    winsorizedMinFrames: 20,
+    winsorizedMinFrames: 10,
     rejectionBelowThreshold: 'median',
   };
 }
@@ -125,8 +125,9 @@ function monoRecommendedRegister() {
 function monoRecommendedStack() {
   return {
     ...defaultStackCustom(),
-    winsorizedWhenNAtLeast: 20,
-    winsorizedMinFrames: 20,
+    // Winsorized clipping holds from about 10 frames. Median below that costs SNR.
+    winsorizedWhenNAtLeast: 10,
+    winsorizedMinFrames: 10,
     rejectionBelowThreshold: 'median',
   };
 }
@@ -204,7 +205,7 @@ function resolveStageOptions(settings, stage, ctx = {}) {
 
   if (stage === 'stack' && opts.winsorizedWhenNAtLeast != null) {
     const n = Number(ctx.frameCount);
-    const minN = Number(opts.winsorizedMinFrames) || 20;
+    const minN = Number(opts.winsorizedMinFrames) || 10;
     if (Number.isFinite(n) && n < minN) {
       opts = {
         ...opts,
@@ -286,7 +287,7 @@ const HELP_CATALOG = Object.freeze({
     id: 'preset',
     label: 'Stage preset',
     summary:
-      'Default keeps today’s ZAP Mono 1.4 scripts. Mono Recommended applies your preferred mono recipe (2-pass register, Winsorized when N≥20, ASIAIR-safe sampling). Custom unlocks per-flag controls for that stage.',
+      'Default keeps today’s ZAP Mono 1.4 scripts. Mono Recommended applies your preferred mono recipe (2-pass register, Winsorized when N≥10, ASIAIR-safe sampling). Custom unlocks per-flag controls for that stage.',
     options: [
       { value: 'default', label: 'Default', when: 'Match the built-in scripts shipped with ZAP (no 2-pass).' },
       {
@@ -330,7 +331,7 @@ const HELP_CATALOG = Object.freeze({
     label: 'Rejection type',
     summary: 'Outlier clipper used with average (rej) stacking. If omitted in Siril, Winsorized is the default.',
     options: [
-      { value: 'winsorized', label: 'Winsorized', when: 'General deep-sky; best around N≥20.' },
+      { value: 'winsorized', label: 'Winsorized', when: 'General deep-sky; usable from about N≥10.' },
       { value: 'median', label: 'Median sigma', when: 'Smaller stacks; robust but softer.' },
       { value: 'sigma', label: 'Sigma', when: 'Classic clip; fine for clean data.' },
       { value: 'none', label: 'None', when: 'No rejection — only if data is already clean.' },
