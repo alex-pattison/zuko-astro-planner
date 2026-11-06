@@ -33,7 +33,7 @@ Scratch items still land here until promoted:
 - **Cause:** `reset-dashboard-pre-ingest.js` (run at the end of every `npm run test:unit`) fell back to the Beta tree once `F:\zuko_dev` disappeared. `qa-asiair-ingest.js` also fell back to reading the Beta dark library.
 - **Fix:** No Beta fallback in QA any more; the reset's `--mirror-beta` option (which still pointed at the pre-22 Sep path) was removed. `F:\zuko_dev` → `F:\Astrophotography Dev\zuko_dev` in `main.js` (`DEV_PROJECTS_DIR`), `index.html` (Dev dark-library default), the QA and seed scripts, the README and the Dev JSON (projects, dark-library path and its 76-frame index, which had pointed at an empty `_beta_mirror` folder). Backup: `data/zuko-dashboard-data.pre-devpaths-261106.json`.
 - **Still skips (data not on this machine):** Desktop `asiaIRDUMP`, `F:\ASIAIRDUMP_260816`, the Dev Pacman copy (moved to Beta 3 Nov), and Veil's Dev `Ha\Aggregate`.
-- **Beta:** not shipped. Beta stays 0.3.0 · build 42 until Alex asks for a ship. *(Claude Code, 6 Nov 2026)*
+- **Beta:** `npm run dist:win:beta` (0.4.0 · build 43), shipped 6 Nov 2026 at Alex's ask. *(Claude Code, 6 Nov 2026)*
 
 ### 2026-11-06 — Dev (still build 42) — Handoff from Cursor to Claude Code
 - **Seen:** All work moves from Cursor to Claude. Claude Code had never been opened on this repo, and it does not read `.cursor/rules`.

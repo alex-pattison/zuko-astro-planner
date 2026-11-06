@@ -4,7 +4,7 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 
 **On every build or version ship:** mark shipped items here, keep the two lines below current, and log the build in `working-notes.md`. This is the only backlog. The Cursor planning canvas was retired on 6 Nov 2026; an archived copy is `archive/cursor/canvases/zuko-backlog-02-vs-03.canvas.tsx`.
 
-**Current:** 0.4.0 · build 43 in Dev (opened 6 Nov 2026). Beta is still 0.3.0 · build 42 (shipped 2 Nov 2026).
+**Current:** 0.4.0 · build 43 (Beta shipped 6 Nov 2026).
 **Next headline:** #23 Filter mount + size. Then #2 backup / restore, #3 `dataVersion`, #4 startup skeleton, #6 gain / camera / rotator on nights, #11 crash log, #24 dark-flat library.
 
 | Line | Status |
