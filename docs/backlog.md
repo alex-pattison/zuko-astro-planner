@@ -2,7 +2,10 @@
 
 Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
 
-**On every build or version ship:** update this file *and* the [0.3.0 planning canvas](C:/Users/alexp/.cursor/projects/c-Users-alexp-Projects-zuko-astro-planner/canvases/zuko-backlog-02-vs-03.canvas.tsx) (current `version` / `zukoBuild`, shipped items, next headline).
+**On every build or version ship:** mark shipped items here, keep the two lines below current, and log the build in `working-notes.md`. This is the only backlog. The Cursor planning canvas was retired on 6 Nov 2026; an archived copy is `archive/cursor/canvases/zuko-backlog-02-vs-03.canvas.tsx`.
+
+**Current:** 0.3.0 · build 42 (Beta shipped 2 Nov 2026).
+**Next headline:** #23 Filter mount + size. Then #2 backup / restore, #3 `dataVersion`, #4 startup skeleton, #6 gain / camera / rotator on nights, #11 crash log, #24 dark-flat library.
 
 | Line | Status |
 |------|--------|

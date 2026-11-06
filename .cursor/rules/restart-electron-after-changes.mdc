@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Dev app reload after changes
 
+> Moved 6 Nov 2026: the canonical copy is in `CLAUDE.md` at the repo root. This file is kept because older log entries point here. Edit `CLAUDE.md`, not this file.
+
 **Do not** kill or relaunch Electron (`npm start`) unless the user explicitly asks.
 
 After changes that affect the running app (`main.js`, `preload.js`, IPC, ingest/Siril backend, or UI), briefly tell the user to restart Dev themselves (or reload the window if that is enough).

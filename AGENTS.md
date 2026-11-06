@@ -1,5 +1,5 @@
 # ZAP
 
-Read `H:\Astro Pigeon\agent\SESSION.md`, then `DECISIONS.md`, then `MAP.md`, plus this repo's `.cursor/rules`.
+Read `CLAUDE.md` in this folder first. It holds this repo's rules (moved from `.cursor/rules` on 6 Nov 2026) and points at the shared session files in `H:\Astro Pigeon\agent\`.
 
-Write new standing rules back to `DECISIONS.md`. ZAP-only rules also go in `.cursor/rules` here.
+Write new standing rules back to `H:\Astro Pigeon\agent\DECISIONS.md`. ZAP-only rules also go in `CLAUDE.md`.

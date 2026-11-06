@@ -5,6 +5,8 @@ alwaysApply: true
 
 # No Beta ship without express permission
 
+> Moved 6 Nov 2026: the canonical copy is in `CLAUDE.md` at the repo root. This file is kept because older log entries point here. Edit `CLAUDE.md`, not this file.
+
 Do **not** promote work to Beta unless the user clearly asks in that turn.
 
 Forbidden without explicit ask:

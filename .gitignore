@@ -61,3 +61,7 @@ blob-report/
 
 # Older data copies kept when reconcile replaces a stale file
 **/backups/
+
+# Local safety copies of Dev dashboard data (keep on disk, never commit)
+data/_cache_recover/
+data/zuko-dashboard-data.pre-*.json

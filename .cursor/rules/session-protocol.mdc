@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Shared session
 
+> Moved 6 Nov 2026: the canonical copy is in `CLAUDE.md` at the repo root, and ZAP-only rules now go there instead of `.cursor/rules`. This file is kept because older log entries point here.
+
 Before acting, read `H:\Astro Pigeon\agent\SESSION.md`, `DECISIONS.md`, and `MAP.md`.
 
 This repo's own rules still apply. Write a new standing decision into `DECISIONS.md` and, when it is ZAP-only, into `.cursor/rules` here. Do not start a second decisions log.

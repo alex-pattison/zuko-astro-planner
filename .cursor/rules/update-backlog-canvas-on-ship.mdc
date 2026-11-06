@@ -1,9 +1,11 @@
 ---
-description: Refresh the backlog canvas whenever zukoBuild or version ships
-alwaysApply: true
+description: Retired 6 Nov 2026. The backlog canvas was Cursor-only; ship steps now live in CLAUDE.md.
+alwaysApply: false
 ---
 
 # Update backlog canvas on every ship
+
+> **Retired 6 Nov 2026.** All work moved from Cursor to Claude, and the canvas only renders in Cursor. On a ship, update `docs/backlog.md` and `docs/working-notes.md` only (see "On every ship" in `CLAUDE.md`). An archived copy of the canvas is in `docs/archive/cursor/canvases/`. The text below is history.
 
 Whenever `package.json` **`zukoBuild`** and/or **`version`** is bumped, or a ship is merged/pushed (`main` / `beta-release`, `npm run dist:win:beta`):
 

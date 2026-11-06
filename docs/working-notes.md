@@ -11,20 +11,27 @@ Keep dated notes terse. Use the template below when useful.
 - **Seen:** …
 - **Cause:** … (if known)
 - **Fix / next:** …
-- **Canvas:** sync `zuko-backlog-02-vs-03` to this `zukoBuild` / version (shipped items + next headline).
+- **Beta:** shipped build N / not shipped.
 ```
 
 ---
 
 ## Backlog
 
-Canonical list: **[`docs/backlog.md`](backlog.md)**. Visual snapshot: [0.3.0 planning canvas](C:/Users/alexp/.cursor/projects/c-Users-alexp-Projects-zuko-astro-planner/canvases/zuko-backlog-02-vs-03.canvas.tsx) — refresh it on every `zukoBuild` / version ship.
+Canonical list: **[`docs/backlog.md`](backlog.md)**, the only backlog. The Cursor planning canvas was retired on 6 Nov 2026.
 
 Scratch items still land here until promoted:
 
 ---
 
 ## Log
+
+### 2026-11-06 — Dev (still build 42) — Handoff from Cursor to Claude Code
+- **Seen:** All work moves from Cursor to Claude. Claude Code had never been opened on this repo, and it does not read `.cursor/rules`.
+- **Fix / next:** Repo rules now live in `CLAUDE.md`. The `.mdc` files point there, and the canvas rule is retired. `.gitignore` now covers `data/_cache_recover/` and the `data/zuko-dashboard-data.pre-*.json` safety copies. Cursor's canvases and ZAP plans were copied to `docs/archive/cursor/`. Full state, git and next steps: `H:\Astro Pigeon\agent\handoff\cursor-final.md`.
+- **Data (3 Nov, at Alex's request):** Pacman moved from Dev to Beta. The processed tree is `H:\Astrophotography\Zuko\NGC281_261018` (492 files, 64.5 GB) and the raw dump is `H:\Astrophotography\Zuko\Pacman Nebula`. Both Dev copies were deleted. Dev JSON no longer lists Pacman, and its ASIAIR source is blank. Beta now lists "Pacman Nebula (BIN 1)" and a new "Pacman Nebula (BIN 2)": Reducer + Bin2, CAA 277°, folder `H:\Astrophotography\Zuko\NGC281_Bin2`, Import source `F:\ASIAIR Data\ASIAIR Dump 261103`, plan hours copied from Bin 1.
+- **Still open:** Dev paths. Veil points at the Beta tree, and North America, Elephant Trunk and the dark library point at the missing `F:\zuko_dev`.
+- **Beta:** not shipped.
 
 ### 2026-11-02 — build 42 — ESA sky chart + Winsorized from 10
 - **Seen:** Target Framer stuck fetching `alasky.unistra.fr`. Mono Recommended still said N≥20 in help text while the stack threshold was moving to 10.
