@@ -123,7 +123,7 @@ async function main() {
   });
 
   // Live Dev project smoke (if present): inspect only — do not mutate yet
-  const nan = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
+  const nan = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC7000_260720';
   if (fs.existsSync(nan)) {
     console.log('=== live NAN inspect (read-only) ===');
     const ha = path.join(nan, 'Ha', '260720_Ha_B9_Home');

@@ -47,7 +47,7 @@ Dev and Beta never share data.
 | Dev (`npm start`) | `data/zuko-dashboard-data.json` in this repo | `F:\Astrophotography Dev\zuko_dev\` (`Projects\`, `Dark Library\`) |
 | Beta (installed ZAP Beta) | `H:\Astrophotography\Dashboard\` | `H:\Astrophotography\Zuko\` |
 
-`F:\zuko_dev` no longer exists. The README, the Dev dark-library path and two Dev projects still name it (see the handoff). `F:\GitHub\zuko-astro-planner` is retired; this checkout is the only one to run. Never read `.env` or `Dashboard\.env` into chat.
+`F:\zuko_dev` no longer exists; the app, scripts, README and Dev data were repointed to `F:\Astrophotography Dev\zuko_dev` on 6 Nov 2026 *(Claude Code, 6 Nov 2026)*. Dev and QA must never fall back to a Beta path on `H:`. `F:\GitHub\zuko-astro-planner` is retired; this checkout is the only one to run. Never read `.env` or `Dashboard\.env` into chat.
 
 ## Commands
 

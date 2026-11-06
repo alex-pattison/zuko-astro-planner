@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * QA + smoke for the Import flat-set picker.
- * Uses F:\zuko_dev\ASIAIR-flat-picker (header-only FITS). Stages into a throwaway
+ * Uses F:\Astrophotography Dev\zuko_dev\ASIAIR-flat-picker (header-only FITS). Stages into a throwaway
  * dest, never Veil / H: Beta.
  *
  *   node scripts/qa-flat-set-picker.js
@@ -20,8 +20,8 @@ const {
 } = require('../src/ingest/asiairIngest');
 
 const ROOT = path.resolve(__dirname, '..');
-const DUMP = 'F:\\zuko_dev\\ASIAIR-flat-picker';
-const DEST = 'F:\\zuko_dev\\Projects\\TEST_flat_set_picker_qa';
+const DUMP = 'F:\\Astrophotography Dev\\zuko_dev\\ASIAIR-flat-picker';
+const DEST = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\TEST_flat_set_picker_qa';
 const LIGHT_CAA = 211;
 
 const results = [];
@@ -114,8 +114,8 @@ async function stageChoice({ night, filter, folder, choiceId, expectNight, expec
 
 async function main() {
   console.log('ZAP flat-set picker QA');
-  if (!fs.existsSync('F:\\zuko_dev')) {
-    console.log('skip — F:\\zuko_dev not present');
+  if (!fs.existsSync('F:\\Astrophotography Dev\\zuko_dev')) {
+    console.log('skip — F:\\Astrophotography Dev\\zuko_dev not present');
     process.exit(0);
   }
   await ensureDump();

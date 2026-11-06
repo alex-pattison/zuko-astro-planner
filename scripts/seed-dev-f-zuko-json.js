@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Remap H: Beta Zuko paths → F:\zuko_dev in the Dev checkout dashboard JSON.
- *   H:\Astrophotography\Zuko\<project> → F:\zuko_dev\Projects\<project>
- *   H:\...\Zuko\Dark Library → F:\zuko_dev\Dark Library
+ * Remap H: Beta Zuko paths → F:\Astrophotography Dev\zuko_dev in the Dev checkout dashboard JSON.
+ *   H:\Astrophotography\Zuko\<project> → F:\Astrophotography Dev\zuko_dev\Projects\<project>
+ *   H:\...\Zuko\Dark Library → F:\Astrophotography Dev\zuko_dev\Dark Library
  * Does not touch H: Beta dashboard JSON.
  *
  * Usage: node scripts/seed-dev-f-zuko-json.js [optionalSourceJson]
@@ -16,7 +16,7 @@ const DST = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
 const SRC = process.argv[2] ? path.resolve(process.argv[2]) : DST;
 const H_ZUKO = 'H:\\Astrophotography\\Zuko';
 const H_ZUKO_LEGACY = 'H:\\Photography\\Astrophotography\\Zuko';
-const F_ROOT = 'F:\\zuko_dev';
+const F_ROOT = 'F:\\Astrophotography Dev\\zuko_dev';
 const F_PROJECTS = path.join(F_ROOT, 'Projects');
 const F_DARK = path.join(F_ROOT, 'Dark Library');
 

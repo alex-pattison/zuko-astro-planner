@@ -26,6 +26,15 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-11-06 — build 43 — Open 0.4.0 line; smoke / QC pass; Dev off Beta paths
+- **0.3.0 locked** (through build 42). Version bumped to **0.4.0 · build 43** to mark the switch from Cursor to Claude Code. 0.3.0's open items (#23, #2, #3, #4, #6, #11, #24) carry into 0.4.0.
+- **QC:** `npm test`: 18/18 unit suites and 11/11 Playwright E2E pass. The live-data checks that had been skipping (flat-set picker, NAN cleanup inspect, Dev dark library) now run on Dev.
+- **Seen:** Dev Veil pointed at Beta's `H:\Astrophotography\Zuko\NGC6960_Q326`, so a Dev Calibrate / Register / Stack on Veil would have written into Beta's files.
+- **Cause:** `reset-dashboard-pre-ingest.js` (run at the end of every `npm run test:unit`) fell back to the Beta tree once `F:\zuko_dev` disappeared. `qa-asiair-ingest.js` also fell back to reading the Beta dark library.
+- **Fix:** No Beta fallback in QA any more; the reset's `--mirror-beta` option (which still pointed at the pre-22 Sep path) was removed. `F:\zuko_dev` → `F:\Astrophotography Dev\zuko_dev` in `main.js` (`DEV_PROJECTS_DIR`), `index.html` (Dev dark-library default), the QA and seed scripts, the README and the Dev JSON (projects, dark-library path and its 76-frame index, which had pointed at an empty `_beta_mirror` folder). Backup: `data/zuko-dashboard-data.pre-devpaths-261106.json`.
+- **Still skips (data not on this machine):** Desktop `asiaIRDUMP`, `F:\ASIAIRDUMP_260816`, the Dev Pacman copy (moved to Beta 3 Nov), and Veil's Dev `Ha\Aggregate`.
+- **Beta:** not shipped. Beta stays 0.3.0 · build 42 until Alex asks for a ship. *(Claude Code, 6 Nov 2026)*
+
 ### 2026-11-06 — Dev (still build 42) — Handoff from Cursor to Claude Code
 - **Seen:** All work moves from Cursor to Claude. Claude Code had never been opened on this repo, and it does not read `.cursor/rules`.
 - **Fix / next:** Repo rules now live in `CLAUDE.md`. The `.mdc` files point there, and the canvas rule is retired. `.gitignore` now covers `data/_cache_recover/` and the `data/zuko-dashboard-data.pre-*.json` safety copies. Cursor's canvases and ZAP plans were copied to `docs/archive/cursor/`. Full state, git and next steps: `H:\Astro Pigeon\agent\handoff\cursor-final.md`.

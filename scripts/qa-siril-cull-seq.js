@@ -99,7 +99,7 @@ async function main() {
   testBasename();
   testScripts();
 
-  const liveAgg = 'F:\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\Aggregate';
+  const liveAgg = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326\\Ha\\Aggregate';
   if (fs.existsSync(liveAgg)) {
     const seq = findSirilSeqFile(liveAgg);
     console.log('live prefer seq →', seq ? path.basename(seq) : '(none)');

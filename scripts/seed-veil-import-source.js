@@ -2,7 +2,7 @@
 /**
  * Build a simulated ASIAIR dump for Veil Import testing and point Dev at it.
  *
- * Creates: F:\zuko_dev\ASIAIR-VolumeDump\Autorun\{Light,Flat,Bias,Dark}
+ * Creates: F:\Astrophotography Dev\zuko_dev\ASIAIR-VolumeDump\Autorun\{Light,Flat,Bias,Dark}
  * Lights live under Light/NGC 6960/ (matches Veil / Cygnus Loop).
  * Clones real FITS from Veil Ha 260803 with FILTER + DATE-OBS rewritten.
  *
@@ -21,9 +21,9 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const DATA_PATH = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
-const PROJECT = 'F:\\zuko_dev\\Projects\\NGC6960_Q326';
+const PROJECT = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326';
 const SRC_SHOOT = path.join(PROJECT, 'Ha', '260803_Ha_B9_Home');
-const DUMP_ROOT = 'F:\\zuko_dev\\ASIAIR-VolumeDump';
+const DUMP_ROOT = 'F:\\Astrophotography Dev\\zuko_dev\\ASIAIR-VolumeDump';
 const AUTORUN = path.join(DUMP_ROOT, 'Autorun');
 
 const EXP_SEC = 180;

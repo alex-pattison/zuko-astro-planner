@@ -35,7 +35,7 @@ const {
   aggregateDirFor,
 } = require('../src/siril/preprocess');
 
-const REAL_PROJECT = 'F:\\zuko_dev\\Projects\\NGC6960_Q326';
+const REAL_PROJECT = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326';
 const REAL_AGG = path.join(REAL_PROJECT, 'Ha', 'Aggregate');
 const REAL_NIGHT = path.join(REAL_PROJECT, 'Ha', '261010_Ha_B9_Home');
 

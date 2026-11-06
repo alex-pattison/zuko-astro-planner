@@ -288,7 +288,7 @@ async function main() {
   });
 
   console.log('\n== Live Dark Library (F:) ==');
-  const DARK = 'F:\\zuko_dev\\Dark Library';
+  const DARK = 'F:\\Astrophotography Dev\\zuko_dev\\Dark Library';
   if (fs.existsSync(DARK)) {
     const d = await indexDarkLibrary(DARK);
     assert(d.ok, `dark index frames=${d.count} sets=${(d.sets || []).length}`);

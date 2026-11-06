@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * Synthetic ASIAIR dump for testing the Import flat-set picker.
- * Writes under F:\zuko_dev (not H: Beta). Header-only FITS.
+ * Writes under F:\Astrophotography Dev\zuko_dev (not H: Beta). Header-only FITS.
  *
- *   F:\zuko_dev\ASIAIR-flat-picker\              ← dump (ASIAIR source)
- *   F:\zuko_dev\Projects\TEST_flat_set_picker\   ← empty Siril dest
+ *   F:\Astrophotography Dev\zuko_dev\ASIAIR-flat-picker\              ← dump (ASIAIR source)
+ *   F:\Astrophotography Dev\zuko_dev\Projects\TEST_flat_set_picker\   ← empty Siril dest
  *
  * Default: build FITS + upsert [TEST] Flat-set picker into repo data/.
  *   node scripts/build-flat-set-picker-fixture.js
@@ -18,8 +18,8 @@ const path = require('path');
 const { scanSession, buildScoredFlatSets, normalizeFilter } = require('../src/ingest/asiairIngest');
 
 const ROOT = path.resolve(__dirname, '..');
-const DUMP = 'F:\\zuko_dev\\ASIAIR-flat-picker';
-const WORK = 'F:\\zuko_dev\\Projects\\TEST_flat_set_picker';
+const DUMP = 'F:\\Astrophotography Dev\\zuko_dev\\ASIAIR-flat-picker';
+const WORK = 'F:\\Astrophotography Dev\\zuko_dev\\Projects\\TEST_flat_set_picker';
 const DATA_PATH = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
 
 const TARGET = 'Picker target';
@@ -195,13 +195,13 @@ function testProject() {
   return {
     name: '[TEST] Flat-set picker',
     target: 'Synthetic Picker Target — not a real object',
-    frameMode: 'TEST — header-only FITS under F:\\zuko_dev\\ASIAIR-flat-picker',
+    frameMode: 'TEST — header-only FITS under F:\\Astrophotography Dev\\zuko_dev\\ASIAIR-flat-picker',
     projectDir: WORK,
     centerCoords: 'RA 0h0m0s  Dec +0°0\'0"',
     rotation: '211°',
     status: 'active',
     notes:
-      'TEST ONLY — dump F:\\zuko_dev\\ASIAIR-flat-picker (not Beta, not Desktop dump). ' +
+      'TEST ONLY — dump F:\\Astrophotography Dev\\zuko_dev\\ASIAIR-flat-picker (not Beta, not Desktop dump). ' +
       'Lights 260824 Ha(6)+OIII(6) and 260821 Ha(5). ' +
       'Ha flats Aug 23/20/16 · OIII flats Aug 22/19/15. ' +
       'Import 260824 Ha → closest Aug 23 (3 radios). Import 260824 OIII → closest Aug 22. ' +

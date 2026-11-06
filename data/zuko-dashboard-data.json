@@ -41,7 +41,7 @@
           "cullMeta": null,
           "aggregateMeta": {
             "aggregatedAt": "2026-08-22T01:42:26.067Z",
-            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\Aggregate",
             "shootCount": 2,
             "frameCount": 34,
             "hardlinks": 34,
@@ -49,12 +49,12 @@
           },
           "registerMeta": {
             "registeredAt": "2026-08-22T01:42:38.051Z",
-            "aggregateDir": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate",
+            "aggregateDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\Aggregate",
             "shootCount": 2,
             "frameCount": 34,
             "rPpLightCount": 34,
-            "logPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate\\scripts\\register.log",
-            "scriptPath": "F:\\zuko_dev\\Projects\\NGC6960_Q326_beta_mirror\\SII\\Aggregate\\scripts\\register.ssf",
+            "logPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\Aggregate\\scripts\\register.log",
+            "scriptPath": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326\\SII\\Aggregate\\scripts\\register.ssf",
             "binningUpdate": false,
             "settingsPreset": "monoRecommended"
           }
@@ -169,7 +169,7 @@
       },
       "framerMode": "reducer",
       "framerRotation": 211,
-      "projectDir": "H:\\Astrophotography\\Zuko\\NGC6960_Q326",
+      "projectDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC6960_Q326",
       "processStatus": "processing",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
@@ -184,7 +184,7 @@
       "name": "North America Nebula - First Light",
       "target": "NGC 7000 / Caldwell 20 (North America Nebula); Pelican Nebula (IC 5070) adjacent across L935",
       "frameMode": "Reducer + Bin2 · 280mm f/3.9",
-      "projectDir": "F:\\zuko_dev\\Projects\\NGC7000_260720",
+      "projectDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\NGC7000_260720",
       "centerCoords": "RA 20h58m0.6s  Dec +44°29'33.8\"",
       "rotation": "101°",
       "status": "complete",
@@ -506,7 +506,7 @@
       },
       "framerMode": "reducer",
       "framerRotation": 281,
-      "projectDir": "F:\\zuko_dev\\Projects\\IC1396_Q326",
+      "projectDir": "F:\\Astrophotography Dev\\zuko_dev\\Projects\\IC1396_Q326",
       "processStatus": "",
       "ignoredAsiairFolders": [],
       "asiairBoundFolders": [],
@@ -1328,10 +1328,10 @@
     }
   ],
   "darkLibrary": {
-    "path": "F:\\zuko_dev\\Dark Library",
+    "path": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library",
     "index": [
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1343,11 +1343,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1359,11 +1359,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1375,11 +1375,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1391,11 +1391,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1407,11 +1407,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1423,11 +1423,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1439,11 +1439,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1455,11 +1455,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1471,11 +1471,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1487,11 +1487,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1503,11 +1503,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1519,11 +1519,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1535,11 +1535,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1551,11 +1551,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1567,11 +1567,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1583,11 +1583,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1599,11 +1599,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1615,11 +1615,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1631,11 +1631,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1647,11 +1647,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1663,11 +1663,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1679,11 +1679,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1695,11 +1695,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1711,11 +1711,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1727,11 +1727,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
         "fileName": "master.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1743,11 +1743,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "master",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1759,11 +1759,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1775,11 +1775,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1791,11 +1791,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1807,11 +1807,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1823,11 +1823,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1839,11 +1839,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1855,11 +1855,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1871,11 +1871,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1887,11 +1887,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1903,11 +1903,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1919,11 +1919,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1935,11 +1935,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1951,11 +1951,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1967,11 +1967,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1983,11 +1983,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -1999,11 +1999,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2015,11 +2015,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2031,11 +2031,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2047,11 +2047,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2063,11 +2063,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2079,11 +2079,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2095,11 +2095,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2111,11 +2111,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2127,11 +2127,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2143,11 +2143,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2159,11 +2159,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2175,11 +2175,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2191,11 +2191,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2207,11 +2207,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2223,11 +2223,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2239,11 +2239,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2255,11 +2255,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2271,11 +2271,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2287,11 +2287,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2303,11 +2303,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2319,11 +2319,11 @@
         "ageDays": 38,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2335,11 +2335,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2351,11 +2351,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2367,11 +2367,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2383,11 +2383,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2399,11 +2399,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2415,11 +2415,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2431,11 +2431,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2447,11 +2447,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2463,11 +2463,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2479,11 +2479,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2495,11 +2495,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2511,11 +2511,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2527,11 +2527,11 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       },
       {
-        "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
+        "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
         "fileName": "Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
         "exposureSec": 180,
         "gain": 120,
@@ -2543,7 +2543,7 @@
         "ageDays": 37,
         "expired": false,
         "kind": "sub",
-        "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "type": "dark"
       }
     ],
@@ -2551,14 +2551,14 @@
     "removedSets": [],
     "sets": [
       {
-        "folder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+        "folder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
         "name": "Darks_180s_Bin2_-10c",
         "subCount": 75,
         "hasMaster": true,
-        "masterPath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
+        "masterPath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
         "files": [
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-204817_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2570,11 +2570,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205119_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2586,11 +2586,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205420_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2602,11 +2602,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-205722_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2618,11 +2618,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210023_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2634,11 +2634,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210324_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2650,11 +2650,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210625_-10.0C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2666,11 +2666,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-210926_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2682,11 +2682,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211228_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2698,11 +2698,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211529_-10.0C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2714,11 +2714,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-211830_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2730,11 +2730,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212131_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2746,11 +2746,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212433_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2762,11 +2762,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-212734_-10.0C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2778,11 +2778,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213035_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2794,11 +2794,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213336_-10.0C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2810,11 +2810,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213637_-9.4C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2826,11 +2826,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-213939_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2842,11 +2842,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214240_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2858,11 +2858,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214541_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2874,11 +2874,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-214843_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2890,11 +2890,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215144_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2906,11 +2906,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215445_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2922,11 +2922,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-215746_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2938,11 +2938,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\H\\Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_H_20260714-220047_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2954,11 +2954,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\master.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\master.fit",
             "fileName": "master.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2970,11 +2970,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "master",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220350_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -2986,11 +2986,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220651_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3002,11 +3002,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-220953_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3018,11 +3018,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221254_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3034,11 +3034,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221555_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3050,11 +3050,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-221856_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3066,11 +3066,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222158_-9.4C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3082,11 +3082,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222459_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3098,11 +3098,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-222800_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3114,11 +3114,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223101_-9.4C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3130,11 +3130,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223403_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3146,11 +3146,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-223704_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3162,11 +3162,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224005_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3178,11 +3178,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224306_-9.4C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3194,11 +3194,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224608_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3210,11 +3210,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-224909_-9.4C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3226,11 +3226,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225211_-10.0C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3242,11 +3242,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225512_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3258,11 +3258,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-225813_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3274,11 +3274,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230114_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3290,11 +3290,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230415_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3306,11 +3306,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-230717_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3322,11 +3322,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231018_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3338,11 +3338,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231319_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3354,11 +3354,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\O\\Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_O_20260714-231620_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3370,11 +3370,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193245_-10.0C_0001.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3386,11 +3386,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193546_-10.0C_0002.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3402,11 +3402,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-193847_-10.0C_0003.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3418,11 +3418,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194148_-10.0C_0004.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3434,11 +3434,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194450_-10.0C_0005.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3450,11 +3450,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-194751_-10.0C_0006.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3466,11 +3466,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195052_-10.0C_0007.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3482,11 +3482,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195353_-10.0C_0008.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3498,11 +3498,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195654_-10.0C_0009.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3514,11 +3514,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-195956_-10.0C_0010.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3530,11 +3530,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200257_-10.0C_0011.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3546,11 +3546,11 @@
             "ageDays": 38,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200558_-10.0C_0012.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3562,11 +3562,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-200859_-10.0C_0013.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3578,11 +3578,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201200_-10.0C_0014.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3594,11 +3594,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201502_-10.0C_0015.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3610,11 +3610,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-201803_-10.0C_0016.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3626,11 +3626,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202104_-10.0C_0017.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3642,11 +3642,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202405_-10.0C_0018.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3658,11 +3658,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-202707_-10.0C_0019.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3674,11 +3674,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203008_-10.0C_0020.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3690,11 +3690,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203309_-10.0C_0021.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3706,11 +3706,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203611_-10.0C_0022.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3722,11 +3722,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-203912_-10.0C_0023.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3738,11 +3738,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-204213_-10.0C_0024.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3754,11 +3754,11 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           },
           {
-            "filePath": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
+            "filePath": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c\\S\\Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
             "fileName": "Dark_180.0s_Bin2_S_20260714-204514_-10.0C_0025.fit",
             "exposureSec": 180,
             "gain": 120,
@@ -3770,7 +3770,7 @@
             "ageDays": 37,
             "expired": false,
             "kind": "sub",
-            "setFolder": "F:\\zuko_dev\\Dark Library_beta_mirror\\Darks_180s_Bin2_-10c",
+            "setFolder": "F:\\Astrophotography Dev\\zuko_dev\\Dark Library\\Darks_180s_Bin2_-10c",
             "type": "dark"
           }
         ],
@@ -3796,9 +3796,9 @@
   "asiairSourcePath": "",
   "sirilMonoScriptWarnDismissedFingerprint": "",
   "appMeta": {
-    "version": "0.3.0",
-    "build": 41,
-    "savedAt": "2026-10-29T13:46:13.414Z"
+    "version": "0.4.0",
+    "build": 43,
+    "savedAt": "2026-11-06T23:06:50.069Z"
   },
   "preprocessSettings": {
     "bias": {

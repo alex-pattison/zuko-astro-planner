@@ -22,10 +22,10 @@ Two side-by-side channels with **separate data pools** (they never sync):
 
 | Channel | How you run it | App / dashboard JSON | Imaging files |
 |---|---|---|---|
-| **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\zuko_dev\Projects` + `F:\zuko_dev\Dark Library` |
+| **Dev** | `npm start` from this checkout | `<checkout>/data/` | `F:\Astrophotography Dev\zuko_dev\Projects` + `F:\Astrophotography Dev\zuko_dev\Dark Library` |
 | **Beta** | `npm run dist:win:beta` (build **and** install) | `H:\Astrophotography\Dashboard` | `H:\Astrophotography\Zuko\…` |
 
-**One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\zuko_dev` is Dev FITS / synthetic data only.
+**One checkout only** — develop and launch from `C:\Users\alexp\Projects\zuko-astro-planner`. The old `F:\GitHub\zuko-astro-planner` clone is retired (do not run it). `F:\Astrophotography Dev\zuko_dev` is Dev FITS / synthetic data only.
 
 - Window title shows **Dev** or **Beta** so you know which pool is open.
 - Override either pool with `ZUKO_DATA_DIR` (used by Playwright / QA).
@@ -41,7 +41,7 @@ npm run seed:beta
 
 ## Data storage
 
-- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories and the Dark Library live under `F:\zuko_dev\…`.
+- **Dev** loads/saves only `<checkout>/data/zuko-dashboard-data.json` (plus forecast/moon caches in that folder). Project directories and the Dark Library live under `F:\Astrophotography Dev\zuko_dev\…`.
 - **Beta** loads/saves only `H:\Astrophotography\Dashboard\zuko-dashboard-data.json` — no mirror into git `data/`. Dark Library lives under `H:\Astrophotography\Zuko\…`.
 
 localStorage is kept as a cache. Use **File → Open Data Folder** to jump to the active directory.
@@ -52,7 +52,7 @@ Reusable master darks (match **lights** by exp / gain / temp / bin):
 
 | | Dev | Beta |
 |---|---|---|
-| **Dark Library** | `F:\zuko_dev\Dark Library` | `H:\…\Zuko\Dark Library` |
+| **Dark Library** | `F:\Astrophotography Dev\zuko_dev\Dark Library` | `H:\…\Zuko\Dark Library` |
 
 - **Import from ASIAIR…** copies Dark subs into set folders (`Darks_<exp>_BinN_<temp>c[/filter]`).
 - **Build master** runs Siril stack → `master.fit` (optionally remove subs afterward).

@@ -53,10 +53,9 @@ const SRC_AUTORUN = (() => {
 })();
 const QA_ROOT = path.join(ROOT, 'staging', 'asiair-qa');
 const QA_AUTORUN = path.join(QA_ROOT, 'Autorun');
+// Dev dark library only: unit QA never reads the Beta tree (Claude Code, 6 Nov 2026).
 const DARK_LIB = process.env.ZUKO_DARK_LIBRARY
-  || (fs.existsSync('F:\\zuko_dev\\Dark Library')
-    ? 'F:\\zuko_dev\\Dark Library'
-    : 'H:\\Astrophotography\\Zuko\\Dark Library');
+  || 'F:\\Astrophotography Dev\\zuko_dev\\Dark Library';
 const NIGHT = '20260725';
 
 const results = [];

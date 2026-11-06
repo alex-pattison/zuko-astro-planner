@@ -7,7 +7,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(ROOT, 'data', 'zuko-dashboard-data.json');
-const H = path.join('H:', 'Photography', 'Astrophotography', 'Dashboard', 'zuko-dashboard-data.json');
+const DEV_POOL = 'F:\\Astrophotography Dev\\zuko_dev';
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const BUILD = Number(pkg.zukoBuild) || 8;
 
@@ -66,14 +66,10 @@ for (const p of d.projects) {
         ingestMeta: null,
       },
     ];
-    // Prefer Dev imaging pool; fall back to Beta H: dump.
-    const devDir = 'F:\\zuko_dev\\Projects\\NGC6960_Q326';
-    const betaDir = 'H:\\Astrophotography\\Zuko\\NGC6960_Q326';
-    if (fs.existsSync(devDir)) {
-      p.projectDir = devDir;
-    } else if (fs.existsSync(path.join(betaDir, 'Autorun')) || fs.existsSync(path.join(betaDir, 'asiair')) || fs.existsSync(betaDir)) {
-      p.projectDir = betaDir;
-    }
+    // Dev imaging pool only. Never fall back to the Beta tree on H: — when F:\zuko_dev
+    // disappeared this pointed Dev Veil at Beta's real files (Claude Code, 6 Nov 2026).
+    const devDir = path.join(DEV_POOL, 'Projects', 'NGC6960_Q326');
+    p.projectDir = fs.existsSync(devDir) ? devDir : '';
   } else {
     for (const sh of p.shoots || []) {
       sh.sourcePath = null;
@@ -84,7 +80,7 @@ for (const p of d.projects) {
     }
     // Keep NAN on Dev F: pool when present
     if (/North America|NGC7000/i.test(p.name || '') || /NGC7000/i.test(String(p.projectDir || ''))) {
-      const nanDev = 'F:\\zuko_dev\\Projects\\NGC7000_260720';
+      const nanDev = path.join(DEV_POOL, 'Projects', 'NGC7000_260720');
       if (fs.existsSync(nanDev)) p.projectDir = nanDev;
     }
   }
@@ -105,7 +101,7 @@ for (const p of d.projects) {
 }
 
 // Dev dark library on F: when present
-const devDark = 'F:\\zuko_dev\\Dark Library';
+const devDark = path.join(DEV_POOL, 'Dark Library');
 if (!d.darkLibrary || typeof d.darkLibrary !== 'object') d.darkLibrary = {};
 if (fs.existsSync(devDark)) {
   d.darkLibrary.path = devDark;
@@ -130,16 +126,5 @@ console.log(
   })),
 );
 
-// Never mirror Dev checkout JSON onto H: Beta. Use --mirror-beta only when intentional.
-if (process.argv.includes('--mirror-beta')) {
-  try {
-    if (fs.existsSync(path.dirname(H))) {
-      fs.writeFileSync(H, json);
-      console.log('Mirrored', H);
-    }
-  } catch (e) {
-    console.warn('H mirror failed:', e.message);
-  }
-} else {
-  console.log('Skipped H: Beta mirror (pass --mirror-beta to overwrite Beta dashboard)');
-}
+// Dev JSON is never written onto Beta. The old --mirror-beta option (which still pointed at
+// the pre-22 Sep H:\Photography path) was removed on 6 Nov 2026 (Claude Code).

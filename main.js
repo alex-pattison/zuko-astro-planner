@@ -90,7 +90,7 @@ function loadSirilPreprocess() {
 const BETA_DATA_DIR = 'H:\\Astrophotography\\Dashboard';
 const PREFERRED_PROJECTS_DIR = 'H:\\Astrophotography\\Projects';
 /** Dev channel imaging pool on F: (never share with Beta/H). */
-const DEV_PROJECTS_DIR = 'F:\\zuko_dev\\Projects';
+const DEV_PROJECTS_DIR = 'F:\\Astrophotography Dev\\zuko_dev\\Projects';
 const REPO_DATA_DIR = path.join(__dirname, 'data');
 const REPO_DATA_FILE = path.join(REPO_DATA_DIR, 'zuko-dashboard-data.json');
 const REPO_PROJECTS_DIR = path.join(REPO_DATA_DIR, 'projects');
@@ -200,7 +200,7 @@ function resolveDataPaths() {
     };
   }
   // Dev: checkout-local data/ only (launch from C:\Users\alexp\Projects\zuko-astro-planner).
-  // Imaging files stay on F:\zuko_dev (see resolveProjectsRoot / dark library path).
+  // Imaging files stay on F:\Astrophotography Dev\zuko_dev (see resolveProjectsRoot / dark library path).
   return {
     dir: REPO_DATA_DIR,
     file: REPO_DATA_FILE,

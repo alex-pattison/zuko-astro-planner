@@ -4,24 +4,21 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 
 **On every build or version ship:** mark shipped items here, keep the two lines below current, and log the build in `working-notes.md`. This is the only backlog. The Cursor planning canvas was retired on 6 Nov 2026; an archived copy is `archive/cursor/canvases/zuko-backlog-02-vs-03.canvas.tsx`.
 
-**Current:** 0.3.0 · build 42 (Beta shipped 2 Nov 2026).
+**Current:** 0.4.0 · build 43 in Dev (opened 6 Nov 2026). Beta is still 0.3.0 · build 42 (shipped 2 Nov 2026).
 **Next headline:** #23 Filter mount + size. Then #2 backup / restore, #3 `dataVersion`, #4 startup skeleton, #6 gain / camera / rotator on nights, #11 crash log, #24 dark-flat library.
 
 | Line | Status |
 |------|--------|
 | **0.2.0** | **Locked** — shipped through build 23 (project reorder, imaging config, ASIAIR filename parse, moon altitude, pipeline). |
-| **0.3.0** | Active — items below. |
+| **0.3.0** | **Locked** — shipped through build 42 (filter wheel, CAA alignment, cross-night flat sets, ZAP rename and logo, Beta root on H:, ESA sky chart, Winsorized from 10). |
+| **0.4.0** | Active — opened at build 43 for the switch to Claude Code. Items below. |
 | **Backlog** | Everything else. |
 
 ---
 
-## 0.3.0 (active)
+## 0.4.0 (active)
 
-### 1. Editable filter wheel — *shipped build 29*
-
-Filters section is the source of truth (add/edit/remove, slot, color). Capture Plan dropdowns read `data.filters`.
-
----
+Opened 6 Nov 2026 to mark the switch from Cursor to Claude Code. It carries the items 0.3.0 left open. *(Claude Code, 6 Nov 2026)*
 
 ### 23. Filter mount + size (before go-live)
 
@@ -64,6 +61,33 @@ Spinner/skeleton while disk reconcile + first render finish.
 New dumps include `294MM`, `gain120`, `211deg` in filenames and FITS headers. Show them in the shoot/night UI.
 
 **Source of truth:** Prefer **FITS header when present**; **filename as fallback** (optionally flag mismatches). Ingest already merges that way. UI should display merged values.
+
+---
+
+### 11. Local crash / error log folder
+
+Write last N main/renderer errors to a zipable folder. No cloud required.
+
+---
+
+### 24. Dark-flat library (like Dark Library)
+
+Reusable master dark flats, not only the ASIAIR Bias folder that rode in with that night’s flats.
+
+- Import / build masters the way Dark Library does (copy from dump → set folders → stack).
+- Match on **filter + exp / gain / temp / bin** (dark flats are per-filter; darks are not).
+- Import checkbox: use matching library dark flats when the session Bias set is missing or you choose library over session.
+- 0.2 removed a **Bias Library** product on purpose (session darkflats only). This is the 0.3 revisit with the right name and match keys — not a revival of offset-bias masters.
+
+**Why:** Same dark flats get reshot every flat set. A library stops duplicating disk and lets a good set cover later nights.
+
+---
+
+## 0.3.0 (locked, builds 24–42)
+
+### 1. Editable filter wheel — *shipped build 29*
+
+Filters section is the source of truth (add/edit/remove, slot, color). Capture Plan dropdowns read `data.filters`.
 
 ---
 
@@ -132,25 +156,6 @@ Product name is **ZAP** (not Zuko / ZAP Astro Planner). Header wordmark + Z logo
 Header / boot Z logo uses night-vision red fills in Red mode (Dev amber / Beta teal otherwise).
 
 **Why:** Amber/teal mark broke the red field theme.
-
----
-
-### 11. Local crash / error log folder
-
-Write last N main/renderer errors to a zipable folder. No cloud required.
-
----
-
-### 24. Dark-flat library (like Dark Library)
-
-Reusable master dark flats, not only the ASIAIR Bias folder that rode in with that night’s flats.
-
-- Import / build masters the way Dark Library does (copy from dump → set folders → stack).
-- Match on **filter + exp / gain / temp / bin** (dark flats are per-filter; darks are not).
-- Import checkbox: use matching library dark flats when the session Bias set is missing or you choose library over session.
-- 0.2 removed a **Bias Library** product on purpose (session darkflats only). This is the 0.3 revisit with the right name and match keys — not a revival of offset-bias masters.
-
-**Why:** Same dark flats get reshot every flat set. A library stops duplicating disk and lets a good set cover later nights.
 
 ---
 
