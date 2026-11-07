@@ -4,7 +4,7 @@ Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](
 
 **On every build or version ship:** mark shipped items here, keep the two lines below current, and log the build in `working-notes.md`. This is the only backlog. The Cursor planning canvas was retired on 6 Nov 2026; an archived copy is `archive/cursor/canvases/zuko-backlog-02-vs-03.canvas.tsx`.
 
-**Current:** 0.4.0 · build 43 (Beta shipped 6 Nov 2026).
+**Current:** 0.4.0 · build 43 (Beta shipped 6 Nov 2026). Dev: build 44 in progress on branch `build-44-project-backlog` (#37), not shipped.
 **Next headline:** #23 Filter mount + size. Then #2 backup / restore, #3 `dataVersion`, #4 startup skeleton, #6 gain / camera / rotator on nights, #11 crash log, #24 dark-flat library.
 
 | Line | Status |
@@ -80,6 +80,18 @@ Reusable master dark flats, not only the ASIAIR Bias folder that rode in with th
 - 0.2 removed a **Bias Library** product on purpose (session darkflats only). This is the 0.3 revisit with the right name and match keys — not a revival of offset-bias masters.
 
 **Why:** Same dark flats get reshot every flat set. A library stops duplicating disk and lets a good set cover later nights.
+
+---
+
+### 37. Backlog project status — *in Dev, build 44 (not shipped)*
+
+A **backlog** option in the project status dropdown, ahead of planning / Imaging / Processing / complete. *(Claude Code, 6 Nov 2026)*
+
+- New projects default to backlog (New Project form and save fallback).
+- Backlog projects don't count toward the Active projects stat; the card name is greyed.
+- Ingesting a night into a backlog project moves it to Imaging, the same as planning does.
+
+**Why:** Somewhere to park targets for later without them counting as active work.
 
 ---
 

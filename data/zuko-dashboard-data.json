@@ -6,7 +6,7 @@
       "frameMode": "Reducer + Bin2 · 280mm f/3.9",
       "centerCoords": "RA 20h51m24.7s  Dec +31°6'0.6\"",
       "rotation": "211°",
-      "status": "active",
+      "status": "planning",
       "notes": "Whole Cygnus Loop (~3°) fits one reducer frame at 27° — no mosaic. OIII is strong across the loop (including the fainter Western Veil). SII is the weakest channel; prioritize it at a dark site.",
       "filterTargets": [
         {
@@ -516,6 +516,30 @@
       "startDateManual": false,
       "endDateManual": false,
       "imagingConfig": "reducer-bin2"
+    },
+    {
+      "name": "ggh",
+      "target": "",
+      "projectDir": "",
+      "centerCoords": "",
+      "status": "active",
+      "notes": "",
+      "filterTargets": [],
+      "checklist": [],
+      "shoots": [],
+      "astrobinLinks": [],
+      "savedTarget": null,
+      "framerMode": "reducer",
+      "framerRotation": 0,
+      "rotation": "0°",
+      "startDate": "",
+      "endDate": "",
+      "startDateManual": false,
+      "endDateManual": false,
+      "ignoredAsiairFolders": [],
+      "asiairBoundFolders": [],
+      "imagingConfig": "reducer-bin2",
+      "frameMode": "Reducer + Bin2 · 280mm f/3.9"
     }
   ],
   "assets": [
@@ -3797,8 +3821,8 @@
   "sirilMonoScriptWarnDismissedFingerprint": "",
   "appMeta": {
     "version": "0.4.0",
-    "build": 43,
-    "savedAt": "2026-11-06T23:06:50.069Z"
+    "build": 44,
+    "savedAt": "2026-11-07T02:36:22.721Z"
   },
   "preprocessSettings": {
     "bias": {

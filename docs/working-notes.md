@@ -26,6 +26,12 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-11-06 — build 44 (Dev) — Backlog project status
+- **Ask:** Add a backlog option to the project status dropdown, make it the default, and leave it out of the active-project count.
+- **Fix:** `index.html` has a new `backlog` status (grey pill and greyed card name). It is the first dropdown option and the default for new projects. It is left out of `stat-active`. Ingest moves backlog projects to Imaging, the same as planning. Existing projects are unchanged. Branch `build-44-project-backlog`; `zukoBuild` 43 → 44.
+- **QC:** `npm run test:unit` passes 18/18. `npm run test:e2e` passes 13/13, including two new smoke tests (New Project defaults to backlog; backlog greys the card and drops it from the active count).
+- **Beta:** not shipped. *(Claude Code, 6 Nov 2026)*
+
 ### 2026-11-06 — build 43 — Open 0.4.0 line; smoke / QC pass; Dev off Beta paths
 - **0.3.0 locked** (through build 42). Version bumped to **0.4.0 · build 43** to mark the switch from Cursor to Claude Code. 0.3.0's open items (#23, #2, #3, #4, #6, #11, #24) carry into 0.4.0.
 - **QC:** `npm test`: 18/18 unit suites and 11/11 Playwright E2E pass. The live-data checks that had been skipping (flat-set picker, NAN cleanup inspect, Dev dark library) now run on Dev.

@@ -46,6 +46,28 @@ test('seeded E2E project card is visible', async () => {
   await expect(card).toBeVisible();
 });
 
+// Backlog status: default for new projects, not counted as active. (Claude Code, 6 Nov 2026)
+test('New Project modal defaults status to backlog', async () => {
+  await window.getByTestId('new-project').click();
+  await expect(window.locator('#f-status')).toHaveValue('backlog');
+  await window.getByTestId('modal-cancel').click();
+  await expect(window.locator('#modal-overlay.open')).toHaveCount(0);
+});
+
+test('backlog project is greyed and not counted as active', async () => {
+  const card = window.locator('[data-testid="project-card"][data-project-name="[E2E] Target Match Smoke"]');
+  const select = card.locator('.project-status-select');
+  const original = await select.inputValue();
+  const activeBefore = Number(await window.locator('#stat-active').textContent());
+  await select.selectOption('backlog');
+  const backlogCard = window.locator('[data-testid="project-card"][data-project-name="[E2E] Target Match Smoke"]');
+  await expect(backlogCard).toHaveClass(/is-backlog/);
+  const expected = original === 'complete' || original === 'backlog' ? activeBefore : activeBefore - 1;
+  await expect(window.locator('#stat-active')).toHaveText(String(expected));
+  await backlogCard.locator('.project-status-select').selectOption(original);
+  await expect(window.locator('#stat-active')).toHaveText(String(activeBefore));
+});
+
 test('Review source opens overlay when projectDir is set', async () => {
   const card = window.locator('[data-testid="project-card"][data-project-name="[E2E] Target Match Smoke"]');
   if (!(await card.evaluate((el) => el.classList.contains('open')))) {

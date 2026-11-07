@@ -3765,6 +3765,8 @@
     -webkit-appearance: none;
     appearance: none;
   }
+  .status-backlog { color: var(--gray); border-color: rgba(100,116,139,0.45); background: rgba(100,116,139,0.1); }
+  .project-card.is-backlog .project-name { color: var(--gray); }
   .status-planning { color: var(--yellow); border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.1); }
   .status-active { color: var(--accent2); border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.1); }
   .status-processing { color: #c084fc; border-color: rgba(192,132,252,0.4); background: rgba(192,132,252,0.1); }
@@ -9916,6 +9918,7 @@ function renderUnsafe() {
   const projects = data.projects || [];
   const totalHrsLogged = projects.reduce((s, p) => s + (p.filterTargets || []).reduce((s2, f) => s2 + (f.loggedHrs || 0), 0), 0);
   const completeCount = projects.filter(p => p.status === 'complete').length;
+  // Backlog projects are parked, so they don't count as active. (Claude Code, 6 Nov 2026)
   const activeCount = projects.filter(p => ['planning', 'active', 'processing'].includes(p.status)).length;
   document.getElementById('stat-hours').textContent = `${totalHrsLogged.toFixed(1)}h`;
   document.getElementById('stat-complete').textContent = `${completeCount}/${projects.length}`;
@@ -9982,7 +9985,7 @@ function projectShootISOBounds(project) {
 /**
  * Shoot-window dates from the shot log (unless manually overridden).
  * - Start: earliest shoot date
- * - End: cleared while Imaging/planning; set to latest shoot when leaving Imaging → Processing/complete
+ * - End: cleared while Imaging/planning; set to latest shoot when leaving Imaging → Processing/complete/backlog
  */
 function syncProjectShootDates(project, opts = {}) {
   if (!project) return;
@@ -10706,12 +10709,13 @@ function renderProjects() {
     const isOpen = openProjects.has(pi);
     const dateRange = formatProjectDateRange(p.startDate, p.endDate);
     return `
-    <div class="project-card ${isOpen ? 'open' : ''}" data-idx="${pi}" data-testid="project-card" data-project-name="${escapeAttr(p.name || '')}">
+    <div class="project-card ${isOpen ? 'open' : ''}${p.status === 'backlog' ? ' is-backlog' : ''}" data-idx="${pi}" data-testid="project-card" data-project-name="${escapeAttr(p.name || '')}">
       <div class="project-header" onclick="toggleProjectCard(this, ${pi})">
         <span class="project-drag-handle" title="Drag to reorder"
           onclick="event.stopPropagation()"
           onpointerdown="onProjectHandlePointerDown(event, ${pi})">⠿</span>
         <select class="project-status-select status-${p.status}" onclick="event.stopPropagation()" onchange="updateProjectStatus(${pi}, this.value)">
+          <option value="backlog" ${p.status === 'backlog' ? 'selected' : ''}>backlog</option>
           <option value="planning" ${p.status === 'planning' ? 'selected' : ''}>planning</option>
           <option value="active" ${p.status === 'active' ? 'selected' : ''}>Imaging</option>
           <option value="processing" ${p.status === 'processing' ? 'selected' : ''}>Processing</option>
@@ -18401,7 +18405,8 @@ function applyIngestStageResult(project, sh, session, scan, result, shootFolder,
   if ((!sh.hours || sh.hours === 0) && lightCount && lightRow && lightRow.exposureSec) {
     sh.hours = Math.round((lightCount * lightRow.exposureSec / 3600) * 100) / 100;
   }
-  if (project.status === 'planning') {
+  // Ingesting a night means the project is being imaged, even if it was parked in the backlog. (Claude Code, 6 Nov 2026)
+  if (project.status === 'planning' || project.status === 'backlog') {
     const prev = project.status;
     project.status = 'active';
     syncProjectShootDates(project, { prevStatus: prev, nextStatus: 'active' });
@@ -19593,7 +19598,7 @@ const modalConfigs = {
       { id: 'f-imagingConfig', label: 'Imaging configuration', type: 'select', options: [], optionLabels: [] },
       { id: 'f-projectDir', label: 'Project directory (Siril import destination)', type: 'path', placeholder: 'e.g. H:\\…\\Zuko\\NGC6960_Q326' },
       { id: 'f-centerCoords', label: 'Center Coordinates', type: 'text', placeholder: 'RA 20h51m27s  Dec +31°07\'28"' },
-      { id: 'f-status', label: 'Status', type: 'select', options: ['planning', 'active', 'processing', 'complete'], optionLabels: ['planning', 'Imaging', 'Processing', 'complete'] },
+      { id: 'f-status', label: 'Status', type: 'select', options: ['backlog', 'planning', 'active', 'processing', 'complete'], optionLabels: ['backlog', 'planning', 'Imaging', 'Processing', 'complete'] },
       { id: 'f-notes', label: 'Notes', type: 'textarea', placeholder: 'Free-form project notes' }
     ]
   },
@@ -19696,6 +19701,8 @@ function openModal(type, prefill) {
     if (!editing) {
       prefill = Object.assign({}, prefill || {}, {
         'f-imagingConfig': (prefill && prefill['f-imagingConfig']) || 'reducer-bin2',
+        // New projects start in the backlog. (Claude Code, 6 Nov 2026)
+        'f-status': (prefill && prefill['f-status']) || 'backlog',
       });
     }
   }
@@ -19861,7 +19868,7 @@ function saveModal() {
   } else if (modalType === 'project') {
     if (!v('f-name')) return;
     const prev = editing ? data.projects[editIndex] : null;
-    const nextStatus = v('f-status') || 'planning';
+    const nextStatus = v('f-status') || 'backlog';
     const item = {
       ...(prev || {}),
       name: v('f-name'), target: v('f-target'),
