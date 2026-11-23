@@ -4222,6 +4222,12 @@
     background: color-mix(in srgb, var(--accent2, #60a5fa) 12%, transparent);
   }
   .skyfx-data-banner.skyfx-fallback-banner strong { color: var(--accent2, #60a5fa); }
+  .skyfx-data-banner.skyfx-pullfail-banner {
+    border-color: color-mix(in srgb, var(--yellow) 55%, transparent);
+    background: color-mix(in srgb, var(--yellow) 12%, transparent);
+  }
+  .skyfx-data-banner.skyfx-pullfail-banner strong { color: var(--yellow); }
+  #skyfx-fallback-reason, #skyfx-pullfail-reason { margin-top: 2px; opacity: 0.85; }
   .skyfx-data-banner.skyfx-offline-banner {
     border-color: color-mix(in srgb, var(--red) 55%, transparent);
     background: color-mix(in srgb, var(--red) 14%, transparent);
@@ -5200,6 +5206,11 @@
       </div>
       <div class="skyfx-data-banner skyfx-fallback-banner" id="skyfx-fallback-banner" role="status" hidden>
         <div><strong>Open-Meteo fallback</strong> · Astrospheric unavailable — cloud/temp/precip only · no shoot RAG</div>
+        <div id="skyfx-fallback-reason" hidden></div>
+      </div>
+      <div class="skyfx-data-banner skyfx-pullfail-banner" id="skyfx-pullfail-banner" role="status" hidden>
+        <div><strong>Astrospheric pull failed</strong> · <span id="skyfx-pullfail-age">showing an older forecast</span></div>
+        <div id="skyfx-pullfail-reason"></div>
       </div>
       <div class="skyfx-credit-ticker" id="skyfx-credit-ticker" title="Astrospheric monthly API allowance">
         <div id="skyfx-credit-ticker-main">API pulls · loading…</div>
@@ -8250,13 +8261,17 @@ function applyHeaderSkyFromForecast(res) {
   }
 
   if (res.fallback || res.noRag) {
+    // Say Astrospheric failed (not a Dev setting) and why. (Claude Code, 18 Nov 2026)
+    const astroFailed = !offline && !!res.primaryError && !/dev setting/i.test(res.primaryError);
     setHeaderShootChip(
       'muted',
       'Tonight · —',
       offline
         ? 'No internet — no shoot RAG'
-        : 'No RAG on fallback data · click to open Sky Forecast',
-      null,
+        : astroFailed
+          ? 'Astrospheric failed — showing Open-Meteo (no shoot RAG). ' + res.primaryError
+          : 'No RAG on fallback data · click to open Sky Forecast',
+      astroFailed ? 'Astrospheric failed · Open-Meteo' : null,
       offlineState
     );
     return;
@@ -8280,6 +8295,11 @@ function applyHeaderSkyFromForecast(res) {
     title += ' (synthetic)';
   }
   if (offline) title += ' (offline cache)';
+  // Old forecast still covers tonight but the fresh pull failed. (Claude Code, 18 Nov 2026)
+  if (!offline && res.refreshError) {
+    note = 'Astrospheric pull failed · old forecast';
+    title += ' · pull failed: ' + res.refreshError;
+  }
 
   setHeaderShootChip(rag, chipLabel, title, note, offlineState);
 }
@@ -8961,6 +8981,29 @@ function setSkyFxDataBanner(res) {
   const usedOfflineCache = !!(res && res.offline);
   if (synthBanner) synthBanner.hidden = !isSynth;
   if (fallbackBanner) fallbackBanner.hidden = isSynth || netDown || !isFallback;
+  // Say why Astrospheric was skipped (e.g. key rejected). (Claude Code, 18 Nov 2026)
+  const fallbackReason = document.getElementById('skyfx-fallback-reason');
+  if (fallbackReason) {
+    const why = isFallback && res && res.primaryError ? String(res.primaryError) : '';
+    fallbackReason.textContent = why;
+    fallbackReason.hidden = !why;
+  }
+  // Astrospheric data shown, but from an old pull because the fresh one failed.
+  const pullFailBanner = document.getElementById('skyfx-pullfail-banner');
+  if (pullFailBanner) {
+    const failed = !isSynth && !isFallback && !netDown && !!(res && res.refreshError);
+    pullFailBanner.hidden = !failed;
+    if (failed) {
+      const ageEl = document.getElementById('skyfx-pullfail-age');
+      const reasonEl = document.getElementById('skyfx-pullfail-reason');
+      if (ageEl) {
+        ageEl.textContent = res.fetchedAt
+          ? 'showing the forecast from ' + fmtFetchedAt(res.fetchedAt)
+          : 'showing an older forecast';
+      }
+      if (reasonEl) reasonEl.textContent = String(res.refreshError);
+    }
+  }
   if (netDown) {
     setSkyFxOfflineBanner(true, usedOfflineCache && res && res.cached
       ? 'Showing last cached forecast — live pull unavailable'

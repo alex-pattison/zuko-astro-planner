@@ -30,6 +30,8 @@ If Alex asked you to edit the Beta dashboard JSON:
 
 **Don't kill or relaunch Electron** (Dev or ZAP Beta) unless Alex asks. After a change to `main.js`, `preload.js`, IPC, ingest or Siril code, or the UI, tell him to restart Dev himself (or reload the window if that is enough). Never chain a kill and relaunch while he is testing. A Dev window opened before a data change can save its old copy back over `data/zuko-dashboard-data.json`.
 
+**Versioning:** every Beta ship bumps `zukoBuild` by 1. A ship that adds a new feature also bumps `version` by 0.1 and opens that line in `docs/backlog.md`; a fix-only ship keeps the version. *(Claude Code, 6 Nov 2026; Alex's decision)*
+
 **On every ship** (a `zukoBuild` or `version` bump, a merge or push to `main` or `beta-release`, or `npm run dist:win:beta`):
 1. Mark the shipped items in `docs/backlog.md`, and keep its "Current" and "Next headline" lines up to date.
 2. Add a log entry at the top of `docs/working-notes.md`.
@@ -57,7 +59,7 @@ Dev and Beta never share data.
 
 ## Ship flow (only when Alex asks to ship)
 
-1. Bump `zukoBuild` in `package.json`, and `version` if the line changes.
+1. Bump `zukoBuild` in `package.json` by 1. If the ship adds a new feature, also bump `version` by 0.1 (0.4.0 → 0.5.0); a fix-only ship keeps the version. *(Claude Code, 6 Nov 2026; Alex's decision)*
 2. Run the unit QA that covers the change.
 3. Update `docs/backlog.md` and `docs/working-notes.md`.
 4. Commit on `main` with one plain sentence, for example `Ship ESA sky-chart fallback and Winsorized stacking from 10 frames as build 42.` Merge `main` into `beta-release` and push both to `origin`.

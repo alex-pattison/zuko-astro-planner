@@ -20,6 +20,7 @@ const scripts = [
   'scripts/qa-target-match-deep.js',
   'scripts/qa-sky-astro-modules.js',
   'scripts/qa-sky-forecast-credits.js',
+  'scripts/qa-sky-stale-cache.js',
   'scripts/qa-siril-cull-seq.js',
   'scripts/qa-siril-register-stack.js',
   'scripts/qa-preprocess-settings.js',

@@ -928,9 +928,13 @@ async function fetchAstrospheric(lat, lon, apiKey, opts = {}) {
     }
 
     if (!res.ok) {
+      const apiMsg =
+        body && (body.ErrorInfo || body.ErrorMessage || body.Message || body.error);
+      // 401/403: key rejected or API access not on the account (Claude Code, 18 Nov 2026)
       const msg =
-        (body && (body.ErrorInfo || body.ErrorMessage || body.Message || body.error)) ||
-        `HTTP ${res.status}`;
+        res.status === 401 || res.status === 403
+          ? `Astrospheric rejected the API key (HTTP ${res.status}${apiMsg ? ': ' + apiMsg : ''}). Check API access on your Astrospheric account, then re-enter the key in Settings.`
+          : apiMsg || `HTTP ${res.status}`;
       const stale = tryCached();
       if (stale) {
         return {
@@ -1356,6 +1360,30 @@ async function getSkyForecast(payload = {}) {
       const primary = await fetchAstrospheric(lat, lon, apiKey, { forceRefresh });
       if (primary.ok) {
         const scored = scoreAstrosphericWindows(primary.forecast, windows);
+        // A failed pull served from an old cache that no longer reaches the
+        // later nights would leave them blank. Use Open-Meteo for every night
+        // instead and pass on the real Astrospheric error. (Claude Code, 18 Nov 2026)
+        if (
+          primary.cached &&
+          primary.refreshError &&
+          !primary.offline &&
+          !windowsFullyCovered(scored.ok ? scored.nights : null, windows)
+        ) {
+          const fb = await openMeteoFallback({
+            lat,
+            lon,
+            windows,
+            includeHours,
+            preferFallback: false,
+            primaryError: /^astrospheric/i.test(String(primary.refreshError))
+              ? String(primary.refreshError)
+              : 'Astrospheric pull failed: ' + primary.refreshError,
+            storedCredits,
+          });
+          if (fb && fb.ok) {
+            return { ...fb, staleAstrosphericFetchedAt: primary.fetchedAt || null };
+          }
+        }
         if (scored.ok) {
           await enrichHoursWithOpenMeteo(scored, lat, lon);
           let credits = creditInfo({
@@ -1418,7 +1446,43 @@ async function getSkyForecast(payload = {}) {
     }
   }
 
-  // Open-Meteo fallback path (also used by preferFallback)
+  return openMeteoFallback({
+    lat,
+    lon,
+    windows,
+    includeHours,
+    preferFallback,
+    primaryError,
+    storedCredits,
+  });
+}
+
+/**
+ * True when every requested imaging window has a forecast hour for each hour
+ * it spans. A stale cache whose 84 h run ends before a later night fails this.
+ * (Claude Code, 18 Nov 2026)
+ */
+function windowsFullyCovered(nights, windows) {
+  if (!Array.isArray(nights) || nights.length < windows.length) return false;
+  return windows.every((w, i) => {
+    // On-the-hour forecast slots inside [start, end); windows need not start on the hour.
+    const expected =
+      Math.ceil(w.end.getTime() / 3600000) - Math.ceil(w.start.getTime() / 3600000);
+    const got = nights[i] && nights[i].hoursScored ? nights[i].hoursScored : 0;
+    return got >= expected;
+  });
+}
+
+/** Open-Meteo fallback path (preferFallback, Astrospheric errors, stale cache that has run out). */
+async function openMeteoFallback({
+  lat,
+  lon,
+  windows,
+  includeHours,
+  preferFallback,
+  primaryError,
+  storedCredits,
+}) {
   try {
     const om = await fetchOpenMeteo(lat, lon);
     const scored = scoreOpenMeteoWindows(om.hourly, windows);

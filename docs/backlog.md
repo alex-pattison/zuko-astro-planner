@@ -2,9 +2,11 @@
 
 Scratch / bugs: [`working-notes.md`](working-notes.md). Testing: [`testing.md`](testing.md).
 
+**Versioning:** every Beta ship bumps `zukoBuild` by 1; a ship with a new feature also bumps `version` by 0.1 (fix-only ships keep it). *(Claude Code, 6 Nov 2026)*
+
 **On every build or version ship:** mark shipped items here, keep the two lines below current, and log the build in `working-notes.md`. This is the only backlog. The Cursor planning canvas was retired on 6 Nov 2026; an archived copy is `archive/cursor/canvases/zuko-backlog-02-vs-03.canvas.tsx`.
 
-**Current:** 0.4.0 · build 44 (Beta shipped 6 Nov 2026).
+**Current:** 0.4.0 · build 45 (Beta shipped 23 Nov 2026).
 **Next headline:** #23 Filter mount + size. Then #2 backup / restore, #3 `dataVersion`, #4 startup skeleton, #6 gain / camera / rotator on nights, #11 crash log, #24 dark-flat library.
 
 | Line | Status |
@@ -92,6 +94,19 @@ A **backlog** option in the project status dropdown, ahead of planning / Imaging
 - Ingesting a night into a backlog project moves it to Imaging, the same as planning does.
 
 **Why:** Somewhere to park targets for later without them counting as active work.
+
+---
+
+### 38. Astrospheric pull fails → Open-Meteo, with the reason — *shipped build 45*
+
+Fix. When an Astrospheric pull fails and the saved forecast no longer covers every night, ZAP now uses Open-Meteo for all nights instead of leaving later nights blank. *(Claude Code, 23 Nov 2026)*
+
+- The header chip reads "Astrospheric failed · Open-Meteo"; its tooltip and the fallback banner give the reason (a 401/403 says the key was rejected and to check API access).
+- If the saved forecast still covers every night, Shoot/Skip stays and an amber "Astrospheric pull failed · showing the forecast from …" banner explains it.
+- Offline: the saved Astrospheric forecast is kept.
+- QA: `scripts/qa-sky-stale-cache.js`.
+
+**Why:** On 18 Nov the Astrospheric Pro subscription lapsed (it moved from Android to iPhone). Every pull got a 403, and Beta silently showed a 3-day-old forecast that ended at 8pm that night.
 
 ---
 

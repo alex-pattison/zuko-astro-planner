@@ -26,6 +26,14 @@ Scratch items still land here until promoted:
 
 ## Log
 
+### 2026-11-23 — build 45 — Astrospheric failure falls back to Open-Meteo
+- **Seen (18 Nov):** Beta's sky forecast showed only Wed 6–8pm, nothing for Thu or Fri.
+- **Cause:** The Astrospheric Professional subscription (bought on Google Play) ended 11 Nov after Alex moved to iPhone. API access needs Pro, so every pull got a 403. ZAP then served its 15 Nov cache, which ran out at 8pm on the 18th, and only said so in a small ticker note.
+- **Fix:** `src/weather/tonightShoot.js`: if a pull fails (not offline) and the cache doesn't cover every requested night, use Open-Meteo with the Astrospheric error as `primaryError`. Coverage counts on-the-hour slots, since panel windows start at astro dusk. A 401/403 now says the key was rejected. `index.html`: the fallback banner and header chip show the reason; a new amber pull-failed banner shows when an old forecast still covers every night.
+- **Key:** Alex entered the new key in Dev on 23 Nov. A real Dev pull worked: 82 h and 96,625 credits left. ZAP took that first balance as the monthly cap, so the counter reads slightly low until it resets on 1 Dec.
+- **QC:** new `qa-sky-stale-cache` (4 cases), plus `qa-sky-forecast-credits` and `qa-sky-astro-modules` all pass. Checked in an isolated Playwright window against a real 403.
+- **Beta:** `npm run dist:win:beta` (0.4.0 · build 45), shipped 23 Nov 2026 at Alex's ask. *(Claude Code, 23 Nov 2026)*
+
 ### 2026-11-06 — build 44 — Backlog project status
 - **Ask:** Add a backlog option to the project status dropdown, make it the default, and leave it out of the active-project count.
 - **Fix:** `index.html` has a new `backlog` status (grey pill and greyed card name). It is the first dropdown option and the default for new projects. It is left out of `stat-active`. Ingest moves backlog projects to Imaging, the same as planning. Existing projects are unchanged. Branch `build-44-project-backlog`; `zukoBuild` 43 → 44.
